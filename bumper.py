@@ -346,8 +346,8 @@ async def bump_parrainage(page: Page, captcha: TwoCaptcha):
         await page.goto(f"{cfg['url']}/login", wait_until="networkidle")
         await human_sleep()
 
-        await human_type(page, 'input#email',    cfg["email"])
-        await human_type(page, 'input#password', cfg["password"])
+        await human_type(page, 'input[type="email"]',    cfg["email"])
+        await human_type(page, 'input[type="password"]', cfg["password"])
         await human_sleep()
 
         # Image CAPTCHA si présent
