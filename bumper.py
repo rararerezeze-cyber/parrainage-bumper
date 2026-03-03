@@ -79,58 +79,82 @@ BUMP_SELECTORS = [
 ]
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  COMPORTEMENT HUMAIN
+#  COMPORTEMENT HUMAIN (version robuste)
 # ══════════════════════════════════════════════════════════════════════════════
 
 async def human_sleep(a: float = 2.0, b: float = 6.0):
-    """Pause aléatoire."""
+    """Pause aléatoire réaliste."""
     await asyncio.sleep(random.uniform(a, b))
 
 
-async def human_type(page: Page, selector: str, text: str):
-    """Tape du texte caractère par caractère avec délai aléatoire."""
-    el = page.locator(selector).first
-    await el.click()
-    await el.fill("")
+async def human_type(locator, text: str):
+    """
+    Tape du texte caractère par caractère avec délai aléatoire.
+    Accepte directement un Locator (plus robuste).
+    """
+    await locator.wait_for(state="visible", timeout=15000)
+    await locator.click()
+    await locator.fill("")
+
     for char in text:
-        await el.press(char)
-        await asyncio.sleep(random.uniform(0.06, 0.16))
+        await locator.type(char, delay=random.randint(60, 150))
 
 
 async def human_click(page: Page, locator):
     """
-    Clic humain : déplace la souris vers l'élément en 20 étapes
-    puis clique avec une micro-pause. (inspiré GPT-5)
+    Clic réaliste avec mouvement souris.
+    Sécurisé contre erreurs silencieuses.
     """
-    try:
-        box = await locator.bounding_box()
-        if box:
-            await page.mouse.move(
-                box["x"] + random.randint(2, int(box["width"]  - 2)),
-                box["y"] + random.randint(2, int(box["height"] - 2)),
-                steps=20,
-            )
-        await human_sleep(0.3, 1.2)
-        await locator.click()
-    except Exception:
-        pass
+    await locator.wait_for(state="visible", timeout=15000)
+
+    box = await locator.bounding_box()
+    if box:
+        await page.mouse.move(
+            box["x"] + random.randint(2, int(box["width"] - 2)),
+            box["y"] + random.randint(2, int(box["height"] - 2)),
+            steps=random.randint(15, 25),
+        )
+
+    await human_sleep(0.2, 0.8)
+    await locator.click()
 
 
 async def click_all_bump_buttons(page: Page, site_name: str) -> int:
-    """Clique sur tous les boutons de bump visibles sur la page."""
+    """
+    Clique sur tous les boutons de bump visibles.
+    Plus propre et évite les doublons.
+    """
     count = 0
+    seen = set()
+
     for sel in BUMP_SELECTORS:
-        for btn in await page.locator(sel).all():
+        buttons = page.locator(sel)
+        total = await buttons.count()
+
+        for i in range(total):
+            btn = buttons.nth(i)
+
             try:
                 if not await btn.is_visible():
                     continue
+
+                # Évite double clic sur même élément
+                handle = await btn.element_handle()
+                if handle in seen:
+                    continue
+                seen.add(handle)
+
                 await btn.scroll_into_view_if_needed()
                 await human_click(page, btn)
+
                 count += 1
                 log.info(f"  🔼 [{site_name}] Bouton cliqué ({sel})")
+
                 await human_sleep(2.0, 5.0)
-            except Exception:
-                pass
+
+            except Exception as e:
+                log.debug(f"[{site_name}] Erreur bouton ignorée: {e}")
+
     return count
 
 
