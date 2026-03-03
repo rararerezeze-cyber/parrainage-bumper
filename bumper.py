@@ -343,28 +343,45 @@ async def bump_parrainage(page: Page, captcha: TwoCaptcha):
     log.info(f"\n{'─'*50}\n  🌐 {name}\n{'─'*50}")
 
     async def _do():
-        await page.goto(f"{cfg['url']}/login", wait_until="networkidle")
-        await human_sleep()
 
-        await human_type(page, 'input[type="email"]',    cfg["email"])
-        await human_type(page, 'input[type="password"]', cfg["password"])
-        await human_sleep()
+        await page.goto(f"{cfg['url']}/login", wait_until="domcontentloaded")
+        await human_sleep(3, 5)
 
-        # Image CAPTCHA si présent
+        # 🔎 Sélecteurs robustes
+        email_locator = page.locator(
+            "input[type='email'], input[name='email'], input#email"
+        ).first
+
+        password_locator = page.locator(
+            "input[type='password'], input[name='password'], input#password"
+        ).first
+
+        login_button = page.locator(
+            "button.login-btn, button[type='submit'], button:has-text('Connexion'), button:has-text('Se connecter')"
+        ).first
+
+        # Attente explicite du champ email
         try:
-            captcha_img = page.locator('img.captcha, img[alt*="captcha" i], #captcha img').first
-            await captcha_img.wait_for(timeout=4000)
-            text = await captcha.solve_image(await captcha_img.screenshot())
-            if text:
-                await human_type(page, 'input.captcha-input, input[name="captcha"]', text)
-        except PWTimeout:
-            log.info(f"  [{name}] Pas d'image CAPTCHA")
+            await email_locator.wait_for(timeout=15000)
+        except:
+            await page.screenshot(path="debug_parrainage_login.png")
+            raise RuntimeError("Champ email introuvable")
 
-        await human_click(page, page.locator('button.login-btn, button[type="submit"]').first)
+        # Typing humain
+        await human_type(page, email_locator, cfg["email"])
+        await human_sleep()
+
+        await human_type(page, password_locator, cfg["password"])
+        await human_sleep()
+
+        await human_click(page, login_button)
+
         await page.wait_for_load_state("networkidle")
         await human_sleep(5, 8)
+
         log.info(f"  [{name}] ✓ Connecté")
 
+        # Page offres
         await page.goto(f"{cfg['url']}/account/offers", wait_until="networkidle")
         await human_sleep(3, 5)
 
