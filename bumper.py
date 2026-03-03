@@ -283,8 +283,8 @@ async def bump_code(page: Page, captcha: TwoCaptcha):
         await page.goto(f"{cfg['url']}/login", wait_until="networkidle")
         await human_sleep()
 
-        await human_type(page, 'input[name="email"]',    cfg["email"])
-        await human_type(page, 'input[name="password"]', cfg["password"])
+        await human_type(page, 'input[type="email"]',    cfg["email"])
+        await human_type(page, 'input[type="password"]', cfg["password"])
         await human_sleep()
 
         # Slider CAPTCHA si présent
