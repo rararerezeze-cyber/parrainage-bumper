@@ -25,20 +25,45 @@ from playwright.async_api import async_playwright, Page, TimeoutError as PWTimeo
 import httpx
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  LOGGING
+#  LOGGING (version robuste GitHub Actions)
 # ══════════════════════════════════════════════════════════════════════════════
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s  %(levelname)-8s  %(message)s",
-    datefmt="%H:%M:%S",
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler("bumper.log", encoding="utf-8"),
-    ],
-)
-log = logging.getLogger("bumper")
+import logging
+from logging.handlers import RotatingFileHandler
+import os
 
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
+
+log = logging.getLogger("bumper")
+log.setLevel(LOG_LEVEL)
+log.propagate = False  # évite doublons en GitHub Actions
+
+formatter = logging.Formatter(
+    fmt="%(asctime)s  %(levelname)-8s  %(message)s",
+    datefmt="%H:%M:%S",
+)
+
+# ─── Console (GitHub logs) ─────────────────────────────────
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(formatter)
+console_handler.setLevel(LOG_LEVEL)
+
+# ─── Fichier avec rotation (évite fichier énorme) ─────────
+file_handler = RotatingFileHandler(
+    "bumper.log",
+    maxBytes=1_000_000,  # 1 MB
+    backupCount=2,
+    encoding="utf-8",
+)
+file_handler.setFormatter(formatter)
+file_handler.setLevel(LOG_LEVEL)
+
+# Nettoie anciens handlers si re-run
+if log.hasHandlers():
+    log.handlers.clear()
+
+log.addHandler(console_handler)
+log.addHandler(file_handler)
 # ══════════════════════════════════════════════════════════════════════════════
 #  CONFIG  (GitHub Secrets → variables d'environnement)
 # ══════════════════════════════════════════════════════════════════════════════
