@@ -18,8 +18,9 @@ jobs:
       - name: 📦 Dépendances
         run: |
           pip install -r requirements.txt
+          sudo apt-get install -y libasound2t64
           playwright install chromium --with-deps
-
+          
       - name: 🚀 Bump Code Parrainage & Parrainage.co
         env:
           TWOCAPTCHA_KEY:            ${{ secrets.TWOCAPTCHA_KEY }}
