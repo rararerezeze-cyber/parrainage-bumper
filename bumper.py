@@ -175,35 +175,55 @@ async def human_drag(page: Page, start_x: float, start_y: float, distance: int):
 # ══════════════════════════════════════════════════════════════════════════════
 
 def find_gap_position(bg_bytes: bytes, piece_bytes: bytes) -> int:
-    """Analyse PIL pour trouver la position X du trou dans le fond."""
+    """
+    Trouve le trou dans le fond en cherchant la zone qui ressemble
+    le plus à la forme de la pièce (template matching simplifié).
+    """
     try:
-        from PIL import Image, ImageFilter
+        from PIL import Image, ImageFilter, ImageChops
+        import math
 
-        bg    = Image.open(io.BytesIO(bg_bytes)).convert("L")
-        piece = Image.open(io.BytesIO(piece_bytes)).convert("L")
+        bg    = Image.open(io.BytesIO(bg_bytes)).convert("RGBA")
+        piece = Image.open(io.BytesIO(piece_bytes)).convert("RGBA")
 
-        bg_w, bg_h     = bg.size
+        bg_w, bg_h       = bg.size
         piece_w, piece_h = piece.size
 
-        bg_edges = bg.filter(ImageFilter.FIND_EDGES)
-        pixels   = list(bg_edges.getdata())
+        # Travailler en niveaux de gris avec détection de bords
+        bg_gray    = bg.convert("L").filter(ImageFilter.FIND_EDGES)
+        piece_gray = piece.convert("L").filter(ImageFilter.FIND_EDGES)
 
-        col_scores = [
-            sum(pixels[y * bg_w + x] for y in range(bg_h))
-            for x in range(bg_w)
-        ]
+        bg_px    = list(bg_gray.getdata())
+        piece_px = list(piece_gray.getdata())
 
-        best_score = -1
+        # Pour chaque position X candidate, calculer la différence
+        # entre le fond et la pièce (zone sombre = trou dans le fond)
+        best_score = float('inf')
         best_x     = 150
-        start      = max(piece_w + 10, 20)
+        start      = max(piece_w + 5, 15)
+        end        = bg_w - piece_w - 5
 
-        for x in range(start, bg_w - piece_w):
-            score = sum(col_scores[x:x + piece_w])
-            if score > best_score:
-                best_score = score
-                best_x     = x
+        for x in range(start, end):
+            diff = 0
+            samples = 0
+            # Comparer sur quelques lignes représentatives
+            for y in range(0, min(piece_h, bg_h), 4):
+                for px in range(0, piece_w, 4):
+                    bx = x + px
+                    if bx >= bg_w:
+                        break
+                    bg_val    = bg_px[y * bg_w + bx]
+                    piece_val = piece_px[y * piece_w + px]
+                    diff += abs(int(bg_val) - int(piece_val))
+                    samples += 1
 
-        log.info(f"  🔍 PIL → trou estimé à X={best_x}px")
+            if samples > 0:
+                score = diff / samples
+                if score < best_score:
+                    best_score = score
+                    best_x = x
+
+        log.info(f"  🔍 PIL template matching → trou à X={best_x}px (score={best_score:.1f})")
         return best_x
 
     except Exception as e:
@@ -324,11 +344,12 @@ async def solve_slider(page: Page) -> bool:
         log.info(f"  🖱️  Drag humain : {dist}px (handle à x={sx:.0f})")
         await human_drag(page, sx, sy, dist)
 
-        # Vérifier via le champ caché captcha_valide
+        # Vérifier via le champ caché captcha_valide (true=OK, false=raté)
         try:
             val = await page.locator('#captcha_valide, input[name="captcha_valide"]').first.input_value()
-            if val and val != "0" and val != "":
-                log.info(f"  ✅ Slider validé ! (captcha_valide={val})")
+            log.info(f"  captcha_valide={val}")
+            if val in ("true", "1", "yes", "ok"):
+                log.info(f"  ✅ Slider validé !")
                 return True
         except Exception:
             pass
