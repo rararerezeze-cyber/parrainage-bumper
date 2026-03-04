@@ -297,6 +297,16 @@ async def solve_slider(page: Page) -> bool:
     except Exception as e:
         log.debug(f"  Capture canvas : {e}")
 
+    # Sauvegarder les images pour debug
+    if bg_bytes:
+        import base64
+        log.info(f"  BG_B64:{base64.b64encode(bg_bytes).decode()[:200]}")
+        with open("debug_bg.png", "wb") as f: f.write(bg_bytes)
+    if piece_bytes:
+        import base64
+        log.info(f"  PIECE_B64:{base64.b64encode(piece_bytes).decode()[:200]}")
+        with open("debug_piece.png", "wb") as f: f.write(piece_bytes)
+
     # Calcul de la distance cible (canvas CSS = 280px, pièce CSS = 63px)
     if bg_bytes and piece_bytes:
         target_x = find_gap_position(bg_bytes, piece_bytes, bg_css_w=280, piece_css_w=63)
