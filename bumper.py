@@ -177,52 +177,52 @@ async def human_drag(page: Page, start_x: float, start_y: float, distance: int):
 def find_gap_position(bg_bytes: bytes, piece_bytes: bytes,
                        bg_css_w: int = 280, piece_css_w: int = 63) -> int:
     """
-    Trouve le trou en cherchant la zone la plus sombre du fond
-    (le trou est toujours plus sombre que le reste de l'image).
-    Retourne la position en pixels CSS (pour le drag).
+    Trouve le centre du trou blanc dans le fond du slider.
+    Le trou = zone de pixels blancs (R>200, G>200, B>200).
+    Retourne la position CSS du centre du trou (pour le drag).
     """
     try:
-        from PIL import Image, ImageFilter
+        from PIL import Image
 
-        bg    = Image.open(io.BytesIO(bg_bytes)).convert("L")
-        piece = Image.open(io.BytesIO(piece_bytes)).convert("L")
+        bg    = Image.open(io.BytesIO(bg_bytes)).convert("RGB")
+        piece = Image.open(io.BytesIO(piece_bytes)).convert("RGB")
 
-        bg_img_w, bg_img_h   = bg.size
-        pc_img_w, pc_img_h   = piece.size
+        bg_w, bg_h = bg.size
+        pc_w, pc_h = piece.size
 
-        # Ratio pixels image / pixels CSS
-        scale    = bg_img_w / bg_css_w          # ex: 560/280 = 2.0
-        pc_px_w  = int(piece_css_w * scale)     # largeur pièce en pixels image
+        pixels = list(bg.getdata())
 
-        bg_px = list(bg.getdata())
+        # Compter les pixels blancs par colonne (R>200 ET G>200 ET B>200)
+        white_per_col = {}
+        for y in range(bg_h):
+            for x in range(bg_w):
+                r, g, b = pixels[y * bg_w + x]
+                if r > 200 and g > 200 and b > 200:
+                    white_per_col[x] = white_per_col.get(x, 0) + 1
 
-        # Chercher la colonne où la somme de luminosité est la plus BASSE
-        # sur une largeur = largeur de la pièce → c'est là que se trouve le trou
-        best_score = float('inf')
-        best_x_img = int(pc_px_w * 1.2)  # on commence après la pièce de départ
+        # Ignorer les bords et la zone de la pièce initiale (x < pc_w + 10)
+        # et le bord droit (x > bg_w - 10)
+        candidates = {
+            x: cnt for x, cnt in white_per_col.items()
+            if pc_w + 10 < x < bg_w - 10 and cnt > 5
+        }
 
-        for x in range(best_x_img, bg_img_w - pc_px_w):
-            # Luminosité moyenne sur la fenêtre, en ne prenant que le centre vertical
-            y_start = bg_img_h // 4
-            y_end   = 3 * bg_img_h // 4
-            total   = sum(
-                bg_px[y * bg_img_w + x + dx]
-                for y in range(y_start, y_end, 3)
-                for dx in range(0, pc_px_w, 3)
-                if x + dx < bg_img_w
-            )
-            if total < best_score:
-                best_score = total
-                best_x_img = x
+        if not candidates:
+            log.warning("  Pas de zone blanche trouvée, fallback 117px")
+            return 117
 
-        # Convertir en pixels CSS
-        best_x_css = int(best_x_img / scale)
-        log.info(f"  🔍 PIL brightness → trou à X={best_x_img}px image = {best_x_css}px CSS (scale={scale:.2f})")
-        return best_x_css
+        # Trouver le cluster principal : plage continue de colonnes blanches
+        sorted_cols = sorted(candidates.keys())
+        x_min = sorted_cols[0]
+        x_max = sorted_cols[-1]
+        center = (x_min + x_max) // 2
+
+        log.info(f"  🔍 PIL white-pixel → trou x=[{x_min},{x_max}] centre={center}px CSS")
+        return center
 
     except Exception as e:
-        log.warning(f"  PIL échoué ({e}), fallback 150px")
-        return 150
+        log.warning(f"  PIL échoué ({e}), fallback 117px")
+        return 117
 
 
 async def solve_slider(page: Page) -> bool:
