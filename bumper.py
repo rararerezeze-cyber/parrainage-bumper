@@ -24,10 +24,8 @@ log.setLevel("INFO")
 log.propagate = False
 
 formatter = logging.Formatter("%(asctime)s  %(levelname)-8s  %(message)s", datefmt="%H:%M:%S")
-
 console_handler = logging.StreamHandler()
 console_handler.setFormatter(formatter)
-
 file_handler = RotatingFileHandler("bumper.log", maxBytes=1_000_000, backupCount=2, encoding="utf-8")
 file_handler.setFormatter(formatter)
 
@@ -63,17 +61,6 @@ CONFIG = {
     },
 }
 
-BUMP_SELECTORS = [
-    'button:has-text("Remonter")',
-    'button:has-text("Bump")',
-    'button:has-text("Up")',
-    'button:has-text("Actualiser")',
-    'button:has-text("Refresh")',
-    'a:has-text("Remonter")',
-    'a:has-text("Up")',
-    '.btn-bump', '.btn-boost', '.bump-btn', '.btn-up',
-]
-
 # ══════════════════════════════════════════════════════════════════════════════
 #  COMPORTEMENT HUMAIN
 # ══════════════════════════════════════════════════════════════════════════════
@@ -83,7 +70,6 @@ async def human_sleep(a: float = 2.0, b: float = 6.0):
 
 
 async def human_type(page: Page, selector: str, text: str):
-    """Tape du texte caractère par caractère. Appel : human_type(page, selector, text)"""
     locator = page.locator(selector).first
     await locator.wait_for(state="visible", timeout=15000)
     await locator.click()
@@ -93,7 +79,6 @@ async def human_type(page: Page, selector: str, text: str):
 
 
 async def human_click(page: Page, locator):
-    """Clic réaliste avec mouvement souris."""
     try:
         await locator.wait_for(state="visible", timeout=15000)
         box = await locator.bounding_box()
@@ -107,26 +92,6 @@ async def human_click(page: Page, locator):
         await locator.click()
     except Exception as e:
         log.debug(f"human_click ignoré : {e}")
-
-
-async def click_all_bump_buttons(page: Page, site_name: str) -> int:
-    count = 0
-    for sel in BUMP_SELECTORS:
-        buttons = page.locator(sel)
-        total = await buttons.count()
-        for i in range(total):
-            btn = buttons.nth(i)
-            try:
-                if not await btn.is_visible():
-                    continue
-                await btn.scroll_into_view_if_needed()
-                await human_click(page, btn)
-                count += 1
-                log.info(f"  🔼 [{site_name}] Bouton cliqué ({sel})")
-                await human_sleep(2.0, 5.0)
-            except Exception as e:
-                log.debug(f"[{site_name}] Bouton ignoré : {e}")
-    return count
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -158,7 +123,6 @@ class TwoCaptcha:
 
     async def solve_recaptcha(self, site_key: str, page_url: str) -> str:
         if not self.enabled:
-            log.warning("  ⚠️  2Captcha non configuré")
             return ""
         log.info("  🔐 Résolution reCAPTCHA v2...")
         async with httpx.AsyncClient(timeout=120) as c:
@@ -185,26 +149,6 @@ class TwoCaptcha:
                 raise RuntimeError(f"Soumission échouée : {d}")
         return await self._poll(d["request"])
 
-    async def solve_slider(self, piece: bytes, bg: bytes) -> int:
-        if not self.enabled:
-            return 0
-        log.info("  🔐 Résolution slider CAPTCHA...")
-        async with httpx.AsyncClient(timeout=120) as c:
-            r = await c.post(f"{self.BASE}/in.php", data={
-                "key": self.key, "method": "base64",
-                "body":            base64.b64encode(piece).decode(),
-                "imginstructions": base64.b64encode(bg).decode(),
-                "json": 1,
-            })
-            d = r.json()
-            if d.get("status") != 1:
-                raise RuntimeError(f"Soumission échouée : {d}")
-        result = await self._poll(d["request"])
-        try:
-            return int(result.split("=")[-1])
-        except Exception:
-            return int(result)
-
     async def _poll(self, task_id: str, timeout: int = 120) -> str:
         async with httpx.AsyncClient(timeout=30) as c:
             for _ in range(timeout // 5):
@@ -223,6 +167,8 @@ class TwoCaptcha:
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  HANDLER 1 — SUPER-PARRAIN.COM  (1x/jour)
+#  Page : /tableau-de-bord/codes-promo
+#  Action : cliquer le bouton crayon ✏️ puis sauvegarder
 # ══════════════════════════════════════════════════════════════════════════════
 
 async def bump_super(page: Page, captcha: TwoCaptcha):
@@ -236,6 +182,8 @@ async def bump_super(page: Page, captcha: TwoCaptcha):
         await human_type(page, 'input[type="email"]',    cfg["email"])
         await human_type(page, 'input[type="password"]', cfg["password"])
         await human_sleep()
+
+        # reCAPTCHA si présent
         try:
             await page.locator('[data-sitekey]').wait_for(timeout=4000)
             sk    = await page.locator('[data-sitekey]').get_attribute("data-sitekey")
@@ -246,20 +194,59 @@ async def bump_super(page: Page, captcha: TwoCaptcha):
                 )
         except PWTimeout:
             log.info(f"  [{name}] Pas de reCAPTCHA")
+
         await human_click(page, page.locator('button[type="submit"]').first)
         await page.wait_for_load_state("networkidle")
-        await human_sleep(5, 8)
+        await human_sleep(4, 6)
         log.info(f"  [{name}] ✓ Connecté")
-        await page.goto(f"{cfg['url']}/mes-annonces", wait_until="networkidle")
+
+        # ✅ Bonne URL : tableau de bord codes promo
+        await page.goto(f"{cfg['url']}/tableau-de-bord/codes-promo", wait_until="networkidle")
         await human_sleep(3, 5)
-        n = await click_all_bump_buttons(page, name)
-        log.info(f"  [{name}] 🎯 {n} code(s) remonté(s) ✓")
+
+        # Cliquer sur chaque bouton crayon ✏️ (modifier) puis sauvegarder
+        # Le simple fait de modifier et sauvegarder remet le code en haut
+        edit_buttons = page.locator('a.btn-warning, button.btn-warning, a[href*="modifier"], .btn-edit, a:has(i.fa-pencil), button:has(i.fa-pencil), a.btn:has(svg), td a.btn')
+        count = await edit_buttons.count()
+        bumped = 0
+
+        for i in range(count):
+            try:
+                btn = edit_buttons.nth(i)
+                if not await btn.is_visible():
+                    continue
+                await btn.scroll_into_view_if_needed()
+                await human_click(page, btn)
+                await page.wait_for_load_state("networkidle")
+                await human_sleep(2, 4)
+
+                # Sauvegarder le formulaire sans rien changer
+                save_btn = page.locator('button[type="submit"], input[type="submit"], button:has-text("Enregistrer"), button:has-text("Sauvegarder"), button:has-text("Modifier"), button:has-text("Mettre à jour")')
+                await human_click(page, save_btn.first)
+                await page.wait_for_load_state("networkidle")
+                await human_sleep(2, 4)
+
+                bumped += 1
+                log.info(f"  🔼 [{name}] Code remonté ({i+1}/{count})")
+
+                # Retourner sur la liste
+                await page.goto(f"{cfg['url']}/tableau-de-bord/codes-promo", wait_until="networkidle")
+                await human_sleep(2, 3)
+
+            except Exception as e:
+                log.debug(f"  [{name}] Erreur bouton {i} : {e}")
+                await page.goto(f"{cfg['url']}/tableau-de-bord/codes-promo", wait_until="networkidle")
+                await human_sleep(2, 3)
+
+        log.info(f"  [{name}] 🎯 {bumped} code(s) remonté(s) ✓")
 
     await retry(_do, retries=3, label=name)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  HANDLER 2 — CODE-PARRAINAGE.NET  (5x/jour)
+#  Page : /moncompte
+#  Bouton : "Actualiser"
 # ══════════════════════════════════════════════════════════════════════════════
 
 async def bump_code(page: Page, captcha: TwoCaptcha):
@@ -273,41 +260,43 @@ async def bump_code(page: Page, captcha: TwoCaptcha):
         await human_type(page, 'input[type="email"]',    cfg["email"])
         await human_type(page, 'input[type="password"]', cfg["password"])
         await human_sleep()
-        try:
-            piece_el = page.locator('.captcha-piece, .slider-piece').first
-            bg_el    = page.locator('.captcha-bg, .slider-bg').first
-            await piece_el.wait_for(timeout=4000)
-            x_pos = await captcha.solve_slider(await piece_el.screenshot(), await bg_el.screenshot())
-            handle = page.locator('.slider-handle, .captcha-handle').first
-            box = await handle.bounding_box()
-            sx = box["x"] + box["width"] / 2
-            sy = box["y"] + box["height"] / 2
-            await page.mouse.move(sx, sy)
-            await page.mouse.down()
-            steps = random.randint(25, 40)
-            for i in range(steps):
-                t = i / steps
-                eased = t * t * (3 - 2 * t)
-                await page.mouse.move(sx + x_pos * eased, sy + random.uniform(-1.5, 1.5))
-                await asyncio.sleep(random.uniform(0.01, 0.03))
-            await page.mouse.up()
-            await human_sleep(1, 2)
-        except PWTimeout:
-            log.info(f"  [{name}] Pas de slider CAPTCHA")
+
         await human_click(page, page.locator('button[type="submit"]').first)
         await page.wait_for_load_state("networkidle")
-        await human_sleep(5, 8)
+        await human_sleep(4, 6)
         log.info(f"  [{name}] ✓ Connecté")
-        await page.goto(f"{cfg['url']}/mes-annonces", wait_until="networkidle")
+
+        # ✅ Bonne URL : /moncompte
+        await page.goto(f"{cfg['url']}/moncompte", wait_until="networkidle")
         await human_sleep(3, 5)
-        n = await click_all_bump_buttons(page, name)
-        log.info(f"  [{name}] 🎯 {n} annonce(s) remontée(s) ✓")
+
+        # ✅ Vrai bouton : "Actualiser"
+        buttons = page.locator('button:has-text("Actualiser"), a:has-text("Actualiser")')
+        count = await buttons.count()
+        bumped = 0
+
+        for i in range(count):
+            btn = buttons.nth(i)
+            try:
+                if not await btn.is_visible():
+                    continue
+                await btn.scroll_into_view_if_needed()
+                await human_click(page, btn)
+                bumped += 1
+                log.info(f"  🔼 [{name}] Bouton Actualiser cliqué ({i+1}/{count})")
+                await human_sleep(2, 4)
+            except Exception as e:
+                log.debug(f"  [{name}] Erreur bouton {i} : {e}")
+
+        log.info(f"  [{name}] 🎯 {bumped} annonce(s) remontée(s) ✓")
 
     await retry(_do, retries=3, label=name)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  HANDLER 3 — PARRAINAGE.CO  (5x/jour)
+#  Page : /account/offers
+#  Bouton : "Remettre en haut (0/5)"
 # ══════════════════════════════════════════════════════════════════════════════
 
 async def bump_parrainage(page: Page, captcha: TwoCaptcha):
@@ -316,12 +305,10 @@ async def bump_parrainage(page: Page, captcha: TwoCaptcha):
     log.info(f"\n{'─'*50}\n  🌐 {name}\n{'─'*50}")
 
     async def _do():
-        # ✅ URL corrigée : /account/login
         await page.goto(f"{cfg['url']}/account/login", wait_until="domcontentloaded")
         await human_sleep(3, 5)
 
-        # ✅ Sélecteurs larges pour être sûr de trouver les champs
-        await human_type(page, 'input[type="email"], input[name="email"], input#email',       cfg["email"])
+        await human_type(page, 'input[type="email"], input[name="email"], input#email',          cfg["email"])
         await human_sleep()
         await human_type(page, 'input[type="password"], input[name="password"], input#password', cfg["password"])
         await human_sleep()
@@ -338,12 +325,31 @@ async def bump_parrainage(page: Page, captcha: TwoCaptcha):
 
         await human_click(page, page.locator('button.login-btn, button[type="submit"]').first)
         await page.wait_for_load_state("networkidle")
-        await human_sleep(5, 8)
+        await human_sleep(4, 6)
         log.info(f"  [{name}] ✓ Connecté")
+
         await page.goto(f"{cfg['url']}/account/offers", wait_until="networkidle")
         await human_sleep(3, 5)
-        n = await click_all_bump_buttons(page, name)
-        log.info(f"  [{name}] 🎯 {n} annonce(s) remontée(s) ✓")
+
+        # ✅ Vrai bouton : "Remettre en haut"
+        buttons = page.locator('button:has-text("Remettre en haut"), a:has-text("Remettre en haut")')
+        count = await buttons.count()
+        bumped = 0
+
+        for i in range(count):
+            btn = buttons.nth(i)
+            try:
+                if not await btn.is_visible():
+                    continue
+                await btn.scroll_into_view_if_needed()
+                await human_click(page, btn)
+                bumped += 1
+                log.info(f"  🔼 [{name}] Bouton Remettre en haut cliqué ({i+1}/{count})")
+                await human_sleep(2, 4)
+            except Exception as e:
+                log.debug(f"  [{name}] Erreur bouton {i} : {e}")
+
+        log.info(f"  [{name}] 🎯 {bumped} annonce(s) remontée(s) ✓")
 
     await retry(_do, retries=3, label=name)
 
@@ -416,4 +422,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
