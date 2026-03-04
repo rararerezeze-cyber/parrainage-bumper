@@ -1,19 +1,19 @@
 """
 =============================================================
-  Parrainage Auto-Bumper  —  Version Finale v2
+  Parrainage Auto-Bumper  —  VERSION FINALE
   super-parrain.com | code-parrainage.net | parrainage.co
+  Tourne 24h/24 sur GitHub Actions, zéro intervention
 =============================================================
 """
 
 import asyncio
 import os
-import base64
+import io
 import random
 import logging
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
 from playwright.async_api import async_playwright, Page, TimeoutError as PWTimeout
-import httpx
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  LOGGING
@@ -39,7 +39,6 @@ log.addHandler(file_handler)
 TARGET_SITES = [s.strip() for s in os.environ.get("TARGET_SITES", "").split(",") if s.strip()]
 
 CONFIG = {
-    "two_captcha_key": os.environ.get("TWOCAPTCHA_KEY", ""),
     "sites": {
         "super": {
             "url":      "https://www.super-parrain.com",
@@ -60,7 +59,7 @@ CONFIG = {
 }
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  UTILITAIRES
+#  UTILITAIRES HUMAINS
 # ══════════════════════════════════════════════════════════════════════════════
 
 async def human_sleep(a: float = 2.0, b: float = 6.0):
@@ -71,9 +70,9 @@ async def robust_fill(page: Page, selector: str, value: str):
     locator = page.locator(selector).first
     await locator.wait_for(state="visible", timeout=15000)
     await locator.click()
-    await asyncio.sleep(0.3)
+    await asyncio.sleep(random.uniform(0.2, 0.5))
     await locator.fill(value)
-    await asyncio.sleep(0.3)
+    await asyncio.sleep(random.uniform(0.2, 0.4))
 
 
 async def human_click(page: Page, locator):
@@ -86,205 +85,235 @@ async def human_click(page: Page, locator):
                 box["y"] + random.randint(2, max(3, int(box["height"] - 2))),
                 steps=random.randint(15, 25),
             )
-        await human_sleep(0.2, 0.8)
+        await human_sleep(0.2, 0.7)
         await locator.click()
     except Exception as e:
         log.debug(f"human_click ignoré : {e}")
 
 
-async def verify_login(page: Page, login_url_fragment: str, name: str) -> bool:
+async def verify_login(page: Page, fragment: str, name: str) -> bool:
     current = page.url
     log.info(f"  [{name}] URL après login : {current}")
-    if login_url_fragment in current:
-        log.error(f"  [{name}] ❌ Login échoué — toujours sur la page de login !")
+    if fragment in current:
+        log.error(f"  [{name}] ❌ Login échoué")
         return False
     log.info(f"  [{name}] ✓ Login réussi !")
     return True
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  SLIDER CAPTCHA — code-parrainage.net
-#  Méthode : screenshot complet du widget → 2Captcha → position X
+#  DRAG HUMAIN AVEC OVERSHOOT
+#  Simule un vrai humain : accélère, dépasse légèrement, revient
 # ══════════════════════════════════════════════════════════════════════════════
 
-async def solve_slider_captcha(page: Page, captcha_key: str) -> bool:
+async def human_drag(page: Page, start_x: float, start_y: float, distance: int):
     """
-    Résout le slider CAPTCHA de code-parrainage.net.
-    Essaie d'abord via 2Captcha, puis tente un drag aléatoire en fallback.
-    Retourne True si réussi.
+    Drag réaliste avec :
+    - Accélération au début
+    - Légère hésitation en cours de route (pause microscopique)
+    - Overshoot : dépasse de 5-15px puis revient doucement
+    - Jitter vertical aléatoire
+    - Micro-tremblement à la fin
     """
+    overshoot = random.randint(5, 15)
+    total_dist = distance + overshoot
+
+    await page.mouse.move(start_x, start_y)
+    await asyncio.sleep(random.uniform(0.2, 0.5))
+    await page.mouse.down()
+    await asyncio.sleep(random.uniform(0.05, 0.15))
+
+    steps = random.randint(40, 60)
+
+    # Phase 1 : aller jusqu'à target + overshoot (ease-in-out)
+    for i in range(steps):
+        t = i / steps
+        # Ease-in-out cubique
+        if t < 0.5:
+            eased = 4 * t * t * t
+        else:
+            eased = 1 - (-2 * t + 2) ** 3 / 2
+
+        # Hésitation légère au milieu (30-50% du trajet)
+        if 0.3 < t < 0.5 and random.random() < 0.15:
+            await asyncio.sleep(random.uniform(0.03, 0.08))
+
+        jitter_y = random.uniform(-2, 2)
+        await page.mouse.move(
+            start_x + total_dist * eased,
+            start_y + jitter_y,
+        )
+        await asyncio.sleep(random.uniform(0.006, 0.020))
+
+    # Phase 2 : retour depuis overshoot vers target (correction humaine)
+    correction_steps = random.randint(8, 15)
+    for i in range(correction_steps):
+        t = i / correction_steps
+        # Ease-out : décélère en arrivant à la bonne position
+        pos = (distance + overshoot) - overshoot * (t * (2 - t))
+        await page.mouse.move(
+            start_x + pos,
+            start_y + random.uniform(-0.5, 0.5),
+        )
+        await asyncio.sleep(random.uniform(0.010, 0.025))
+
+    # Phase 3 : micro-tremblement final (la main qui se stabilise)
+    for _ in range(random.randint(2, 5)):
+        micro = random.uniform(-1.5, 1.5)
+        await page.mouse.move(start_x + distance + micro, start_y + random.uniform(-0.5, 0.5))
+        await asyncio.sleep(random.uniform(0.015, 0.030))
+
+    # Position finale exacte
+    await page.mouse.move(start_x + distance, start_y)
+    await asyncio.sleep(random.uniform(0.1, 0.3))
+    await page.mouse.up()
+    await asyncio.sleep(random.uniform(1.0, 2.0))
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  SLIDER CAPTCHA — Résolution gratuite (PIL + drag humain)
+# ══════════════════════════════════════════════════════════════════════════════
+
+def find_gap_position(bg_bytes: bytes, piece_bytes: bytes) -> int:
+    """Analyse PIL pour trouver la position X du trou dans le fond."""
     try:
-        # Attendre que le widget soit chargé
-        widget = page.locator('.geetest_widget, .captcha-widget, [class*="slider"], [class*="captcha"]').first
-        await widget.wait_for(timeout=8000)
-        log.info("  Slider CAPTCHA détecté")
-    except PWTimeout:
-        log.info("  Pas de slider CAPTCHA visible")
-        return True  # Pas de captcha = OK
+        from PIL import Image, ImageFilter
 
-    # ── Méthode 1 : 2Captcha si clé disponible ──
-    if captcha_key:
-        try:
-            result = await solve_slider_via_2captcha(page, captcha_key)
-            if result:
-                return True
-        except Exception as e:
-            log.warning(f"  2Captcha slider échoué : {e}, tentative drag manuel...")
+        bg    = Image.open(io.BytesIO(bg_bytes)).convert("L")
+        piece = Image.open(io.BytesIO(piece_bytes)).convert("L")
 
-    # ── Méthode 2 : Drag progressif (essai aléatoire dans la zone probable) ──
-    return await drag_slider_manual(page)
+        bg_w, bg_h     = bg.size
+        piece_w, piece_h = piece.size
 
+        bg_edges = bg.filter(ImageFilter.FIND_EDGES)
+        pixels   = list(bg_edges.getdata())
 
-async def solve_slider_via_2captcha(page: Page, captcha_key: str) -> bool:
-    """Envoie le screenshot du captcha à 2Captcha pour obtenir la position X."""
-    try:
-        # Screenshot du widget entier
-        widget = page.locator(
-            '.geetest_widget, .captcha-widget, '
-            '[class*="slide"], [class*="captcha"], '
-            'div:has(> img):has(> [class*="arrow"])'
-        ).first
+        col_scores = [
+            sum(pixels[y * bg_w + x] for y in range(bg_h))
+            for x in range(bg_w)
+        ]
 
-        # Fallback : screenshot de la zone visible
-        try:
-            img_bytes = await widget.screenshot()
-        except Exception:
-            img_bytes = await page.screenshot()
+        best_score = -1
+        best_x     = 150
+        start      = max(piece_w + 10, 20)
 
-        log.info("  📤 Envoi screenshot à 2Captcha...")
-        async with httpx.AsyncClient(timeout=120) as c:
-            r = await c.post("http://2captcha.com/in.php",
-                files={"file": ("captcha.png", img_bytes)},
-                data={
-                    "key": captcha_key,
-                    "method": "post",
-                    "textinstructions": "Drag the slider to the correct position. Reply with only the X coordinate number.",
-                    "json": 1,
-                },
-            )
-            d = r.json()
-            if d.get("status") != 1:
-                raise RuntimeError(f"Soumission échouée : {d}")
-            task_id = d["request"]
+        for x in range(start, bg_w - piece_w):
+            score = sum(col_scores[x:x + piece_w])
+            if score > best_score:
+                best_score = score
+                best_x     = x
 
-        # Attendre le résultat
-        result_text = None
-        async with httpx.AsyncClient(timeout=30) as c:
-            for _ in range(24):  # ~120s max
-                await asyncio.sleep(5)
-                r = await c.get("http://2captcha.com/res.php", params={
-                    "key": captcha_key, "action": "get", "id": task_id, "json": 1,
-                })
-                d = r.json()
-                if d.get("status") == 1:
-                    result_text = d["request"]
-                    break
-                if d.get("request") != "CAPCHA_NOT_READY":
-                    raise RuntimeError(f"Erreur : {d}")
-
-        if not result_text:
-            raise RuntimeError("Timeout 2Captcha")
-
-        # Parser la position X
-        try:
-            x_offset = int(''.join(filter(str.isdigit, result_text.split()[0])))
-        except Exception:
-            x_offset = 150  # fallback
-        log.info(f"  2Captcha → X={x_offset}")
-
-        return await perform_slider_drag(page, x_offset)
+        log.info(f"  🔍 PIL → trou estimé à X={best_x}px")
+        return best_x
 
     except Exception as e:
-        log.warning(f"  2Captcha slider : {e}")
-        return False
+        log.warning(f"  PIL échoué ({e}), fallback 150px")
+        return 150
 
 
-async def drag_slider_manual(page: Page) -> bool:
-    """Tente plusieurs drags progressifs jusqu'à réussite."""
-    log.info("  Tentative drag slider manuel...")
+async def solve_slider(page: Page) -> bool:
+    """Résout le slider CAPTCHA si présent. Retourne True si OK."""
 
-    # Différentes distances à essayer
-    distances = [120, 180, 100, 140, 200, 80, 160, 220]
-
-    for dist in distances:
+    # Détection du widget
+    present = False
+    for sel in ['div[class*="captcha"]', 'div[class*="slider"]',
+                'div:has-text("Glissez")', '.geetest_widget']:
         try:
-            success = await perform_slider_drag(page, dist)
-            await asyncio.sleep(1.5)
+            if await page.locator(sel).first.is_visible():
+                present = True
+                break
+        except Exception:
+            pass
 
-            # Vérifier si le captcha est passé (disparition du widget ou changement d'état)
-            still_visible = await page.locator(
-                '[class*="captcha"], [class*="slider"], .geetest_widget'
-            ).first.is_visible()
-
-            if not still_visible:
-                log.info(f"  ✅ Slider résolu avec distance {dist}px !")
-                return True
-
-            log.debug(f"  Distance {dist}px insuffisante, on réessaie...")
-            await asyncio.sleep(1)
-
-        except Exception as e:
-            log.debug(f"  Drag {dist}px échoué : {e}")
-
-    log.warning("  ⚠️ Slider non résolu après toutes les tentatives")
-    return False
-
-
-async def perform_slider_drag(page: Page, x_offset: int) -> bool:
-    """Effectue le drag du slider avec mouvement humain."""
-    try:
-        # Cherche le bouton/handle du slider
-        handle = page.locator(
-            '.geetest_slider_button, .slider-button, .slider-handle, '
-            '[class*="drag"], [class*="handle"], '
-            'div[style*="cursor"] > div, '
-            'div:has(> svg):not(:has(img))'
-        ).first
-
-        try:
-            await handle.wait_for(timeout=5000)
-        except PWTimeout:
-            # Fallback : cherche la flèche →
-            handle = page.locator('div:has-text("→"), div:has-text("➜"), [class*="arrow"]').first
-            await handle.wait_for(timeout=3000)
-
-        box = await handle.bounding_box()
-        if not box:
-            return False
-
-        start_x = box["x"] + box["width"] / 2
-        start_y = box["y"] + box["height"] / 2
-
-        log.info(f"  Drag depuis ({start_x:.0f}, {start_y:.0f}) vers +{x_offset}px")
-
-        # Mouvement humain avec accélération/décélération
-        await page.mouse.move(start_x, start_y)
-        await asyncio.sleep(0.3)
-        await page.mouse.down()
-        await asyncio.sleep(0.1)
-
-        steps = random.randint(30, 50)
-        for i in range(steps):
-            t = i / steps
-            # Ease out : accélère puis ralentit
-            eased = t * (2 - t)
-            jitter_y = random.uniform(-1, 1)
-            await page.mouse.move(
-                start_x + x_offset * eased,
-                start_y + jitter_y,
-            )
-            await asyncio.sleep(random.uniform(0.008, 0.025))
-
-        # Position finale exacte
-        await page.mouse.move(start_x + x_offset, start_y)
-        await asyncio.sleep(0.3)
-        await page.mouse.up()
-        await asyncio.sleep(1)
+    if not present:
+        log.info("  Pas de slider CAPTCHA")
         return True
 
-    except Exception as e:
-        log.debug(f"  perform_slider_drag : {e}")
+    log.info("  🧩 Slider CAPTCHA — résolution en cours...")
+    await human_sleep(1, 2)
+
+    # Capture fond et pièce
+    bg_bytes, piece_bytes = None, None
+
+    for sel in ['.geetest_canvas_bg', '.captcha-bg', 'canvas', 'img[class*="bg"]']:
+        try:
+            el = page.locator(sel).first
+            if await el.is_visible():
+                bg_bytes = await el.screenshot()
+                break
+        except Exception:
+            pass
+
+    for sel in ['.geetest_canvas_slice', '.captcha-piece', 'img[class*="piece"]', 'img[class*="slice"]']:
+        try:
+            el = page.locator(sel).first
+            if await el.is_visible():
+                piece_bytes = await el.screenshot()
+                break
+        except Exception:
+            pass
+
+    # Calcul de la distance cible
+    if bg_bytes and piece_bytes:
+        target_x = find_gap_position(bg_bytes, piece_bytes)
+    else:
+        target_x = random.randint(120, 180)
+        log.warning(f"  Capture impossible, distance aléatoire : {target_x}px")
+
+    # Trouver le handle
+    handle = None
+    for sel in ['.geetest_slider_button', '.slider-button', '.slider-handle',
+                'div[class*="drag"]', 'div[class*="handle"]', '.verify-move-block']:
+        try:
+            el = page.locator(sel).first
+            if await el.is_visible():
+                handle = el
+                break
+        except Exception:
+            pass
+
+    if handle is None:
+        log.warning("  Handle introuvable")
         return False
+
+    box = await handle.bounding_box()
+    if not box:
+        return False
+
+    sx = box["x"] + box["width"] / 2
+    sy = box["y"] + box["height"] / 2
+
+    # Essais avec distances variées (humainement imparfait)
+    distances_to_try = [target_x]
+    # Ajouter des variations autour de la cible (comme un humain qui rate un peu)
+    for delta in [-15, +15, -30, +30, -45, +45]:
+        alt = target_x + delta
+        if alt > 0:
+            distances_to_try.append(alt)
+
+    for dist in distances_to_try:
+        log.info(f"  🖱️  Drag humain : {dist}px (overshoot inclus)")
+        await human_drag(page, sx, sy, dist)
+
+        # Vérifier si résolu
+        still_there = False
+        for sel in ['div[class*="captcha"]', 'div[class*="slider"]', '.geetest_widget']:
+            try:
+                if await page.locator(sel).first.is_visible():
+                    still_there = True
+                    break
+            except Exception:
+                pass
+
+        if not still_there:
+            log.info(f"  ✅ Slider résolu avec {dist}px !")
+            return True
+
+        # Petite pause avant prochain essai
+        await human_sleep(1, 2)
+
+    log.warning("  ⚠️ Slider non résolu, soumission quand même...")
+    return False
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -307,7 +336,7 @@ async def retry(fn, retries: int = 3, delay: float = 10.0, label: str = ""):
 #  HANDLER 1 — SUPER-PARRAIN.COM  (1x/jour)
 # ══════════════════════════════════════════════════════════════════════════════
 
-async def bump_super(page: Page, captcha_key: str):
+async def bump_super(page: Page):
     cfg  = CONFIG["sites"]["super"]
     name = "super-parrain"
     log.info(f"\n{'─'*50}\n  🌐 super-parrain.com\n{'─'*50}")
@@ -336,7 +365,7 @@ async def bump_super(page: Page, captcha_key: str):
         await page.goto(f"{cfg['url']}/tableau-de-bord/codes-promo", wait_until="networkidle")
         await human_sleep(3, 5)
 
-        edit_btns = page.locator('a[href*="modifier"], a[href*="edit"], td:last-child a.btn')
+        edit_btns = page.locator('a[href*="modifier"], td:last-child a.btn')
         count = await edit_btns.count()
         log.info(f"  Boutons modifier : {count}")
         bumped = 0
@@ -349,14 +378,11 @@ async def bump_super(page: Page, captcha_key: str):
                 await human_click(page, btn)
                 await page.wait_for_load_state("networkidle")
                 await human_sleep(2, 3)
-
-                save = page.locator('button[type="submit"], input[type="submit"]').first
-                await human_click(page, save)
+                await human_click(page, page.locator('button[type="submit"], input[type="submit"]').first)
                 await page.wait_for_load_state("networkidle")
                 await human_sleep(2, 3)
                 bumped += 1
                 log.info(f"  🔼 Code {i+1} remonté")
-
                 await page.goto(f"{cfg['url']}/tableau-de-bord/codes-promo", wait_until="networkidle")
                 await human_sleep(2, 3)
             except Exception as e:
@@ -370,10 +396,9 @@ async def bump_super(page: Page, captcha_key: str):
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  HANDLER 2 — CODE-PARRAINAGE.NET  (5x/jour)
-#  Login avec slider CAPTCHA obligatoire
 # ══════════════════════════════════════════════════════════════════════════════
 
-async def bump_code(page: Page, captcha_key: str):
+async def bump_code(page: Page):
     cfg  = CONFIG["sites"]["code"]
     name = "code-parrainage"
     log.info(f"\n{'─'*50}\n  🌐 code-parrainage.net\n{'─'*50}")
@@ -381,17 +406,13 @@ async def bump_code(page: Page, captcha_key: str):
     async def _do():
         await page.goto(f"{cfg['url']}/login", wait_until="networkidle")
         await human_sleep(2, 4)
-
         await robust_fill(page, 'input[type="email"]',    cfg["email"])
         await robust_fill(page, 'input[type="password"]', cfg["password"])
         await human_sleep(1, 2)
 
-        # ✅ Résoudre le slider CAPTCHA avant de soumettre
-        slider_ok = await solve_slider_captcha(page, captcha_key)
-        if not slider_ok:
-            log.warning("  Slider non résolu, tentative de soumission quand même...")
-
-        await asyncio.sleep(1)
+        # Résolution slider gratuite
+        await solve_slider(page)
+        await asyncio.sleep(random.uniform(0.8, 1.5))
 
         await human_click(page, page.locator(
             'button:has-text("Se connecter"), button[type="submit"]'
@@ -411,8 +432,7 @@ async def bump_code(page: Page, captcha_key: str):
         await human_sleep(3, 5)
 
         buttons = page.locator(
-            'button:has-text("Actualiser"), a:has-text("Actualiser"), '
-            'button:has-text("Mettre à jour"), a:has-text("Mettre à jour")'
+            'button:has-text("Actualiser"), a:has-text("Actualiser")'
         )
         count = await buttons.count()
         log.info(f"  Boutons Actualiser : {count}")
@@ -427,7 +447,7 @@ async def bump_code(page: Page, captcha_key: str):
                 await human_click(page, btn)
                 bumped += 1
                 log.info(f"  🔼 Actualiser {i+1} cliqué")
-                await human_sleep(2, 4)
+                await human_sleep(2, 5)
             except Exception as e:
                 log.debug(f"  Erreur {i} : {e}")
 
@@ -437,10 +457,10 @@ async def bump_code(page: Page, captcha_key: str):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  HANDLER 3 — PARRAINAGE.CO  (5x/jour) ✅ FONCTIONNE
+#  HANDLER 3 — PARRAINAGE.CO  (5x/jour) ✅
 # ══════════════════════════════════════════════════════════════════════════════
 
-async def bump_parrainage(page: Page, captcha_key: str):
+async def bump_parrainage(page: Page):
     cfg  = CONFIG["sites"]["parrainage"]
     name = "parrainage_co"
     log.info(f"\n{'─'*50}\n  🌐 parrainage.co\n{'─'*50}")
@@ -448,7 +468,6 @@ async def bump_parrainage(page: Page, captcha_key: str):
     async def _do():
         await page.goto(f"{cfg['url']}/account/login", wait_until="domcontentloaded")
         await human_sleep(3, 5)
-
         await robust_fill(page, 'input[type="email"], input[name="email"], input#email',          cfg["email"])
         await human_sleep(0.5, 1)
         await robust_fill(page, 'input[type="password"], input[name="password"], input#password', cfg["password"])
@@ -487,7 +506,7 @@ async def bump_parrainage(page: Page, captcha_key: str):
                 await human_click(page, btn)
                 bumped += 1
                 log.info(f"  🔼 Remettre en haut {i+1} cliqué")
-                await human_sleep(2, 4)
+                await human_sleep(2, 5)
             except Exception as e:
                 log.debug(f"  Erreur {i} : {e}")
 
@@ -507,11 +526,10 @@ HANDLERS = {
 }
 
 async def main():
-    captcha_key = CONFIG["two_captcha_key"]
     to_run = TARGET_SITES if TARGET_SITES else list(HANDLERS.keys())
 
     log.info("═" * 55)
-    log.info("  🚀  Parrainage Auto-Bumper  —  v2 Final")
+    log.info("  🚀  Parrainage Auto-Bumper  —  VERSION FINALE")
     log.info(f"  🕐  {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
     log.info(f"  🎯  Sites : {', '.join(to_run)}")
     log.info("═" * 55)
@@ -547,12 +565,12 @@ async def main():
                 continue
             page = await context.new_page()
             try:
-                await handler(page, captcha_key)
+                await handler(page)
             except Exception as e:
                 log.error(f"  ❌ {site_id} — Erreur : {e}")
             finally:
                 await page.close()
-                await human_sleep(3, 5)
+                await human_sleep(3, 7)
 
         await browser.close()
 
