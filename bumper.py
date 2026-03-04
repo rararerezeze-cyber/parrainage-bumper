@@ -232,6 +232,42 @@ async def solve_slider(page: Page) -> bool:
     log.info("  🧩 Slider CAPTCHA — résolution en cours...")
     await human_sleep(1, 2)
 
+    # ── DEBUG : dump le HTML complet du captcha pour trouver les sélecteurs ──
+    try:
+        full_html = await page.content()
+        # Trouver la zone autour de "Glissez" ou "slider" ou "captcha"
+        for keyword in ["glissez", "slider", "captcha", "drag", "verify", "puzzle"]:
+            idx = full_html.lower().find(keyword)
+            if idx != -1:
+                snippet = full_html[max(0, idx-200):idx+500].replace("\n", " ").strip()
+                log.info(f"  🔎 HTML autour de '{keyword}' : {snippet[:600]}")
+                break
+        # Lister aussi tous les éléments avec leurs classes
+        elements = await page.evaluate("""() => {
+            const els = document.querySelectorAll('img, canvas, div[class], button[class]');
+            return Array.from(els).slice(0, 60).map(el => ({
+                tag: el.tagName,
+                cls: el.className,
+                id: el.id,
+                w: el.offsetWidth,
+                h: el.offsetHeight,
+                visible: el.offsetWidth > 0 && el.offsetHeight > 0
+            })).filter(e => e.visible && (
+                e.cls.toLowerCase().includes('capt') ||
+                e.cls.toLowerCase().includes('slid') ||
+                e.cls.toLowerCase().includes('drag') ||
+                e.cls.toLowerCase().includes('verif') ||
+                e.cls.toLowerCase().includes('puzzl') ||
+                e.tag === 'CANVAS' ||
+                (e.tag === 'IMG' && e.w > 50)
+            ));
+        }""")
+        for el in elements:
+            log.info(f"  🔎 {el['tag']} | class='{el['cls']}' | id='{el['id']}' | {el['w']}x{el['h']}")
+    except Exception as e:
+        log.debug(f"  HTML dump échoué : {e}")
+    # ── FIN DEBUG ──
+
     # Capture fond et pièce
     bg_bytes, piece_bytes = None, None
 
