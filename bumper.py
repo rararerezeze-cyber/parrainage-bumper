@@ -305,34 +305,45 @@ async def solve_slider(page: Page) -> bool:
     sx = box["x"] + box["width"] / 2
     sy = box["y"] + box["height"] / 2
 
-    # Essais avec distances variées (humainement imparfait)
+    # Essais avec distances variées autour de la position PIL
     distances_to_try = [target_x]
-    # Ajouter des variations autour de la cible (comme un humain qui rate un peu)
     for delta in [-15, +15, -30, +30, -45, +45]:
         alt = target_x + delta
         if alt > 0:
             distances_to_try.append(alt)
 
     for dist in distances_to_try:
-        log.info(f"  🖱️  Drag humain : {dist}px (overshoot inclus)")
+        # ⚠️ Re-fetch la position du handle à chaque essai (il se reset après chaque drag)
+        box = await handle.bounding_box()
+        if not box:
+            log.warning("  Handle disparu")
+            break
+        sx = box["x"] + box["width"] / 2
+        sy = box["y"] + box["height"] / 2
+
+        log.info(f"  🖱️  Drag humain : {dist}px (handle à x={sx:.0f})")
         await human_drag(page, sx, sy, dist)
 
-        # Vérifier si résolu
-        still_there = False
-        for sel in ['div[class*="captcha"]', 'div[class*="slider"]', '.geetest_widget']:
-            try:
-                if await page.locator(sel).first.is_visible():
-                    still_there = True
-                    break
-            except Exception:
-                pass
+        # Vérifier via le champ caché captcha_valide
+        try:
+            val = await page.locator('#captcha_valide, input[name="captcha_valide"]').first.input_value()
+            if val and val != "0" and val != "":
+                log.info(f"  ✅ Slider validé ! (captcha_valide={val})")
+                return True
+        except Exception:
+            pass
 
-        if not still_there:
-            log.info(f"  ✅ Slider résolu avec {dist}px !")
-            return True
+        # Vérifier aussi si le widget a disparu
+        try:
+            still_there = await page.locator('.slidercaptcha').first.is_visible()
+            if not still_there:
+                log.info(f"  ✅ Slider résolu (widget disparu) !")
+                return True
+        except Exception:
+            pass
 
-        # Petite pause avant prochain essai
-        await human_sleep(1, 2)
+        log.info(f"  Distance {dist}px insuffisante, prochain essai...")
+        await human_sleep(1.5, 2.5)
 
     log.warning("  ⚠️ Slider non résolu, soumission quand même...")
     return False
