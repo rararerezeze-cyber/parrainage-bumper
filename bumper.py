@@ -1,6 +1,6 @@
 """
 =============================================================
-  Parrainage Auto-Bumper  —  Version DEBUG
+  Parrainage Auto-Bumper  —  Version Login Fix
   super-parrain.com | code-parrainage.net | parrainage.co
 =============================================================
 """
@@ -22,13 +22,11 @@ import httpx
 log = logging.getLogger("bumper")
 log.setLevel("INFO")
 log.propagate = False
-
 formatter = logging.Formatter("%(asctime)s  %(levelname)-8s  %(message)s", datefmt="%H:%M:%S")
 console_handler = logging.StreamHandler()
 console_handler.setFormatter(formatter)
 file_handler = RotatingFileHandler("bumper.log", maxBytes=1_000_000, backupCount=2, encoding="utf-8")
 file_handler.setFormatter(formatter)
-
 if log.hasHandlers():
     log.handlers.clear()
 log.addHandler(console_handler)
@@ -62,20 +60,38 @@ CONFIG = {
 }
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  COMPORTEMENT HUMAIN
+#  UTILITAIRES
 # ══════════════════════════════════════════════════════════════════════════════
 
 async def human_sleep(a: float = 2.0, b: float = 6.0):
     await asyncio.sleep(random.uniform(a, b))
 
 
-async def human_type(page: Page, selector: str, text: str):
+async def robust_fill(page: Page, selector: str, value: str):
+    """
+    Remplit un champ de manière robuste :
+    1. Attend que le champ soit visible
+    2. Clique dessus
+    3. Utilise fill() (le plus fiable pour les mots de passe complexes)
+    4. Vérifie que la valeur est bien saisie
+    """
     locator = page.locator(selector).first
     await locator.wait_for(state="visible", timeout=15000)
     await locator.click()
-    await locator.fill("")
-    for char in text:
-        await locator.type(char, delay=random.randint(60, 150))
+    await asyncio.sleep(0.3)
+    await locator.fill(value)
+    await asyncio.sleep(0.3)
+    # Vérification
+    actual = await locator.input_value()
+    if actual != value:
+        # Fallback : JavaScript direct
+        log.warning(f"  fill() incomplet, tentative JS...")
+        await page.evaluate(
+            "el => { el.value = arguments[1]; el.dispatchEvent(new Event('input', {bubbles:true})); el.dispatchEvent(new Event('change', {bubbles:true})); }",
+            await locator.element_handle(),
+            value
+        )
+    log.info(f"  Champ rempli : {selector[:30]} = {'*' * len(value)}")
 
 
 async def human_click(page: Page, locator):
@@ -94,21 +110,17 @@ async def human_click(page: Page, locator):
         log.debug(f"human_click ignoré : {e}")
 
 
-async def debug_screenshot(page: Page, name: str):
-    """Prend un screenshot et affiche le HTML des boutons trouvés."""
-    path = f"debug_{name}.png"
-    await page.screenshot(path=path, full_page=True)
-    log.info(f"  📸 Screenshot sauvegardé : {path}")
-
-    # Affiche le HTML de toute la page pour voir les boutons disponibles
-    html = await page.content()
-    # Cherche les mots-clés liés aux boutons de bump
-    keywords = ["Actualiser", "Remettre", "Remonter", "Bump", "Up", "btn", "button"]
-    for kw in keywords:
-        idx = html.lower().find(kw.lower())
-        if idx != -1:
-            snippet = html[max(0, idx-50):idx+100].replace("\n", " ").strip()
-            log.info(f"  🔍 Trouvé '{kw}' dans HTML : ...{snippet}...")
+async def verify_login(page: Page, login_url: str, name: str) -> bool:
+    """Vérifie que le login a bien fonctionné en contrôlant l'URL."""
+    current = page.url
+    log.info(f"  [{name}] URL après login : {current}")
+    if login_url in current:
+        log.error(f"  [{name}] ❌ Login échoué — toujours sur la page de login !")
+        # Screenshot pour debug
+        await page.screenshot(path=f"login_failed_{name}.png", full_page=True)
+        return False
+    log.info(f"  [{name}] ✓ Login réussi !")
+    return True
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -155,7 +167,6 @@ class TwoCaptcha:
     async def solve_image(self, image_bytes: bytes) -> str:
         if not self.enabled:
             return ""
-        log.info("  🔐 Résolution image CAPTCHA...")
         async with httpx.AsyncClient(timeout=120) as c:
             r = await c.post(f"{self.BASE}/in.php",
                 files={"file": ("captcha.png", image_bytes)},
@@ -175,7 +186,6 @@ class TwoCaptcha:
                 })
                 d = r.json()
                 if d.get("status") == 1:
-                    log.info("  ✅ CAPTCHA résolu !")
                     return d["request"]
                 if d.get("request") != "CAPCHA_NOT_READY":
                     raise RuntimeError(f"Erreur résultat : {d}")
@@ -188,15 +198,16 @@ class TwoCaptcha:
 
 async def bump_super(page: Page, captcha: TwoCaptcha):
     cfg  = CONFIG["sites"]["super"]
-    name = "super-parrain.com"
-    log.info(f"\n{'─'*50}\n  🌐 {name}\n{'─'*50}")
+    name = "super_parrain"
+    log.info(f"\n{'─'*50}\n  🌐 super-parrain.com\n{'─'*50}")
 
     async def _do():
         await page.goto(f"{cfg['url']}/login", wait_until="networkidle")
-        await human_sleep()
-        await human_type(page, 'input[type="email"]',    cfg["email"])
-        await human_type(page, 'input[type="password"]', cfg["password"])
-        await human_sleep()
+        await human_sleep(2, 4)
+
+        await robust_fill(page, 'input[type="email"]',    cfg["email"])
+        await robust_fill(page, 'input[type="password"]', cfg["password"])
+        await human_sleep(1, 2)
 
         try:
             await page.locator('[data-sitekey]').wait_for(timeout=4000)
@@ -207,58 +218,51 @@ async def bump_super(page: Page, captcha: TwoCaptcha):
                     'document.getElementById("g-recaptcha-response").innerHTML = arguments[0]', token
                 )
         except PWTimeout:
-            log.info(f"  [{name}] Pas de reCAPTCHA")
+            log.info(f"  Pas de reCAPTCHA")
 
         await human_click(page, page.locator('button[type="submit"]').first)
         await page.wait_for_load_state("networkidle")
-        await human_sleep(4, 6)
-        log.info(f"  [{name}] ✓ Connecté — URL : {page.url}")
+        await human_sleep(3, 5)
+
+        if not await verify_login(page, "/login", name):
+            raise RuntimeError("Login échoué")
 
         await page.goto(f"{cfg['url']}/tableau-de-bord/codes-promo", wait_until="networkidle")
         await human_sleep(3, 5)
-        log.info(f"  [{name}] Page chargée — URL : {page.url}")
 
-        # 📸 DEBUG
-        await debug_screenshot(page, "super_parrain")
-
-        # Cherche les boutons crayon (modifier) — icône uniquement, pas de texte
-        edit_btns = page.locator('a.btn, button.btn').filter(has=page.locator('i, svg, span'))
+        # Cliquer chaque bouton crayon et sauvegarder
+        edit_btns = page.locator('a[href*="modifier"], a[href*="edit"], td:last-child a, .btn-warning')
         count = await edit_btns.count()
-        log.info(f"  [{name}] Boutons trouvés : {count}")
-
+        log.info(f"  Boutons modifier trouvés : {count}")
         bumped = 0
+
         for i in range(count):
-            btn = edit_btns.nth(i)
             try:
+                btn = edit_btns.nth(i)
                 if not await btn.is_visible():
                     continue
-                await btn.scroll_into_view_if_needed()
+                href = await btn.get_attribute("href") or ""
+                log.info(f"  Bouton {i} : href={href}")
                 await human_click(page, btn)
                 await page.wait_for_load_state("networkidle")
-                await human_sleep(2, 4)
+                await human_sleep(2, 3)
 
-                save_btn = page.locator(
-                    'button[type="submit"], input[type="submit"], '
-                    'button:has-text("Enregistrer"), button:has-text("Sauvegarder"), '
-                    'button:has-text("Modifier"), button:has-text("Mettre à jour"), '
-                    'button:has-text("Valider")'
-                ).first
-                await human_click(page, save_btn)
+                save = page.locator('button[type="submit"], input[type="submit"]').first
+                await human_click(page, save)
                 await page.wait_for_load_state("networkidle")
-                await human_sleep(2, 4)
+                await human_sleep(2, 3)
                 bumped += 1
-                log.info(f"  🔼 [{name}] Code {i+1} remonté")
+                log.info(f"  🔼 Code {i+1} remonté")
 
                 await page.goto(f"{cfg['url']}/tableau-de-bord/codes-promo", wait_until="networkidle")
                 await human_sleep(2, 3)
             except Exception as e:
-                log.debug(f"  [{name}] Erreur {i} : {e}")
+                log.debug(f"  Erreur bouton {i} : {e}")
                 await page.goto(f"{cfg['url']}/tableau-de-bord/codes-promo", wait_until="networkidle")
-                await human_sleep(2, 3)
 
-        log.info(f"  [{name}] 🎯 {bumped} code(s) remonté(s) ✓")
+        log.info(f"  🎯 {bumped} code(s) remonté(s) ✓")
 
-    await retry(_do, retries=1, label=name)  # 1 seul essai en mode debug
+    await retry(_do, retries=3, label="super-parrain")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -267,43 +271,65 @@ async def bump_super(page: Page, captcha: TwoCaptcha):
 
 async def bump_code(page: Page, captcha: TwoCaptcha):
     cfg  = CONFIG["sites"]["code"]
-    name = "code-parrainage.net"
-    log.info(f"\n{'─'*50}\n  🌐 {name}\n{'─'*50}")
+    name = "code_parrainage"
+    log.info(f"\n{'─'*50}\n  🌐 code-parrainage.net\n{'─'*50}")
 
     async def _do():
         await page.goto(f"{cfg['url']}/login", wait_until="networkidle")
-        await human_sleep()
-        await human_type(page, 'input[type="email"]',    cfg["email"])
-        await human_type(page, 'input[type="password"]', cfg["password"])
-        await human_sleep()
-        await human_click(page, page.locator('button[type="submit"]').first)
+        await human_sleep(2, 4)
+
+        # Log la page pour debug
+        log.info(f"  URL login : {page.url}")
+
+        await robust_fill(page, 'input[type="email"]',    cfg["email"])
+        await robust_fill(page, 'input[type="password"]', cfg["password"])
+        await human_sleep(1, 2)
+
+        # Cherche le bouton submit avec plusieurs sélecteurs
+        submit = page.locator(
+            'button[type="submit"], '
+            'input[type="submit"], '
+            'button:has-text("Se connecter"), '
+            'button:has-text("Connexion"), '
+            'button:has-text("Login")'
+        ).first
+        log.info(f"  Clic sur submit...")
+        await human_click(page, submit)
+
+        # Attend la redirection
+        try:
+            await page.wait_for_url(lambda url: "/login" not in url, timeout=15000)
+        except Exception:
+            pass
         await page.wait_for_load_state("networkidle")
-        await human_sleep(4, 6)
-        log.info(f"  [{name}] ✓ Connecté — URL : {page.url}")
+        await human_sleep(3, 5)
+
+        if not await verify_login(page, "/login", name):
+            raise RuntimeError("Login échoué")
 
         await page.goto(f"{cfg['url']}/moncompte", wait_until="networkidle")
         await human_sleep(3, 5)
-        log.info(f"  [{name}] Page chargée — URL : {page.url}")
+        log.info(f"  URL moncompte : {page.url}")
 
-        # 📸 DEBUG
-        await debug_screenshot(page, "code_parrainage")
-
-        # Compte tous les boutons visibles sur la page
-        all_btns = page.locator("button, a.btn, input[type=button], input[type=submit]")
+        # Liste tous les boutons pour debug
+        all_btns = page.locator("button, a.btn, input[type=submit]")
         total = await all_btns.count()
-        log.info(f"  [{name}] Total boutons sur la page : {total}")
-        for i in range(min(total, 20)):
-            btn = all_btns.nth(i)
+        log.info(f"  Total boutons : {total}")
+        for i in range(min(total, 15)):
             try:
-                txt = await btn.inner_text()
-                log.info(f"  [{name}] Bouton {i} : '{txt.strip()}'")
+                txt = await all_btns.nth(i).inner_text()
+                log.info(f"  Bouton {i} : '{txt.strip()[:50]}'")
             except Exception:
                 pass
 
-        # Clic sur "Actualiser"
-        buttons = page.locator('button:has-text("Actualiser"), a:has-text("Actualiser")')
+        buttons = page.locator(
+            'button:has-text("Actualiser"), '
+            'a:has-text("Actualiser"), '
+            'button:has-text("Mettre à jour"), '
+            'a:has-text("Mettre à jour")'
+        )
         count = await buttons.count()
-        log.info(f"  [{name}] Boutons Actualiser trouvés : {count}")
+        log.info(f"  Boutons Actualiser : {count}")
         bumped = 0
         for i in range(count):
             btn = buttons.nth(i)
@@ -313,14 +339,14 @@ async def bump_code(page: Page, captcha: TwoCaptcha):
                 await btn.scroll_into_view_if_needed()
                 await human_click(page, btn)
                 bumped += 1
-                log.info(f"  🔼 [{name}] Actualiser cliqué ({i+1})")
+                log.info(f"  🔼 Actualiser {i+1} cliqué")
                 await human_sleep(2, 4)
             except Exception as e:
-                log.debug(f"  [{name}] Erreur {i} : {e}")
+                log.debug(f"  Erreur {i} : {e}")
 
-        log.info(f"  [{name}] 🎯 {bumped} annonce(s) remontée(s) ✓")
+        log.info(f"  🎯 {bumped} annonce(s) remontée(s) ✓")
 
-    await retry(_do, retries=1, label=name)
+    await retry(_do, retries=3, label="code-parrainage")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -329,54 +355,71 @@ async def bump_code(page: Page, captcha: TwoCaptcha):
 
 async def bump_parrainage(page: Page, captcha: TwoCaptcha):
     cfg  = CONFIG["sites"]["parrainage"]
-    name = "parrainage.co"
-    log.info(f"\n{'─'*50}\n  🌐 {name}\n{'─'*50}")
+    name = "parrainage_co"
+    log.info(f"\n{'─'*50}\n  🌐 parrainage.co\n{'─'*50}")
 
     async def _do():
         await page.goto(f"{cfg['url']}/account/login", wait_until="domcontentloaded")
         await human_sleep(3, 5)
-        await human_type(page, 'input[type="email"], input[name="email"], input#email',          cfg["email"])
-        await human_sleep()
-        await human_type(page, 'input[type="password"], input[name="password"], input#password', cfg["password"])
-        await human_sleep()
+        log.info(f"  URL : {page.url}")
 
+        await robust_fill(page, 'input[type="email"], input[name="email"], input#email',          cfg["email"])
+        await human_sleep(0.5, 1)
+        await robust_fill(page, 'input[type="password"], input[name="password"], input#password', cfg["password"])
+        await human_sleep(1, 2)
+
+        # CAPTCHA image si présent
         try:
             captcha_img = page.locator('img.captcha, img[alt*="captcha" i], #captcha img').first
             await captcha_img.wait_for(timeout=4000)
             text = await captcha.solve_image(await captcha_img.screenshot())
             if text:
-                await human_type(page, 'input.captcha-input, input[name="captcha"]', text)
+                await robust_fill(page, 'input.captcha-input, input[name="captcha"]', text)
         except PWTimeout:
-            log.info(f"  [{name}] Pas d'image CAPTCHA")
+            log.info(f"  Pas d'image CAPTCHA")
 
-        await human_click(page, page.locator('button.login-btn, button[type="submit"]').first)
+        submit = page.locator(
+            'button[type="submit"], '
+            'input[type="submit"], '
+            'button:has-text("Connexion"), '
+            'button:has-text("Se connecter"), '
+            'button.login-btn'
+        ).first
+        await human_click(page, submit)
+
+        try:
+            await page.wait_for_url(lambda url: "/login" not in url, timeout=15000)
+        except Exception:
+            pass
         await page.wait_for_load_state("networkidle")
-        await human_sleep(4, 6)
-        log.info(f"  [{name}] ✓ Connecté — URL : {page.url}")
+        await human_sleep(3, 5)
+
+        if not await verify_login(page, "/login", name):
+            raise RuntimeError("Login échoué")
 
         await page.goto(f"{cfg['url']}/account/offers", wait_until="networkidle")
         await human_sleep(3, 5)
-        log.info(f"  [{name}] Page chargée — URL : {page.url}")
+        log.info(f"  URL offers : {page.url}")
 
-        # 📸 DEBUG
-        await debug_screenshot(page, "parrainage_co")
-
-        # Liste tous les boutons
+        # Debug boutons
         all_btns = page.locator("button, a.btn")
         total = await all_btns.count()
-        log.info(f"  [{name}] Total boutons sur la page : {total}")
-        for i in range(min(total, 20)):
-            btn = all_btns.nth(i)
+        log.info(f"  Total boutons : {total}")
+        for i in range(min(total, 15)):
             try:
-                txt = await btn.inner_text()
-                log.info(f"  [{name}] Bouton {i} : '{txt.strip()}'")
+                txt = await all_btns.nth(i).inner_text()
+                log.info(f"  Bouton {i} : '{txt.strip()[:50]}'")
             except Exception:
                 pass
 
-        # Clic sur "Remettre en haut"
-        buttons = page.locator('button:has-text("Remettre en haut"), a:has-text("Remettre en haut")')
+        buttons = page.locator(
+            'button:has-text("Remettre en haut"), '
+            'a:has-text("Remettre en haut"), '
+            'button:has-text("Remonter"), '
+            'a:has-text("Remonter")'
+        )
         count = await buttons.count()
-        log.info(f"  [{name}] Boutons 'Remettre en haut' trouvés : {count}")
+        log.info(f"  Boutons Remettre en haut : {count}")
         bumped = 0
         for i in range(count):
             btn = buttons.nth(i)
@@ -386,14 +429,14 @@ async def bump_parrainage(page: Page, captcha: TwoCaptcha):
                 await btn.scroll_into_view_if_needed()
                 await human_click(page, btn)
                 bumped += 1
-                log.info(f"  🔼 [{name}] Remettre en haut cliqué ({i+1})")
+                log.info(f"  🔼 Remettre en haut {i+1} cliqué")
                 await human_sleep(2, 4)
             except Exception as e:
-                log.debug(f"  [{name}] Erreur {i} : {e}")
+                log.debug(f"  Erreur {i} : {e}")
 
-        log.info(f"  [{name}] 🎯 {bumped} annonce(s) remontée(s) ✓")
+        log.info(f"  🎯 {bumped} annonce(s) remontée(s) ✓")
 
-    await retry(_do, retries=1, label=name)
+    await retry(_do, retries=3, label="parrainage.co")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -411,7 +454,7 @@ async def main():
     to_run  = TARGET_SITES if TARGET_SITES else list(HANDLERS.keys())
 
     log.info("═" * 55)
-    log.info("  🚀  Parrainage Auto-Bumper  —  Version DEBUG")
+    log.info("  🚀  Parrainage Auto-Bumper  —  Login Fix")
     log.info(f"  🕐  {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
     log.info(f"  🎯  Sites : {', '.join(to_run)}")
     log.info("═" * 55)
