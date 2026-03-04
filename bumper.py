@@ -268,26 +268,20 @@ async def solve_slider(page: Page) -> bool:
         log.debug(f"  HTML dump échoué : {e}")
     # ── FIN DEBUG ──
 
-    # Capture fond et pièce
+    # ── Sélecteurs exacts code-parrainage.net ──
     bg_bytes, piece_bytes = None, None
 
-    for sel in ['.geetest_canvas_bg', '.captcha-bg', 'canvas', 'img[class*="bg"]']:
-        try:
-            el = page.locator(sel).first
-            if await el.is_visible():
-                bg_bytes = await el.screenshot()
-                break
-        except Exception:
-            pass
-
-    for sel in ['.geetest_canvas_slice', '.captcha-piece', 'img[class*="piece"]', 'img[class*="slice"]']:
-        try:
-            el = page.locator(sel).first
-            if await el.is_visible():
-                piece_bytes = await el.screenshot()
-                break
-        except Exception:
-            pass
+    try:
+        canvases = page.locator('.slidercaptcha canvas')
+        n = await canvases.count()
+        if n >= 1:
+            bg_bytes = await canvases.nth(0).screenshot()
+            log.info(f"  Fond capturé ({n} canvas trouvés)")
+        if n >= 2:
+            piece_bytes = await canvases.nth(1).screenshot()
+            log.info("  Pièce capturée")
+    except Exception as e:
+        log.debug(f"  Capture canvas : {e}")
 
     # Calcul de la distance cible
     if bg_bytes and piece_bytes:
@@ -296,19 +290,11 @@ async def solve_slider(page: Page) -> bool:
         target_x = random.randint(120, 180)
         log.warning(f"  Capture impossible, distance aléatoire : {target_x}px")
 
-    # Trouver le handle
-    handle = None
-    for sel in ['.geetest_slider_button', '.slider-button', '.slider-handle',
-                'div[class*="drag"]', 'div[class*="handle"]', '.verify-move-block']:
-        try:
-            el = page.locator(sel).first
-            if await el.is_visible():
-                handle = el
-                break
-        except Exception:
-            pass
-
-    if handle is None:
+    # Handle : div.slider (40x40)
+    handle = page.locator('div.slider').first
+    try:
+        await handle.wait_for(state="visible", timeout=5000)
+    except Exception:
         log.warning("  Handle introuvable")
         return False
 
