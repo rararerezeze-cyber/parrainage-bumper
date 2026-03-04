@@ -1,17 +1,7 @@
 """
 =============================================================
-  Parrainage Auto-Bumper  —  Version Finale (Fusion)
+  Parrainage Auto-Bumper  —  Version Finale Corrigée
   super-parrain.com | code-parrainage.net | parrainage.co
-=============================================================
-  Meilleur des 2 versions :
-  ✅ human_click avec mouvement souris réaliste  (GPT-5)
-  ✅ --disable-blink-features anti-détection     (GPT-5)
-  ✅ Credentials séparés par site                (Claude)
-  ✅ Retry automatique x3                        (Claude)
-  ✅ Délais aléatoires partout                   (Claude + GPT-5)
-  ✅ Frappe humaine caractère par caractère       (Claude + GPT-5)
-  ✅ Drag slider avec courbe smooth-step          (Claude)
-  ✅ Async (meilleur pour GitHub Actions)         (Claude)
 =============================================================
 """
 
@@ -21,54 +11,35 @@ import base64
 import random
 import logging
 from datetime import datetime
+from logging.handlers import RotatingFileHandler
 from playwright.async_api import async_playwright, Page, TimeoutError as PWTimeout
 import httpx
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  LOGGING (version robuste GitHub Actions)
+#  LOGGING
 # ══════════════════════════════════════════════════════════════════════════════
-
-import logging
-from logging.handlers import RotatingFileHandler
-import os
-
-LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
 
 log = logging.getLogger("bumper")
-log.setLevel(LOG_LEVEL)
-log.propagate = False  # évite doublons en GitHub Actions
+log.setLevel("INFO")
+log.propagate = False
 
-formatter = logging.Formatter(
-    fmt="%(asctime)s  %(levelname)-8s  %(message)s",
-    datefmt="%H:%M:%S",
-)
+formatter = logging.Formatter("%(asctime)s  %(levelname)-8s  %(message)s", datefmt="%H:%M:%S")
 
-# ─── Console (GitHub logs) ─────────────────────────────────
 console_handler = logging.StreamHandler()
 console_handler.setFormatter(formatter)
-console_handler.setLevel(LOG_LEVEL)
 
-# ─── Fichier avec rotation (évite fichier énorme) ─────────
-file_handler = RotatingFileHandler(
-    "bumper.log",
-    maxBytes=1_000_000,  # 1 MB
-    backupCount=2,
-    encoding="utf-8",
-)
+file_handler = RotatingFileHandler("bumper.log", maxBytes=1_000_000, backupCount=2, encoding="utf-8")
 file_handler.setFormatter(formatter)
-file_handler.setLevel(LOG_LEVEL)
 
-# Nettoie anciens handlers si re-run
 if log.hasHandlers():
     log.handlers.clear()
-
 log.addHandler(console_handler)
 log.addHandler(file_handler)
+
 # ══════════════════════════════════════════════════════════════════════════════
-#  CONFIG  (GitHub Secrets → variables d'environnement)
+#  CONFIG
 # ══════════════════════════════════════════════════════════════════════════════
 
-# TARGET_SITES = "super", "code", "parrainage"  (séparés par virgule)
 TARGET_SITES = [s.strip() for s in os.environ.get("TARGET_SITES", "").split(",") if s.strip()]
 
 CONFIG = {
@@ -104,82 +75,57 @@ BUMP_SELECTORS = [
 ]
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  COMPORTEMENT HUMAIN (version robuste)
+#  COMPORTEMENT HUMAIN
 # ══════════════════════════════════════════════════════════════════════════════
 
 async def human_sleep(a: float = 2.0, b: float = 6.0):
-    """Pause aléatoire réaliste."""
     await asyncio.sleep(random.uniform(a, b))
 
 
-async def human_type(locator, text: str):
-    """
-    Tape du texte caractère par caractère avec délai aléatoire.
-    Accepte directement un Locator (plus robuste).
-    """
+async def human_type(page: Page, selector: str, text: str):
+    """Tape du texte caractère par caractère. Appel : human_type(page, selector, text)"""
+    locator = page.locator(selector).first
     await locator.wait_for(state="visible", timeout=15000)
     await locator.click()
     await locator.fill("")
-
     for char in text:
         await locator.type(char, delay=random.randint(60, 150))
 
 
 async def human_click(page: Page, locator):
-    """
-    Clic réaliste avec mouvement souris.
-    Sécurisé contre erreurs silencieuses.
-    """
-    await locator.wait_for(state="visible", timeout=15000)
-
-    box = await locator.bounding_box()
-    if box:
-        await page.mouse.move(
-            box["x"] + random.randint(2, int(box["width"] - 2)),
-            box["y"] + random.randint(2, int(box["height"] - 2)),
-            steps=random.randint(15, 25),
-        )
-
-    await human_sleep(0.2, 0.8)
-    await locator.click()
+    """Clic réaliste avec mouvement souris."""
+    try:
+        await locator.wait_for(state="visible", timeout=15000)
+        box = await locator.bounding_box()
+        if box:
+            await page.mouse.move(
+                box["x"] + random.randint(2, max(3, int(box["width"] - 2))),
+                box["y"] + random.randint(2, max(3, int(box["height"] - 2))),
+                steps=random.randint(15, 25),
+            )
+        await human_sleep(0.2, 0.8)
+        await locator.click()
+    except Exception as e:
+        log.debug(f"human_click ignoré : {e}")
 
 
 async def click_all_bump_buttons(page: Page, site_name: str) -> int:
-    """
-    Clique sur tous les boutons de bump visibles.
-    Plus propre et évite les doublons.
-    """
     count = 0
-    seen = set()
-
     for sel in BUMP_SELECTORS:
         buttons = page.locator(sel)
         total = await buttons.count()
-
         for i in range(total):
             btn = buttons.nth(i)
-
             try:
                 if not await btn.is_visible():
                     continue
-
-                # Évite double clic sur même élément
-                handle = await btn.element_handle()
-                if handle in seen:
-                    continue
-                seen.add(handle)
-
                 await btn.scroll_into_view_if_needed()
                 await human_click(page, btn)
-
                 count += 1
                 log.info(f"  🔼 [{site_name}] Bouton cliqué ({sel})")
-
                 await human_sleep(2.0, 5.0)
-
             except Exception as e:
-                log.debug(f"[{site_name}] Erreur bouton ignorée: {e}")
-
+                log.debug(f"[{site_name}] Bouton ignoré : {e}")
     return count
 
 
@@ -287,32 +233,25 @@ async def bump_super(page: Page, captcha: TwoCaptcha):
     async def _do():
         await page.goto(f"{cfg['url']}/login", wait_until="networkidle")
         await human_sleep()
-
         await human_type(page, 'input[type="email"]',    cfg["email"])
         await human_type(page, 'input[type="password"]', cfg["password"])
         await human_sleep()
-
-        # reCAPTCHA v2 si présent
         try:
             await page.locator('[data-sitekey]').wait_for(timeout=4000)
             sk    = await page.locator('[data-sitekey]').get_attribute("data-sitekey")
             token = await captcha.solve_recaptcha(sk, page.url)
             if token:
                 await page.evaluate(
-                    'document.getElementById("g-recaptcha-response").innerHTML = arguments[0]',
-                    token
+                    'document.getElementById("g-recaptcha-response").innerHTML = arguments[0]', token
                 )
         except PWTimeout:
             log.info(f"  [{name}] Pas de reCAPTCHA")
-
         await human_click(page, page.locator('button[type="submit"]').first)
         await page.wait_for_load_state("networkidle")
         await human_sleep(5, 8)
         log.info(f"  [{name}] ✓ Connecté")
-
         await page.goto(f"{cfg['url']}/mes-annonces", wait_until="networkidle")
         await human_sleep(3, 5)
-
         n = await click_all_bump_buttons(page, name)
         log.info(f"  [{name}] 🎯 {n} code(s) remonté(s) ✓")
 
@@ -331,51 +270,36 @@ async def bump_code(page: Page, captcha: TwoCaptcha):
     async def _do():
         await page.goto(f"{cfg['url']}/login", wait_until="networkidle")
         await human_sleep()
-
         await human_type(page, 'input[type="email"]',    cfg["email"])
         await human_type(page, 'input[type="password"]', cfg["password"])
         await human_sleep()
-
-        # Slider CAPTCHA si présent
         try:
             piece_el = page.locator('.captcha-piece, .slider-piece').first
             bg_el    = page.locator('.captcha-bg, .slider-bg').first
             await piece_el.wait_for(timeout=4000)
-
-            x_pos  = await captcha.solve_slider(
-                await piece_el.screenshot(),
-                await bg_el.screenshot()
-            )
+            x_pos = await captcha.solve_slider(await piece_el.screenshot(), await bg_el.screenshot())
             handle = page.locator('.slider-handle, .captcha-handle').first
-            box    = await handle.bounding_box()
-            sx     = box["x"] + box["width"]  / 2
-            sy     = box["y"] + box["height"] / 2
-
+            box = await handle.bounding_box()
+            sx = box["x"] + box["width"] / 2
+            sy = box["y"] + box["height"] / 2
             await page.mouse.move(sx, sy)
             await page.mouse.down()
             steps = random.randint(25, 40)
             for i in range(steps):
-                t       = i / steps
-                eased   = t * t * (3 - 2 * t)          # smooth-step
-                await page.mouse.move(
-                    sx + x_pos * eased,
-                    sy + random.uniform(-1.5, 1.5),     # micro-jitter
-                )
+                t = i / steps
+                eased = t * t * (3 - 2 * t)
+                await page.mouse.move(sx + x_pos * eased, sy + random.uniform(-1.5, 1.5))
                 await asyncio.sleep(random.uniform(0.01, 0.03))
             await page.mouse.up()
             await human_sleep(1, 2)
-
         except PWTimeout:
             log.info(f"  [{name}] Pas de slider CAPTCHA")
-
         await human_click(page, page.locator('button[type="submit"]').first)
         await page.wait_for_load_state("networkidle")
         await human_sleep(5, 8)
         log.info(f"  [{name}] ✓ Connecté")
-
         await page.goto(f"{cfg['url']}/mes-annonces", wait_until="networkidle")
         await human_sleep(3, 5)
-
         n = await click_all_bump_buttons(page, name)
         log.info(f"  [{name}] 🎯 {n} annonce(s) remontée(s) ✓")
 
@@ -392,48 +316,32 @@ async def bump_parrainage(page: Page, captcha: TwoCaptcha):
     log.info(f"\n{'─'*50}\n  🌐 {name}\n{'─'*50}")
 
     async def _do():
-
-        await page.goto(f"{cfg['url']}/login", wait_until="domcontentloaded")
+        # ✅ URL corrigée : /account/login
+        await page.goto(f"{cfg['url']}/account/login", wait_until="domcontentloaded")
         await human_sleep(3, 5)
 
-        # 🔎 Sélecteurs robustes
-        email_locator = page.locator(
-            "input[type='email'], input[name='email'], input#email"
-        ).first
+        # ✅ Sélecteurs larges pour être sûr de trouver les champs
+        await human_type(page, 'input[type="email"], input[name="email"], input#email',       cfg["email"])
+        await human_sleep()
+        await human_type(page, 'input[type="password"], input[name="password"], input#password', cfg["password"])
+        await human_sleep()
 
-        password_locator = page.locator(
-            "input[type='password'], input[name='password'], input#password"
-        ).first
-
-        login_button = page.locator(
-            "button.login-btn, button[type='submit'], button:has-text('Connexion'), button:has-text('Se connecter')"
-        ).first
-
-        # Attente explicite du champ email
+        # Image CAPTCHA si présent
         try:
-            await email_locator.wait_for(timeout=15000)
-        except:
-            await page.screenshot(path="debug_parrainage_login.png")
-            raise RuntimeError("Champ email introuvable")
+            captcha_img = page.locator('img.captcha, img[alt*="captcha" i], #captcha img').first
+            await captcha_img.wait_for(timeout=4000)
+            text = await captcha.solve_image(await captcha_img.screenshot())
+            if text:
+                await human_type(page, 'input.captcha-input, input[name="captcha"]', text)
+        except PWTimeout:
+            log.info(f"  [{name}] Pas d'image CAPTCHA")
 
-        # Typing humain
-        await human_type(page, email_locator, cfg["email"])
-        await human_sleep()
-
-        await human_type(page, password_locator, cfg["password"])
-        await human_sleep()
-
-        await human_click(page, login_button)
-
+        await human_click(page, page.locator('button.login-btn, button[type="submit"]').first)
         await page.wait_for_load_state("networkidle")
         await human_sleep(5, 8)
-
         log.info(f"  [{name}] ✓ Connecté")
-
-        # Page offres
         await page.goto(f"{cfg['url']}/account/offers", wait_until="networkidle")
         await human_sleep(3, 5)
-
         n = await click_all_bump_buttons(page, name)
         log.info(f"  [{name}] 🎯 {n} annonce(s) remontée(s) ✓")
 
@@ -468,7 +376,7 @@ async def main():
                 "--disable-dev-shm-usage",
                 "--lang=fr-FR",
                 "--window-size=1280,800",
-                "--disable-blink-features=AutomationControlled",  # ← anti-détection (GPT-5)
+                "--disable-blink-features=AutomationControlled",
             ],
         )
         context = await browser.new_context(
@@ -486,12 +394,10 @@ async def main():
             if not handler:
                 log.warning(f"  ⚠️  Site inconnu ignoré : '{site_id}'")
                 continue
-
             cfg = CONFIG["sites"].get(site_id, {})
             if not cfg.get("email"):
                 log.warning(f"  ⏭️  {site_id} — credentials manquants, ignoré")
                 continue
-
             page = await context.new_page()
             try:
                 await handler(page, captcha)
@@ -499,7 +405,7 @@ async def main():
                 log.error(f"  ❌ {site_id} — Erreur finale : {e}")
             finally:
                 await page.close()
-                await human_sleep(3, 7)  # pause entre sites
+                await human_sleep(3, 7)
 
         await browser.close()
 
@@ -510,3 +416,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
