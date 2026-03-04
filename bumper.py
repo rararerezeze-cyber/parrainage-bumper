@@ -319,15 +319,25 @@ async def solve_slider(page: Page) -> bool:
     sx = box["x"] + box["width"] / 2
     sy = box["y"] + box["height"] / 2
 
-    # Essais avec distances variées autour de la position PIL
-    distances_to_try = [target_x]
-    for delta in [-15, +15, -30, +30, -45, +45]:
-        alt = target_x + delta
+    # Récupérer la position du canvas pour calculer l'offset correct
+    canvas_box = await page.locator('.slidercaptcha canvas').first.bounding_box()
+    canvas_left = canvas_box["x"] if canvas_box else (sx - box["width"] / 2)
+
+    # Distance réelle = position du trou dans le canvas - offset du handle dans le container
+    # Le handle (40px) part du bord gauche du container, son centre est à +20px
+    handle_offset = sx - canvas_left  # offset du centre du handle depuis le bord gauche du canvas
+    real_dist = max(5, int(target_x - handle_offset))
+    log.info(f"  canvas_left={canvas_left:.0f}, handle_center={sx:.0f}, offset={handle_offset:.0f}px → drag={real_dist}px")
+
+    # Essais autour de la distance calculée
+    distances_to_try = [real_dist]
+    for delta in [-10, +10, -20, +20, -30, +30]:
+        alt = real_dist + delta
         if alt > 0:
             distances_to_try.append(alt)
 
     for dist in distances_to_try:
-        # ⚠️ Re-fetch la position du handle à chaque essai (il se reset après chaque drag)
+        # Re-fetch la position du handle à chaque essai (reset après chaque drag raté)
         box = await handle.bounding_box()
         if not box:
             log.warning("  Handle disparu")
