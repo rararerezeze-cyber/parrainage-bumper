@@ -174,57 +174,51 @@ async def human_drag(page: Page, start_x: float, start_y: float, distance: int):
 #  SLIDER CAPTCHA — Résolution gratuite (PIL + drag humain)
 # ══════════════════════════════════════════════════════════════════════════════
 
-def find_gap_position(bg_bytes: bytes, piece_bytes: bytes) -> int:
+def find_gap_position(bg_bytes: bytes, piece_bytes: bytes,
+                       bg_css_w: int = 280, piece_css_w: int = 63) -> int:
     """
-    Trouve le trou dans le fond en cherchant la zone qui ressemble
-    le plus à la forme de la pièce (template matching simplifié).
+    Trouve le trou en cherchant la zone la plus sombre du fond
+    (le trou est toujours plus sombre que le reste de l'image).
+    Retourne la position en pixels CSS (pour le drag).
     """
     try:
-        from PIL import Image, ImageFilter, ImageChops
-        import math
+        from PIL import Image, ImageFilter
 
-        bg    = Image.open(io.BytesIO(bg_bytes)).convert("RGBA")
-        piece = Image.open(io.BytesIO(piece_bytes)).convert("RGBA")
+        bg    = Image.open(io.BytesIO(bg_bytes)).convert("L")
+        piece = Image.open(io.BytesIO(piece_bytes)).convert("L")
 
-        bg_w, bg_h       = bg.size
-        piece_w, piece_h = piece.size
+        bg_img_w, bg_img_h   = bg.size
+        pc_img_w, pc_img_h   = piece.size
 
-        # Travailler en niveaux de gris avec détection de bords
-        bg_gray    = bg.convert("L").filter(ImageFilter.FIND_EDGES)
-        piece_gray = piece.convert("L").filter(ImageFilter.FIND_EDGES)
+        # Ratio pixels image / pixels CSS
+        scale    = bg_img_w / bg_css_w          # ex: 560/280 = 2.0
+        pc_px_w  = int(piece_css_w * scale)     # largeur pièce en pixels image
 
-        bg_px    = list(bg_gray.getdata())
-        piece_px = list(piece_gray.getdata())
+        bg_px = list(bg.getdata())
 
-        # Pour chaque position X candidate, calculer la différence
-        # entre le fond et la pièce (zone sombre = trou dans le fond)
+        # Chercher la colonne où la somme de luminosité est la plus BASSE
+        # sur une largeur = largeur de la pièce → c'est là que se trouve le trou
         best_score = float('inf')
-        best_x     = 150
-        start      = max(piece_w + 5, 15)
-        end        = bg_w - piece_w - 5
+        best_x_img = int(pc_px_w * 1.2)  # on commence après la pièce de départ
 
-        for x in range(start, end):
-            diff = 0
-            samples = 0
-            # Comparer sur quelques lignes représentatives
-            for y in range(0, min(piece_h, bg_h), 4):
-                for px in range(0, piece_w, 4):
-                    bx = x + px
-                    if bx >= bg_w:
-                        break
-                    bg_val    = bg_px[y * bg_w + bx]
-                    piece_val = piece_px[y * piece_w + px]
-                    diff += abs(int(bg_val) - int(piece_val))
-                    samples += 1
+        for x in range(best_x_img, bg_img_w - pc_px_w):
+            # Luminosité moyenne sur la fenêtre, en ne prenant que le centre vertical
+            y_start = bg_img_h // 4
+            y_end   = 3 * bg_img_h // 4
+            total   = sum(
+                bg_px[y * bg_img_w + x + dx]
+                for y in range(y_start, y_end, 3)
+                for dx in range(0, pc_px_w, 3)
+                if x + dx < bg_img_w
+            )
+            if total < best_score:
+                best_score = total
+                best_x_img = x
 
-            if samples > 0:
-                score = diff / samples
-                if score < best_score:
-                    best_score = score
-                    best_x = x
-
-        log.info(f"  🔍 PIL template matching → trou à X={best_x}px (score={best_score:.1f})")
-        return best_x
+        # Convertir en pixels CSS
+        best_x_css = int(best_x_img / scale)
+        log.info(f"  🔍 PIL brightness → trou à X={best_x_img}px image = {best_x_css}px CSS (scale={scale:.2f})")
+        return best_x_css
 
     except Exception as e:
         log.warning(f"  PIL échoué ({e}), fallback 150px")
@@ -303,9 +297,9 @@ async def solve_slider(page: Page) -> bool:
     except Exception as e:
         log.debug(f"  Capture canvas : {e}")
 
-    # Calcul de la distance cible
+    # Calcul de la distance cible (canvas CSS = 280px, pièce CSS = 63px)
     if bg_bytes and piece_bytes:
-        target_x = find_gap_position(bg_bytes, piece_bytes)
+        target_x = find_gap_position(bg_bytes, piece_bytes, bg_css_w=280, piece_css_w=63)
     else:
         target_x = random.randint(120, 180)
         log.warning(f"  Capture impossible, distance aléatoire : {target_x}px")
