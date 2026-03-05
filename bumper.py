@@ -438,29 +438,33 @@ async def bump_super(page: Page):
         await page.goto(f"{cfg['url']}/tableau-de-bord/codes-promo", wait_until="networkidle")
         await human_sleep(3, 5)
 
-        edit_btns = page.locator('a[href*="modifier"], td:last-child a.btn')
-        count = await edit_btns.count()
-        log.info(f"  Boutons modifier : {count}")
+        # Récupérer les URLs des boutons modifier (crayon rouge)
+        await page.wait_for_load_state("networkidle")
+        hrefs = await page.evaluate("""
+            () => Array.from(document.querySelectorAll(
+                'td:last-child a, a[href*="offre"], a[href*="codes-promo/"] '
+            )).map(a => a.href).filter(h => h.includes("codes-promo"))
+        """)
+        # Dédoublonner et filtrer les URLs valides
+        edit_urls = list(dict.fromkeys([h for h in hrefs if "/codes-promo/" in h and "slug" not in h or "offre" in h]))
+        log.info(f"  URLs modifier trouvées : {len(edit_urls)}")
+        for u in edit_urls[:3]: log.info(f"  → {u}")
         bumped = 0
 
-        for i in range(count):
+        for i, url in enumerate(edit_urls):
             try:
-                btn = edit_btns.nth(i)
-                if not await btn.is_visible():
-                    continue
-                await human_click(page, btn)
-                await page.wait_for_load_state("networkidle")
+                await page.goto(url, wait_until="networkidle")
                 await human_sleep(2, 3)
-                await human_click(page, page.locator('button[type="submit"], input[type="submit"]').first)
+                save_btn = page.locator(
+                    'button:has-text("Enregistrer"), input[type="submit"], button[type="submit"]'
+                ).first
+                await human_click(page, save_btn)
                 await page.wait_for_load_state("networkidle")
-                await human_sleep(2, 3)
+                await human_sleep(2, 4)
                 bumped += 1
                 log.info(f"  🔼 Code {i+1} remonté")
-                await page.goto(f"{cfg['url']}/tableau-de-bord/codes-promo", wait_until="networkidle")
-                await human_sleep(2, 3)
             except Exception as e:
-                log.debug(f"  Erreur bouton {i} : {e}")
-                await page.goto(f"{cfg['url']}/tableau-de-bord/codes-promo", wait_until="networkidle")
+                log.debug(f"  Erreur code {i} : {e}")
 
         log.info(f"  🎯 {bumped} code(s) remonté(s) ✓")
 
