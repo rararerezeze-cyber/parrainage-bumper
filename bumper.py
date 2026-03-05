@@ -613,11 +613,25 @@ HANDLERS = {
 async def main():
     to_run = TARGET_SITES if TARGET_SITES else list(HANDLERS.keys())
 
+    # ── Délai aléatoire anti-détection ──────────────────────────
+    # Super-parrain : délai 0-3h (1x/jour, heure très variable)
+    # Autres sites  : délai 0-60min (5x/jour, heure variable)
+    if to_run == ["super"]:
+        # Cron à minuit + délai 0-20h → exécution réelle entre 0h et 20h
+        # Toujours >24h après la veille car on repart de minuit
+        delay_min = random.randint(0, 20 * 60)
+    else:
+        delay_min = random.randint(0, 60)
+
     log.info("═" * 55)
     log.info("  🚀  Parrainage Auto-Bumper  —  VERSION FINALE")
     log.info(f"  🕐  {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
     log.info(f"  🎯  Sites : {', '.join(to_run)}")
+    log.info(f"  ⏳  Délai aléatoire : {delay_min} min avant démarrage...")
     log.info("═" * 55)
+
+    await asyncio.sleep(delay_min * 60)
+    log.info(f"  ▶️  Démarrage effectif à {datetime.now().strftime('%H:%M:%S')}")
 
     async with async_playwright() as pw:
         browser = await pw.chromium.launch(
