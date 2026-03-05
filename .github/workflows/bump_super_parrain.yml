@@ -1,25 +1,20 @@
 name: Bump — Super Parrain (1x/jour)
-
 on:
   schedule:
     - cron: "0 8 * * *"
   workflow_dispatch:
-
 jobs:
   bump:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
       - name: 📦 Dépendances
         run: |
           pip install -r requirements.txt
           playwright install chromium
-
       - name: 🚀 Bump Super Parrain
         env:
           TWOCAPTCHA_KEY:         ${{ secrets.TWOCAPTCHA_KEY }}
@@ -27,7 +22,12 @@ jobs:
           SUPER_PARRAIN_PASSWORD: ${{ secrets.SUPER_PARRAIN_PASSWORD }}
           TARGET_SITES:           "super"
         run: python bumper.py
-
       - name: 📋 Logs
         if: always()
         run: cat bumper.log || true
+      - name: Upload debug
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-super
+          path: debug_super_login.png
