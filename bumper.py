@@ -1,6 +1,3 @@
- · PY
-Copier
-
 """
 =============================================================
   Parrainage Auto-Bumper  —  VERSION FINALE
