@@ -412,13 +412,12 @@ async def bump_super(page: Page):
     async def _do():
         await page.goto(f"{cfg['url']}/login", wait_until="networkidle")
         await human_sleep(2, 4)
-        await robust_fill(page, 'input[type="email"]',    cfg["email"])
-        await robust_fill(page, 'input[type="password"]', cfg["password"])
+        await robust_fill(page, 'input[name="_username"], input[type="email"]', cfg["email"])
+        await robust_fill(page, 'input[name="_password"], input[type="password"]', cfg["password"])
         await human_sleep(1, 2)
 
         await human_click(page, page.locator(
-            'input[type="submit"], input[name="loginSubmit"], '
-            'button:has-text("Connexion"), button[type="submit"]'
+            'input[type="submit"], button:has-text("Connexion"), button[type="submit"]'
         ).first)
 
         try:
