@@ -429,6 +429,11 @@ async def bump_super(page: Page):
         await human_sleep(3, 5)
 
         if not await verify_login(page, "/login", name):
+            await page.screenshot(path="debug_super_login.png")
+            btns = await page.evaluate("Array.from(document.querySelectorAll('button, input[type=submit]')).map(b => (b.textContent || b.value).trim())")
+            for b in btns: log.info(f"  Bouton: {b}")
+            inputs = await page.evaluate("Array.from(document.querySelectorAll('input')).map(i => i.type + ':' + i.name)")
+            for i in inputs: log.info(f"  Input: {i}")
             raise RuntimeError("Login échoué")
 
         await page.goto(f"{cfg['url']}/tableau-de-bord/codes-promo", wait_until="networkidle")
