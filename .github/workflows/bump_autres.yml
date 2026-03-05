@@ -35,3 +35,4 @@ jobs:
           path: |
             debug_bg.png
             debug_piece.png
+            debug_parrainage_login.png
