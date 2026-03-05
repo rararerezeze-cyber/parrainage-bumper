@@ -1,3 +1,6 @@
+ · PY
+Copier
+
 """
 =============================================================
   Parrainage Auto-Bumper  —  VERSION FINALE
@@ -553,6 +556,13 @@ async def bump_parrainage(page: Page):
         await human_sleep(3, 5)
 
         if not await verify_login(page, "/login", name):
+            await page.screenshot(path="debug_parrainage_login.png")
+            btns = await page.evaluate("Array.from(document.querySelectorAll('button, input[type=submit]')).map(b => b.textContent.trim())")
+            for b in btns:
+                log.info(f"  Bouton: {b}")
+            inputs = await page.evaluate("Array.from(document.querySelectorAll('input')).map(i => i.type + ':' + i.name + '=' + i.value.slice(0,3))")
+            for i in inputs:
+                log.info(f"  Input: {i}")
             raise RuntimeError("Login échoué")
 
         await page.goto(f"{cfg['url']}/account/offers", wait_until="networkidle")
