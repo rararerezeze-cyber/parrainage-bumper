@@ -417,6 +417,7 @@ async def bump_super(page: Page):
         await human_sleep(1, 2)
 
         await human_click(page, page.locator(
+            'input[type="submit"], input[name="loginSubmit"], '
             'button:has-text("Connexion"), button[type="submit"]'
         ).first)
 
@@ -542,6 +543,7 @@ async def bump_parrainage(page: Page):
         await human_sleep(1, 2)
 
         await human_click(page, page.locator(
+            'input[type="submit"], input[name="loginSubmit"], '
             'button:has-text("Connexion"), button[type="submit"]'
         ).first)
 
