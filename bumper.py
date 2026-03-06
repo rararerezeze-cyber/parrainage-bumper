@@ -616,22 +616,45 @@ async def main():
     # ── Délai aléatoire anti-détection ──────────────────────────
     # Super-parrain : délai 0-3h (1x/jour, heure très variable)
     # Autres sites  : délai 0-60min (5x/jour, heure variable)
+    # ── Délai aléatoire ──────────────────────────────────────────
     if to_run == ["super"]:
-        # Cron à minuit + délai 0-20h → exécution réelle entre 0h et 20h
-        # Toujours >24h après la veille car on repart de minuit
-        delay_min = random.randint(0, 20 * 60)
+        # Super-parrain : vérifier que 24h se sont écoulées depuis le dernier run
+        last_run_file = "last_super_run.txt"
+        min_interval_h = 24
+        now = datetime.now()
+
+        if os.path.exists(last_run_file):
+            with open(last_run_file, "r") as f:
+                last_str = f.read().strip()
+            try:
+                last_run = datetime.fromisoformat(last_str)
+                elapsed_h = (now - last_run).total_seconds() / 3600
+                log.info(f"  ⏱️  Dernier run : {last_str} ({elapsed_h:.1f}h écoulées)")
+                if elapsed_h < min_interval_h:
+                    wait_h = min_interval_h - elapsed_h + random.uniform(0.5, 2)
+                    log.info(f"  ⏳  Moins de 24h écoulées — attente {wait_h:.1f}h supplémentaires")
+                    await asyncio.sleep(wait_h * 3600)
+                else:
+                    # 24h+ écoulées : délai aléatoire court (0-30min) juste pour varier
+                    delay_min = random.randint(0, 30)
+                    log.info(f"  ⏳  Délai aléatoire : {delay_min} min")
+                    await asyncio.sleep(delay_min * 60)
+            except Exception:
+                pass
+        else:
+            log.info("  ℹ️  Premier run super-parrain")
+
     else:
+        # Autres sites : délai aléatoire 0-60min
         delay_min = random.randint(0, 60)
+        log.info(f"  ⏳  Délai aléatoire : {delay_min} min avant démarrage...")
+        await asyncio.sleep(delay_min * 60)
 
     log.info("═" * 55)
     log.info("  🚀  Parrainage Auto-Bumper  —  VERSION FINALE")
     log.info(f"  🕐  {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
     log.info(f"  🎯  Sites : {', '.join(to_run)}")
-    log.info(f"  ⏳  Délai aléatoire : {delay_min} min avant démarrage...")
     log.info("═" * 55)
-
-    await asyncio.sleep(delay_min * 60)
-    log.info(f"  ▶️  Démarrage effectif à {datetime.now().strftime('%H:%M:%S')}")
 
     async with async_playwright() as pw:
         browser = await pw.chromium.launch(
@@ -672,6 +695,12 @@ async def main():
                 await human_sleep(3, 7)
 
         await browser.close()
+
+    # Sauvegarder l'heure du run pour super-parrain
+    if to_run == ["super"]:
+        with open("last_super_run.txt", "w") as f:
+            f.write(datetime.now().isoformat())
+        log.info(f"  💾  Heure sauvegardée : {datetime.now().strftime('%H:%M:%S')}")
 
     log.info("\n" + "═" * 55)
     log.info("  ✅  Cycle terminé !")
