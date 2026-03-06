@@ -6,6 +6,8 @@ on:
 jobs:
   bump:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -17,7 +19,6 @@ jobs:
           playwright install chromium
       - name: 🚀 Bump Super Parrain
         env:
-          TWOCAPTCHA_KEY:         ${{ secrets.TWOCAPTCHA_KEY }}
           SUPER_PARRAIN_EMAIL:    ${{ secrets.SUPER_PARRAIN_EMAIL }}
           SUPER_PARRAIN_PASSWORD: ${{ secrets.SUPER_PARRAIN_PASSWORD }}
           TARGET_SITES:           "super"
@@ -25,9 +26,11 @@ jobs:
       - name: 📋 Logs
         if: always()
         run: cat bumper.log || true
-      - name: Upload debug
+      - name: 💾 Sauvegarder heure du run
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: debug-super
-          path: debug_super_login.png
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add last_super_run.txt || true
+          git diff --staged --quiet || git commit -m "Update last super run time"
+          git push || true
