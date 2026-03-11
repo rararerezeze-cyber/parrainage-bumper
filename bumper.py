@@ -575,22 +575,23 @@ async def bump_parrainage(page: Page):
         await page.goto(f"{cfg['url']}/account/offers", wait_until="networkidle")
         await human_sleep(3, 5)
 
+        # Compter une seule fois le nombre total d'annonces à remonter
+        buttons_init = page.locator(
+            'button:has-text("Remettre en haut"), a:has-text("Remettre en haut")'
+        )
+        total = await buttons_init.count()
+        log.info(f"  Boutons Remettre en haut : {total}")
         bumped = 0
-        max_attempts = 50  # sécurité anti-boucle infinie
 
-        for attempt in range(max_attempts):
-            # Recharger les boutons à chaque itération (page mise à jour après chaque clic)
+        for attempt in range(total):
+            # Recharger la page et reprendre le premier bouton visible
+            await page.goto(f"{cfg['url']}/account/offers", wait_until="networkidle")
+            await human_sleep(1, 2)
             buttons = page.locator(
                 'button:has-text("Remettre en haut"), a:has-text("Remettre en haut")'
             )
-            count = await buttons.count()
-            if attempt == 0:
-                log.info(f"  Boutons Remettre en haut : {count}")
-
-            if count == 0:
+            if await buttons.count() == 0:
                 break
-
-            # Toujours cliquer le PREMIER bouton visible (les index se réorganisent)
             btn = buttons.first
             try:
                 if not await btn.is_visible():
@@ -598,11 +599,8 @@ async def bump_parrainage(page: Page):
                 await btn.scroll_into_view_if_needed()
                 await human_click(page, btn)
                 bumped += 1
-                log.info(f"  🔼 Remettre en haut {bumped} cliqué")
-                await human_sleep(2, 5)
-                # Recharger la page pour voir les boutons mis à jour
-                await page.goto(f"{cfg['url']}/account/offers", wait_until="networkidle")
-                await human_sleep(2, 3)
+                log.info(f"  🔼 Remettre en haut {bumped}/{total} cliqué")
+                await human_sleep(2, 4)
             except Exception as e:
                 log.debug(f"  Erreur tentative {attempt} : {e}")
                 break
@@ -628,13 +626,10 @@ async def main():
     # ── Délai aléatoire anti-détection ──────────────────────────
     # Super-parrain : délai 0-3h (1x/jour, heure très variable)
     # Autres sites  : délai 0-60min (5x/jour, heure variable)
-    # ── Délai aléatoire ──────────────────────────────────────────
+    # ── Vérification 24h pour super-parrain (sans sleep, exit immédiat) ──
     if to_run == ["super"]:
-        # Super-parrain : vérifier que 24h se sont écoulées depuis le dernier run
         last_run_file = "last_super_run.txt"
-        min_interval_h = 24
         now = datetime.now()
-
         if os.path.exists(last_run_file):
             with open(last_run_file, "r") as f:
                 last_str = f.read().strip()
@@ -642,25 +637,13 @@ async def main():
                 last_run = datetime.fromisoformat(last_str)
                 elapsed_h = (now - last_run).total_seconds() / 3600
                 log.info(f"  ⏱️  Dernier run : {last_str} ({elapsed_h:.1f}h écoulées)")
-                if elapsed_h < min_interval_h:
-                    wait_h = min_interval_h - elapsed_h + random.uniform(0.5, 2)
-                    log.info(f"  ⏳  Moins de 24h écoulées — attente {wait_h:.1f}h supplémentaires")
-                    await asyncio.sleep(wait_h * 3600)
-                else:
-                    # 24h+ écoulées : délai aléatoire court (0-30min) juste pour varier
-                    delay_min = random.randint(0, 30)
-                    log.info(f"  ⏳  Délai aléatoire : {delay_min} min")
-                    await asyncio.sleep(delay_min * 60)
+                if elapsed_h < 24:
+                    log.info(f"  ⏭️  Moins de 24h écoulées — run ignoré, prochain run demain")
+                    return
             except Exception:
                 pass
         else:
             log.info("  ℹ️  Premier run super-parrain")
-
-    else:
-        # Autres sites : délai aléatoire 0-60min
-        delay_min = random.randint(0, 60)
-        log.info(f"  ⏳  Délai aléatoire : {delay_min} min avant démarrage...")
-        await asyncio.sleep(delay_min * 60)
 
     log.info("═" * 55)
     log.info("  🚀  Parrainage Auto-Bumper  —  VERSION FINALE")
