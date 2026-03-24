@@ -543,35 +543,55 @@ async def bump_parrainage(page: Page):
     log.info(f"\n{'─'*50}\n  🌐 parrainage.co\n{'─'*50}")
 
     async def _do():
-        await page.goto(f"{cfg['url']}/account/login", wait_until="domcontentloaded", timeout=90000)
-        await human_sleep(3, 5)
-        await page.screenshot(path="debug_parrainage_login.png")
-        await robust_fill(page, 'input[type="email"], input[name="email"], input#email',          cfg["email"])
-        await human_sleep(0.5, 1)
-        await robust_fill(page, 'input[type="password"], input[name="password"], input#password', cfg["password"])
-        await human_sleep(1, 2)
+        # ── Login via curl_cffi (bypass Cloudflare Turnstile) ──
+        import asyncio
+        from curl_cffi import requests as cf_requests
 
-        await human_click(page, page.locator(
-            'input[type="submit"], input[name="loginSubmit"], '
-            'button:has-text("Connexion"), button[type="submit"]'
-        ).first)
+        log.info("  🔐 Login curl_cffi (bypass Cloudflare)...")
+        session = cf_requests.Session(impersonate="chrome")
 
-        try:
-            await page.wait_for_url(lambda url: "/login" not in url, timeout=60000)
-        except Exception:
-            pass
-        await page.wait_for_load_state("networkidle", timeout=60000)
-        await human_sleep(3, 5)
+        # Récupérer le token CSRF
+        r = session.get(f"{cfg['url']}/account/login")
+        log.info(f"  GET login → {r.status_code}")
 
-        if not await verify_login(page, "/login", name):
-            await page.screenshot(path="debug_parrainage_login.png")
-            btns = await page.evaluate("Array.from(document.querySelectorAll('button, input[type=submit]')).map(b => b.textContent.trim())")
-            for b in btns:
-                log.info(f"  Bouton: {b}")
-            inputs = await page.evaluate("Array.from(document.querySelectorAll('input')).map(i => i.type + ':' + i.name + '=' + i.value.slice(0,3))")
-            for i in inputs:
-                log.info(f"  Input: {i}")
-            raise RuntimeError("Login échoué")
+        # Extraire _token du HTML
+        import re
+        token_match = re.search(r'name="_token"\s+value="([^"]+)"', r.text)
+        token = token_match.group(1) if token_match else ""
+        log.info(f"  _token={'trouvé' if token else 'NON TROUVÉ'}")
+
+        # POST login
+        payload = {
+            "email": cfg["email"],
+            "password": cfg["password"],
+            "_token": token,
+            "rememberMe": "on",
+            "loginSubmit": "Connexion",
+            "homeEP": "/",
+        }
+        r2 = session.post(
+            f"{cfg['url']}/account/login",
+            data=payload,
+            allow_redirects=True,
+        )
+        log.info(f"  POST login → {r2.status_code} | URL finale : {r2.url}")
+
+        if "/login" in str(r2.url):
+            raise RuntimeError("Login échoué (curl_cffi)")
+
+        log.info(f"  [parrainage_co] ✓ Login réussi (curl_cffi) !")
+
+        # Injecter les cookies dans Playwright
+        cookies_to_inject = []
+        for name, value in session.cookies.items():
+            cookies_to_inject.append({
+                "name": name,
+                "value": value,
+                "domain": "parrainage.co",
+                "path": "/",
+            })
+        await page.context.add_cookies(cookies_to_inject)
+        log.info(f"  🍪 {len(cookies_to_inject)} cookies injectés dans Playwright")
 
         await page.goto(f"{cfg['url']}/account/offers", wait_until="networkidle")
         await human_sleep(3, 5)
