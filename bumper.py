@@ -573,13 +573,20 @@ async def bump_parrainage(page: Page):
         for inp in form_inputs[:15]:
             log.info(f"  FORM: {inp[:150]}")
 
-        log.info(f"  _token={'trouvé: '+token[:20] if token else 'NON TROUVÉ'}")
+        # Extraire csrf_name et csrf_value (format Slim Framework)
+        csrf_name_match = re.search(r'name="csrf_name"\s+value="([^"]+)"', r.text)
+        csrf_value_match = re.search(r'name="csrf_value"\s+value="([^"]+)"', r.text)
+        csrf_name_key = csrf_name_match.group(1) if csrf_name_match else ""
+        csrf_value_key = csrf_value_match.group(1) if csrf_value_match else ""
+        log.info(f"  csrf_name={'trouvé: '+csrf_name_key[:20] if csrf_name_key else 'NON TROUVÉ'}")
+        log.info(f"  csrf_value={'trouvé: '+csrf_value_key[:10]+'...' if csrf_value_key else 'NON TROUVÉ'}")
 
         # POST login
         payload = {
+            "csrf_name": csrf_name_key,
+            "csrf_value": csrf_value_key,
             "email": cfg["email"],
             "password": cfg["password"],
-            "_token": token,
             "rememberMe": "on",
             "loginSubmit": "Connexion",
             "homeEP": "/",
