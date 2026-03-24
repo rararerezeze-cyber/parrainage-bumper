@@ -575,37 +575,37 @@ async def bump_parrainage(page: Page):
         await page.goto(f"{cfg['url']}/account/offers", wait_until="networkidle")
         await human_sleep(3, 5)
 
-        # Compter une seule fois le nombre total d'annonces à remonter
-        buttons_init = page.locator(
-            'button:has-text("Remettre en haut"), a:has-text("Remettre en haut")'
-        )
-        total = await buttons_init.count()
-        log.info(f"  Boutons Remettre en haut : {total}")
-        bumped = 0
-
-        for attempt in range(total):
-            # Recharger la page et reprendre le premier bouton visible
-            await page.goto(f"{cfg['url']}/account/offers", wait_until="networkidle")
-            await human_sleep(1, 2)
+        # Nouveau bouton unique "Remonter toutes mes annonces"
+        bump_all_btn = page.locator(
+            'button:has-text("Remonter toutes mes annonces"), '
+            'a:has-text("Remonter toutes mes annonces")'
+        ).first
+        try:
+            await bump_all_btn.wait_for(state="visible", timeout=8000)
+            await bump_all_btn.scroll_into_view_if_needed()
+            await human_click(page, bump_all_btn)
+            await human_sleep(2, 4)
+            log.info(f"  🔼 Toutes les annonces remontées d'un coup ✓")
+        except Exception as e:
+            log.warning(f"  Bouton global non trouvé ({e}), tentative boutons individuels...")
+            # Fallback : anciens boutons individuels
             buttons = page.locator(
                 'button:has-text("Remettre en haut"), a:has-text("Remettre en haut")'
             )
-            if await buttons.count() == 0:
-                break
-            btn = buttons.first
-            try:
-                if not await btn.is_visible():
-                    break
-                await btn.scroll_into_view_if_needed()
-                await human_click(page, btn)
-                bumped += 1
-                log.info(f"  🔼 Remettre en haut {bumped}/{total} cliqué")
-                await human_sleep(2, 4)
-            except Exception as e:
-                log.debug(f"  Erreur tentative {attempt} : {e}")
-                break
+            total = await buttons.count()
+            log.info(f"  Boutons individuels : {total}")
+            for i in range(total):
+                btn = buttons.nth(i)
+                try:
+                    if not await btn.is_visible(): continue
+                    await btn.scroll_into_view_if_needed()
+                    await human_click(page, btn)
+                    log.info(f"  🔼 Remettre en haut {i+1}/{total}")
+                    await human_sleep(2, 4)
+                except Exception as e2:
+                    log.debug(f"  Erreur {i} : {e2}")
 
-        log.info(f"  🎯 {bumped} annonce(s) remontée(s) ✓")
+        log.info(f"  🎯 Annonces remontées ✓")
 
     await retry(_do, retries=3, label=name)
 
