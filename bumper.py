@@ -554,11 +554,26 @@ async def bump_parrainage(page: Page):
         r = session.get(f"{cfg['url']}/account/login")
         log.info(f"  GET login → {r.status_code}")
 
-        # Extraire _token du HTML
+        # Extraire _token du HTML — essayer plusieurs patterns
         import re
-        token_match = re.search(r'name="_token"\s+value="([^"]+)"', r.text)
-        token = token_match.group(1) if token_match else ""
-        log.info(f"  _token={'trouvé' if token else 'NON TROUVÉ'}")
+        token = ""
+        for pattern in [
+            r'name="_token"[^>]*value="([^"]+)"',
+            r'value="([^"]+)"[^>]*name="_token"',
+            r'"_token"\s*:\s*"([^"]+)"',
+            r'_token.*?value="([^"]+)"',
+        ]:
+            m = re.search(pattern, r.text)
+            if m:
+                token = m.group(1)
+                break
+
+        # Dump les inputs du formulaire pour debug
+        form_inputs = re.findall(r'<input[^>]+>', r.text)
+        for inp in form_inputs[:15]:
+            log.info(f"  FORM: {inp[:150]}")
+
+        log.info(f"  _token={'trouvé: '+token[:20] if token else 'NON TROUVÉ'}")
 
         # POST login
         payload = {
@@ -575,8 +590,10 @@ async def bump_parrainage(page: Page):
             allow_redirects=True,
         )
         log.info(f"  POST login → {r2.status_code} | URL finale : {r2.url}")
+        # Dump début de la réponse pour debug
+        log.info(f"  Réponse (début): {r2.text[:300].replace(chr(10),' ')}")
 
-        if "/login" in str(r2.url):
+        if "/login" in str(r2.url) or r2.status_code == 403:
             raise RuntimeError("Login échoué (curl_cffi)")
 
         log.info(f"  [parrainage_co] ✓ Login réussi (curl_cffi) !")
