@@ -421,7 +421,7 @@ async def bump_super(page: Page):
         ).first)
 
         try:
-            await page.wait_for_url(lambda url: "/login" not in url, timeout=15000)
+            await page.wait_for_url(lambda url: "/login" not in url, timeout=30000)
         except Exception:
             pass
         await page.wait_for_load_state("networkidle")
@@ -543,8 +543,9 @@ async def bump_parrainage(page: Page):
     log.info(f"\n{'─'*50}\n  🌐 parrainage.co\n{'─'*50}")
 
     async def _do():
-        await page.goto(f"{cfg['url']}/account/login", wait_until="domcontentloaded")
+        await page.goto(f"{cfg['url']}/account/login", wait_until="domcontentloaded", timeout=90000)
         await human_sleep(3, 5)
+        await page.screenshot(path="debug_parrainage_login.png")
         await robust_fill(page, 'input[type="email"], input[name="email"], input#email',          cfg["email"])
         await human_sleep(0.5, 1)
         await robust_fill(page, 'input[type="password"], input[name="password"], input#password', cfg["password"])
@@ -556,10 +557,10 @@ async def bump_parrainage(page: Page):
         ).first)
 
         try:
-            await page.wait_for_url(lambda url: "/login" not in url, timeout=15000)
+            await page.wait_for_url(lambda url: "/login" not in url, timeout=60000)
         except Exception:
             pass
-        await page.wait_for_load_state("networkidle")
+        await page.wait_for_load_state("networkidle", timeout=60000)
         await human_sleep(3, 5)
 
         if not await verify_login(page, "/login", name):
