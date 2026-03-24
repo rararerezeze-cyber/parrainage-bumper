@@ -543,80 +543,31 @@ async def bump_parrainage(page: Page):
     log.info(f"\n{'─'*50}\n  🌐 parrainage.co\n{'─'*50}")
 
     async def _do():
-        # ── Login via curl_cffi (bypass Cloudflare Turnstile) ──
-        import asyncio
-        from curl_cffi import requests as cf_requests
+        # ── Login Playwright + stealth (bypass Cloudflare Turnstile) ──
+        from playwright_stealth import stealth_async
+        await stealth_async(page)
 
-        log.info("  🔐 Login curl_cffi (bypass Cloudflare)...")
-        session = cf_requests.Session(impersonate="chrome")
+        await page.goto(f"{cfg['url']}/account/login", wait_until="domcontentloaded", timeout=90000)
+        await human_sleep(3, 6)
+        await page.screenshot(path="debug_parrainage_login.png")
 
-        # Récupérer le token CSRF
-        r = session.get(f"{cfg['url']}/account/login")
-        log.info(f"  GET login → {r.status_code}")
+        await robust_fill(page, 'input[name="email"]', cfg["email"])
+        await human_sleep(0.5, 1)
+        await robust_fill(page, 'input[name="password"]', cfg["password"])
+        await human_sleep(2, 4)
 
-        # Extraire _token du HTML — essayer plusieurs patterns
-        import re
-        token = ""
-        for pattern in [
-            r'name="_token"[^>]*value="([^"]+)"',
-            r'value="([^"]+)"[^>]*name="_token"',
-            r'"_token"\s*:\s*"([^"]+)"',
-            r'_token.*?value="([^"]+)"',
-        ]:
-            m = re.search(pattern, r.text)
-            if m:
-                token = m.group(1)
-                break
+        await human_click(page, page.locator('input[name="loginSubmit"], input[type="submit"]').first)
 
-        # Dump les inputs du formulaire pour debug
-        form_inputs = re.findall(r'<input[^>]+>', r.text)
-        for inp in form_inputs[:15]:
-            log.info(f"  FORM: {inp[:150]}")
+        try:
+            await page.wait_for_url(lambda url: "/login" not in url, timeout=60000)
+        except Exception:
+            pass
+        await page.wait_for_load_state("networkidle", timeout=60000)
+        await human_sleep(3, 5)
 
-        # Extraire csrf_name et csrf_value (format Slim Framework)
-        csrf_name_match = re.search(r'name="csrf_name"\s+value="([^"]+)"', r.text)
-        csrf_value_match = re.search(r'name="csrf_value"\s+value="([^"]+)"', r.text)
-        csrf_name_key = csrf_name_match.group(1) if csrf_name_match else ""
-        csrf_value_key = csrf_value_match.group(1) if csrf_value_match else ""
-        log.info(f"  csrf_name={'trouvé: '+csrf_name_key[:20] if csrf_name_key else 'NON TROUVÉ'}")
-        log.info(f"  csrf_value={'trouvé: '+csrf_value_key[:10]+'...' if csrf_value_key else 'NON TROUVÉ'}")
-
-        # POST login
-        payload = {
-            "csrf_name": csrf_name_key,
-            "csrf_value": csrf_value_key,
-            "email": cfg["email"],
-            "password": cfg["password"],
-            "rememberMe": "on",
-            "loginSubmit": "Connexion",
-            "homeEP": "/",
-        }
-        r2 = session.post(
-            f"{cfg['url']}/account/login",
-            data=payload,
-            allow_redirects=True,
-        )
-        log.info(f"  POST login → {r2.status_code} | URL finale : {r2.url}")
-        # Dump début de la réponse pour debug
-        log.info(f"  Réponse (début): {r2.text[:300].replace(chr(10),' ')}")
-
-        if "/login" in str(r2.url) or r2.status_code == 403:
-            raise RuntimeError("Login échoué (curl_cffi)")
-
-        log.info(f"  [parrainage_co] ✓ Login réussi (curl_cffi) !")
-
-        # Injecter les cookies dans Playwright
-        cookies_to_inject = []
-        for name, value in session.cookies.items():
-            cookies_to_inject.append({
-                "name": name,
-                "value": value,
-                "domain": "parrainage.co",
-                "path": "/",
-            })
-        await page.context.add_cookies(cookies_to_inject)
-        log.info(f"  🍪 {len(cookies_to_inject)} cookies injectés dans Playwright")
-
+        if not await verify_login(page, "/login", name):
+            await page.screenshot(path="debug_parrainage_login.png")
+            raise RuntimeError("Login échoué")
         await page.goto(f"{cfg['url']}/account/offers", wait_until="networkidle")
         await human_sleep(3, 5)
 
