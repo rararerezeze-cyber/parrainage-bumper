@@ -543,31 +543,33 @@ async def bump_parrainage(page: Page):
     log.info(f"\n{'─'*50}\n  🌐 parrainage.co\n{'─'*50}")
 
     async def _do():
-        # ── Login Playwright + stealth (bypass Cloudflare Turnstile) ──
-        from playwright_stealth import stealth_async
-        await stealth_async(page)
+        # ── Login via cookie de session (bypass Cloudflare) ──
+        session_cookies = os.environ.get("PARRAINAGE_CO_COOKIES", "")
+        if not session_cookies:
+            raise RuntimeError("PARRAINAGE_CO_COOKIES manquant dans les secrets")
 
-        await page.goto(f"{cfg['url']}/account/login", wait_until="domcontentloaded", timeout=90000)
-        await human_sleep(3, 6)
+        # Injecter les cookies dans Playwright avant de naviguer
+        cookies_to_inject = []
+        for part in session_cookies.split(";"):
+            part = part.strip()
+            if "=" in part:
+                name, value = part.split("=", 1)
+                cookies_to_inject.append({
+                    "name": name.strip(),
+                    "value": value.strip(),
+                    "domain": "parrainage.co",
+                    "path": "/",
+                })
+        await page.context.add_cookies(cookies_to_inject)
+        log.info(f"  🍪 {len(cookies_to_inject)} cookie(s) injecté(s)")
+
+        # Aller directement sur la page des offres sans passer par le login
+        await page.goto(f"{cfg['url']}/account/offers", wait_until="domcontentloaded", timeout=60000)
+        await human_sleep(2, 4)
         await page.screenshot(path="debug_parrainage_login.png")
 
-        await robust_fill(page, 'input[name="email"]', cfg["email"])
-        await human_sleep(0.5, 1)
-        await robust_fill(page, 'input[name="password"]', cfg["password"])
-        await human_sleep(2, 4)
-
-        await human_click(page, page.locator('input[name="loginSubmit"], input[type="submit"]').first)
-
-        try:
-            await page.wait_for_url(lambda url: "/login" not in url, timeout=60000)
-        except Exception:
-            pass
-        await page.wait_for_load_state("networkidle", timeout=60000)
-        await human_sleep(3, 5)
-
         if not await verify_login(page, "/login", name):
-            await page.screenshot(path="debug_parrainage_login.png")
-            raise RuntimeError("Login échoué")
+            raise RuntimeError("Cookie expiré ou invalide")
         await page.goto(f"{cfg['url']}/account/offers", wait_until="networkidle")
         await human_sleep(3, 5)
 
@@ -714,3 +716,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
