@@ -649,7 +649,7 @@ async def main():
 
     async with async_playwright() as pw:
         browser = await pw.chromium.launch(
-            headless=True,
+            headless=False,
             args=[
                 "--no-sandbox",
                 "--disable-dev-shm-usage",
