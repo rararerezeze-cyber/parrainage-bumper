@@ -22,7 +22,12 @@ jobs:
           SUPER_PARRAIN_EMAIL:    ${{ secrets.SUPER_PARRAIN_EMAIL }}
           SUPER_PARRAIN_PASSWORD: ${{ secrets.SUPER_PARRAIN_PASSWORD }}
           TARGET_SITES:           "super"
-        run: python bumper.py
+          DISPLAY:                ":99"
+        run: |
+          sudo apt-get install -y xvfb
+          Xvfb :99 -screen 0 1280x800x24 &
+          sleep 2
+          python bumper.py
       - name: 📋 Logs
         if: always()
         run: cat bumper.log || true
