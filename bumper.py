@@ -581,8 +581,16 @@ async def bump_parrainage(page: Page):
         try:
             await bump_all_btn.wait_for(state="visible", timeout=8000)
             await bump_all_btn.scroll_into_view_if_needed()
+            await page.screenshot(path="debug_parrainage_avant.png")
             await human_click(page, bump_all_btn)
-            await human_sleep(2, 4)
+            await human_sleep(3, 5)
+            await page.screenshot(path="debug_parrainage_apres.png")
+            # Vérifier le texte de confirmation
+            body_text = await page.inner_text("body")
+            if "remonté" in body_text.lower() or "succès" in body_text.lower() or "0/5" in body_text:
+                log.info(f"  🔼 Toutes les annonces remontées d'un coup ✓")
+            else:
+                log.warning(f"  ⚠️ Clic effectué mais confirmation non détectée")
             log.info(f"  🔼 Toutes les annonces remontées d'un coup ✓")
         except Exception as e:
             log.warning(f"  Bouton global non trouvé ({e}), tentative boutons individuels...")
@@ -716,4 +724,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
