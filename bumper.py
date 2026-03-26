@@ -581,28 +581,20 @@ async def bump_parrainage(page: Page):
         try:
             await bump_all_btn.wait_for(state="visible", timeout=8000)
             await page.screenshot(path="debug_parrainage_avant.png")
-            # Cliquer jusqu'à 0/5 (le bouton remonte une annonce à la fois)
-            clicks = 0
-            for _ in range(6):  # max 5 clics + 1 sécurité
-                btn = page.locator('button:has-text("Remonter toutes mes annonces"), a:has-text("Remonter toutes mes annonces")').first
-                try:
-                    await btn.wait_for(state="visible", timeout=5000)
-                except Exception:
-                    break
-                # Vérifier le compteur restant
-                page_text = await page.inner_text("body")
-                if "0/5" in page_text or "0/5 restante" in page_text:
-                    log.info("  ✅ 0/5 restantes — toutes remontées !")
-                    break
-                await btn.scroll_into_view_if_needed()
-                await btn.dispatch_event("click")
-                clicks += 1
-                log.info(f"  🔼 Clic {clicks} effectué")
-                await human_sleep(2, 4)
-                await page.reload(wait_until="domcontentloaded")
-                await human_sleep(1, 2)
+
+            # Intercepter la requête réseau du bouton pour la rejouer directement
+            # D'abord trouver l'URL de l'action via un vrai clic avec attente réseau
+            async with page.expect_request(lambda r: "boost" in r.url or "remonter" in r.url or "bump" in r.url or "account" in r.url, timeout=8000) as req_info:
+                await bump_all_btn.click()
+            actual_req = await req_info.value
+            action_url = actual_req.url
+            action_method = actual_req.method
+            action_post_data = actual_req.post_data
+            log.info(f"  🔗 Action URL: {action_url} [{action_method}]")
+
+            await human_sleep(2, 4)
             await page.screenshot(path="debug_parrainage_apres.png")
-            log.info(f"  🎯 {clicks} clic(s) effectué(s)")
+            log.info(f"  🔼 Bouton cliqué ✓")
         except Exception as e:
             log.warning(f"  Bouton global non trouvé ({e}), tentative boutons individuels...")
             # Fallback : anciens boutons individuels
@@ -735,4 +727,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
