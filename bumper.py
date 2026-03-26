@@ -582,15 +582,14 @@ async def bump_parrainage(page: Page):
             await bump_all_btn.wait_for(state="visible", timeout=8000)
             await page.screenshot(path="debug_parrainage_avant.png")
 
-            # Intercepter la requête réseau du bouton pour la rejouer directement
-            # D'abord trouver l'URL de l'action via un vrai clic avec attente réseau
-            async with page.expect_request(lambda r: "boost" in r.url or "remonter" in r.url or "bump" in r.url or "account" in r.url, timeout=8000) as req_info:
+            # Clic direct + attente de la réponse du serveur parrainage.co
+            async with page.expect_response(
+                lambda r: "parrainage.co" in r.url and r.status < 400,
+                timeout=10000
+            ) as resp_info:
                 await bump_all_btn.click()
-            actual_req = await req_info.value
-            action_url = actual_req.url
-            action_method = actual_req.method
-            action_post_data = actual_req.post_data
-            log.info(f"  🔗 Action URL: {action_url} [{action_method}]")
+            resp = await resp_info.value
+            log.info(f"  🔗 Réponse: {resp.url} [{resp.status}]")
 
             await human_sleep(2, 4)
             await page.screenshot(path="debug_parrainage_apres.png")
