@@ -1,221 +1,502 @@
 """
-Parrainage Auto-Bumper ULTIMATE
+Parrainage Auto-Bumper - VERSION PRO
 super-parrain.com | code-parrainage.net | parrainage.co
 """
 
 import asyncio, os, io, random, logging
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
-from playwright.async_api import async_playwright
+from playwright.async_api import async_playwright, Page, TimeoutError as PWTimeout
 
-# ---------------- LOGGING ----------------
-
+# -- LOGGING ------------------------------------------------------------------
 log = logging.getLogger("bumper")
-log.setLevel(logging.INFO)
+log.setLevel("INFO")
 log.propagate = False
-
-fmt = logging.Formatter("%(asctime)s | %(levelname)s | %(message)s", "%H:%M:%S")
-
-for h in [
-    logging.StreamHandler(),
-    RotatingFileHandler("bumper.log", maxBytes=1_000_000, backupCount=2)
-]:
+fmt = logging.Formatter("%(asctime)s  %(levelname)-8s  %(message)s", datefmt="%H:%M:%S")
+for h in [logging.StreamHandler(),
+          RotatingFileHandler("bumper.log", maxBytes=500_000, backupCount=1, encoding="utf-8")]:
     h.setFormatter(fmt)
     log.addHandler(h)
 
-# ---------------- CONFIG ----------------
-
+# -- CONFIG -------------------------------------------------------------------
 TARGET_SITES = [s.strip() for s in os.environ.get("TARGET_SITES", "").split(",") if s.strip()]
 
 CONFIG = {
-    "super": {
-        "url": "https://www.super-parrain.com",
-        "email": os.getenv("SUPER_PARRAIN_EMAIL"),
-        "password": os.getenv("SUPER_PARRAIN_PASSWORD")
-    },
-    "code": {
-        "url": "https://code-parrainage.net",
-        "email": os.getenv("CODE_PARRAINAGE_EMAIL"),
-        "password": os.getenv("CODE_PARRAINAGE_PASSWORD")
-    },
-    "parrainage": {
-        "url": "https://parrainage.co",
-        "rm_cookie": os.getenv("PARRAINAGE_CO_RM_COOKIE")
-    }
+    "super":      {"url": "https://www.super-parrain.com",
+                   "email":    os.environ.get("SUPER_PARRAIN_EMAIL", ""),
+                   "password": os.environ.get("SUPER_PARRAIN_PASSWORD", "")},
+    "code":       {"url": "https://code-parrainage.net",
+                   "email":    os.environ.get("CODE_PARRAINAGE_EMAIL", ""),
+                   "password": os.environ.get("CODE_PARRAINAGE_PASSWORD", "")},
+    "parrainage": {"url": "https://parrainage.co",
+                   "rm_cookie": os.environ.get("PARRAINAGE_CO_RM_COOKIE", "")},
 }
 
-# ---------------- HUMAN ----------------
+# -- STEALTH SCRIPT -----------------------------------------------------------
+# Spoof WebGL, canvas, hardwareConcurrency, timezone, plugins
+STEALTH_JS = """
+() => {
+    // webdriver
+    Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
+    // plugins
+    Object.defineProperty(navigator, 'plugins', {get: () => [1,2,3,4,5]});
+    // languages
+    Object.defineProperty(navigator, 'languages', {get: () => ['fr-FR','fr','en-US','en']});
+    // hardwareConcurrency
+    Object.defineProperty(navigator, 'hardwareConcurrency', {get: () => 8});
+    // deviceMemory
+    Object.defineProperty(navigator, 'deviceMemory', {get: () => 8});
+    // chrome
+    window.chrome = {runtime: {}, loadTimes: function(){}, csi: function(){}};
+    // permissions
+    const origQuery = window.navigator.permissions.query;
+    window.navigator.permissions.query = (parameters) =>
+        parameters.name === 'notifications'
+            ? Promise.resolve({state: Notification.permission})
+            : origQuery(parameters);
+    // WebGL vendor/renderer spoof
+    const getParam = WebGLRenderingContext.prototype.getParameter;
+    WebGLRenderingContext.prototype.getParameter = function(param) {
+        if (param === 37445) return 'Intel Inc.';
+        if (param === 37446) return 'Intel Iris OpenGL Engine';
+        return getParam.call(this, param);
+    };
+    const getParam2 = WebGL2RenderingContext.prototype.getParameter;
+    WebGL2RenderingContext.prototype.getParameter = function(param) {
+        if (param === 37445) return 'Intel Inc.';
+        if (param === 37446) return 'Intel Iris OpenGL Engine';
+        return getParam2.call(this, param);
+    };
+}
+"""
 
-async def human_sleep(a=1.5, b=4.5):
+# User agents pool
+USER_AGENTS = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+]
+
+VIEWPORTS = [
+    {"width": 1280, "height": 800},
+    {"width": 1366, "height": 768},
+    {"width": 1440, "height": 900},
+]
+
+# -- UTILITAIRES --------------------------------------------------------------
+async def human_sleep(a=2.0, b=6.0):
     await asyncio.sleep(random.uniform(a, b))
 
-async def human_click(locator):
+async def robust_fill(page, selector, value):
+    loc = page.locator(selector).first
+    await loc.wait_for(state="visible", timeout=15000)
+    await loc.click()
+    await asyncio.sleep(random.uniform(0.2, 0.5))
+    await loc.fill(value)
+    await asyncio.sleep(random.uniform(0.2, 0.4))
+
+async def human_click(page, locator):
     try:
-        await locator.wait_for(timeout=10000)
-        await asyncio.sleep(random.uniform(0.2, 0.6))
-        await locator.click(delay=random.randint(50, 150))
-    except:
-        pass
+        await locator.wait_for(state="visible", timeout=15000)
+        box = await locator.bounding_box()
+        if box:
+            await page.mouse.move(
+                box["x"] + random.randint(2, max(3, int(box["width"] - 2))),
+                box["y"] + random.randint(2, max(3, int(box["height"] - 2))),
+                steps=random.randint(15, 30))
+        await human_sleep(0.2, 0.7)
+        await locator.click()
+    except Exception as e:
+        log.debug(f"human_click: {e}")
 
-async def human_type(locator, text):
-    await locator.click()
-    for char in text:
-        await locator.type(char, delay=random.randint(50, 120))
+async def verify_login(page, fragment, name):
+    url = page.url
+    if fragment in url:
+        log.error(f"  [{name}] Login echoue - URL: {url}")
+        return False
+    log.info(f"  [{name}] Login OK - {url}")
+    return True
 
-# ---------------- STEALTH ----------------
-
-async def create_browser():
-    pw = await async_playwright().start()
-
-    browser = await pw.chromium.launch(
-        headless=True,
-        args=[
-            "--disable-blink-features=AutomationControlled",
-            "--no-sandbox",
-            "--disable-dev-shm-usage"
-        ]
-    )
-
-    context = await browser.new_context(
-        viewport={"width": 1280, "height": 800},
+async def new_context(browser, headless_stealth=True):
+    ua = random.choice(USER_AGENTS)
+    vp = random.choice(VIEWPORTS)
+    ctx = await browser.new_context(
+        user_agent=ua,
+        viewport=vp,
         locale="fr-FR",
-        user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/123 Safari/537.36"
-    )
+        timezone_id="Europe/Paris",
+        extra_http_headers={
+            "Accept-Language": "fr-FR,fr;q=0.9,en-US;q=0.8",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+            "sec-ch-ua": '"Google Chrome";v="123", "Not:A-Brand";v="8", "Chromium";v="123"',
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": '"Windows"',
+        })
+    await ctx.add_init_script(STEALTH_JS)
+    return ctx
 
-    await context.add_init_script("""
-        Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
-        window.chrome = { runtime: {} };
-        Object.defineProperty(navigator, 'languages', {get: () => ['fr-FR','fr']});
-    """)
+# -- DRAG HUMAIN --------------------------------------------------------------
+async def human_drag(page, sx, sy, distance):
+    overshoot = random.randint(5, 15)
+    total = distance + overshoot
+    await page.mouse.move(sx, sy)
+    await asyncio.sleep(random.uniform(0.2, 0.5))
+    await page.mouse.down()
+    await asyncio.sleep(random.uniform(0.05, 0.15))
+    steps = random.randint(40, 60)
+    for i in range(steps):
+        t = i / steps
+        eased = 4*t*t*t if t < 0.5 else 1 - (-2*t+2)**3/2
+        if 0.3 < t < 0.5 and random.random() < 0.15:
+            await asyncio.sleep(random.uniform(0.03, 0.08))
+        await page.mouse.move(sx + total*eased, sy + random.uniform(-2, 2))
+        await asyncio.sleep(random.uniform(0.006, 0.020))
+    for i in range(random.randint(8, 15)):
+        t = i / 12
+        pos = (distance + overshoot) - overshoot * (t * (2 - t))
+        await page.mouse.move(sx + pos, sy + random.uniform(-0.5, 0.5))
+        await asyncio.sleep(random.uniform(0.010, 0.025))
+    for _ in range(random.randint(2, 4)):
+        await page.mouse.move(sx + distance + random.uniform(-1.5, 1.5), sy)
+        await asyncio.sleep(random.uniform(0.015, 0.030))
+    await page.mouse.move(sx + distance, sy)
+    await asyncio.sleep(random.uniform(0.1, 0.3))
+    await page.mouse.up()
+    await asyncio.sleep(random.uniform(1.0, 2.0))
 
-    return pw, browser, context
+# -- SLIDER CAPTCHA -----------------------------------------------------------
+def find_gap_position(bg_bytes, piece_bytes):
+    try:
+        from PIL import Image
+        bg = Image.open(io.BytesIO(bg_bytes)).convert("RGB")
+        bg_w, bg_h = bg.size
+        pc_w = Image.open(io.BytesIO(piece_bytes)).size[0]
+        pixels = list(bg.getdata())
+        white_per_col = {}
+        for y in range(bg_h):
+            for x in range(bg_w):
+                r, g, b = pixels[y * bg_w + x]
+                if r > 200 and g > 200 and b > 200:
+                    white_per_col[x] = white_per_col.get(x, 0) + 1
+        candidates = {x: c for x, c in white_per_col.items()
+                      if pc_w + 10 < x < bg_w - 10 and c > 5}
+        if not candidates:
+            return 117
+        cols = sorted(candidates.keys())
+        center = (cols[0] + cols[-1]) // 2
+        log.info(f"  PIL gap x=[{cols[0]},{cols[-1]}] centre={center}px")
+        return center
+    except Exception as e:
+        log.warning(f"  PIL echoue: {e}")
+        return 117
 
-# ---------------- RETRY ----------------
+async def solve_slider(page):
+    present = False
+    for sel in ['div[class*="captcha"]', 'div[class*="slider"]', 'div:has-text("Glissez")']:
+        try:
+            if await page.locator(sel).first.is_visible():
+                present = True
+                break
+        except Exception:
+            pass
+    if not present:
+        return True
 
-async def retry(fn, name):
-    for i in range(3):
+    log.info("  Slider CAPTCHA en cours...")
+    await human_sleep(1, 2)
+
+    bg_bytes = piece_bytes = None
+    try:
+        canvases = page.locator('.slidercaptcha canvas')
+        n = await canvases.count()
+        if n >= 1: bg_bytes = await canvases.nth(0).screenshot()
+        if n >= 2: piece_bytes = await canvases.nth(1).screenshot()
+        log.info(f"  {n} canvas captures")
+    except Exception as e:
+        log.debug(f"  canvas: {e}")
+
+    if bg_bytes: open("debug_bg.png", "wb").write(bg_bytes)
+    if piece_bytes: open("debug_piece.png", "wb").write(piece_bytes)
+
+    target_x = find_gap_position(bg_bytes, piece_bytes) if (bg_bytes and piece_bytes) else random.randint(120, 180)
+
+    handle = page.locator('div.slider').first
+    try:
+        await handle.wait_for(state="visible", timeout=5000)
+    except Exception:
+        log.warning("  Handle introuvable")
+        return False
+
+    box = await handle.bounding_box()
+    if not box: return False
+
+    canvas_box = await page.locator('.slidercaptcha canvas').first.bounding_box()
+    canvas_left = canvas_box["x"] if canvas_box else box["x"]
+    sx = box["x"] + box["width"] / 2
+    sy = box["y"] + box["height"] / 2
+    real_dist = max(5, int(target_x - (sx - canvas_left)))
+    log.info(f"  drag cible={real_dist}px")
+
+    distances = [real_dist] + [real_dist + d for d in [-10,+10,-20,+20,-30,+30] if real_dist+d > 0]
+
+    for dist in distances:
+        box = await handle.bounding_box()
+        if not box: break
+        sx = box["x"] + box["width"] / 2
+        sy = box["y"] + box["height"] / 2
+        await human_drag(page, sx, sy, dist)
+        try:
+            val = await page.locator('#captcha_valide, input[name="captcha_valide"]').first.input_value()
+            if val in ("true", "1", "yes", "ok"):
+                log.info("  Slider OK !")
+                return True
+        except Exception:
+            pass
+        try:
+            if not await page.locator('.slidercaptcha').first.is_visible():
+                log.info("  Slider OK (widget disparu) !")
+                return True
+        except Exception:
+            pass
+        await human_sleep(1.5, 2.5)
+
+    log.warning("  Slider non resolu")
+    return False
+
+# -- RETRY --------------------------------------------------------------------
+async def retry(fn, retries=3, delay=10.0, label=""):
+    for attempt in range(1, retries + 1):
         try:
             return await fn()
         except Exception as e:
-            log.warning(f"{name} retry {i+1}/3 -> {e}")
-            await asyncio.sleep(5)
-    log.error(f"{name} FAILED")
+            if attempt == retries:
+                log.error(f"[{label}] Echec ({retries} tentatives): {e}")
+                raise
+            log.warning(f"[{label}] Tentative {attempt}/{retries}: {e} - retry {delay}s")
+            await asyncio.sleep(delay)
 
-# ---------------- SUPER ----------------
-
-async def bump_super(page):
+# -- SUPER-PARRAIN.COM --------------------------------------------------------
+async def run_super(browser):
     cfg = CONFIG["super"]
+    name = "super-parrain"
+    log.info(f"\n--- super-parrain.com ---")
+    ctx = await new_context(browser)
 
-    async def run():
-        await page.goto(cfg["url"] + "/login")
-        await human_sleep()
+    async def _do():
+        page = await ctx.new_page()
+        try:
+            await page.goto(f"{cfg['url']}/login", wait_until="networkidle")
+            await human_sleep(2, 4)
+            await robust_fill(page, 'input[name="_username"], input[type="email"]', cfg["email"])
+            await robust_fill(page, 'input[name="_password"], input[type="password"]', cfg["password"])
+            await human_sleep(1, 2)
+            await human_click(page, page.locator(
+                'input[type="submit"], button:has-text("Connexion"), button[type="submit"]').first)
+            try:
+                await page.wait_for_url(lambda u: "/login" not in u, timeout=15000)
+            except Exception:
+                pass
+            await page.wait_for_load_state("networkidle")
+            await human_sleep(3, 5)
+            if not await verify_login(page, "/login", name):
+                await page.screenshot(path="debug_super_login.png")
+                raise RuntimeError("Login echoue")
 
-        await human_type(page.locator("input[type=email]"), cfg["email"])
-        await human_type(page.locator("input[type=password]"), cfg["password"])
+            await page.goto(f"{cfg['url']}/tableau-de-bord/codes-promo", wait_until="networkidle")
+            await human_sleep(3, 5)
 
-        await human_click(page.locator("button[type=submit]"))
+            hrefs = await page.evaluate("""
+                () => Array.from(document.querySelectorAll('td:last-child a, a[href*="edit"]'))
+                    .map(a => a.href).filter(h => h.includes("codes-promo") && h.includes("edit"))
+            """)
+            edit_urls = list(dict.fromkeys(hrefs))
+            log.info(f"  {len(edit_urls)} codes a remonter")
+            bumped = 0
 
-        await page.wait_for_load_state("networkidle")
-        await human_sleep()
+            for i, url in enumerate(edit_urls):
+                try:
+                    await page.goto(url, wait_until="networkidle")
+                    await human_sleep(2, 3)
+                    await human_click(page, page.locator(
+                        'button:has-text("Enregistrer"), input[type="submit"], button[type="submit"]').first)
+                    await page.wait_for_load_state("networkidle")
+                    await human_sleep(2, 4)
+                    bumped += 1
+                    log.info(f"  Code {i+1}/{len(edit_urls)} remonte")
+                except Exception as e:
+                    log.debug(f"  Erreur code {i}: {e}")
 
-        await page.goto(cfg["url"] + "/tableau-de-bord/codes-promo")
+            log.info(f"  {bumped} code(s) remontes")
+            with open("last_super_run.txt", "w") as f:
+                f.write(datetime.now().isoformat())
+        finally:
+            await page.close()
 
-        buttons = page.locator("a[href*='edit']")
-        count = await buttons.count()
+    try:
+        await retry(_do, retries=3, label=name)
+    finally:
+        await ctx.close()
 
-        for i in range(count):
-            await buttons.nth(i).click()
-            await human_sleep()
-            await human_click(page.locator("button[type=submit]"))
-
-        log.info(f"SUPER done ({count})")
-
-    await retry(run, "SUPER")
-
-# ---------------- CODE ----------------
-
-async def bump_code(page):
+# -- CODE-PARRAINAGE.NET ------------------------------------------------------
+async def run_code(browser):
     cfg = CONFIG["code"]
+    name = "code-parrainage"
+    log.info(f"\n--- code-parrainage.net ---")
+    ctx = await new_context(browser)
 
-    async def run():
-        await page.goto(cfg["url"] + "/login")
-        await human_sleep()
+    async def _do():
+        page = await ctx.new_page()
+        try:
+            await page.goto(f"{cfg['url']}/login", wait_until="networkidle")
+            await human_sleep(2, 4)
+            await robust_fill(page, 'input[type="email"]', cfg["email"])
+            await robust_fill(page, 'input[type="password"]', cfg["password"])
+            await human_sleep(1, 2)
+            await solve_slider(page)
+            await asyncio.sleep(random.uniform(0.8, 1.5))
+            await human_click(page, page.locator(
+                'button:has-text("Se connecter"), button[type="submit"]').first)
+            try:
+                await page.wait_for_url(lambda u: "/login" not in u, timeout=20000)
+            except Exception:
+                pass
+            await page.wait_for_load_state("networkidle")
+            await human_sleep(3, 5)
+            if not await verify_login(page, "/login", name):
+                raise RuntimeError("Login echoue")
 
-        await human_type(page.locator("input[type=email]"), cfg["email"])
-        await human_type(page.locator("input[type=password]"), cfg["password"])
+            await page.goto(f"{cfg['url']}/moncompte", wait_until="networkidle")
+            await human_sleep(3, 5)
+            buttons = page.locator('button:has-text("Actualiser"), a:has-text("Actualiser")')
+            count = await buttons.count()
+            log.info(f"  {count} boutons Actualiser")
+            bumped = 0
+            for i in range(count):
+                btn = buttons.nth(i)
+                try:
+                    if not await btn.is_visible(): continue
+                    await btn.scroll_into_view_if_needed()
+                    await human_click(page, btn)
+                    bumped += 1
+                    log.info(f"  Actualiser {i+1}/{count}")
+                    await human_sleep(2, 5)
+                except Exception as e:
+                    log.debug(f"  Erreur {i}: {e}")
+            log.info(f"  {bumped} annonces remontees")
+        finally:
+            await page.close()
 
-        await human_click(page.locator("button[type=submit]"))
+    try:
+        await retry(_do, retries=3, label=name)
+    finally:
+        await ctx.close()
 
-        await page.wait_for_load_state("networkidle")
-        await human_sleep()
-
-        await page.goto(cfg["url"] + "/moncompte")
-
-        buttons = page.locator("text=Actualiser")
-        count = await buttons.count()
-
-        for i in range(count):
-            await human_click(buttons.nth(i))
-            await human_sleep()
-
-        log.info(f"CODE done ({count})")
-
-    await retry(run, "CODE")
-
-# ---------------- PARRAINAGE ----------------
-
-async def bump_parrainage(page):
+# -- PARRAINAGE.CO ------------------------------------------------------------
+async def run_parrainage(browser):
     cfg = CONFIG["parrainage"]
+    name = "parrainage_co"
+    log.info(f"\n--- parrainage.co ---")
+    ctx = await new_context(browser)
 
-    async def run():
-        await page.context.add_cookies([{
-            "name": "parrainageco_rm",
-            "value": cfg["rm_cookie"],
-            "domain": "parrainage.co",
-            "path": "/"
-        }])
+    async def _do():
+        rm_cookie = cfg.get("rm_cookie", "")
+        if not rm_cookie:
+            raise RuntimeError("PARRAINAGE_CO_RM_COOKIE manquant")
 
-        await page.goto(cfg["url"] + "/account/offers")
-        await human_sleep()
+        page = await ctx.new_page()
+        try:
+            await ctx.add_cookies([{
+                "name": "parrainageco_rm",
+                "value": rm_cookie.strip(),
+                "domain": "parrainage.co",
+                "path": "/",
+            }])
+            log.info("  Cookie remember-me injecte")
 
-        await page.goto(cfg["url"] + "/account/offers/boost-all")
-        await human_sleep()
+            await page.goto(f"{cfg['url']}/account/offers",
+                            wait_until="domcontentloaded", timeout=60000)
+            await human_sleep(2, 4)
 
-        log.info("PARRAINAGE done")
+            if not await verify_login(page, "/login", name):
+                await page.screenshot(path="debug_parrainage_login.png")
+                raise RuntimeError("Cookie expire ou invalide")
 
-    await retry(run, "PARRAINAGE")
+            page.on("dialog", lambda d: asyncio.ensure_future(d.accept()))
+            resp = await page.goto(f"{cfg['url']}/account/offers/boost-all",
+                                   wait_until="domcontentloaded", timeout=30000)
+            log.info(f"  boost-all -> {resp.status if resp else '?'} {page.url}")
+            await human_sleep(2, 4)
+            log.info("  Annonces remontees")
+        finally:
+            await page.close()
 
-# ---------------- MAIN ----------------
+    try:
+        await retry(_do, retries=3, label=name)
+    finally:
+        await ctx.close()
+
+# -- MAIN ---------------------------------------------------------------------
+RUNNERS = {"super": run_super, "code": run_code, "parrainage": run_parrainage}
 
 async def main():
-    sites = TARGET_SITES or ["super", "code", "parrainage"]
+    to_run = TARGET_SITES if TARGET_SITES else list(RUNNERS.keys())
+    # Ordre aleatoire pour varier
+    random.shuffle(to_run)
 
-    log.info("START BUMPER")
-    log.info(f"Sites: {sites}")
+    # Verification 24h super-parrain (exit immediat, pas de sleep)
+    if to_run == ["super"] or (len(to_run) == 1 and "super" in to_run):
+        last_file = "last_super_run.txt"
+        if os.path.exists(last_file):
+            try:
+                with open(last_file) as f:
+                    last = datetime.fromisoformat(f.read().strip())
+                elapsed = (datetime.now() - last).total_seconds() / 3600
+                log.info(f"  Dernier run super: {elapsed:.1f}h")
+                if elapsed < 24:
+                    log.info("  < 24h - run ignore")
+                    return
+            except Exception:
+                pass
 
-    pw, browser, context = await create_browser()
+    log.info("=" * 50)
+    log.info(f"  Parrainage Auto-Bumper - {datetime.now().strftime('%d/%m/%Y %H:%M')}")
+    log.info(f"  Sites: {', '.join(to_run)}")
+    log.info("=" * 50)
 
-    for site in sites:
-        page = await context.new_page()
+    async with async_playwright() as pw:
+        browser = await pw.chromium.launch(
+            headless=True,
+            args=["--no-sandbox", "--disable-dev-shm-usage", "--lang=fr-FR",
+                  "--disable-blink-features=AutomationControlled",
+                  "--disable-gpu", "--memory-pressure-off"])
 
-        try:
-            if site == "super":
-                await bump_super(page)
-            elif site == "code":
-                await bump_code(page)
-            elif site == "parrainage":
-                await bump_parrainage(page)
+        # Context isole par site (pas de correlation)
+        tasks = []
+        for site_id in to_run:
+            runner = RUNNERS.get(site_id)
+            if not runner: continue
+            cfg = CONFIG.get(site_id, {})
+            if site_id != "parrainage" and not cfg.get("email"):
+                log.warning(f"  {site_id} - credentials manquants")
+                continue
+            if site_id == "parrainage" and not cfg.get("rm_cookie"):
+                log.warning(f"  parrainage - RM_COOKIE manquant")
+                continue
+            tasks.append(runner(browser))
 
-        except Exception as e:
-            log.error(f"{site} crash -> {e}")
+        # Execution sequentielle (plus stable sur GitHub Actions)
+        for task in tasks:
+            try:
+                await task
+            except Exception as e:
+                log.error(f"  Erreur: {e}")
+            await human_sleep(2, 5)
 
-        await page.close()
-        await human_sleep()
+        await browser.close()
 
-    await browser.close()
-    await pw.stop()
-
-    log.info("DONE")
+    log.info("\n" + "=" * 50)
+    log.info("  Cycle termine !")
+    log.info("=" * 50)
 
 if __name__ == "__main__":
     asyncio.run(main())
