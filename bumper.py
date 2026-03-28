@@ -29,6 +29,8 @@ CONFIG = {
                    "email":    os.environ.get("CODE_PARRAINAGE_EMAIL", ""),
                    "password": os.environ.get("CODE_PARRAINAGE_PASSWORD", "")},
     "parrainage": {"url": "https://parrainage.co",
+                   "email":     os.environ.get("PARRAINAGE_CO_EMAIL", ""),
+                   "password":  os.environ.get("PARRAINAGE_CO_PASSWORD", ""),
                    "rm_cookie": os.environ.get("PARRAINAGE_CO_RM_COOKIE", "")},
 }
 
@@ -400,27 +402,56 @@ async def run_parrainage(browser):
 
     async def _do():
         rm_cookie = cfg.get("rm_cookie", "")
-        if not rm_cookie:
-            raise RuntimeError("PARRAINAGE_CO_RM_COOKIE manquant")
+        email = cfg.get("email", "")
+        password = cfg.get("password", "")
 
         page = await ctx.new_page()
         try:
-            await ctx.add_cookies([{
-                "name": "parrainageco_rm",
-                "value": rm_cookie.strip(),
-                "domain": "parrainage.co",
-                "path": "/",
-            }])
-            log.info("  Cookie remember-me injecte")
+            # Etape 1 : injecter le cookie si disponible
+            if rm_cookie:
+                await ctx.add_cookies([{
+                    "name": "parrainageco_rm",
+                    "value": rm_cookie.strip(),
+                    "domain": "parrainage.co",
+                    "path": "/",
+                }])
+                log.info("  Cookie remember-me injecte")
 
             await page.goto(f"{cfg['url']}/account/offers",
                             wait_until="domcontentloaded", timeout=60000)
             await human_sleep(2, 4)
 
-            if not await verify_login(page, "/login", name):
-                await page.screenshot(path="debug_parrainage_login.png")
-                raise RuntimeError("Cookie expire ou invalide")
+            # Etape 2 : si cookie insuffisant -> fallback login auto
+            if "/login" in page.url:
+                log.info("  Cookie invalide -> login auto")
+                if not email or not password:
+                    raise RuntimeError("Cookie expire ET credentials manquants")
 
+                await page.goto(f"{cfg['url']}/account/login",
+                                wait_until="domcontentloaded", timeout=60000)
+                await human_sleep(2, 4)
+                await robust_fill(page, 'input[type="email"]', email)
+                await human_sleep(0.5, 1)
+                await robust_fill(page, 'input[type="password"]', password)
+                await human_sleep(1, 2)
+                await human_click(page, page.locator(
+                    'input[name="loginSubmit"], input[type="submit"], button[type="submit"]').first)
+                try:
+                    await page.wait_for_url(lambda u: "/login" not in u, timeout=30000)
+                except Exception:
+                    pass
+                await human_sleep(2, 4)
+
+                if "/login" in page.url:
+                    await page.screenshot(path="debug_parrainage_login.png")
+                    log.error("  Login automatique echoue")
+                    raise RuntimeError("Login automatique echoue")
+
+                log.info("  Login automatique OK")
+            else:
+                log.info("  Cookie valide")
+
+            # Etape 3 : boost-all
             page.on("dialog", lambda d: asyncio.ensure_future(d.accept()))
             resp = await page.goto(f"{cfg['url']}/account/offers/boost-all",
                                    wait_until="domcontentloaded", timeout=30000)
@@ -479,8 +510,8 @@ async def main():
             if site_id != "parrainage" and not cfg.get("email"):
                 log.warning(f"  {site_id} - credentials manquants")
                 continue
-            if site_id == "parrainage" and not cfg.get("rm_cookie"):
-                log.warning(f"  parrainage - RM_COOKIE manquant")
+            if site_id == "parrainage" and not cfg.get("rm_cookie") and not cfg.get("email"):
+                log.warning(f"  parrainage - RM_COOKIE et credentials manquants")
                 continue
             tasks.append(runner(browser))
 
