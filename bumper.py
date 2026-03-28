@@ -111,6 +111,37 @@ async def human_click(page, locator):
     except Exception as e:
         log.debug(f"human_click: {e}")
 
+
+async def smart_fill(page, selectors, value, timeout=5000):
+    """Tente plusieurs selecteurs, prend le premier visible."""
+    for sel in selectors:
+        try:
+            loc = page.locator(sel).first
+            await loc.wait_for(state="visible", timeout=timeout)
+            await loc.click()
+            await asyncio.sleep(random.uniform(0.2, 0.4))
+            await loc.fill(value)
+            await asyncio.sleep(random.uniform(0.2, 0.4))
+            log.info(f"  smart_fill OK: {sel}")
+            return True
+        except Exception:
+            continue
+    # Fallback: chercher dans les iframes
+    for frame in page.frames:
+        for sel in selectors:
+            try:
+                loc = frame.locator(sel).first
+                await loc.wait_for(state="visible", timeout=timeout)
+                await loc.click()
+                await asyncio.sleep(random.uniform(0.2, 0.4))
+                await loc.fill(value)
+                log.info(f"  smart_fill iframe OK: {sel}")
+                return True
+            except Exception:
+                continue
+    log.warning(f"  smart_fill: aucun selector trouve parmi {selectors}")
+    return False
+
 async def verify_login(page, fragment, name):
     url = page.url
     if fragment in url:
@@ -430,12 +461,48 @@ async def run_parrainage(browser):
                 await page.goto(f"{cfg['url']}/account/login",
                                 wait_until="domcontentloaded", timeout=60000)
                 await human_sleep(2, 4)
-                await robust_fill(page, 'input[type="email"]', email)
+                await page.screenshot(path="debug_parrainage_login.png")
+
+                EMAIL_SELECTORS = [
+                    'input[type="email"]',
+                    'input[name="email"]',
+                    'input[name="username"]',
+                    'input[placeholder*="mail"]',
+                    'input[autocomplete="email"]',
+                ]
+                PASSWORD_SELECTORS = [
+                    'input[type="password"]',
+                    'input[name="password"]',
+                ]
+                SUBMIT_SELECTORS = [
+                    'input[name="loginSubmit"]',
+                    'input[type="submit"]',
+                    'button[type="submit"]',
+                    'button:has-text("Connexion")',
+                    'button:has-text("Se connecter")',
+                ]
+
+                ok_email = await smart_fill(page, EMAIL_SELECTORS, email)
                 await human_sleep(0.5, 1)
-                await robust_fill(page, 'input[type="password"]', password)
+                ok_pass = await smart_fill(page, PASSWORD_SELECTORS, password)
                 await human_sleep(1, 2)
-                await human_click(page, page.locator(
-                    'input[name="loginSubmit"], input[type="submit"], button[type="submit"]').first)
+
+                if not ok_email or not ok_pass:
+                    log.warning("  Champs non trouves, tentative clic quand meme")
+
+                # Clic submit
+                submitted = False
+                for sel in SUBMIT_SELECTORS:
+                    try:
+                        btn = page.locator(sel).first
+                        await btn.wait_for(state="visible", timeout=5000)
+                        await human_click(page, btn)
+                        submitted = True
+                        break
+                    except Exception:
+                        continue
+                if not submitted:
+                    log.warning("  Bouton submit non trouve")
                 try:
                     await page.wait_for_url(lambda u: "/login" not in u, timeout=30000)
                 except Exception:
