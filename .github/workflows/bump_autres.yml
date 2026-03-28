@@ -3,26 +3,32 @@ on:
   schedule:
     - cron: "0 */5 * * *"
   workflow_dispatch:
+
 jobs:
   bump:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
       - name: 📦 Dépendances
         run: |
           pip install -r requirements.txt
           playwright install chromium
+
       - name: 🚀 Bump Code Parrainage & Parrainage.co
+        timeout-minutes: 10
         env:
           TWOCAPTCHA_KEY:            ${{ secrets.TWOCAPTCHA_KEY }}
           CODE_PARRAINAGE_EMAIL:     ${{ secrets.CODE_PARRAINAGE_EMAIL }}
           CODE_PARRAINAGE_PASSWORD:  ${{ secrets.CODE_PARRAINAGE_PASSWORD }}
           PARRAINAGE_CO_EMAIL:       ${{ secrets.PARRAINAGE_CO_EMAIL }}
           PARRAINAGE_CO_PASSWORD:    ${{ secrets.PARRAINAGE_CO_PASSWORD }}
-          PARRAINAGE_CO_RM_COOKIE: ${{ secrets.PARRAINAGE_CO_RM_COOKIE }}
+          PARRAINAGE_CO_RM_COOKIE:   ${{ secrets.PARRAINAGE_CO_RM_COOKIE }}
           TARGET_SITES:              "code,parrainage"
           DISPLAY:                   ":99"
         run: |
@@ -30,9 +36,11 @@ jobs:
           Xvfb :99 -screen 0 1280x800x24 &
           sleep 2
           python bumper.py
+
       - name: 📋 Logs
         if: always()
         run: cat bumper.log || true
+
       - name: Upload debug captcha
         if: always()
         uses: actions/upload-artifact@v4
