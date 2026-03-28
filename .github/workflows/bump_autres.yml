@@ -22,7 +22,7 @@ jobs:
           CODE_PARRAINAGE_PASSWORD:  ${{ secrets.CODE_PARRAINAGE_PASSWORD }}
           PARRAINAGE_CO_EMAIL:       ${{ secrets.PARRAINAGE_CO_EMAIL }}
           PARRAINAGE_CO_PASSWORD:    ${{ secrets.PARRAINAGE_CO_PASSWORD }}
-          PARRAINAGE_CO_COOKIES:     ${{ secrets.PARRAINAGE_CO_COOKIES }}
+          PARRAINAGE_CO_RM_COOKIE: ${{ secrets.PARRAINAGE_CO_RM_COOKIE }}
           TARGET_SITES:              "code,parrainage"
           DISPLAY:                   ":99"
         run: |
