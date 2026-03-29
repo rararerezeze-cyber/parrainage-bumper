@@ -29,50 +29,11 @@ CONFIG = {
                    "email":    os.environ.get("CODE_PARRAINAGE_EMAIL", ""),
                    "password": os.environ.get("CODE_PARRAINAGE_PASSWORD", "")},
     "parrainage": {"url": "https://parrainage.co",
-                   "email":     os.environ.get("PARRAINAGE_CO_EMAIL", ""),
-                   "password":  os.environ.get("PARRAINAGE_CO_PASSWORD", ""),
+                   "email":    os.environ.get("PARRAINAGE_CO_EMAIL", ""),
+                   "password": os.environ.get("PARRAINAGE_CO_PASSWORD", ""),
                    "rm_cookie": os.environ.get("PARRAINAGE_CO_RM_COOKIE", "")},
 }
 
-# -- STEALTH SCRIPT -----------------------------------------------------------
-# Spoof WebGL, canvas, hardwareConcurrency, timezone, plugins
-STEALTH_JS = """
-() => {
-    // webdriver
-    Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
-    // plugins
-    Object.defineProperty(navigator, 'plugins', {get: () => [1,2,3,4,5]});
-    // languages
-    Object.defineProperty(navigator, 'languages', {get: () => ['fr-FR','fr','en-US','en']});
-    // hardwareConcurrency
-    Object.defineProperty(navigator, 'hardwareConcurrency', {get: () => 8});
-    // deviceMemory
-    Object.defineProperty(navigator, 'deviceMemory', {get: () => 8});
-    // chrome
-    window.chrome = {runtime: {}, loadTimes: function(){}, csi: function(){}};
-    // permissions
-    const origQuery = window.navigator.permissions.query;
-    window.navigator.permissions.query = (parameters) =>
-        parameters.name === 'notifications'
-            ? Promise.resolve({state: Notification.permission})
-            : origQuery(parameters);
-    // WebGL vendor/renderer spoof
-    const getParam = WebGLRenderingContext.prototype.getParameter;
-    WebGLRenderingContext.prototype.getParameter = function(param) {
-        if (param === 37445) return 'Intel Inc.';
-        if (param === 37446) return 'Intel Iris OpenGL Engine';
-        return getParam.call(this, param);
-    };
-    const getParam2 = WebGL2RenderingContext.prototype.getParameter;
-    WebGL2RenderingContext.prototype.getParameter = function(param) {
-        if (param === 37445) return 'Intel Inc.';
-        if (param === 37446) return 'Intel Iris OpenGL Engine';
-        return getParam2.call(this, param);
-    };
-}
-"""
-
-# User agents pool
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
@@ -92,14 +53,16 @@ async def human_sleep(a=2.0, b=6.0):
 async def robust_fill(page, selector, value):
     loc = page.locator(selector).first
     await loc.wait_for(state="visible", timeout=15000)
+    await loc.scroll_into_view_if_needed()
     await loc.click()
-    await asyncio.sleep(random.uniform(0.2, 0.5))
+    await asyncio.sleep(random.uniform(0.3, 0.6))
     await loc.fill(value)
     await asyncio.sleep(random.uniform(0.2, 0.4))
 
 async def human_click(page, locator):
     try:
         await locator.wait_for(state="visible", timeout=15000)
+        await locator.scroll_into_view_if_needed()
         box = await locator.bounding_box()
         if box:
             await page.mouse.move(
@@ -111,35 +74,32 @@ async def human_click(page, locator):
     except Exception as e:
         log.debug(f"human_click: {e}")
 
-
-async def smart_fill(page, selectors, value, timeout=5000):
-    """Tente plusieurs selecteurs, prend le premier visible."""
+async def smart_fill(page, selectors, value, timeout=8000):
     for sel in selectors:
         try:
             loc = page.locator(sel).first
             await loc.wait_for(state="visible", timeout=timeout)
+            await loc.scroll_into_view_if_needed()
             await loc.click()
-            await asyncio.sleep(random.uniform(0.2, 0.4))
+            await asyncio.sleep(random.uniform(0.3, 0.5))
             await loc.fill(value)
-            await asyncio.sleep(random.uniform(0.2, 0.4))
             log.info(f"  smart_fill OK: {sel}")
             return True
         except Exception:
             continue
-    # Fallback: chercher dans les iframes
     for frame in page.frames:
         for sel in selectors:
             try:
                 loc = frame.locator(sel).first
-                await loc.wait_for(state="visible", timeout=timeout)
+                await loc.wait_for(state="visible", timeout=3000)
                 await loc.click()
-                await asyncio.sleep(random.uniform(0.2, 0.4))
+                await asyncio.sleep(0.3)
                 await loc.fill(value)
                 log.info(f"  smart_fill iframe OK: {sel}")
                 return True
             except Exception:
                 continue
-    log.warning(f"  smart_fill: aucun selector trouve parmi {selectors}")
+    log.warning(f"  smart_fill: aucun selector trouve")
     return False
 
 async def verify_login(page, fragment, name):
@@ -150,7 +110,7 @@ async def verify_login(page, fragment, name):
     log.info(f"  [{name}] Login OK - {url}")
     return True
 
-async def new_context(browser, headless_stealth=True):
+async def new_context(browser):
     ua = random.choice(USER_AGENTS)
     vp = random.choice(VIEWPORTS)
     ctx = await browser.new_context(
@@ -158,6 +118,9 @@ async def new_context(browser, headless_stealth=True):
         viewport=vp,
         locale="fr-FR",
         timezone_id="Europe/Paris",
+        device_scale_factor=1,
+        is_mobile=False,
+        has_touch=False,
         extra_http_headers={
             "Accept-Language": "fr-FR,fr;q=0.9,en-US;q=0.8",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
@@ -165,8 +128,33 @@ async def new_context(browser, headless_stealth=True):
             "sec-ch-ua-mobile": "?0",
             "sec-ch-ua-platform": '"Windows"',
         })
-    await ctx.add_init_script(STEALTH_JS)
     return ctx
+
+# -- CLOUDFLARE ---------------------------------------------------------------
+async def wait_cloudflare(page, timeout=30000):
+    """Attend que Cloudflare laisse passer et qu'un element interactif soit present."""
+    log.info("  Attente Cloudflare...")
+    start = asyncio.get_event_loop().time()
+    while (asyncio.get_event_loop().time() - start) * 1000 < timeout:
+        try:
+            content = await page.content()
+            if "Just a moment" in content or "Checking your browser" in content:
+                await asyncio.sleep(2)
+                continue
+            # Verifier qu'un input ou body utile est present
+            for sel in ['input[type="email"]', 'input[name="email"]',
+                        'input[type="password"]', 'form', 'body']:
+                try:
+                    await page.wait_for_selector(sel, timeout=2000, state="attached")
+                    log.info("  Cloudflare passed")
+                    return True
+                except Exception:
+                    continue
+            await asyncio.sleep(1)
+        except Exception:
+            await asyncio.sleep(1)
+    log.warning("  Cloudflare timeout - on continue quand meme")
+    return False
 
 # -- DRAG HUMAIN --------------------------------------------------------------
 async def human_drag(page, sx, sy, distance):
@@ -271,7 +259,6 @@ async def solve_slider(page):
     log.info(f"  drag cible={real_dist}px")
 
     distances = [real_dist] + [real_dist + d for d in [-10,+10,-20,+20,-30,+30] if real_dist+d > 0]
-
     for dist in distances:
         box = await handle.bounding_box()
         if not box: break
@@ -345,7 +332,6 @@ async def run_super(browser):
             edit_urls = list(dict.fromkeys(hrefs))
             log.info(f"  {len(edit_urls)} codes a remonter")
             bumped = 0
-
             for i, url in enumerate(edit_urls):
                 try:
                     await page.goto(url, wait_until="networkidle")
@@ -424,6 +410,93 @@ async def run_code(browser):
     finally:
         await ctx.close()
 
+# -- PARRAINAGE.CO - LOGIN ROBUSTE --------------------------------------------
+async def smart_login_parrainage(page, email, password):
+    EMAIL_SEL  = ['input[type="email"]', 'input[name="email"]', 'input[placeholder*="mail"]']
+    PASS_SEL   = ['input[type="password"]', 'input[name="password"]']
+    SUBMIT_SEL = ['button[type="submit"]', 'button:has-text("Connexion")', 'input[type="submit"]']
+
+    for attempt in range(3):
+        log.info(f"  Login tentative {attempt+1}/3")
+        await page.screenshot(path="debug_parrainage_avant.png")
+
+        # Attendre Cloudflare + chargement complet
+        await wait_cloudflare(page)
+        try:
+            await page.wait_for_load_state("networkidle", timeout=10000)
+        except Exception:
+            pass
+        await asyncio.sleep(2)
+
+        # Attendre qu'un input soit present
+        found = False
+        for sel in EMAIL_SEL:
+            try:
+                await page.wait_for_selector(sel, timeout=10000, state="visible")
+                found = True
+                break
+            except Exception:
+                continue
+        if not found:
+            for frame in page.frames:
+                for sel in EMAIL_SEL:
+                    try:
+                        await frame.wait_for_selector(sel, timeout=3000, state="visible")
+                        found = True
+                        break
+                    except Exception:
+                        continue
+                if found: break
+
+        if not found:
+            log.warning(f"  Tentative {attempt+1}: inputs invisibles - reload")
+            await page.reload(wait_until="domcontentloaded")
+            await asyncio.sleep(4)
+            continue
+
+        ok_email = await smart_fill(page, EMAIL_SEL, email)
+        await human_sleep(0.5, 1)
+        ok_pass  = await smart_fill(page, PASS_SEL, password)
+        await human_sleep(1, 2)
+
+        if not ok_email or not ok_pass:
+            log.warning(f"  Tentative {attempt+1}: remplissage incomplet - reload")
+            await page.reload(wait_until="domcontentloaded")
+            await asyncio.sleep(4)
+            continue
+
+        submitted = False
+        for sel in SUBMIT_SEL:
+            try:
+                btn = page.locator(sel).first
+                await btn.wait_for(state="visible", timeout=5000)
+                await human_click(page, btn)
+                submitted = True
+                log.info(f"  Submit: {sel}")
+                break
+            except Exception:
+                continue
+        if not submitted:
+            log.warning("  Submit non trouve")
+
+        try:
+            await page.wait_for_url(lambda u: "/login" not in u, timeout=20000)
+        except Exception:
+            pass
+        await asyncio.sleep(2)
+        await page.screenshot(path="debug_parrainage_apres.png")
+
+        if "/login" not in page.url:
+            log.info("  Login success")
+            return True
+
+        log.warning(f"  Tentative {attempt+1} echouee - URL: {page.url}")
+        await page.goto(page.url.split("?")[0], wait_until="domcontentloaded")
+        await asyncio.sleep(4)
+
+    log.error("  Retry login: echec apres 3 tentatives")
+    return False
+
 # -- PARRAINAGE.CO ------------------------------------------------------------
 async def run_parrainage(browser):
     cfg = CONFIG["parrainage"]
@@ -433,12 +506,12 @@ async def run_parrainage(browser):
 
     async def _do():
         rm_cookie = cfg.get("rm_cookie", "")
-        email = cfg.get("email", "")
-        password = cfg.get("password", "")
+        email     = cfg.get("email", "")
+        password  = cfg.get("password", "")
 
         page = await ctx.new_page()
         try:
-            # Etape 1 : injecter le cookie si disponible
+            # Cookie en priorite
             if rm_cookie:
                 await ctx.add_cookies([{
                     "name": "parrainageco_rm",
@@ -446,90 +519,37 @@ async def run_parrainage(browser):
                     "domain": "parrainage.co",
                     "path": "/",
                 }])
-                log.info("  Cookie remember-me injecte")
+                log.info("  Cookie injecte")
 
             await page.goto(f"{cfg['url']}/account/offers",
                             wait_until="domcontentloaded", timeout=60000)
             await human_sleep(2, 4)
 
-            # Etape 2 : si cookie insuffisant -> fallback login auto
             if "/login" in page.url:
                 log.info("  Cookie invalide -> login auto")
                 if not email or not password:
                     raise RuntimeError("Cookie expire ET credentials manquants")
-
                 await page.goto(f"{cfg['url']}/account/login",
                                 wait_until="domcontentloaded", timeout=60000)
-                await human_sleep(2, 4)
-                await page.screenshot(path="debug_parrainage_login.png")
-
-                EMAIL_SELECTORS = [
-                    'input[type="email"]',
-                    'input[name="email"]',
-                    'input[name="username"]',
-                    'input[placeholder*="mail"]',
-                    'input[autocomplete="email"]',
-                ]
-                PASSWORD_SELECTORS = [
-                    'input[type="password"]',
-                    'input[name="password"]',
-                ]
-                SUBMIT_SELECTORS = [
-                    'input[name="loginSubmit"]',
-                    'input[type="submit"]',
-                    'button[type="submit"]',
-                    'button:has-text("Connexion")',
-                    'button:has-text("Se connecter")',
-                ]
-
-                ok_email = await smart_fill(page, EMAIL_SELECTORS, email)
-                await human_sleep(0.5, 1)
-                ok_pass = await smart_fill(page, PASSWORD_SELECTORS, password)
-                await human_sleep(1, 2)
-
-                if not ok_email or not ok_pass:
-                    log.warning("  Champs non trouves, tentative clic quand meme")
-
-                # Clic submit
-                submitted = False
-                for sel in SUBMIT_SELECTORS:
-                    try:
-                        btn = page.locator(sel).first
-                        await btn.wait_for(state="visible", timeout=5000)
-                        await human_click(page, btn)
-                        submitted = True
-                        break
-                    except Exception:
-                        continue
-                if not submitted:
-                    log.warning("  Bouton submit non trouve")
-                try:
-                    await page.wait_for_url(lambda u: "/login" not in u, timeout=30000)
-                except Exception:
-                    pass
-                await human_sleep(2, 4)
-
-                if "/login" in page.url:
-                    await page.screenshot(path="debug_parrainage_login.png")
-                    log.error("  Login automatique echoue")
-                    raise RuntimeError("Login automatique echoue")
-
-                log.info("  Login automatique OK")
+                await human_sleep(2, 3)
+                ok = await smart_login_parrainage(page, email, password)
+                if not ok:
+                    raise RuntimeError("Login echoue")
             else:
-                log.info("  Cookie valide")
+                log.info("  Cookie valid")
 
-            # Etape 3 : boost-all
+            # Boost-all
             page.on("dialog", lambda d: asyncio.ensure_future(d.accept()))
             resp = await page.goto(f"{cfg['url']}/account/offers/boost-all",
                                    wait_until="domcontentloaded", timeout=30000)
             log.info(f"  boost-all -> {resp.status if resp else '?'} {page.url}")
             await human_sleep(2, 4)
-            log.info("  Annonces remontees")
+            log.info("  Boost success")
         finally:
             await page.close()
 
     try:
-        await retry(_do, retries=3, label=name)
+        await retry(_do, retries=2, label=name)
     finally:
         await ctx.close()
 
@@ -538,10 +558,9 @@ RUNNERS = {"super": run_super, "code": run_code, "parrainage": run_parrainage}
 
 async def main():
     to_run = TARGET_SITES if TARGET_SITES else list(RUNNERS.keys())
-    # Ordre aleatoire pour varier
     random.shuffle(to_run)
 
-    # Verification 24h super-parrain (exit immediat, pas de sleep)
+    # Verification 24h super-parrain
     if to_run == ["super"] or (len(to_run) == 1 and "super" in to_run):
         last_file = "last_super_run.txt"
         if os.path.exists(last_file):
@@ -563,13 +582,17 @@ async def main():
 
     async with async_playwright() as pw:
         browser = await pw.chromium.launch(
-            headless=True,
-            args=["--no-sandbox", "--disable-dev-shm-usage", "--lang=fr-FR",
-                  "--disable-blink-features=AutomationControlled",
-                  "--disable-gpu", "--memory-pressure-off"])
+            headless=False,
+            slow_mo=50,
+            args=[
+                "--no-sandbox",
+                "--disable-dev-shm-usage",
+                "--lang=fr-FR",
+                "--disable-blink-features=AutomationControlled",
+                "--disable-gpu",
+                "--disable-software-rasterizer",
+            ])
 
-        # Context isole par site (pas de correlation)
-        tasks = []
         for site_id in to_run:
             runner = RUNNERS.get(site_id)
             if not runner: continue
@@ -580,14 +603,10 @@ async def main():
             if site_id == "parrainage" and not cfg.get("rm_cookie") and not cfg.get("email"):
                 log.warning(f"  parrainage - RM_COOKIE et credentials manquants")
                 continue
-            tasks.append(runner(browser))
-
-        # Execution sequentielle (plus stable sur GitHub Actions)
-        for task in tasks:
             try:
-                await task
+                await runner(browser)
             except Exception as e:
-                log.error(f"  Erreur: {e}")
+                log.error(f"  {site_id} - Erreur: {e}")
             await human_sleep(2, 5)
 
         await browser.close()
