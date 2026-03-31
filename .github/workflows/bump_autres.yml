@@ -21,7 +21,7 @@ jobs:
           playwright install chromium
 
       - name: 🚀 Bump Code Parrainage & Parrainage.co
-        timeout-minutes: 10
+        timeout-minutes: 20
         env:
           TWOCAPTCHA_KEY:            ${{ secrets.TWOCAPTCHA_KEY }}
           CODE_PARRAINAGE_EMAIL:     ${{ secrets.CODE_PARRAINAGE_EMAIL }}
