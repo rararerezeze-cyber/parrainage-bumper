@@ -1,4 +1,5 @@
 name: Bump — Code Parrainage & Parrainage.co (5x/jour)
+
 on:
   schedule:
     - cron: "0 */5 * * *"
@@ -30,11 +31,7 @@ jobs:
           PARRAINAGE_CO_PASSWORD:    ${{ secrets.PARRAINAGE_CO_PASSWORD }}
           PARRAINAGE_CO_RM_COOKIE:   ${{ secrets.PARRAINAGE_CO_RM_COOKIE }}
           TARGET_SITES:              "code,parrainage"
-          DISPLAY:                   ":99"
         run: |
-          sudo apt-get install -y xvfb
-          Xvfb :99 -screen 0 1280x800x24 &
-          sleep 2
           python bumper.py
 
       - name: 📋 Logs
