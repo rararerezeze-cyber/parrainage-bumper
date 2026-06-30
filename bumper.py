@@ -716,12 +716,19 @@ async def run_referralcode(browser):
     async def _do():
         page = await ctx.new_page()
         try:
-            await page.goto(f"{cfg['url']}/login/", wait_until="networkidle")
+            await page.goto(f"{cfg['url']}/login/", wait_until="networkidle", timeout=60000)
             await human_sleep(2, 4)
+            await page.screenshot(path="debug_referralcode_login.png")
 
-            await robust_fill(page, 'input[type="email"], input[name="email"]', cfg["email"])
+            EMAIL_SEL = ['input[type="email"]', 'input[name="email"]',
+                         'input[placeholder*="mail" i]', 'input[name="username"]']
+            ok_email = await smart_fill(page, EMAIL_SEL, cfg["email"], timeout=15000)
+            if not ok_email:
+                await page.screenshot(path="debug_referralcode_login.png")
+                raise RuntimeError("Champ email introuvable")
             await human_sleep(0.5, 1)
-            await robust_fill(page, 'input[type="password"], input[name="password"]', cfg["password"])
+            PASS_SEL = ['input[type="password"]', 'input[name="password"]']
+            await smart_fill(page, PASS_SEL, cfg["password"], timeout=10000)
             await human_sleep(1, 2)
 
             await human_click(page, page.locator(
