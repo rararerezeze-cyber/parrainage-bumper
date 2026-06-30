@@ -32,6 +32,9 @@ CONFIG = {
                    "email":    os.environ.get("PARRAINAGE_CO_EMAIL", ""),
                    "password": os.environ.get("PARRAINAGE_CO_PASSWORD", ""),
                    "rm_cookie": os.environ.get("PARRAINAGE_CO_RM_COOKIE", "")},
+    "referralcode": {"url": "https://www.referralcode.tv",
+                     "email":    os.environ.get("REFERRALCODE_EMAIL", ""),
+                     "password": os.environ.get("REFERRALCODE_PASSWORD", "")},
 }
 
 USER_AGENTS = [
@@ -703,8 +706,76 @@ async def run_parrainage(browser):
     finally:
         await ctx.close()
 
+
+async def run_referralcode(browser):
+    cfg = CONFIG["referralcode"]
+    name = "referralcode"
+    log.info(f"\n--- referralcode.tv ---")
+    ctx = await new_context(browser)
+
+    async def _do():
+        page = await ctx.new_page()
+        try:
+            await page.goto(f"{cfg['url']}/login/", wait_until="networkidle")
+            await human_sleep(2, 4)
+
+            await robust_fill(page, 'input[type="email"], input[name="email"]', cfg["email"])
+            await human_sleep(0.5, 1)
+            await robust_fill(page, 'input[type="password"], input[name="password"]', cfg["password"])
+            await human_sleep(1, 2)
+
+            await human_click(page, page.locator(
+                'button:has-text("SIGN IN"), button[type="submit"], input[type="submit"]').first)
+
+            try:
+                await page.wait_for_url(lambda u: "/login" not in u, timeout=15000)
+            except Exception:
+                pass
+            await page.wait_for_load_state("networkidle")
+            await human_sleep(2, 4)
+
+            if "/login" in page.url:
+                await page.screenshot(path="debug_referralcode_login.png")
+                raise RuntimeError("Login echoue")
+            log.info(f"  Login OK - {page.url}")
+
+            # Aller sur la page listings
+            await page.goto(f"{cfg['url']}/my-account/?tab=listings", wait_until="networkidle")
+            await human_sleep(2, 4)
+
+            # Cliquer le bouton Boost jusqu'a 5 fois
+            boosted = 0
+            for i in range(5):
+                try:
+                    btn = page.locator('button#cliccami').first
+                    await btn.wait_for(state="visible", timeout=5000)
+                    if not await btn.is_visible():
+                        break
+                    await btn.scroll_into_view_if_needed()
+                    await human_click(page, btn)
+                    boosted += 1
+                    log.info(f"  Boost {boosted}/5")
+                    await human_sleep(3, 6)
+                    # Verifier le compteur restant
+                    page_text = await page.inner_text("body")
+                    if "0 times" in page_text or "can click 0" in page_text:
+                        log.info("  Plus de boosts disponibles")
+                        break
+                except Exception as e:
+                    log.debug(f"  Boost {i}: {e}")
+                    break
+
+            log.info(f"  {boosted} boost(s) effectue(s)")
+        finally:
+            await page.close()
+
+    try:
+        await retry(_do, retries=3, label=name)
+    finally:
+        await ctx.close()
+
 # -- MAIN ---------------------------------------------------------------------
-RUNNERS = {"super": run_super, "code": run_code, "parrainage": run_parrainage}
+RUNNERS = {"super": run_super, "code": run_code, "parrainage": run_parrainage, "referralcode": run_referralcode}
 
 async def main():
     to_run = TARGET_SITES if TARGET_SITES else list(RUNNERS.keys())
@@ -751,6 +822,9 @@ async def main():
                 continue
             if site_id == "parrainage" and not cfg.get("rm_cookie") and not cfg.get("email"):
                 log.warning(f"  parrainage - RM_COOKIE et credentials manquants")
+                continue
+            if site_id != "parrainage" and site_id != "super" and site_id != "code" and not cfg.get("email"):
+                log.warning(f"  {site_id} - credentials manquants")
                 continue
             try:
                 await runner(browser)
