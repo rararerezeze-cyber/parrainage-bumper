@@ -1,0 +1,31 @@
+name: Test Referralcode
+on:
+  workflow_dispatch:
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: 📦 Dépendances
+        run: |
+          pip install -r requirements.txt
+          playwright install chromium
+      - name: 🚀 Test Referralcode
+        timeout-minutes: 10
+        env:
+          REFERRALCODE_EMAIL:    ${{ secrets.REFERRALCODE_EMAIL }}
+          REFERRALCODE_PASSWORD: ${{ secrets.REFERRALCODE_PASSWORD }}
+          TARGET_SITES:          "referralcode"
+        run: python bumper.py
+      - name: 📋 Logs
+        if: always()
+        run: cat bumper.log || true
+      - name: Upload debug
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-referralcode
+          path: debug_referralcode_login.png
