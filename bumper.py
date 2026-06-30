@@ -747,32 +747,27 @@ async def run_referralcode(browser):
             log.info(f"  Login OK - {page.url}")
 
             # Aller sur la page listings
-            await page.goto(f"{cfg['url']}/my-account/?tab=listings", wait_until="networkidle")
+            try:
+                await page.goto(f"{cfg['url']}/my-account/?tab=listings", wait_until="networkidle", timeout=45000)
+            except Exception:
+                await page.goto(f"{cfg['url']}/my-account/?tab=listings", wait_until="domcontentloaded", timeout=45000)
             await human_sleep(2, 4)
 
-            # Cliquer le bouton Boost jusqu'a 5 fois
-            boosted = 0
-            for i in range(5):
-                try:
-                    btn = page.locator('button#cliccami').first
-                    await btn.wait_for(state="visible", timeout=5000)
-                    if not await btn.is_visible():
-                        break
+            # Cliquer le bouton Boost UNE SEULE FOIS par run
+            # (le site autorise 5x/jour, on en fait 1 par execution du workflow)
+            try:
+                btn = page.locator('button#cliccami').first
+                await btn.wait_for(state="visible", timeout=8000)
+                page_text = await page.inner_text("body")
+                if "can click 0" in page_text or "0 times" in page_text:
+                    log.info("  Limite journaliere deja atteinte")
+                else:
                     await btn.scroll_into_view_if_needed()
                     await human_click(page, btn)
-                    boosted += 1
-                    log.info(f"  Boost {boosted}/5")
+                    log.info("  Boost effectue")
                     await human_sleep(3, 6)
-                    # Verifier le compteur restant
-                    page_text = await page.inner_text("body")
-                    if "0 times" in page_text or "can click 0" in page_text:
-                        log.info("  Plus de boosts disponibles")
-                        break
-                except Exception as e:
-                    log.debug(f"  Boost {i}: {e}")
-                    break
-
-            log.info(f"  {boosted} boost(s) effectue(s)")
+            except Exception as e:
+                log.warning(f"  Boost echoue: {e}")
         finally:
             await page.close()
 
