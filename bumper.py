@@ -759,7 +759,7 @@ async def run_referralcode(browser):
                 btn = page.locator('button#cliccami').first
                 await btn.wait_for(state="visible", timeout=8000)
                 page_text = await page.inner_text("body")
-                if "can click 0" in page_text or "0 times" in page_text:
+                if "can click 0" in page_text:
                     log.info("  Limite journaliere deja atteinte")
                 else:
                     await btn.scroll_into_view_if_needed()
