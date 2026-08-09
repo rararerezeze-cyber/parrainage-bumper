@@ -398,7 +398,8 @@ async def run_code(browser):
             count = await buttons.count()
             log.info(f"  {count} boutons Actualiser")
             if count == 0:
-                raise RuntimeError("Aucun bouton Actualiser trouve")
+                log.info("  Aucune annonce disponible a actualiser pour le moment")
+                return
             bumped = 0
             # Le DOM peut retirer un bouton apres son clic. Parcourir depuis la
             # fin empeche les suppressions de decaler les indices restants.
