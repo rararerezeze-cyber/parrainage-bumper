@@ -75,7 +75,8 @@ async def human_click(page, locator):
         await human_sleep(0.2, 0.7)
         await locator.click()
     except Exception as e:
-        log.debug(f"human_click: {e}")
+        log.warning(f"human_click echoue: {e}")
+        raise
 
 async def smart_fill(page, selectors, value, timeout=8000):
     for sel in selectors:
@@ -195,7 +196,7 @@ def find_gap_position(bg_bytes, piece_bytes):
         bg = Image.open(io.BytesIO(bg_bytes)).convert("RGB")
         bg_w, bg_h = bg.size
         pc_w = Image.open(io.BytesIO(piece_bytes)).size[0]
-        pixels = list(bg.getdata())
+        pixels = list(bg.get_flattened_data())
         white_per_col = {}
         for y in range(bg_h):
             for x in range(bg_w):
@@ -334,6 +335,8 @@ async def run_super(browser):
             """)
             edit_urls = list(dict.fromkeys(hrefs))
             log.info(f"  {len(edit_urls)} codes a remonter")
+            if not edit_urls:
+                raise RuntimeError("Aucun code trouve: page ou selecteurs probablement modifies")
             bumped = 0
             for i, url in enumerate(edit_urls):
                 try:
@@ -349,6 +352,8 @@ async def run_super(browser):
                     log.debug(f"  Erreur code {i}: {e}")
 
             log.info(f"  {bumped} code(s) remontes")
+            if bumped != len(edit_urls):
+                raise RuntimeError(f"Remontee incomplete: {bumped}/{len(edit_urls)}")
             with open("last_super_run.txt", "w") as f:
                 f.write(datetime.now().isoformat())
         finally:
@@ -392,6 +397,8 @@ async def run_code(browser):
             buttons = page.locator('button:has-text("Actualiser"), a:has-text("Actualiser")')
             count = await buttons.count()
             log.info(f"  {count} boutons Actualiser")
+            if count == 0:
+                raise RuntimeError("Aucun bouton Actualiser trouve")
             bumped = 0
             for i in range(count):
                 btn = buttons.nth(i)
@@ -405,6 +412,8 @@ async def run_code(browser):
                 except Exception as e:
                     log.debug(f"  Erreur {i}: {e}")
             log.info(f"  {bumped} annonces remontees")
+            if bumped != count:
+                raise RuntimeError(f"Remontee incomplete: {bumped}/{count}")
         finally:
             await page.close()
 
@@ -451,7 +460,7 @@ async def solve_turnstile(page):
         # Soumettre le captcha
         log.info("  Envoi a 2captcha...")
         try:
-            r = await client.post("http://2captcha.com/in.php", data={
+            r = await client.post("https://2captcha.com/in.php", data={
                 "key": api_key,
                 "method": "turnstile",
                 "sitekey": sitekey,
@@ -474,7 +483,7 @@ async def solve_turnstile(page):
         for _ in range(24):
             await asyncio.sleep(5)
             try:
-                r2 = await client.get("http://2captcha.com/res.php", params={
+                r2 = await client.get("https://2captcha.com/res.php", params={
                     "key": api_key,
                     "action": "get",
                     "id": captcha_id,
@@ -696,6 +705,10 @@ async def run_parrainage(browser):
             resp = await page.goto(f"{cfg['url']}/account/offers/boost-all",
                                    wait_until="domcontentloaded", timeout=30000)
             log.info(f"  boost-all -> {resp.status if resp else '?'} {page.url}")
+            if not resp or not (200 <= resp.status < 400):
+                raise RuntimeError(f"boost-all HTTP {resp.status if resp else 'sans reponse'}")
+            if "/login" in page.url:
+                raise RuntimeError("Session expiree pendant boost-all")
             await human_sleep(2, 4)
             log.info("  Boost success")
         finally:
@@ -815,6 +828,8 @@ async def main():
                 "--disable-software-rasterizer",
             ])
 
+        failures = []
+        executed = 0
         for site_id in to_run:
             runner = RUNNERS.get(site_id)
             if not runner: continue
@@ -829,9 +844,11 @@ async def main():
                 log.warning(f"  {site_id} - credentials manquants")
                 continue
             try:
+                executed += 1
                 await runner(browser)
             except Exception as e:
                 log.error(f"  {site_id} - Erreur: {e}")
+                failures.append(f"{site_id}: {e}")
             await human_sleep(2, 5)
 
         await browser.close()
@@ -839,6 +856,10 @@ async def main():
     log.info("\n" + "=" * 50)
     log.info("  Cycle termine !")
     log.info("=" * 50)
+    if executed == 0:
+        raise RuntimeError("Aucun site execute: verifier TARGET_SITES et les secrets")
+    if failures:
+        raise RuntimeError("Echec de site(s): " + " | ".join(failures))
 
 if __name__ == "__main__":
     asyncio.run(main())
