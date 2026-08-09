@@ -400,17 +400,19 @@ async def run_code(browser):
             if count == 0:
                 raise RuntimeError("Aucun bouton Actualiser trouve")
             bumped = 0
-            for i in range(count):
+            # Le DOM peut retirer un bouton apres son clic. Parcourir depuis la
+            # fin empeche les suppressions de decaler les indices restants.
+            for progress, i in enumerate(range(count - 1, -1, -1), start=1):
                 btn = buttons.nth(i)
                 try:
                     if not await btn.is_visible(): continue
                     await btn.scroll_into_view_if_needed()
                     await human_click(page, btn)
                     bumped += 1
-                    log.info(f"  Actualiser {i+1}/{count}")
+                    log.info(f"  Actualiser {progress}/{count}")
                     await human_sleep(2, 5)
                 except Exception as e:
-                    log.debug(f"  Erreur {i}: {e}")
+                    log.warning(f"  Erreur bouton index={i}: {e}")
             log.info(f"  {bumped} annonces remontees")
             if bumped != count:
                 raise RuntimeError(f"Remontee incomplete: {bumped}/{count}")
