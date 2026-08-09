@@ -196,7 +196,7 @@ def find_gap_position(bg_bytes, piece_bytes):
         bg = Image.open(io.BytesIO(bg_bytes)).convert("RGB")
         bg_w, bg_h = bg.size
         pc_w = Image.open(io.BytesIO(piece_bytes)).size[0]
-        pixels = list(bg.getdata())
+        pixels = list(bg.get_flattened_data())
         white_per_col = {}
         for y in range(bg_h):
             for x in range(bg_w):
