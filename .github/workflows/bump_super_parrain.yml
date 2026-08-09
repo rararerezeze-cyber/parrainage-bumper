@@ -3,9 +3,13 @@ on:
   schedule:
     - cron: "0 */2 * * *"
   workflow_dispatch:
+concurrency:
+  group: parrainage-bumper-super
+  cancel-in-progress: false
 jobs:
   bump:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: write
     steps:
@@ -16,26 +20,21 @@ jobs:
       - name: 📦 Dépendances
         run: |
           pip install -r requirements.txt
-          playwright install chromium
+          playwright install --with-deps chromium
       - name: 🚀 Bump Super Parrain
         env:
           SUPER_PARRAIN_EMAIL:    ${{ secrets.SUPER_PARRAIN_EMAIL }}
           SUPER_PARRAIN_PASSWORD: ${{ secrets.SUPER_PARRAIN_PASSWORD }}
           TARGET_SITES:           "super"
-          DISPLAY:                ":99"
-        run: |
-          sudo apt-get install -y xvfb
-          Xvfb :99 -screen 0 1280x800x24 &
-          sleep 2
-          python bumper.py
+        run: python bumper.py
       - name: 📋 Logs
         if: always()
         run: cat bumper.log || true
       - name: 💾 Sauvegarder heure du run
-        if: always()
+        if: success()
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add last_super_run.txt || true
+          git add last_super_run.txt
           git diff --staged --quiet || git commit -m "Update last super run time"
-          git push || true
+          git push
