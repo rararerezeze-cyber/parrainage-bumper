@@ -201,15 +201,21 @@ def find_gap_position(bg_bytes, piece_bytes):
         for y in range(bg_h):
             for x in range(bg_w):
                 r, g, b = pixels[y * bg_w + x]
-                if r > 200 and g > 200 and b > 200:
+                # Le masque du puzzle est blanc/neutre. Exclure les zones
+                # naturellement claires mais colorees (ciel, plafond, etc.).
+                if r > 200 and g > 200 and b > 200 and max(r, g, b) - min(r, g, b) < 10:
                     white_per_col[x] = white_per_col.get(x, 0) + 1
-        candidates = {x: c for x, c in white_per_col.items()
-                      if pc_w + 10 < x < bg_w - 10 and c > 5}
-        if not candidates:
+        starts = range(pc_w + 10, bg_w - pc_w - 9)
+        scored = [(sum(white_per_col.get(x, 0)
+                       for x in range(start, start + pc_w)), start)
+                  for start in starts]
+        if not scored:
             return 117
-        cols = sorted(candidates.keys())
-        center = (cols[0] + cols[-1]) // 2
-        log.info(f"  PIL gap x=[{cols[0]},{cols[-1]}] centre={center}px")
+        score, start = max(scored)
+        if score < 50:
+            return 117
+        center = start + pc_w // 2
+        log.info(f"  PIL gap x=[{start},{start + pc_w - 1}] centre={center}px score={score}")
         return center
     except Exception as e:
         log.warning(f"  PIL echoue: {e}")
@@ -262,7 +268,9 @@ async def solve_slider(page):
     real_dist = max(5, int(target_x - (sx - canvas_left)))
     log.info(f"  drag cible={real_dist}px")
 
-    distances = [real_dist] + [real_dist + d for d in [-10,+10,-20,+20,-30,+30] if real_dist+d > 0]
+    # Une glissade refusee invalide le puzzle. Les decalages supplementaires
+    # sur la meme image ne peuvent plus reussir; le retry recharge un defi neuf.
+    distances = [real_dist]
     for dist in distances:
         box = await handle.bounding_box()
         if not box: break
@@ -379,7 +387,8 @@ async def run_code(browser):
             await robust_fill(page, 'input[type="email"]', cfg["email"])
             await robust_fill(page, 'input[type="password"]', cfg["password"])
             await human_sleep(1, 2)
-            await solve_slider(page)
+            if not await solve_slider(page):
+                raise RuntimeError("Slider CAPTCHA non resolu")
             await asyncio.sleep(random.uniform(0.8, 1.5))
             await human_click(page, page.locator(
                 'button:has-text("Se connecter"), button[type="submit"]').first)
@@ -421,7 +430,7 @@ async def run_code(browser):
             await page.close()
 
     try:
-        await retry(_do, retries=3, label=name)
+        await retry(_do, retries=5, delay=5.0, label=name)
     finally:
         await ctx.close()
 
