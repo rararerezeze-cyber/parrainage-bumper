@@ -1,26 +1,39 @@
 from lib.super_parrain_schedule import (
     decide_super_parrain_action,
     enqueue_pending,
-    is_eligible,
     load_pending,
-    save_pending,
 )
 
 
-def test_enqueue_and_decide_prefers_write_or_wait(tmp_path, monkeypatch):
-    # isolate pending file
+def test_pending_does_not_block_bump_flag(tmp_path, monkeypatch):
     import lib.super_parrain_schedule as sched
 
     pending = tmp_path / "pending_writes.json"
+    last = tmp_path / "last.txt"
     monkeypatch.setattr(sched, "PENDING_PATH", pending)
-    monkeypatch.setattr(sched, "LAST_SUPER_RUN", tmp_path / "last.txt")
+    monkeypatch.setattr(sched, "LAST_SUPER_RUN", last)
 
-    # No last run → eligible
-    item = enqueue_pending("super-parrain", "kraken", "fr")
-    assert item["status"] == "pending"
+    # eligible (no last run)
+    enqueue_pending("super-parrain", "kraken", "fr")
     d = decide_super_parrain_action()
-    assert d["action"] in {"write", "wait", "bump"}
-    assert d["skip_bump"] is True or d["action"] == "write"
+    assert d["action"] == "cycle"
+    assert d["run_bump"] is True
+    assert d["run_precheck"] is True
+    assert d.get("skip_bump") is False
 
-    # With pending, never pure bump
-    assert d["action"] != "bump" or not load_pending().get("items")
+
+def test_cooldown_waits_like_historical(tmp_path, monkeypatch):
+    import lib.super_parrain_schedule as sched
+    from datetime import datetime, timezone
+
+    pending = tmp_path / "pending_writes.json"
+    last = tmp_path / "last.txt"
+    last.write_text(datetime.now(timezone.utc).isoformat(), encoding="utf-8")
+    monkeypatch.setattr(sched, "PENDING_PATH", pending)
+    monkeypatch.setattr(sched, "LAST_SUPER_RUN", last)
+
+    enqueue_pending("super-parrain", "kraken", "fr")
+    d = decide_super_parrain_action()
+    # pending present but cooldown → wait (do not block forever once slot opens)
+    assert d["action"] == "wait"
+    assert d["run_bump"] is False

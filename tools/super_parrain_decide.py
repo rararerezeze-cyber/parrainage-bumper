@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
-"""Decide l'action Super-Parrain du cron: write | bump | wait.
+"""Decide Super-Parrain cron action: wait | cycle.
 
-Usage:
-  python tools/super_parrain_decide.py
-  python tools/super_parrain_decide.py --enqueue-kraken
-  python tools/super_parrain_decide.py --json
+cycle = PRE-CHECK Autofresh + update si besoin + bumper historique.
+Pending content ne bloque JAMAIS le bump au prochain creneau.
 """
 from __future__ import annotations
 
@@ -31,8 +29,10 @@ def main() -> int:
     args = p.parse_args()
 
     if args.enqueue_kraken:
-        item = enqueue_pending("super-parrain", "kraken", "fr", reason="content_update_offers")
-        print("enqueued", item["key"], "next_eligible_at", item["next_eligible_at"])
+        item = enqueue_pending(
+            "super-parrain", "kraken", "fr", reason="content_update_offers"
+        )
+        print("enqueued", item["key"], "blocks_bump=False")
 
     decision = decide_super_parrain_action()
     eligible, nxt, hours = is_eligible()
@@ -48,15 +48,11 @@ def main() -> int:
         print(f"next_eligible_at={nxt.isoformat()}")
         print(f"hours_remaining={hours:.2f}")
         print(f"pending_count={decision['pending_count']}")
-        if decision.get("program"):
-            print(f"write_program={decision['program']}")
-    # Exit codes for shell branching in GHA
-    # 0=bump, 10=write, 20=wait
-    if decision["action"] == "write":
-        return 10
-    if decision["action"] == "wait":
-        return 20
-    return 0
+        print(f"run_precheck={decision.get('run_precheck')}")
+        print(f"run_bump={decision.get('run_bump')}")
+
+    # 0=cycle (slot), 20=wait (cooldown)
+    return 20 if decision["action"] == "wait" else 0
 
 
 if __name__ == "__main__":
