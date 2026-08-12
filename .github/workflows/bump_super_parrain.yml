@@ -40,12 +40,15 @@ jobs:
           if [ -z "$MODE" ]; then MODE=auto; fi
           if [ "$MODE" = "dry_precheck" ]; then echo "action=dry" >> "$GITHUB_OUTPUT"; fi
           if [ "$MODE" = "cycle" ]; then echo "action=cycle" >> "$GITHUB_OUTPUT"; fi
-      - name: Super-Parrain fused cycle
+      - name: Super-Parrain fused cycle (canary Kraken)
         env:
           SUPER_PARRAIN_EMAIL: ${{ secrets.SUPER_PARRAIN_EMAIL }}
           SUPER_PARRAIN_PASSWORD: ${{ secrets.SUPER_PARRAIN_PASSWORD }}
           TARGET_SITES: "super"
           AUTOFRESH_SUPER: "1"
+          # Premier live: Kraken content only; all other codes = BUMP_ONLY
+          AUTOFRESH_MODE: "canary"
+          AUTOFRESH_CANARY_PROGRAMS: "kraken"
         run: |
           ACTION="${{ steps.decide.outputs.action }}"
           echo "action=$ACTION"
@@ -57,13 +60,31 @@ jobs:
             python tools/super_parrain_cycle.py --force-slot
             exit 0
           fi
-          # Une seule passe: bumper.py + Autofresh prefill avant chaque Enregistrer
+          # Une seule passe: bumper + prefill canary (Kraken) + 1 Enregistrer / code
+          set +e
           python tools/super_parrain_cycle.py --execute
+          RC=$?
+          set -e
+          echo "cycle_exit=$RC"
+          # RC=2 = canary post_match false (bump ok, content fail) — ne casse pas le job bump
+          if [ "$RC" -eq 2 ]; then
+            echo "CANARY post_match=false — Autofresh content stopped; bump preserved"
+            exit 0
+          fi
+          exit $RC
       - name: Logs
         if: always()
         run: |
           cat bumper.log || true
           cat data/captures/super-parrain-last-cycle.json || true
+          python -c "
+          import json, pathlib
+          p=pathlib.Path('data/captures/super-parrain-last-cycle.json')
+          if p.exists():
+            d=json.loads(p.read_text())
+            print('write_status=', d.get('write_status'))
+            print('canary_verdict=', d.get('canary_verdict'))
+          " || true
       - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -84,6 +105,6 @@ jobs:
             data/platform-mappings/super-parrain.*.json \
             data/platform-templates/super-parrain/ 2>/dev/null || true
           if git diff --staged --quiet; then echo "no commit"; else
-            git commit -m "chore: super-parrain fused cycle results"
+            git commit -m "chore: super-parrain fused canary cycle results"
             git push
           fi

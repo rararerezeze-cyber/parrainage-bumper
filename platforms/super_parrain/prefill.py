@@ -15,6 +15,7 @@ from lib.super_parrain_content import (
     get_desired_content,
     program_from_edit_url,
 )
+from lib.super_parrain_policy import should_prefill_content
 
 log = logging.getLogger("super_parrain.prefill")
 
@@ -105,6 +106,7 @@ async def _set_body(page, value: str) -> bool:
 async def prepare_before_save(page, edit_url: str) -> dict[str, Any]:
     """PRE-CHECK + prefill eventuel. Ne clique PAS Enregistrer.
 
+    Respecte la politique canary: hors liste canary → bump seul, aucun contenu injecte.
     Returns stats dict for cycle report.
     """
     program = program_from_edit_url(edit_url)
@@ -116,11 +118,21 @@ async def prepare_before_save(page, edit_url: str) -> dict[str, Any]:
         "changed_fields": {},
         "skipped": False,
         "reason": "",
+        "policy": "",
     }
     if not program:
         result["skipped"] = True
         result["reason"] = "program_unknown_from_url"
         log.info("  Autofresh: programme inconnu pour URL — bump seul")
+        return result
+
+    # Canary / rollout gate — avant tout calcul de contenu
+    allow, policy_reason = should_prefill_content(program)
+    result["policy"] = policy_reason
+    if not allow:
+        result["skipped"] = True
+        result["reason"] = policy_reason
+        log.info(f"  Autofresh [{program}]: {policy_reason} — Enregistrer = remontee seule")
         return result
 
     desired = get_desired_content(program)

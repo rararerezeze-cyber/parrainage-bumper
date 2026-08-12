@@ -1,10 +1,10 @@
 {
-  "mode": "fused_bumper",
+  "mode": "fused_bumper_canary",
   "decision": {
     "action": "wait",
     "reason": "cooldown_24h_historical_slot",
     "next_eligible_at": "2026-08-13T05:37:10.549152+00:00",
-    "hours_remaining": 12.42,
+    "hours_remaining": 12.28,
     "pending_count": 1,
     "skip_bump": true,
     "run_precheck": false,
@@ -12,7 +12,7 @@
   },
   "eligible": false,
   "next_eligible_at": "2026-08-13T05:37:10.549152+00:00",
-  "hours_remaining": 12.42,
+  "hours_remaining": 12.28,
   "pre_check": {
     "programs_scanned": 29,
     "need_update": [
@@ -181,16 +181,48 @@
         ]
       }
     ],
-    "need_update_count": 22
+    "need_update_count": 22,
+    "canary_need_update": [
+      {
+        "program": "kraken",
+        "changed_fields": [
+          "personal_code",
+          "personal_link",
+          "referee_reward",
+          "body"
+        ]
+      }
+    ],
+    "canary_need_update_count": 1,
+    "policy": {
+      "autofresh_enabled": true,
+      "mode": "canary",
+      "canary_programs": [
+        "kraken"
+      ],
+      "stop_flag": false
+    }
   },
-  "note": "Au creneau: bumper.py ouvre chaque codes-promo/edit, Autofresh prefill si diff, UN SEUL Enregistrer = update+remonte. Cible ~N saves pour N codes (pas N_update + N_bump).",
+  "policy": {
+    "autofresh_enabled": true,
+    "mode": "canary",
+    "canary_programs": [
+      "kraken"
+    ],
+    "stop_flag": false
+  },
+  "note": "Au creneau: bumper.py ouvre chaque codes-promo/edit. Canary: seul(s) ['kraken'] recoivent un prefill contenu; les autres = BUMP_ONLY. UN SEUL Enregistrer / code.",
   "summary": {
     "PRE_CHECK": "OK",
-    "UPDATE_IF_NEEDED": "DRY (22 programmes)",
-    "POST_VERIFY": "DEFERRED_TO_LIVE_CYCLE",
+    "CANARY_PROGRAMS": [
+      "kraken"
+    ],
+    "UPDATE_IF_NEEDED": "CANARY_ONLY (1 programmes)",
+    "POST_VERIFY": "DEFERRED_TO_LIVE_CANARY",
     "BUMP_CYCLE_24H": "DRY",
     "server_actions": 0,
-    "max_saves_if_executed": "≈N codes-promo (1 save/code fuse)"
+    "max_saves_if_executed": "≈N codes-promo (1 save/code fuse)",
+    "content_writes_if_executed": 1
   },
-  "at": "2026-08-12T17:12:05.542900+00:00"
+  "at": "2026-08-12T17:20:09.573614+00:00"
 }

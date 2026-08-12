@@ -346,10 +346,24 @@ async def run_super(browser):
             if not edit_urls:
                 raise RuntimeError("Aucun code trouve: page ou selecteurs probablement modifies")
 
-            # Autofresh: enrichit CHAQUE sauvegarde historique (update+remonte = 1 clic)
+            # Autofresh: enrichit la sauvegarde historique (update+remonte = 1 clic)
             # Desactiveable: AUTOFRESH_SUPER=0
-            autofresh_on = os.environ.get("AUTOFRESH_SUPER", "1") != "0"
-            autofresh_stats = {"updated": 0, "bump_only": 0, "failed_prefill": 0, "details": []}
+            # Canary (defaut): AUTOFRESH_MODE=canary + AUTOFRESH_CANARY_PROGRAMS=kraken
+            #   → seul Kraken recoit un prefill; les autres = BUMP_ONLY
+            from lib.super_parrain_policy import autofresh_enabled, policy_snapshot
+
+            autofresh_on = autofresh_enabled()
+            policy = policy_snapshot()
+            autofresh_stats = {
+                "updated": 0,
+                "bump_only": 0,
+                "failed_prefill": 0,
+                "canary_skipped": 0,
+                "details": [],
+                "policy": policy,
+                "canary_post_verify": [],
+            }
+            canary_content_failed = False
 
             bumped = 0
             for i, url in enumerate(edit_urls):
@@ -357,8 +371,9 @@ async def run_super(browser):
                     await page.goto(url, wait_until="networkidle")
                     await human_sleep(2, 3)
 
-                    # --- Autofresh PRE-CHECK + prefill (optionnel) ---
-                    if autofresh_on:
+                    info = None
+                    # --- Autofresh PRE-CHECK + prefill (optionnel, canary-gated) ---
+                    if autofresh_on and not canary_content_failed:
                         try:
                             from platforms.super_parrain.prefill import prepare_before_save
                             info = await prepare_before_save(page, url)
@@ -367,9 +382,20 @@ async def run_super(browser):
                                 autofresh_stats["updated"] += 1
                             else:
                                 autofresh_stats["bump_only"] += 1
+                                if info.get("reason") == "bump_only_not_canary":
+                                    autofresh_stats["canary_skipped"] += 1
                         except Exception as e:
                             autofresh_stats["failed_prefill"] += 1
                             log.warning(f"  Autofresh prefill ignore ({i+1}): {e}")
+                    elif autofresh_on and canary_content_failed:
+                        autofresh_stats["bump_only"] += 1
+                        autofresh_stats["details"].append(
+                            {
+                                "edit_url": url,
+                                "skipped": True,
+                                "reason": "autofresh_stopped_after_canary_fail",
+                            }
+                        )
 
                     # --- UN SEUL Enregistrer = update eventuel + remontee ---
                     await human_click(page, page.locator(
@@ -377,8 +403,46 @@ async def run_super(browser):
                     await page.wait_for_load_state("networkidle")
                     await human_sleep(2, 4)
                     bumped += 1
-                    log.info(f"  Code {i+1}/{len(edit_urls)} enregistre"
-                             f"{' (contenu+remonte)' if autofresh_on else ''}")
+                    filled = (info or {}).get("fields_filled") or []
+                    tag = " (contenu+remonte)" if filled else " (remonte)"
+                    log.info(f"  Code {i+1}/{len(edit_urls)} enregistre{tag}")
+
+                    # --- Post-verify canary: re-fetch public apres save avec contenu ---
+                    if filled and info and info.get("program"):
+                        try:
+                            await asyncio.sleep(2)
+                            from lib.super_parrain_post_verify import verify_public_program
+
+                            pv = verify_public_program(
+                                info["program"],
+                                filled_fields=list(filled),
+                            )
+                            autofresh_stats["canary_post_verify"].append(pv.to_dict())
+                            if pv.post_match:
+                                log.info(
+                                    f"  Canary post-verify [{info['program']}]: "
+                                    f"post_match=true exact={pv.exact_body_match}"
+                                )
+                            else:
+                                log.error(
+                                    f"  Canary post-verify [{info['program']}]: "
+                                    f"post_match=FALSE — STOP Autofresh content "
+                                    f"({pv.error})"
+                                )
+                                canary_content_failed = True
+                                os.environ["AUTOFRESH_STOP"] = "1"
+                        except Exception as e:
+                            log.error(f"  Canary post-verify echec: {e}")
+                            autofresh_stats["canary_post_verify"].append(
+                                {
+                                    "program": info.get("program"),
+                                    "ok": False,
+                                    "post_match": False,
+                                    "error": str(e),
+                                }
+                            )
+                            canary_content_failed = True
+                            os.environ["AUTOFRESH_STOP"] = "1"
                 except Exception as e:
                     log.debug(f"  Erreur code {i}: {e}")
                     # Stop on hard anti-bot signals
@@ -392,21 +456,50 @@ async def run_super(browser):
                 log.info(
                     f"  Autofresh: updated={autofresh_stats['updated']} "
                     f"bump_only={autofresh_stats['bump_only']} "
-                    f"prefill_fail={autofresh_stats['failed_prefill']}"
+                    f"canary_skipped={autofresh_stats['canary_skipped']} "
+                    f"prefill_fail={autofresh_stats['failed_prefill']} "
+                    f"policy={policy}"
                 )
                 try:
                     import json
                     from pathlib import Path
                     out = Path("data/captures/super-parrain-last-cycle.json")
                     out.parent.mkdir(parents=True, exist_ok=True)
+                    # Canary verdict
+                    canary_verdict = None
+                    for pv in autofresh_stats.get("canary_post_verify") or []:
+                        canary_verdict = {
+                            "program": pv.get("program"),
+                            "post_match": pv.get("post_match"),
+                            "exact_body_match": pv.get("exact_body_match"),
+                            "ok": pv.get("ok"),
+                            "error": pv.get("error"),
+                        }
                     out.write_text(
                         json.dumps(
                             {
-                                "mode": "fused_bumper",
+                                "mode": "fused_bumper_canary"
+                                if policy.get("mode") == "canary"
+                                else "fused_bumper",
                                 "total_edit_urls": len(edit_urls),
                                 "saves": bumped,
                                 "autofresh": autofresh_stats,
+                                "canary_verdict": canary_verdict,
+                                "canary_content_failed": canary_content_failed,
                                 "max_saves_target": len(edit_urls),
+                                "write_status": (
+                                    "WRITE_VERIFIED"
+                                    if canary_verdict and canary_verdict.get("post_match")
+                                    else (
+                                        "CANARY_FAILED"
+                                        if canary_content_failed
+                                        else (
+                                            "CANARY_PENDING"
+                                            if policy.get("mode") == "canary"
+                                            else "FUSED_OK"
+                                        )
+                                    )
+                                ),
                             },
                             ensure_ascii=False,
                             indent=2,
