@@ -1,16 +1,22 @@
-name: Telegram sync (serverless entry)
-# Declenche par le Cloudflare Worker (repository workflow_dispatch).
+name: Telegram sync (legacy / optional)
+# LEGACY entry. Product path for Hermes: hermes_operator.yml + tools/hermes_autofresh.py
+# Autofresh does NOT own a Telegram bot; Hermes does.
+# This workflow remains for manual GH dispatch / optional test worker.
 # FULL OPERATOR CONTROL: override → plan → live only if WRITE_VERIFIED.
 on:
   workflow_dispatch:
     inputs:
       message:
-        description: "Message Telegram naturel"
+        description: "Natural language operator command"
         required: true
       chat_id:
-        description: "Telegram chat id pour le rapport"
+        description: "Optional Telegram chat id (legacy direct notify; prefer Hermes)"
         required: false
         default: ""
+      requester:
+        description: "Caller identity (hermes / manual)"
+        required: false
+        default: "manual"
 permissions:
   contents: write
   actions: write
@@ -39,7 +45,7 @@ jobs:
           if [ "$(cat /tmp/need_browser)" = "1" ]; then
             playwright install --with-deps chromium
           fi
-      - name: Apply Telegram operator control
+      - name: Apply operator control (Hermes-compatible JSON + human report)
         id: apply
         env:
           SUPER_PARRAIN_EMAIL: ${{ secrets.SUPER_PARRAIN_EMAIL }}
@@ -47,24 +53,32 @@ jobs:
           PARRAINAGE_CO_EMAIL: ${{ secrets.PARRAINAGE_CO_EMAIL }}
           PARRAINAGE_CO_PASSWORD: ${{ secrets.PARRAINAGE_CO_PASSWORD }}
           PARRAINAGE_CO_RM_COOKIE: ${{ secrets.PARRAINAGE_CO_RM_COOKIE }}
+          AUTOFRESH_OPERATOR_TOKEN: ${{ secrets.AUTOFRESH_OPERATOR_TOKEN }}
+          HERMES_SHARED_TOKEN: ${{ secrets.HERMES_SHARED_TOKEN }}
           AUTOFRESH_PHASE: "VALIDATION_LIVE"
+          GITHUB_ACTIONS: "true"
         run: |
           set -e
           MSG='${{ github.event.inputs.message }}'
           python tools/e2e_status.py || true
-          # Persist override + cross-platform plan (always)
-          python tools/telegram_update.py "$MSG" --write | tee /tmp/tg-report.txt
-          # Live writers: ONLY WRITE_VERIFIED platforms (strict)
-          python tools/run_verified_writers.py --from-telegram || true
-          # Prepared plans for non-verified platforms
-          python -c "from platforms.referralcodes.writer import dry_run_report; dry_run_report()" || true
-          python -c "from platforms.referralcode_tv.writer import dry_run_report; dry_run_report()" || true
+          # Structured JSON for Hermes (primary)
+          REQ="${{ github.event.inputs.requester }}"
+          if [ -z "$REQ" ]; then REQ="manual"; fi
+          python tools/hermes_autofresh.py \
+            --command "$MSG" \
+            --requester-source "$REQ" \
+            --requester-identity "$REQ" \
+            > /tmp/hermes-result.json || true
+          cp /tmp/hermes-result.json data/captures/hermes-last-result.json 2>/dev/null || true
+          # Human-readable report (legacy)
+          python tools/telegram_update.py "$MSG" --write | tee /tmp/tg-report.txt || true
           {
-            echo "=== AUTOFRESH TELEGRAM ==="
+            echo "=== AUTOFRESH OPERATOR (via Hermes interface) ==="
+            echo "Note: Hermes owns Telegram. This workflow is backend-only."
             cat /tmp/tg-report.txt 2>/dev/null || true
             echo ""
-            echo "=== WRITE STATUS ==="
-            python -c "from lib.write_status import summary; import json; print(json.dumps(summary(), indent=2, ensure_ascii=False))"
+            echo "=== JSON (machine) ==="
+            head -c 3000 /tmp/hermes-result.json 2>/dev/null || true
             echo ""
             echo "Monitor: OBSERVATION_ONLY (no auto-accept)"
           } | tee /tmp/final-report.txt
@@ -103,11 +117,13 @@ jobs:
           name: telegram-sync-report
           retention-days: 14
           path: |
+            data/captures/hermes-last-result.json
             data/captures/telegram-last-report.txt
             data/captures/verified-writers-report.json
             data/captures/e2e-status.json
             data/operator-overrides.json
             data/platform-write-status.json
+            /tmp/hermes-result.json
           if-no-files-found: ignore
       - name: Commit overrides + status
         if: success()
