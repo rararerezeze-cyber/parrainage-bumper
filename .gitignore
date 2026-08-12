@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.bumper.log
+_capture/
+_tmp_*.html
+_extract_kraken.py
+_build_kraken_template.py
+_validate_kraken.py
+_scan_secrets.py
