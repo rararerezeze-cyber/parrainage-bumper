@@ -32,7 +32,8 @@ on:
 permissions:
   contents: write
 concurrency:
-  group: autofresh-activation-canary
+  # Shared with bump_super_parrain.yml — avoid race on last_super_run / live save
+  group: parrainage-bumper-super
   cancel-in-progress: false
 jobs:
   canary:
