@@ -1,0 +1,22 @@
+{
+  "platform": "super-parrain",
+  "program": "fdj-francaise-des-jeux",
+  "language": "fr",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": null,
+  "mutable_fields": [
+    "personal_link",
+    "referee_reward"
+  ],
+  "platform_values": {
+    "personal_link": "https://www.fdj.fr/inscription/fdj?campaign=codeparrain&parrain=D169E-65BB3-4BEED",
+    "referee_reward": "1.\tCrée un compte FDJ via le lien ci-dessus"
+  },
+  "confidences": {
+    "personal_link": "high",
+    "referee_reward": "high"
+  },
+  "notes": []
+}

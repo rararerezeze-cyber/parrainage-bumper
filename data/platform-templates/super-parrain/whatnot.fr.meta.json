@@ -1,0 +1,22 @@
+{
+  "platform": "super-parrain",
+  "program": "whatnot",
+  "language": "fr",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": null,
+  "mutable_fields": [
+    "personal_link",
+    "referee_reward"
+  ],
+  "platform_values": {
+    "personal_link": "https://www.whatnot.com/invite/user_48570",
+    "referee_reward": "tu reçois le même montant en crédit quand ton ami passe sa première commande"
+  },
+  "confidences": {
+    "personal_link": "high",
+    "referee_reward": "high"
+  },
+  "notes": []
+}

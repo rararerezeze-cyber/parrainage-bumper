@@ -1,0 +1,22 @@
+{
+  "platform": "super-parrain",
+  "program": "nrj-mobile",
+  "language": "fr",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": null,
+  "mutable_fields": [
+    "personal_link",
+    "referee_reward"
+  ],
+  "platform_values": {
+    "personal_link": "https://aklam.io/1yzORChP",
+    "referee_reward": "10 € pour vous + 10 € pour votre filleul après 2 mois d’abonnement validés"
+  },
+  "confidences": {
+    "personal_link": "high",
+    "referee_reward": "high"
+  },
+  "notes": []
+}

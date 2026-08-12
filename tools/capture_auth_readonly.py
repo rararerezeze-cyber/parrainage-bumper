@@ -747,13 +747,21 @@ async def capture_referralcode_tv(browser, offers: OffersRepository) -> dict:
         (REPORT_DIR / "referralcode-tv-raw.txt").write_text(body_text[:50000], encoding="utf-8")
 
         # Prefer edit links per listing (READ-ONLY open)
+        # Note: CSS :has-text is Playwright-only — not valid in page.evaluate/querySelectorAll
         edit_urls = await page.evaluate(
             """
-            () => Array.from(new Set(
-              Array.from(document.querySelectorAll('a[href*="edit"], a:has-text("Edit"), button:has-text("Edit Code")'))
-                .map(a => a.href || '')
-                .filter(h => h && h.startsWith('http'))
-            ))
+            () => {
+              const out = [];
+              for (const a of document.querySelectorAll('a[href]')) {
+                const href = a.href || '';
+                const label = ((a.innerText || a.textContent || '') + ' ' + href).toLowerCase();
+                if (!href.startsWith('http')) continue;
+                if (label.includes('edit') || href.includes('edit') || label.includes('modifier')) {
+                  out.push(href);
+                }
+              }
+              return Array.from(new Set(out));
+            }
             """
         )
         cards = []

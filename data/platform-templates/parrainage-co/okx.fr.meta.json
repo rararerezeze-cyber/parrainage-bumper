@@ -1,0 +1,25 @@
+{
+  "platform": "parrainage-co",
+  "program": "okx",
+  "language": "fr",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": null,
+  "mutable_fields": [
+    "personal_code",
+    "personal_link",
+    "referee_reward"
+  ],
+  "platform_values": {
+    "personal_code": "28947271",
+    "personal_link": "https://my.okx.com/fr-fr/join/28947271",
+    "referee_reward": "250 € offerts en Bitcoin ⚡"
+  },
+  "confidences": {
+    "personal_code": "high",
+    "personal_link": "high",
+    "referee_reward": "high"
+  },
+  "notes": []
+}

@@ -33,7 +33,17 @@ def mapping_quality(mapping_path: Path) -> str:
         data = json.loads(mapping_path.read_text(encoding="utf-8"))
     except Exception:
         return "unknown"
+    status = str(data.get("status") or "").upper()
     q = (data.get("quality") or "").lower()
+    if status in {
+        "NOT_PRESENT_ON_ACCOUNT",
+        "STALE_MAPPING",
+        "NOT_ON_ACCOUNT",
+        "NOT_ON_PUBLIC_PROFILE",
+    }:
+        return "stale_mapping"
+    if data.get("write_eligible") is False and "stale" in q:
+        return "stale_mapping"
     if "truncat" in q or "partial" in q or "list_preview" in q:
         return "capture_partial"
     if data.get("template_status") == "missing_source":

@@ -1,0 +1,25 @@
+{
+  "platform": "parrainage-co",
+  "program": "plum",
+  "language": "fr",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": null,
+  "mutable_fields": [
+    "personal_code",
+    "personal_link",
+    "referee_reward"
+  ],
+  "platform_values": {
+    "personal_code": "Kt8HyIuJ7V",
+    "personal_link": "https://withplum.com/referral?referralCode=Kt8HyIuJ7V",
+    "referee_reward": "10 € offerts après inscription et premier dépôt"
+  },
+  "confidences": {
+    "personal_code": "high",
+    "personal_link": "high",
+    "referee_reward": "high"
+  },
+  "notes": []
+}
