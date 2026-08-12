@@ -3,7 +3,7 @@
   "live_writes_enabled": false,
   "live_canary_allowed": false,
   "programs": 38,
-  "mapped_pairs": 117,
+  "mapped_pairs": 120,
   "platforms": [
     {
       "platform": "super-parrain",
@@ -63,8 +63,8 @@
     {
       "platform": "referraldrop",
       "status": "BASE_READY / AUTH_BLOCKED",
-      "mapped": 5,
-      "full": 5,
+      "mapped": 8,
+      "full": 8,
       "partial": 0,
       "stale": 0,
       "write": "AUTH_BLOCKED",
@@ -85,12 +85,12 @@
   ],
   "global_dry_run": {
     "ok": true,
-    "rows": 117,
+    "rows": 120,
     "hard_errors": 0,
     "statuses": {
-      "in_sync": 30,
+      "in_sync": 32,
       "missing_source": 1,
-      "pending_update": 86
+      "pending_update": 87
     }
   },
   "telegram_dry_run": {
@@ -101,12 +101,12 @@
   "tests": {
     "ok": true,
     "returncode": 0,
-    "tail": ".................................                                        [100%]\n33 passed in 0.28s"
+    "tail": ".................................                                        [100%]\n33 passed in 0.42s"
   },
   "blockers": [],
   "base_ready_all": true,
   "coverage": {
     "programs_in_offers": 38,
-    "mapped_pairs": 117
+    "mapped_pairs": 120
   }
 }
