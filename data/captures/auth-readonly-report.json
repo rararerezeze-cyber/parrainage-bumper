@@ -140,7 +140,7 @@
           "edit_url": "https://parrainage.co/account/offers/edit/75175"
         },
         {
-          "program": "paypal",
+          "program": "igraal",
           "status": "ok",
           "mutable": [
             "personal_link",
@@ -223,12 +223,14 @@
         {
           "url": "https://parrainage.co/account/offers/edit/75195",
           "error": "program_unknown",
-          "title": "Ajouter mon annonce"
+          "title": "⭐️ Jusqu’à 200 € OFFERTS en ce MOMENT ⭐️",
+          "first_line": "⭐️ Jusqu’à 200 € OFFERTS en ce MOMENT ⭐️"
         },
         {
           "url": "https://parrainage.co/account/offers/edit/92118",
           "error": "program_unknown",
-          "title": "Ajouter mon annonce"
+          "title": "⭐️ Offre spéciale : 1 mois offert ⭐️",
+          "first_line": "⭐️ Offre spéciale : 1 mois offert ⭐️"
         }
       ],
       "orphans": [
@@ -400,12 +402,12 @@
         "coinbase",
         "ebuyclub",
         "gemini",
+        "igraal",
         "joko",
         "kraken",
         "ledger",
         "nrj-mobile",
         "okx",
-        "paypal",
         "plum",
         "poulpeo",
         "revolut",
