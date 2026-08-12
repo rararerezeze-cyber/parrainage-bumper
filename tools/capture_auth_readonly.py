@@ -109,6 +109,44 @@ def _prune_null_offer_mutables(result, offer: dict | None) -> None:
     result.confidences = {k: v for k, v in result.confidences.items() if k in cleaned}
 
 
+# Known offer-id → program (account path /offers/edit/{id}) when body title is generic
+KNOWN_OFFER_IDS = {
+    "75195": "boursobank",
+    "92118": "acheel",
+    "75178": "igraal",
+    "75172": "betclic",
+    "75173": "unibet",
+    "75174": "traderepublic",
+    "75175": "winamax",
+    "113735": "kraken",
+    "76562": "coinbase",
+    "76563": "revolut",
+    "84354": "poulpeo",
+    "84358": "ebuyclub",
+    "86502": "joko",
+    "109021": "widilo",
+    "110585": "totalenergies",
+    "114464": "bitstack",
+    "114509": "swissborg",
+    "115110": "robinhood",
+    "115388": "gemini",
+    "115693": "ledger",
+    "127408": "bybit",
+    "118536": "vinted",
+    "122884": "plum",
+    "123892": "okx",
+    "125100": "nrj-mobile",
+    "125961": "whatnot",
+}
+
+
+def _slug_from_edit_url(url: str) -> str | None:
+    m = re.search(r"/offers/(?:edit/)?(\d+)", url or "")
+    if not m:
+        return None
+    return KNOWN_OFFER_IDS.get(m.group(1))
+
+
 def _guess_slug(title: str, body: str, offers: OffersRepository) -> str | None:
     """Identifie le programme depuis le titre d'offre, pas un sous-mot fortuit du corps.
 
@@ -360,7 +398,8 @@ async def capture_parrainage_co(browser, offers: OffersRepository) -> dict:
                     "",
                 }:
                     title = first_line or title
-                slug = _guess_slug(title, body, offers)
+                # Prefer stable offer-id map (fixes BoursoBank/Acheel without brand in first line)
+                slug = _slug_from_edit_url(url) or _guess_slug(title, body, offers)
                 if not slug:
                     report["errors"].append(
                         {
