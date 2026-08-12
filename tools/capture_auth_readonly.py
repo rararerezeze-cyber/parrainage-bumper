@@ -303,52 +303,86 @@ async def capture_code_parrainage(browser, offers: OffersRepository) -> dict:
         REPORT_DIR.mkdir(parents=True, exist_ok=True)
         (REPORT_DIR / "code-parrainage-raw.txt").write_text(body_text[:50000], encoding="utf-8")
 
-        cards = await page.evaluate(
+        # Prefer Modifier / edit links for full text (not list previews)
+        edit_urls = await page.evaluate(
             """
             () => {
               const out = [];
-              // blocs carte typiques
-              const nodes = document.querySelectorAll(
-                '.card, .annonce, .offer, article, .list-group-item, tr, .row'
-              );
-              nodes.forEach(n => {
-                const t = (n.innerText || '').trim();
-                if (t.length < 40 || t.length > 6000) return;
-                if (!/code|lien|parrain|bonus|€|http/i.test(t)) return;
-                const a = n.querySelector('a[href]');
-                out.push({href: a ? a.href : location.href, body: t});
-              });
-              return out;
+              for (const a of document.querySelectorAll('a[href], button')) {
+                const href = a.href || a.getAttribute('data-href') || '';
+                const label = ((a.innerText || a.textContent || '') + ' ' + href).toLowerCase();
+                if (!href && !label.includes('modif')) continue;
+                if (label.includes('actualis') || label.includes('supprim') || label.includes('delete')) continue;
+                if (label.includes('modif') || href.includes('edit') || href.includes('modif')) {
+                  if (href) out.push(href);
+                }
+              }
+              return Array.from(new Set(out));
             }
             """
         )
+        report["edit_urls_found"] = len(edit_urls)
         seen = set()
-        for card in cards:
-            body = card["body"]
-            slug = None
-            for o in offers.load_all():
-                n = o.get("name") or ""
-                if n and n.lower() in body.lower():
-                    slug = o.get("lk")
-                    break
-            if not slug or slug in seen:
-                continue
-            seen.add(slug)
+        for url in edit_urls[:80]:
             try:
-                offer = offers.get_by_slug(slug)
-            except KeyError:
-                offer = None
-            try:
-                item = _save_result(platform, slug, "fr", body, card.get("href"), offer)
-                report["items"].append(item)
+                await page.goto(url, wait_until="domcontentloaded", timeout=45000)
+                await bumper_mod.human_sleep(1.0, 1.8)
+                payload = await page.evaluate(
+                    """
+                    () => {
+                      const areas = Array.from(document.querySelectorAll('textarea'))
+                        .map(t => (t.value || t.innerText || '').trim())
+                        .filter(t => t.length > 20);
+                      const body = areas.sort((a,b)=>b.length-a.length)[0]
+                        || (document.querySelector('main, form, .content, article') || document.body).innerText || '';
+                      const title = (document.querySelector('h1,h2') || {}).innerText || document.title || '';
+                      return {title, body: body.slice(0, 8000), url: location.href};
+                    }
+                    """
+                )
+                body = (payload.get("body") or "").strip()
+                # Reject pure list chrome / truncated previews when we expected full form
+                if len(body) < 60:
+                    continue
+                title = payload.get("title") or body.split("\n", 1)[0]
+                slug = _slug_from_text(title, offers)
+                if not slug:
+                    for o in offers.load_all():
+                        n = o.get("name") or ""
+                        if n and n.lower() in body.lower():
+                            slug = o.get("lk")
+                            break
+                if not slug or slug in seen:
+                    continue
+                try:
+                    offer = offers.get_by_slug(slug)
+                except KeyError:
+                    offer = None
+                item = _save_result(platform, slug, "fr", body, payload.get("url") or url, offer)
+                # Clear partial quality if we got a real edit body
+                from pathlib import Path
+                import json as _json
+                mp = Path(item["paths"]["mapping"]) if "paths" in item else None
+                # _save_result returns paths relative — rebuild
+                mpath = ROOT / "data" / "platform-mappings" / f"code-parrainage.{slug}.fr.json"
+                if mpath.exists():
+                    d = _json.loads(mpath.read_text(encoding="utf-8"))
+                    d.pop("quality", None)
+                    d["quality"] = "full_edit" if len(body) > 200 else "capture_partial"
+                    if len(body) <= 200:
+                        d["quality"] = "capture_partial"
+                    mpath.write_text(_json.dumps(d, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+                seen.add(slug)
+                report["items"].append({**item, "chars": len(body)})
             except Exception as exc:  # noqa: BLE001
-                report["errors"].append({"program": slug, "error": str(exc)})
+                report["errors"].append({"url": url, "error": str(exc)})
 
         if not report["items"]:
             report["errors"].append(
                 {
-                    "error": "aucune annonce structuree extraite — DOM a cartographier",
+                    "error": "aucune annonce complete via pages Modifier — DOM a cartographier",
                     "hint": "raw dump: data/captures/code-parrainage-raw.txt",
+                    "edit_urls_found": len(edit_urls),
                 }
             )
     except Exception as exc:  # noqa: BLE001
@@ -395,10 +429,20 @@ async def capture_referralcode_tv(browser, offers: OffersRepository) -> dict:
         if "/login" in page.url:
             raise RuntimeError("login echoue")
 
-        await page.goto(
-            f"{cfg['url']}/my-account/?tab=listings", wait_until="networkidle", timeout=45000
-        )
-        await bumper_mod.human_sleep(2, 3)
+        # Prefer public author page first if reachable without timeout, then account listings
+        for listings_url in (
+            "https://www.referralcode.tv/author/thesuperreff/",
+            f"{cfg['url']}/my-account/?tab=listings",
+            f"{cfg['url']}/my-account/",
+        ):
+            try:
+                await page.goto(listings_url, wait_until="domcontentloaded", timeout=60000)
+                await bumper_mod.human_sleep(2, 3)
+                if "/login" not in page.url:
+                    break
+            except Exception:
+                continue
+        await bumper_mod.human_sleep(1, 2)
         body_text = await page.inner_text("body")
         REPORT_DIR.mkdir(parents=True, exist_ok=True)
         (REPORT_DIR / "referralcode-tv-raw.txt").write_text(body_text[:50000], encoding="utf-8")

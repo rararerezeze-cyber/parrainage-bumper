@@ -1,0 +1,24 @@
+{
+  "platform": "referralcode-tv",
+  "program": "swissborg",
+  "language": "en",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-swissborg-referral-offer-up-to-50-in-bitcoin-%e2%ad%90%ef%b8%8f-join-swissborg-a-secure-and-beginner-friendly-crypto-investment-app/?__sid=23017",
+  "mutable_fields": [
+    "personal_code"
+  ],
+  "platform_values": {
+    "personal_code": "adrienOCZI39JF"
+  },
+  "confidences": {
+    "personal_code": "medium"
+  },
+  "notes": [
+    "code plateforme 'adrienOCZI39JF' != offers.json 'adrienHVRYZMOZ'",
+    "lien offers.json non trouve dans le texte",
+    "bonus non marque (ambigu / non trouve) — texte laisse fixe",
+    "public author capture; distinct from referralcodes.com"
+  ]
+}

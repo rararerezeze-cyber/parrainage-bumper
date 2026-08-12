@@ -1,0 +1,30 @@
+{
+  "platform": "referralcodes",
+  "domain": "referralcodes.com",
+  "profile_url": "https://referralcodes.com/TheSuperReff",
+  "account_email": "rararerezeze@gmail.com",
+  "secrets": ["REFERRALCODES_EMAIL", "REFERRALCODES_PASSWORD"],
+  "distinct_from": "referralcode.tv (REFERRALCODE_* without S)",
+  "official_channels": [
+    {
+      "name": "Agent Import (Beta)",
+      "url": "https://referralcodes.com/agents",
+      "priority": 1,
+      "purpose": "Bulk upload / agent automation of referral codes to profile",
+      "write_candidate": true
+    },
+    {
+      "name": "Data Feed API (Beta)",
+      "url": "https://referralcodes.com/data-feed",
+      "priority": 2,
+      "purpose": "Read-side rewards JSON feed",
+      "write_candidate": false
+    }
+  ],
+  "policy": {
+    "prefer": "official_import_over_browser",
+    "browser_scrape": "only_if_official_path_insufficient",
+    "public_capture": "used_for_inventory_baseline"
+  },
+  "next_auth_step": "Login with REFERRALCODES_* secrets and probe /agents + account export endpoints (READ-ONLY first)"
+}

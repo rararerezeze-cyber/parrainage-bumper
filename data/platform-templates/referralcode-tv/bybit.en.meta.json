@@ -1,0 +1,26 @@
+{
+  "platform": "referralcode-tv",
+  "program": "bybit",
+  "language": "en",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-bybit-referral-offer-up-to-30-welcome-bonus-%e2%ad%90%ef%b8%8f-join-bybit-one-of-the-leading-global-crypto-exchanges/?__sid=23025",
+  "mutable_fields": [
+    "personal_code",
+    "referee_reward"
+  ],
+  "platform_values": {
+    "personal_code": "YQ6B3O2",
+    "referee_reward": "Up to $30 in crypto for new users signing up via referral"
+  },
+  "confidences": {
+    "personal_code": "high",
+    "referee_reward": "medium"
+  },
+  "notes": [
+    "lien offers.json non trouve dans le texte",
+    "bonus extrait du texte plateforme (confiance moyenne)",
+    "public author capture; distinct from referralcodes.com"
+  ]
+}

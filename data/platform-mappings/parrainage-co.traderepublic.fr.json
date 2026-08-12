@@ -22,7 +22,7 @@
     "referee_reward": "reward",
     "conditions": "cond"
   },
-  "announcement_url": "https://parrainage.co/account/offers/edit/75174",
+  "announcement_url": "https://parrainage.co/offers/75174",
   "edit_url": null,
   "platform_values": {
     "personal_code": "s931znqx",
@@ -32,7 +32,7 @@
     "personal_code": "high",
     "personal_link": "high"
   },
-  "notes": "bonus non marque (ambigu / non trouve) — texte laisse fixe",
+  "notes": "bonus non marque (ambigu / non trouve) — texte laisse fixe; public profile; public profile",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",

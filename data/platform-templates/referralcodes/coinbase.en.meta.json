@@ -1,0 +1,22 @@
+{
+  "platform": "referralcodes",
+  "program": "coinbase",
+  "language": "en",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": "https://referralcodes.com/TheSuperReff",
+  "mutable_fields": [
+    "referee_reward"
+  ],
+  "platform_values": {
+    "referee_reward": "\\u2b50\\ufe0f $20 in Bitcoin \\u2b50\\ufe0f"
+  },
+  "confidences": {
+    "referee_reward": "medium"
+  },
+  "notes": [
+    "lien offers.json non trouve dans le texte",
+    "bonus extrait du texte plateforme (confiance moyenne)"
+  ]
+}

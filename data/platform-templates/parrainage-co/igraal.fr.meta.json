@@ -8,18 +8,22 @@
   "announcement_url": "https://parrainage.co/offers/75178",
   "mutable_fields": [
     "personal_code",
+    "personal_link",
     "referee_reward"
   ],
   "platform_values": {
     "personal_code": "AG_608d8f9aded43",
-    "referee_reward": "15 € offers sur votre compte iGraal m via mon lien ✅ ⸻"
+    "personal_link": "https://fr.igraal.com/parrainage?parrain=AG_608d8f9aded43",
+    "referee_reward": "15 € offers sur votre compte iGraal m via mon lien ✅"
   },
   "confidences": {
     "personal_code": "high",
+    "personal_link": "medium",
     "referee_reward": "medium"
   },
   "notes": [
-    "lien offers.json non trouve dans le texte",
-    "bonus extrait du texte plateforme (confiance moyenne)"
+    "lien plateforme != offers.json",
+    "bonus extrait du texte plateforme (confiance moyenne)",
+    "public profile"
   ]
 }

@@ -5,7 +5,7 @@
   "status": "ready",
   "role": "platform_target_historical_text_only",
   "not_business_source_of_truth": true,
-  "announcement_url": "https://parrainage.co/account/offers/edit/76562",
+  "announcement_url": "https://parrainage.co/offers/76562",
   "mutable_fields": [
     "personal_code",
     "personal_link",
@@ -13,7 +13,7 @@
   ],
   "platform_values": {
     "personal_code": "8T83ZPS",
-    "personal_link": "https://coinbase.com/join/8T83ZPS?src=ios-link",
+    "personal_link": "https://coinbase.com/join/8T83ZPS",
     "referee_reward": "20€ en BTC"
   },
   "confidences": {
@@ -22,6 +22,7 @@
     "referee_reward": "medium"
   },
   "notes": [
-    "bonus extrait du texte plateforme (confiance moyenne)"
+    "bonus extrait du texte plateforme (confiance moyenne)",
+    "public profile"
   ]
 }

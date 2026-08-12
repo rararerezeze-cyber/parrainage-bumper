@@ -1,0 +1,17 @@
+{
+  "platform": "1parrainage",
+  "program": "unibet",
+  "language": "fr",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": "https://www.1parrainage.com/offre_parrainage_Unibet-Sport.php",
+  "mutable_fields": [],
+  "platform_values": {},
+  "confidences": {},
+  "notes": [
+    "lien offers.json non trouve dans le texte",
+    "bonus non marque (ambigu / non trouve) — texte laisse fixe",
+    "native 1parrainage style; do not force Super-Parrain emojis"
+  ]
+}

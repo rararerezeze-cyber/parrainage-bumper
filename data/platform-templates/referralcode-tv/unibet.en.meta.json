@@ -1,0 +1,17 @@
+{
+  "platform": "referralcode-tv",
+  "program": "unibet",
+  "language": "en",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": "https://www.referralcode.tv/brand/unibet-referral-codes/",
+  "mutable_fields": [],
+  "platform_values": {},
+  "confidences": {},
+  "notes": [
+    "lien offers.json non trouve dans le texte",
+    "bonus non marque (ambigu / non trouve) — texte laisse fixe",
+    "public author capture; distinct from referralcodes.com"
+  ]
+}

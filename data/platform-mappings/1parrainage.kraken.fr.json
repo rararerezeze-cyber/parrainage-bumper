@@ -1,0 +1,34 @@
+{
+  "platform": "1parrainage",
+  "program": "kraken",
+  "language": "fr",
+  "sync_mode": "REVIEW",
+  "template_status": "ready",
+  "golden_file": "kraken.fr.golden.txt",
+  "mutable_fields": [],
+  "markers": {
+    "personal_code": "{{PERSONAL_CODE}}",
+    "personal_link": "{{PERSONAL_LINK}}",
+    "referee_reward": "{{REFEREE_REWARD}}",
+    "referrer_reward": "{{REFERRER_REWARD}}",
+    "conditions": "{{CONDITIONS}}"
+  },
+  "offer_fields": {
+    "personal_code": "code",
+    "personal_link": "link",
+    "referee_reward": "reward",
+    "conditions": "cond"
+  },
+  "announcement_url": "https://www.1parrainage.com/offre_parrainage_Kraken.php",
+  "edit_url": null,
+  "platform_values": {},
+  "confidences": {},
+  "notes": "lien offers.json non trouve dans le texte; bonus non marque (ambigu / non trouve) — texte laisse fixe; native 1parrainage style; do not force Super-Parrain emojis; native 1parrainage style; do not force Super-Parrain emojis; preserve native 1parrainage typography/emojis as-is",
+  "source_of_truth": {
+    "personal_code": "offers_json_then_operator",
+    "personal_link": "offers_json_then_operator",
+    "referee_reward": "offers_json_then_official",
+    "announcement_text": "platform_target_only"
+  },
+  "style_policy": "native_platform_style_only"
+}

@@ -1,0 +1,40 @@
+{
+  "platform": "referralcodes",
+  "program": "omio",
+  "language": "en",
+  "sync_mode": "manual_review_required",
+  "template_status": "ready",
+  "golden_file": "omio.en.golden.txt",
+  "mutable_fields": [
+    "referee_reward"
+  ],
+  "markers": {
+    "personal_code": "{{PERSONAL_CODE}}",
+    "personal_link": "{{PERSONAL_LINK}}",
+    "referee_reward": "{{REFEREE_REWARD}}",
+    "referrer_reward": "{{REFERRER_REWARD}}",
+    "conditions": "{{CONDITIONS}}"
+  },
+  "offer_fields": {
+    "personal_code": "code",
+    "personal_link": "link",
+    "referee_reward": "reward",
+    "conditions": "cond"
+  },
+  "announcement_url": "https://referralcodes.com/TheSuperReff",
+  "edit_url": null,
+  "platform_values": {
+    "referee_reward": "\\u26a1\\ufe0f $10 OFF \\u26a1\\ufe0f"
+  },
+  "confidences": {
+    "referee_reward": "medium"
+  },
+  "notes": "lien offers.json non trouve dans le texte; bonus extrait du texte plateforme (confiance moyenne); public capture TheSuperReff; prefer Agent Import for write",
+  "source_of_truth": {
+    "personal_code": "offers_json_then_operator",
+    "personal_link": "offers_json_then_operator",
+    "referee_reward": "offers_json_then_official",
+    "announcement_text": "platform_target_only"
+  },
+  "prefer_official_import": true
+}

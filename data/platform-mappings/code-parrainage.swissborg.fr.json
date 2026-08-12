@@ -36,5 +36,5 @@
     "referee_reward": "offers_json_then_official",
     "announcement_text": "platform_target_only"
   },
-  "quality": "list_preview_truncated"
+  "quality": "capture_partial"
 }

@@ -1,0 +1,2 @@
+ReferralCodes — Coinbase
+Bonus: {{REFEREE_REWARD}}

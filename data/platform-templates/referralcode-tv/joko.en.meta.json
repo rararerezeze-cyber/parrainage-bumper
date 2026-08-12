@@ -1,0 +1,26 @@
+{
+  "platform": "referralcode-tv",
+  "program": "joko",
+  "language": "en",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": "https://www.referralcode.tv/referral-code/%e2%9a%a1%ef%b8%8f-offre-parrainage-joko-5e-offerts-des-votre-premiere-utilisation-%e2%9a%a1-%e2%9a%a1-bonus-5e-credites-a-linscription-via-mon-lien-ou-code-parrainage-%e2%9c%85/?__sid=23052",
+  "mutable_fields": [
+    "personal_code",
+    "referee_reward"
+  ],
+  "platform_values": {
+    "personal_code": "stxzzb",
+    "referee_reward": "5€ offerts dès votre première utilisation"
+  },
+  "confidences": {
+    "personal_code": "high",
+    "referee_reward": "medium"
+  },
+  "notes": [
+    "lien offers.json non trouve dans le texte",
+    "bonus extrait du texte plateforme (confiance moyenne)",
+    "public author capture; distinct from referralcodes.com"
+  ]
+}

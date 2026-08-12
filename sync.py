@@ -9,6 +9,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
+from lib.coverage import print_coverage, write_coverage_report
 from lib.inventory import list_mapping_refs, list_platforms
 from lib.models import DryRunResult
 from lib.paths import DATA_DIR
@@ -35,6 +36,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--list-platforms",
         action="store_true",
         help="Liste les 7 plateformes et leur capacite effective",
+    )
+    parser.add_argument(
+        "--coverage",
+        action="store_true",
+        help="Rapport de couverture programme x plateforme",
     )
     return parser
 
@@ -149,6 +155,10 @@ def main(argv: list[str] | None = None) -> int:
             print(f"{p['id']:20} {p['capability']}")
         return 0
 
+    if args.coverage:
+        print_coverage()
+        return 0
+
     if not args.dry_run:
         print(
             "Seul --dry-run est autorise pour l'instant (aucune publication reelle).",
@@ -182,6 +192,12 @@ def main(argv: list[str] | None = None) -> int:
                     n = _needs_canonical_count() or n
                 print(f"  {status}: {n}")
         print(f"  total_rows: {len(results)}")
+        try:
+            write_coverage_report()
+            print("--- coverage summary ---")
+            print((DATA_DIR / "coverage-report.txt").read_text(encoding="utf-8"))
+        except Exception as exc:  # noqa: BLE001
+            print(f"(coverage report skipped: {exc})")
         tech = sum(1 for r in results if r.status in {"error", "render_error"})
         return 1 if tech and tech == len(results) else 0
 
