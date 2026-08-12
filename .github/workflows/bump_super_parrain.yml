@@ -24,6 +24,9 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Schedule runs from default branch workflow; code lives on feature until merge
+          ref: autofresh/phase2b-kraken-capture
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -161,6 +164,6 @@ jobs:
             data/platform-templates/super-parrain/ 2>/dev/null || true
           if git diff --staged --quiet; then echo "no commit"; else
             git commit -m "chore: super-parrain canary/bump results"
-            git pull --rebase origin "${{ github.ref_name }}" || true
-            git push || true
+            git pull --rebase origin autofresh/phase2b-kraken-capture || true
+            git push origin HEAD:autofresh/phase2b-kraken-capture || true
           fi
