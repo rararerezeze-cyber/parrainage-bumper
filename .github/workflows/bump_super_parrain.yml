@@ -1,19 +1,22 @@
 name: Bump — Super Parrain (1x/jour)
-# Historical bumper ~24h. While Super-Parrain is NOT WRITE_VERIFIED:
-#   CANARY_PENDING → no bump/save that consumes cooldown; canary owns the slot.
-# Shared concurrency with activation_canary.yml to avoid races.
+# Historical bumper ~24h.
+# Shared CANARY_PENDING gate with activation_canary.yml:
+#   CANARY_PENDING (super-parrain != WRITE_VERIFIED)
+#     → this workflow ALWAYS SKIP (no bump, no save, no last_super_run)
+#     → activation_canary.yml is the only workflow allowed to live-save
+#   After canary post_match=true → WRITE_VERIFIED → NORMAL_BUMP → cycle resumes
+# Concurrency group MUST match activation_canary.yml (serialize races).
 on:
   schedule:
-    # Poll every 2h for 24h slot; decision may still WAIT or CANARY_EXCLUSIVE
+    # Poll every 2h; while CANARY_PENDING the job decides skip and exits.
     - cron: "0 */2 * * *"
   workflow_dispatch:
     inputs:
       mode:
-        description: "auto | cycle | dry_precheck | canary"
+        description: "auto | cycle | dry_precheck"
         required: false
         default: "auto"
 concurrency:
-  # MUST match activation_canary.yml — serialize canary vs bump
   group: parrainage-bumper-super
   cancel-in-progress: false
 jobs:
@@ -30,35 +33,42 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Dependencies
-        run: |
-          pip install -r requirements.txt
-          playwright install --with-deps chromium
-      - name: Decide 24h slot (+ CANARY_PENDING gate)
+      - name: Light deps (decide only)
+        run: pip install -r requirements.txt
+      - name: Decide (+ CANARY_PENDING hard gate)
         id: decide
         run: |
-          set +e
-          python tools/super_parrain_decide.py --json > /tmp/decision.json
           set -e
-          cat /tmp/decision.json
+          python tools/super_parrain_decide.py --json | tee /tmp/decision.json
           ACTION=$(python -c "import json;print(json.load(open('/tmp/decision.json'))['action'])")
           MODE_RT=$(python -c "import json;print(json.load(open('/tmp/decision.json')).get('runtime_mode',''))")
+          SKIP=$(python -c "import json;print(json.load(open('/tmp/decision.json')).get('skip_bump',True))")
           echo "action=$ACTION" >> "$GITHUB_OUTPUT"
           echo "runtime_mode=$MODE_RT" >> "$GITHUB_OUTPUT"
+          echo "skip_bump=$SKIP" >> "$GITHUB_OUTPUT"
+
+          # Hard gate: never allow historical save while CANARY_PENDING
+          if [ "$MODE_RT" = "CANARY_PENDING" ]; then
+            echo "action=skip" >> "$GITHUB_OUTPUT"
+            echo "CANARY_PENDING → historical bumper SKIP (activation_canary owns save)"
+          fi
+
           MODE="${{ github.event.inputs.mode }}"
           if [ -z "$MODE" ]; then MODE=auto; fi
-          # Manual overrides
-          if [ "$MODE" = "dry_precheck" ]; then echo "action=dry" >> "$GITHUB_OUTPUT"; fi
-          # "cycle" cannot force bump while CANARY_PENDING
+
+          if [ "$MODE" = "dry_precheck" ]; then
+            echo "action=dry" >> "$GITHUB_OUTPUT"
+          fi
+
+          # Manual "cycle" cannot force bump while CANARY_PENDING
           if [ "$MODE" = "cycle" ]; then
             if [ "$MODE_RT" = "CANARY_PENDING" ]; then
-              echo "action=canary_exclusive" >> "$GITHUB_OUTPUT"
-              echo "Forced cycle blocked by CANARY_PENDING → canary_exclusive"
+              echo "action=skip" >> "$GITHUB_OUTPUT"
+              echo "Forced cycle blocked by CANARY_PENDING → SKIP"
             else
               echo "action=cycle" >> "$GITHUB_OUTPUT"
             fi
           fi
-          if [ "$MODE" = "canary" ]; then echo "action=canary_exclusive" >> "$GITHUB_OUTPUT"; fi
       - name: Super-Parrain action
         env:
           SUPER_PARRAIN_EMAIL: ${{ secrets.SUPER_PARRAIN_EMAIL }}
@@ -71,10 +81,42 @@ jobs:
         run: |
           set -e
           ACTION="${{ steps.decide.outputs.action }}"
-          echo "action=$ACTION runtime_mode=${{ steps.decide.outputs.runtime_mode }}"
+          MODE_RT="${{ steps.decide.outputs.runtime_mode }}"
+          echo "action=$ACTION runtime_mode=$MODE_RT skip_bump=${{ steps.decide.outputs.skip_bump }}"
 
-          if [ "$ACTION" = "wait" ]; then
-            echo "Hors creneau 24h — skip (no cooldown consume)"
+          # Absolute: CANARY_PENDING never reaches bumper / controlled_write execute
+          if [ "$MODE_RT" = "CANARY_PENDING" ] || [ "$ACTION" = "skip" ] || [ "$ACTION" = "wait" ]; then
+            echo "=== SKIP historical bumper (no save, no last_super_run) ==="
+            echo "Owner of next live save while CANARY_PENDING: activation_canary.yml"
+            python -c "
+          import json
+          from lib.super_parrain_schedule import decide_super_parrain_action, is_eligible
+          from pathlib import Path
+          d = decide_super_parrain_action()
+          e, nxt, h = is_eligible()
+          out = {
+            'workflow': 'bump_super_parrain',
+            'result': 'SKIP',
+            'reason': d.get('reason'),
+            'runtime_mode': d.get('runtime_mode'),
+            'canary_pending': d.get('canary_pending'),
+            'run_bump': d.get('run_bump'),
+            'skip_bump': d.get('skip_bump'),
+            'activation_canary_owns_save': d.get('activation_canary_owns_save'),
+            'eligible_now': e,
+            'next_eligible_at': nxt.isoformat(),
+            'hours_remaining': round(h, 2),
+            'last_super_run': Path('last_super_run.txt').read_text(encoding='utf-8').strip()
+              if Path('last_super_run.txt').exists() else None,
+          }
+          Path('data/captures').mkdir(parents=True, exist_ok=True)
+          Path('data/captures/bump-super-parrain-gate.json').write_text(
+            json.dumps(out, ensure_ascii=False, indent=2) + '\n', encoding='utf-8'
+          )
+          print(json.dumps(out, ensure_ascii=False, indent=2))
+          assert out['run_bump'] is False
+          assert out['skip_bump'] is True or out['runtime_mode'] == 'CANARY_PENDING' or out['result'] == 'SKIP'
+          "
             exit 0
           fi
 
@@ -85,28 +127,10 @@ jobs:
             exit 0
           fi
 
-          # CANARY_PENDING: exclusive content canary — NEVER bumper.cycle / bulk bump
-          if [ "$ACTION" = "canary_exclusive" ]; then
-            echo "=== CANARY_PENDING: exclusive Kraken content canary (no bumper) ==="
-            # --force = operator intent only; controlled_write still enforces cooldown
-            set +e
-            python tools/controlled_write_super_parrain.py --program kraken --execute --force
-            RC=$?
-            set -e
-            echo "canary_exit=$RC"
-            python tools/e2e_status.py || true
-            python -c "
-          from lib.write_status import summary
-          import json
-          print(json.dumps(summary(), indent=2, ensure_ascii=False))
-          " || true
-            # RC=3 cooldown, RC=1 fail, RC=0 verified — do not fail the job on WAIT/fail
-            # so schedule keeps polling; never fall through to bumper
-            exit 0
-          fi
-
-          # WRITE_VERIFIED path: fused cycle (precheck + bump)
+          # WRITE_VERIFIED path only: fused cycle (precheck + bump)
           if [ "$ACTION" = "cycle" ]; then
+            pip install -r requirements.txt
+            playwright install --with-deps chromium
             set +e
             python tools/super_parrain_cycle.py --execute
             RC=$?
@@ -116,27 +140,25 @@ jobs:
               echo "post_match=false path — see cycle report"
               exit 0
             fi
+            if [ "$RC" -eq 3 ]; then
+              echo "cycle blocked (CANARY_PENDING fail-safe)"
+              exit 0
+            fi
             exit $RC
           fi
 
-          echo "Unknown action=$ACTION"
+          echo "Unknown action=$ACTION — fail-safe skip"
           exit 0
       - name: Logs
         if: always()
         run: |
+          cat data/captures/bump-super-parrain-gate.json || true
           cat bumper.log || true
           cat data/captures/super-parrain-last-cycle.json || true
-          cat data/captures/write-super-parrain-kraken.json || true
-          cat data/captures/activation-canary-result.json || true
           python -c "
-          import json, pathlib
+          import json
           from lib.super_parrain_schedule import decide_super_parrain_action
           print('decision_now=', json.dumps(decide_super_parrain_action(), ensure_ascii=False))
-          p=pathlib.Path('data/captures/super-parrain-last-cycle.json')
-          if p.exists():
-            d=json.loads(p.read_text())
-            print('write_status=', d.get('write_status'))
-            print('canary_verdict=', d.get('canary_verdict'))
           " || true
       - name: Upload artifacts
         if: always()
@@ -146,9 +168,9 @@ jobs:
           retention-days: 5
           if-no-files-found: ignore
           path: |
+            data/captures/bump-super-parrain-gate.json
             data/captures/super-parrain-last-cycle.json
             data/captures/write-super-parrain-kraken.json
-            data/captures/write-super-parrain-kraken-plan.json
             data/platform-write-status.json
             bumper.log
             debug_super_*.png
@@ -157,11 +179,16 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add last_super_run.txt data/captures/super-parrain-last-cycle.json \
+          # Never commit last_super_run from a CANARY_PENDING skip path
+          git add data/captures/bump-super-parrain-gate.json \
+            data/captures/super-parrain-last-cycle.json \
             data/captures/write-super-parrain-kraken.json \
             data/platform-write-status.json data/autofresh-phase.json \
             data/platform-mappings/super-parrain.*.json \
             data/platform-templates/super-parrain/ 2>/dev/null || true
+          if [ "${{ steps.decide.outputs.runtime_mode }}" != "CANARY_PENDING" ]; then
+            git add last_super_run.txt 2>/dev/null || true
+          fi
           if git diff --staged --quiet; then echo "no commit"; else
             git commit -m "chore: super-parrain canary/bump results"
             git pull --rebase origin autofresh/phase2b-kraken-capture || true
