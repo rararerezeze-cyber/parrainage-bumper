@@ -74,20 +74,23 @@ DEFAULT_STATUS: dict[str, dict[str, Any]] = {
         "notes": "Templates/mappings ready; live edit canary not completed.",
     },
     "referralcodes": {
-        "status": STATUS_WRITE_PREPARED,
+        "status": STATUS_CANARY_READY,
         "canary_program": "kraken",
         "notes": (
-            "Official Agent Import preferred. WRITE_VERIFIED only after schema validation "
-            "+ single canary import + reread post-match."
+            "CANARY_READY: Agent Import schema v1.0 validated locally "
+            "(shop+discount+url|code). Payload via prepare_referralcodes_agent_import. "
+            "WRITE_VERIFIED after login → /profile/import/agent Validate+Commit + post_match."
         ),
         "prefer": "official_import",
+        "import_ui": "https://referralcodes.com/profile/import/agent",
     },
     "referralcode-tv": {
         "status": STATUS_WRITE_PREPARED,
         "canary_program": "kraken",
         "notes": (
-            "Sequential browser writer prepared. WRITE_VERIFIED only after auth/edit "
-            "with REFERRALCODE_* + post-verify. No CAPTCHA bypass."
+            "Public listings mapped; authenticated edit URL not yet proven. "
+            "Run tools/probe_referralcode_tv_edit.py --auth with REFERRALCODE_* before canary. "
+            "No CAPTCHA bypass. Boost (#cliccami) ≠ content edit."
         ),
     },
     "referraldrop": {

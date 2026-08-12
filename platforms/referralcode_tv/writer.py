@@ -1,7 +1,8 @@
-"""ReferralCode.tv — sequential browser writer candidate (WRITE_PREPARED).
+"""ReferralCode.tv — sequential browser writer (distinct from referralcodes.com).
 
-Distinct from referralcodes.com. Uses REFERRALCODE_* secrets (no S).
-No CAPTCHA/OAuth bypass. Live publish blocked until one authenticated edit verified.
+Secrets: REFERRALCODE_EMAIL / REFERRALCODE_PASSWORD (no S).
+Edit discovery: tools/probe_referralcode_tv_edit.py --auth
+Content edit ≠ boost (#cliccami).
 """
 from __future__ import annotations
 
@@ -13,10 +14,20 @@ from typing import Any
 from lib.inventory import list_mapping_refs
 from lib.offers import OffersRepository
 from lib.operator_overrides import apply_effective_to_offer
-from lib.phase import live_writes_enabled, phase_name
+from lib.phase import content_write_allowed, phase_name
 from lib.renderer import MappingRepository, Renderer, TemplateRepository
 
 ROOT = Path(__file__).resolve().parents[2]
+
+# Proven navigation anchors (public + bumper) — filled/extended by auth probe
+KNOWN_PATHS = {
+    "login": "https://www.referralcode.tv/login/",
+    "listings": "https://www.referralcode.tv/my-account/?tab=listings",
+    "my_account": "https://www.referralcode.tv/my-account/",
+    "author_public": "https://www.referralcode.tv/author/thesuperreff/",
+    "add_listing": "https://www.referralcode.tv/add-referral-code/",
+    "boost_only": "#cliccami",
+}
 
 
 @dataclass
@@ -27,19 +38,46 @@ class ReferralCodeTvPlan:
     programs: list[dict[str, Any]] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
     live: bool = False
+    known_paths: dict[str, str] = field(default_factory=lambda: dict(KNOWN_PATHS))
+
+
+def _load_edit_map() -> dict[str, Any]:
+    path = ROOT / "data" / "captures" / "referralcode-tv-edit-map.json"
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
 
 
 def build_write_plan(program: str | None = None) -> ReferralCodeTvPlan:
     offers = OffersRepository()
     plan = ReferralCodeTvPlan()
-    plan.notes.append("Distinct from referralcodes.com — secrets REFERRALCODE_EMAIL/PASSWORD.")
     plan.notes.append(
-        f"Phase={phase_name()} live_writes={live_writes_enabled('referralcode-tv')}"
+        "Distinct from referralcodes.com — secrets REFERRALCODE_EMAIL/PASSWORD."
     )
     plan.notes.append(
-        "WRITE_PREPARED: template render + field diffs ready. "
-        "WRITE_VERIFIED requires one successful authenticated edit + post-verify."
+        f"Phase={phase_name()} content_write_allowed={content_write_allowed('referralcode-tv')}"
     )
+    edit_map = _load_edit_map()
+    auth = edit_map.get("auth") or {}
+    public = edit_map.get("public") or {}
+    if auth.get("edit_urls"):
+        plan.notes.append(
+            f"Auth probe found {len(auth['edit_urls'])} edit URL(s) — ready for canary wiring"
+        )
+        plan.write_mode = "CANARY_READY"
+    else:
+        plan.notes.append(
+            "Auth edit URLs not yet proven. Run: "
+            "python tools/probe_referralcode_tv_edit.py --auth"
+        )
+        plan.write_mode = "WRITE_PREPARED"
+    if public.get("listing_count"):
+        plan.notes.append(
+            f"Public author listings mapped: {public['listing_count']} (not edit forms)"
+        )
 
     refs = [r for r in list_mapping_refs() if r.platform == "referralcode-tv"]
     if program:
@@ -47,6 +85,9 @@ def build_write_plan(program: str | None = None) -> ReferralCodeTvPlan:
     maps = MappingRepository()
     templates = TemplateRepository()
     renderer = Renderer(offers)
+
+    # Index auth edit URLs by loose program name match later
+    auth_edits = list(auth.get("edit_urls") or [])
 
     for ref in refs:
         try:
@@ -78,6 +119,8 @@ def build_write_plan(program: str | None = None) -> ReferralCodeTvPlan:
                     "action": "WOULD_EDIT" if changed else "IN_SYNC",
                     "edit_url": mapping.edit_url,
                     "announcement_url": mapping.announcement_url,
+                    "structure_ok": True,
+                    "auth_edit_pool_size": len(auth_edits),
                 }
             )
         except Exception as exc:  # noqa: BLE001
@@ -85,28 +128,37 @@ def build_write_plan(program: str | None = None) -> ReferralCodeTvPlan:
                 {"program": ref.program, "status": "error", "error": str(exc)}
             )
 
-    plan.write_mode = "WRITE_PREPARED"
     plan.live = False
     return plan
 
 
 def dry_run_report(program: str | None = None) -> dict[str, Any]:
     plan = build_write_plan(program=program)
+    edit_map = _load_edit_map()
     out = {
         "platform": plan.platform,
         "write_mode": plan.write_mode,
         "method": plan.method,
         "live": False,
+        "known_paths": plan.known_paths,
         "programs": plan.programs,
         "notes": plan.notes,
-        "pending_updates": sum(
-            1 for p in plan.programs if p.get("changed_fields")
-        ),
+        "pending_updates": sum(1 for p in plan.programs if p.get("changed_fields")),
+        "edit_map_present": bool(edit_map),
+        "auth_edit_urls": (edit_map.get("auth") or {}).get("edit_urls") or [],
         "blocker_to_write_verified": (
-            "Authenticated edit flow not yet proven with REFERRALCODE_* secrets "
-            "in a controlled canary. Browser sequential writer is architected; "
-            "no CAPTCHA bypass will be implemented."
-        ),
+            None
+            if plan.write_mode == "CANARY_READY"
+            else "Authenticated edit URL not proven — run probe_referralcode_tv_edit.py --auth"
+        )
+        or "Need one successful authenticated edit + post-verify for WRITE_VERIFIED",
+        "pre_canary_checklist": [
+            "python tools/probe_referralcode_tv_edit.py --public",
+            "python tools/probe_referralcode_tv_edit.py --auth  # with REFERRALCODE_*",
+            "Confirm edit form fields (textarea/code/link) in field_probes",
+            "Wire edit_url into mapping for canary program",
+            "controlled canary (no #cliccami boost during content write)",
+        ],
     }
     path = ROOT / "data" / "captures" / "referralcode-tv-write-plan.json"
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -117,7 +169,7 @@ def dry_run_report(program: str | None = None) -> dict[str, Any]:
 def execute_write(*_a, **_k) -> dict[str, Any]:
     return {
         "ok": False,
-        "write_mode": "WRITE_PREPARED",
-        "error": "referralcode_tv_not_write_verified",
+        "write_mode": dry_run_report().get("write_mode"),
+        "error": "referralcode_tv_edit_page_must_be_proven_before_live_write",
         "plan": dry_run_report(),
     }

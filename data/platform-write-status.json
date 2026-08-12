@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-08-12T21:53:40.278592+00:00",
+  "updated_at": "2026-08-12T21:59:30.605007+00:00",
   "note": "Strict write readiness. WRITE_VERIFIED requires full post-verify evidence. Telegram live writes only for WRITE_VERIFIED platforms.",
   "write_verified_count": 0,
   "write_verified_ratio": "0/7",
@@ -28,15 +28,16 @@
       "notes": "Templates/mappings ready; live edit canary not completed."
     },
     "referralcodes": {
-      "status": "WRITE_PREPARED",
+      "status": "CANARY_READY",
       "canary_program": "kraken",
-      "notes": "Official Agent Import preferred. WRITE_VERIFIED only after schema validation + single canary import + reread post-match.",
-      "prefer": "official_import"
+      "notes": "Agent Import schema validated + kraken payload ready",
+      "prefer": "official_import",
+      "import_ui": "https://referralcodes.com/profile/import/agent"
     },
     "referralcode-tv": {
       "status": "WRITE_PREPARED",
       "canary_program": "kraken",
-      "notes": "Sequential browser writer prepared. WRITE_VERIFIED only after auth/edit with REFERRALCODE_* + post-verify. No CAPTCHA bypass."
+      "notes": "Public author listings mapped (12). Authenticated edit URL not proven yet — run probe_referralcode_tv_edit.py --auth before canary. Boost #cliccami is not content edit."
     },
     "referraldrop": {
       "status": "AUTH_BLOCKED_GOOGLE",

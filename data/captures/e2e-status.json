@@ -46,10 +46,10 @@
     },
     {
       "platform": "referralcodes",
-      "status": "WRITE_PREPARED",
-      "telegram_action": "PLAN_ONLY",
+      "status": "CANARY_READY",
+      "telegram_action": "CANARY_ONLY",
       "canary_program": "kraken",
-      "notes": "Official Agent Import preferred. WRITE_VERIFIED only after schema validation + single canary import + reread post-match.",
+      "notes": "Agent Import schema validated + kraken payload ready",
       "last_write_verified_at": null
     },
     {
@@ -57,7 +57,7 @@
       "status": "WRITE_PREPARED",
       "telegram_action": "PLAN_ONLY",
       "canary_program": "kraken",
-      "notes": "Sequential browser writer prepared. WRITE_VERIFIED only after auth/edit with REFERRALCODE_* + post-verify. No CAPTCHA bypass.",
+      "notes": "Public author listings mapped (12). Authenticated edit URL not proven yet — run probe_referralcode_tv_edit.py --auth before canary. Boost #cliccami is not content edit.",
       "last_write_verified_at": null
     },
     {
@@ -70,14 +70,14 @@
     }
   ],
   "by_status": {
-    "CANARY_READY": 3,
-    "WRITE_PREPARED": 3,
+    "CANARY_READY": 4,
+    "WRITE_PREPARED": 2,
     "AUTH_BLOCKED_GOOGLE": 1
   },
   "HERMES_AUTOFRESH_INTERFACE_READY": "YES",
   "END_TO_END_OPERATOR_READY": "NO",
   "blockers_to_ready": [
-    "No WRITE_VERIFIED platform yet — Super-Parrain is CANARY_READY until real post-verify canary"
+    "No WRITE_VERIFIED platform yet — run live canaries (Super-Parrain then parrainage-co / code-parrainage) with post_match"
   ],
   "note": "Product path: Hermes calls tools/hermes_autofresh.py or workflow hermes_operator.yml. telegram-worker is optional/test only. WRITE_VERIFIED requires real authenticated canary + post-verify."
 }

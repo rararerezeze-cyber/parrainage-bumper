@@ -1,0 +1,58 @@
+{
+  "at": "2026-08-12T21:58:56.240369+00:00",
+  "super_parrain": "CANARY_READY",
+  "super_pass": false,
+  "write_verified_count": 0,
+  "queue": [
+    {
+      "order": 1,
+      "platform": "super-parrain",
+      "status": "CANARY_READY",
+      "done": false,
+      "ready_for_canary": true
+    },
+    {
+      "order": 2,
+      "platform": "parrainage-co",
+      "status": "CANARY_READY",
+      "done": false,
+      "ready_for_canary": true
+    },
+    {
+      "order": 3,
+      "platform": "code-parrainage",
+      "status": "CANARY_READY",
+      "done": false,
+      "ready_for_canary": true
+    },
+    {
+      "order": 4,
+      "platform": "1parrainage",
+      "status": "WRITE_PREPARED",
+      "done": false,
+      "ready_for_canary": true
+    },
+    {
+      "order": 5,
+      "platform": "referralcodes",
+      "status": "WRITE_PREPARED",
+      "done": false,
+      "ready_for_canary": true
+    },
+    {
+      "order": 6,
+      "platform": "referralcode-tv",
+      "status": "WRITE_PREPARED",
+      "done": false,
+      "ready_for_canary": true
+    }
+  ],
+  "next": "super-parrain",
+  "skipped": {
+    "referraldrop": "AUTH_BLOCKED_GOOGLE"
+  },
+  "gate": {
+    "after_super_only_for_auto_sequence": true,
+    "note": "Auto sequence of platforms 2+ should start only when super-parrain is WRITE_VERIFIED (Super PASS)."
+  }
+}
