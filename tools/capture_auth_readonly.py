@@ -110,31 +110,75 @@ def _prune_null_offer_mutables(result, offer: dict | None) -> None:
 
 
 def _guess_slug(title: str, body: str, offers: OffersRepository) -> str | None:
+    """Identifie le programme depuis le titre d'offre, pas un sous-mot fortuit du corps.
+
+    Exemple: iGraal mentionne 'Paypal' comme moyen de retrait → ne pas mapper paypal.
+    """
+    head = f"{title}\n{(body or '')[:400]}"
+    # 1) Explicit "Offre Parrainage {Brand}"
+    m = re.search(
+        r"(?i)offre\s+parrainage\s+([A-Za-z0-9][A-Za-z0-9 .&\-']{1,40})",
+        head,
+    )
+    if m:
+        brand = m.group(1).strip()
+        # trim trailing promo words
+        brand = re.split(r"\s+[–\-—]\s+|\s+→", brand)[0].strip()
+        slug = _slug_from_text(brand, offers)
+        if slug:
+            return slug
+        low = brand.lower()
+        aliases = {
+            "igraal": "igraal",
+            "i graal": "igraal",
+            "vinted": "vinted",
+            "plum": "plum",
+            "okx": "okx",
+            "whatnot": "whatnot",
+            "nrj mobile": "nrj-mobile",
+            "nrj": "nrj-mobile",
+            "paypal": "paypal",
+            "pay pal": "paypal",
+            "trade republic": "traderepublic",
+            "boursobank": "boursobank",
+            "bourso bank": "boursobank",
+            "totalenergies": "totalenergies",
+            "total energies": "totalenergies",
+        }
+        for k, sk in aliases.items():
+            if k in low:
+                return sk
+
+    # 2) Title alone (page h1)
     slug = _slug_from_text(title, offers)
-    if slug:
+    if slug and (title or "").strip().lower() not in {"ajouter mon annonce", "modifier", "édition", "edition"}:
         return slug
-    blob = f"{title}\n{body}".lower()
+
+    # 3) Brand match only in first lines (not full body — avoids false Paypal hits)
+    head_low = head.lower()
     best, best_len = None, 0
     for o in offers.load_all():
         n = (o.get("name") or "").strip()
         lk = o.get("lk") or ""
-        if n and n.lower() in blob and len(n) > best_len:
+        if n and n.lower() in head_low and len(n) > best_len:
             best, best_len = lk, len(n)
-        if lk and re.search(rf"\b{re.escape(lk)}\b", blob) and len(lk) > best_len:
+        if lk and re.search(rf"\b{re.escape(lk)}\b", head_low) and len(lk) > best_len:
             best, best_len = lk, len(lk)
-    # Orphan aliases not in offers
+    if best:
+        return best
+
+    # 4) Orphans — only in header, not full body
     for key, sk in (
         ("vinted", "vinted"),
         ("plum", "plum"),
         ("okx", "okx"),
         ("whatnot", "whatnot"),
-        ("nrj", "nrj-mobile"),
+        ("nrj mobile", "nrj-mobile"),
         ("paypal", "paypal"),
-        ("pay pal", "paypal"),
     ):
-        if key in blob:
+        if key in head_low:
             return sk
-    return best
+    return None
 
 
 async def capture_parrainage_co(browser, offers: OffersRepository) -> dict:
@@ -302,10 +346,29 @@ async def capture_parrainage_co(browser, offers: OffersRepository) -> dict:
                     continue
 
                 title = payload.get("title") or row.get("rowText") or body.split("\n", 1)[0]
+                # Prefer first content line if page title is generic ("Ajouter mon annonce")
+                first_line = ""
+                for ln in body.splitlines():
+                    if ln.strip() and len(ln.strip()) > 8:
+                        first_line = ln.strip()
+                        break
+                if (title or "").strip().lower() in {
+                    "ajouter mon annonce",
+                    "modifier",
+                    "édition",
+                    "edition",
+                    "",
+                }:
+                    title = first_line or title
                 slug = _guess_slug(title, body, offers)
                 if not slug:
                     report["errors"].append(
-                        {"url": url, "error": "program_unknown", "title": (title or "")[:80]}
+                        {
+                            "url": url,
+                            "error": "program_unknown",
+                            "title": (title or "")[:80],
+                            "first_line": first_line[:80],
+                        }
                     )
                     continue
                 if slug in seen:
