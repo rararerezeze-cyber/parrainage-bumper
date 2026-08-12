@@ -23,7 +23,15 @@
   "edit_url": null,
   "platform_values": {},
   "confidences": {},
-  "notes": "AUTH capture 26 account offers: no PayPal listing. Prior false mapping to iGraal/75178 cleared. PayPal not on this account currently.",
-  "quality": "not_on_account",
-  "status": "NOT_ON_ACCOUNT"
+  "status": "NOT_PRESENT_ON_ACCOUNT",
+  "quality": "stale_mapping",
+  "write_eligible": false,
+  "auto_recreate": false,
+  "notes": "STALE_MAPPING / NOT_PRESENT_ON_ACCOUNT: auth account inventory (26 offers) has no PayPal listing. Prior mapping wrongly pointed at iGraal edit 75178. Do not write, do not auto-recreate. Keep file for history; re-open only if PayPal reappears on authenticated account with confirmed edit_url.",
+  "source_of_truth": {
+    "personal_code": "offers_json_then_operator",
+    "personal_link": "offers_json_then_operator",
+    "referee_reward": "offers_json_then_official",
+    "announcement_text": "platform_target_only"
+  }
 }

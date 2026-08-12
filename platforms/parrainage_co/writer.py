@@ -268,6 +268,17 @@ def _extract_public_body(html: str) -> str:
 
 async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult:
     steps: list[str] = []
+    # Stale / absent du compte authentifie → jamais write ni recreate
+    from lib.mapping_guards import write_blocked_reason
+
+    blocked = write_blocked_reason(plan.platform, plan.program, plan.language)
+    if blocked:
+        return WriteResult(
+            ok=False,
+            plan=plan,
+            error=f"WRITE_BLOCKED: {blocked} — mapping absent/stale, pas de publication",
+            steps=["blocked_stale_or_absent"],
+        )
     if not plan.structure_preserved:
         return WriteResult(
             ok=False,

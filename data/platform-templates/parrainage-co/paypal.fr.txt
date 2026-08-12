@@ -1,1 +1,5 @@
-[PLACEHOLDER] PayPal absent du compte Parrainage.co (26 offres account, aucune PayPal).
+[STALE_MAPPING / NOT_PRESENT_ON_ACCOUNT]
+PayPal n'apparait pas dans le compte authentifie Parrainage.co (inventaire auth 26 offres).
+Ancien mapping errone (iGraal/75178) invalide.
+Ce fichier est conserve comme marqueur historique — pas une cible de write.
+Si PayPal reapparait sur le compte: recapture auth edit → nouveau golden → write_eligible.
