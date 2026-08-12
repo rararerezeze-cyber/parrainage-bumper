@@ -6,6 +6,7 @@
   "template_status": "ready",
   "golden_file": "revolut.fr.golden.txt",
   "mutable_fields": [
+    "personal_link",
     "referee_reward"
   ],
   "markers": {
@@ -21,15 +22,17 @@
     "referee_reward": "reward",
     "conditions": "cond"
   },
-  "announcement_url": "https://parrainage.co/offers/76563",
+  "announcement_url": "https://parrainage.co/account/offers/edit/76563",
   "edit_url": null,
   "platform_values": {
-    "referee_reward": "200 € offerts ! ⚡ Entre 10 € et 200 € offerts"
+    "personal_link": "https://revolut.com/referral/?referral-code=adrienhcos!JUL2-26-AR-H1&geo-redirect",
+    "referee_reward": "200 € offerts !"
   },
   "confidences": {
+    "personal_link": "high",
     "referee_reward": "medium"
   },
-  "notes": "lien offers.json non trouve dans le texte; bonus extrait du texte plateforme (confiance moyenne)",
+  "notes": "lien plateforme != offers.json; bonus extrait du texte plateforme (confiance moyenne)",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",

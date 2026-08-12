@@ -2,12 +2,12 @@
   "platform": "parrainage-co",
   "program": "bybit",
   "language": "fr",
-  "sync_mode": "REVIEW",
+  "sync_mode": "SAFE_AUTO",
   "template_status": "ready",
   "golden_file": "bybit.fr.golden.txt",
   "mutable_fields": [
     "personal_code",
-    "referee_reward"
+    "personal_link"
   ],
   "markers": {
     "personal_code": "{{PERSONAL_CODE}}",
@@ -22,17 +22,17 @@
     "referee_reward": "reward",
     "conditions": "cond"
   },
-  "announcement_url": "https://parrainage.co/offers/127408",
+  "announcement_url": "https://parrainage.co/account/offers/edit/127408",
   "edit_url": null,
   "platform_values": {
     "personal_code": "YQ6B3O2",
-    "referee_reward": "25 UDSC offerts en crypto pour les nouveaux utilisateurs s’ins... Lire la suite"
+    "personal_link": "https://www.bybit.eu/invite?ref=YQ6B3O2"
   },
   "confidences": {
     "personal_code": "high",
-    "referee_reward": "medium"
+    "personal_link": "high"
   },
-  "notes": "lien offers.json non trouve dans le texte; bonus extrait du texte plateforme (confiance moyenne)",
+  "notes": "bonus non marque (ambigu / non trouve) — texte laisse fixe",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",

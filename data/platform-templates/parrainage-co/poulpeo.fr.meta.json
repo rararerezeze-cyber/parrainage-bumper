@@ -5,14 +5,14 @@
   "status": "ready",
   "role": "platform_target_historical_text_only",
   "not_business_source_of_truth": true,
-  "announcement_url": "https://parrainage.co/offers/84354",
+  "announcement_url": "https://parrainage.co/account/offers/edit/84354",
   "mutable_fields": [
     "personal_code",
     "referee_reward"
   ],
   "platform_values": {
     "personal_code": "4KD2ab",
-    "referee_reward": "5€ de bienvenue crédités d... Lire la suite"
+    "referee_reward": "5€ de bienvenue crédités dès votre inscription via mon code parrain ✅"
   },
   "confidences": {
     "personal_code": "high",

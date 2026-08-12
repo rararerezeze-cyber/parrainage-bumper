@@ -1,7 +1,34 @@
-⭐️ Offre Parrainage Ledger – 20 $ offerts ⚡ Bonus : {{REFEREE_REWARD}}
+⭐️ Offre Parrainage Ledger – {{REFEREE_REWARD}}
+                             
+⚡ Bonus : Recevez 20 $ en BTC après votre premier achat sur la boutique Ledger via le lien de parrainage ⭐️
+Protégez vos cryptos avec le portefeuille physique n°1 et profitez d’un bonus exclusif.
+  
+⸻
 
-Ajouté le 12-08-2026 | Clics sur les derniers 7 jours : 5 visites
- CODE PARRAINAGE
-{{PERSONAL_CODE}}
-Copier
-Voir l'annonce
+⭐️ Lien de parrainage :
+
+{{PERSONAL_LINK}}
+
+⭐️ Code parrainage : {{PERSONAL_CODE}}
+
+⸻
+
+✅ Étapes à suivre pour obtenir le bonus :
+	1.	Créez un compte Ledger via le lien ci-dessus
+	2.	Vérifiez que le code parrain est bien appliqué : {{PERSONAL_CODE}}
+	3.	Passez commande d’un produit Ledger éligible (Nano X, Nano S Plus, etc.)
+	4.	Activez et configurez votre wallet Ledger
+	5.	Le bonus en Bitcoin (20 $) sera crédité automatiquement sur votre compte Ledger Live une fois les conditions remplies
+
+⸻
+
+⭐️ À savoir :
+• Offre réservée aux nouveaux clients Ledger
+• Bonus fixe de 20 $ en Bitcoin, sous réserve d’un premier achat éligible
+• Le versement du bonus peut prendre quelques jours après l’activation de l’appareil
+• La crypto comporte des risques de perte en capital
+
+⸻
+
+⭐️ Besoin d’aide pour commander ou activer ton Ledger ?
+DM-moi — je te guide étape par étape.

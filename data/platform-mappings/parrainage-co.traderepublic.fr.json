@@ -2,11 +2,12 @@
   "platform": "parrainage-co",
   "program": "traderepublic",
   "language": "fr",
-  "sync_mode": "REVIEW",
+  "sync_mode": "SAFE_AUTO",
   "template_status": "ready",
   "golden_file": "traderepublic.fr.golden.txt",
   "mutable_fields": [
-    "personal_code"
+    "personal_code",
+    "personal_link"
   ],
   "markers": {
     "personal_code": "{{PERSONAL_CODE}}",
@@ -21,15 +22,17 @@
     "referee_reward": "reward",
     "conditions": "cond"
   },
-  "announcement_url": "https://parrainage.co/offers/75174",
+  "announcement_url": "https://parrainage.co/account/offers/edit/75174",
   "edit_url": null,
   "platform_values": {
-    "personal_code": "s931znqx"
+    "personal_code": "s931znqx",
+    "personal_link": "https://refnocode.trade.re/s931znqx"
   },
   "confidences": {
-    "personal_code": "high"
+    "personal_code": "high",
+    "personal_link": "high"
   },
-  "notes": "lien offers.json non trouve dans le texte; bonus non marque (ambigu / non trouve) — texte laisse fixe",
+  "notes": "bonus non marque (ambigu / non trouve) — texte laisse fixe",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",

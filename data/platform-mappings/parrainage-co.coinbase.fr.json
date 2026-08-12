@@ -7,6 +7,7 @@
   "golden_file": "coinbase.fr.golden.txt",
   "mutable_fields": [
     "personal_code",
+    "personal_link",
     "referee_reward"
   ],
   "markers": {
@@ -22,17 +23,19 @@
     "referee_reward": "reward",
     "conditions": "cond"
   },
-  "announcement_url": "https://parrainage.co/offers/76562",
+  "announcement_url": "https://parrainage.co/account/offers/edit/76562",
   "edit_url": null,
   "platform_values": {
     "personal_code": "8T83ZPS",
+    "personal_link": "https://coinbase.com/join/8T83ZPS?src=ios-link",
     "referee_reward": "20€ en BTC"
   },
   "confidences": {
     "personal_code": "high",
+    "personal_link": "high",
     "referee_reward": "medium"
   },
-  "notes": "lien offers.json non trouve dans le texte; bonus extrait du texte plateforme (confiance moyenne)",
+  "notes": "bonus extrait du texte plateforme (confiance moyenne)",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",
