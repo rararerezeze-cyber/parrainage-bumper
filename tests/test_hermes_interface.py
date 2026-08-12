@@ -24,6 +24,7 @@ def _local_auth(monkeypatch, tmp_path):
     monkeypatch.setattr(
         "lib.hermes_interface.RESULT_PATH", tmp_path / "hermes-last-result.json"
     )
+    monkeypatch.setattr("lib.safety.snapshot_state", lambda *_a, **_k: {"id": "test"})
 
 
 def test_auth_rejects_without_token_when_required(monkeypatch):
@@ -126,4 +127,5 @@ def test_idempotence_same_value():
         run_writers=False,
     )
     assert r2["ok"] is True
-    assert r2.get("idempotent") is True or r2["result"].get("new_effective") == "IDEMP123"
+    assert r2.get("idempotent") is True or r2.get("replayed") is True or r2["result"].get("new_effective") == "IDEMP123"
+    assert r2.get("persist_confirmed") is True

@@ -38,10 +38,10 @@
     },
     {
       "platform": "1parrainage",
-      "status": "WRITE_PREPARED",
-      "telegram_action": "PLAN_ONLY",
+      "status": "CANARY_READY",
+      "telegram_action": "CANARY_ONLY",
       "canary_program": "kraken",
-      "notes": "Templates/mappings ready; live edit canary not completed.",
+      "notes": "CANARY_READY: login /login + edit + save + reread account/public list. Native style only. Kraken first (offer_id=100408). Not WRITE_VERIFIED until post_match. No Boost/Remonter. Stop on 403/429/CAPTCHA/auth/unexpected DOM.",
       "last_write_verified_at": null
     },
     {
@@ -70,14 +70,18 @@
     }
   ],
   "by_status": {
-    "CANARY_READY": 4,
-    "WRITE_PREPARED": 2,
+    "CANARY_READY": 5,
+    "WRITE_PREPARED": 1,
     "AUTH_BLOCKED_GOOGLE": 1
   },
   "HERMES_AUTOFRESH_INTERFACE_READY": "YES",
+  "HERMES_PRODUCTION_READY": "YES",
+  "MONITOR_SHADOW_READY": "YES",
   "END_TO_END_OPERATOR_READY": "NO",
   "blockers_to_ready": [
     "No WRITE_VERIFIED platform yet — run live canaries (Super-Parrain then parrainage-co / code-parrainage) with post_match"
   ],
-  "note": "Product path: Hermes calls tools/hermes_autofresh.py or workflow hermes_operator.yml. telegram-worker is optional/test only. WRITE_VERIFIED requires real authenticated canary + post-verify."
+  "note": "Product path: Hermes calls tools/hermes_autofresh.py or workflow hermes_operator.yml. telegram-worker is optional/test only. WRITE_VERIFIED requires real authenticated canary + post-verify.",
+  "ALL_NON_BLOCKED_PLATFORMS_CANARY_READY": "NO",
+  "MULTIPROGRAM_DRY_RUN_READY": "YES"
 }

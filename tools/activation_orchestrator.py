@@ -71,8 +71,9 @@ PREPARE_CMDS: dict[str, list[str]] = {
     ],
     "1parrainage": [
         sys.executable,
-        "-c",
-        "from platforms.oneparrainage.writer import dry_run_report; import json; print(json.dumps(dry_run_report(),indent=2,ensure_ascii=False))",
+        "tools/controlled_write_1parrainage.py",
+        "--program",
+        "kraken",
     ],
     "referralcodes": [
         sys.executable,
@@ -186,6 +187,69 @@ def cmd_after_super() -> int:
     return 0
 
 
+def cmd_multiprogram_dry_run() -> int:
+    from tools.multiprogram_dry_run import run as mp_run
+
+    out = mp_run(all_programs=False)
+    print(json.dumps(out, ensure_ascii=False, indent=2))
+    return 0 if out.get("MULTIPROGRAM_DRY_RUN_READY") == "YES" else 1
+
+
+def cmd_sequence_after_super(*, execute: bool) -> int:
+    """Finalize sequential orchestration after Super PASS.
+
+    Tonight: dry-prepare remaining platforms only. Live execute is refused
+    unless Super is WRITE_VERIFIED *and* AUTOFRESH_SEQUENCE_LIVE=1.
+    Super-Parrain cooldown is never forced.
+    """
+    st = queue_state()
+    path = ROOT / "data" / "captures" / "activation-sequence-after-super.json"
+    if not st["super_pass"]:
+        payload = {
+            "result": "SUPER_PENDING",
+            "super_parrain": st["super_parrain"],
+            "next": st["next"],
+            "live": False,
+            "note": (
+                "Auto sequence of platforms 2+ starts only after Super-Parrain "
+                "WRITE_VERIFIED. Keep CANARY_PENDING intact."
+            ),
+        }
+        path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+        print("sequence armed — waiting Super PASS")
+        return 0
+
+    if execute:
+        import os
+
+        if os.environ.get("AUTOFRESH_SEQUENCE_LIVE") != "1":
+            print("REFUSED: --execute requires AUTOFRESH_SEQUENCE_LIVE=1 after Super PASS")
+            return 2
+
+    remaining = [r for r in st["queue"] if not r["done"] and r["platform"] != "super-parrain"]
+    results = []
+    rc = 0
+    for r in remaining:
+        print(f"\n=== sequence prepare {r['platform']} ===")
+        code = cmd_prepare(r["platform"])
+        results.append({"platform": r["platform"], "prepare_rc": code, "live": False})
+        if code != 0:
+            rc = code
+            print(f"STOP sequence at {r['platform']} rc={code}")
+            break
+    payload = {
+        "result": "SUPER_PASS_SEQUENCE",
+        "remaining": remaining,
+        "prepare_results": results,
+        "live": False,
+        "execute_requested": execute,
+    }
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(json.dumps(payload, ensure_ascii=False, indent=2))
+    return rc
+
+
 def cmd_prepare_all_pending(*, require_super_pass: bool) -> int:
     st = queue_state()
     if require_super_pass and not st["super_pass"]:
@@ -226,6 +290,20 @@ def main() -> int:
         help="Refuse unless super-parrain is WRITE_VERIFIED",
     )
 
+    sub.add_parser(
+        "multiprogram-dry-run",
+        help="Dry-run all non-blocked platforms (kraken). No live write.",
+    )
+    seq = sub.add_parser(
+        "sequence-after-super",
+        help="After Super PASS: dry-prepare remaining queue (never live unless --execute)",
+    )
+    seq.add_argument(
+        "--execute",
+        action="store_true",
+        help="Reserved. Live execute is refused unless Super PASS + explicit env.",
+    )
+
     args = p.parse_args()
     if args.cmd == "status":
         return cmd_status()
@@ -237,6 +315,10 @@ def main() -> int:
         return cmd_prepare(args.platform)
     if args.cmd == "prepare-all-pending":
         return cmd_prepare_all_pending(require_super_pass=args.require_super_pass)
+    if args.cmd == "multiprogram-dry-run":
+        return cmd_multiprogram_dry_run()
+    if args.cmd == "sequence-after-super":
+        return cmd_sequence_after_super(execute=args.execute)
     return 2
 
 

@@ -1,5 +1,5 @@
 {
-  "at": "2026-08-12T21:58:56.240369+00:00",
+  "at": "2026-08-12T22:53:31.402475+00:00",
   "super_parrain": "CANARY_READY",
   "super_pass": false,
   "write_verified_count": 0,
@@ -28,14 +28,14 @@
     {
       "order": 4,
       "platform": "1parrainage",
-      "status": "WRITE_PREPARED",
+      "status": "CANARY_READY",
       "done": false,
       "ready_for_canary": true
     },
     {
       "order": 5,
       "platform": "referralcodes",
-      "status": "WRITE_PREPARED",
+      "status": "CANARY_READY",
       "done": false,
       "ready_for_canary": true
     },

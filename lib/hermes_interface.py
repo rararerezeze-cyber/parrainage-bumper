@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -93,6 +94,106 @@ def authenticate_requester(requester: dict[str, Any] | None) -> dict[str, Any]:
     }
 
 
+class _FileLock:
+    """Cross-platform exclusive lock — one Hermes mutating command at a time."""
+
+    def __init__(self, path: Path, timeout: float = 30.0):
+        self.path = path
+        self.timeout = timeout
+        self._fh = None
+
+    def __enter__(self):
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        self._fh = open(self.path, "a+", encoding="utf-8")
+        deadline = time.time() + self.timeout
+        while True:
+            try:
+                if os.name == "nt":
+                    import msvcrt
+
+                    self._fh.seek(0)
+                    self._fh.write(" ")
+                    self._fh.flush()
+                    msvcrt.locking(self._fh.fileno(), msvcrt.LK_NBLCK, 1)
+                else:
+                    import fcntl
+
+                    fcntl.flock(self._fh.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                return self
+            except OSError:
+                if time.time() >= deadline:
+                    raise TimeoutError(f"hermes_lock_timeout:{self.path}")
+                time.sleep(0.05)
+
+    def __exit__(self, *exc):
+        if self._fh:
+            try:
+                if os.name == "nt":
+                    import msvcrt
+
+                    self._fh.seek(0)
+                    msvcrt.locking(self._fh.fileno(), msvcrt.LK_UNLCK, 1)
+                else:
+                    import fcntl
+
+                    fcntl.flock(self._fh.fileno(), fcntl.LOCK_UN)
+            except Exception:
+                pass
+            try:
+                self._fh.close()
+            except Exception:
+                pass
+            self._fh = None
+
+
+def _lock_path() -> Path:
+    return Path(OPERATOR_OVERRIDES_PATH).parent / ".hermes.lock"
+
+
+def _idempotency_path() -> Path:
+    return Path(RESULT_PATH).parent / "hermes-idempotency.json"
+
+
+def _load_idempotency() -> dict[str, Any]:
+    p = _idempotency_path()
+    if not p.exists():
+        return {"keys": {}}
+    try:
+        return json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        return {"keys": {}}
+
+
+def _save_idempotency(data: dict[str, Any]) -> None:
+    p = _idempotency_path()
+    p.parent.mkdir(parents=True, exist_ok=True)
+    tmp = p.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    tmp.replace(p)
+
+
+def _confirm_override_persisted(parsed: dict | None, result: dict | None) -> bool:
+    """Re-read the overrides file and confirm the applied mutation is on disk."""
+    if not parsed or parsed.get("action") not in {"set", "remove"}:
+        return True
+    store = OperatorOverrideStore()
+    items = store.load()
+    program = parsed.get("program")
+    field = parsed.get("field")
+    platform = parsed.get("platform")
+    if parsed.get("action") == "set":
+        expected = (result or {}).get("new_effective")
+        for o in items:
+            if o.program == program and o.field == field and o.platform == platform:
+                return expected is None or str(o.value) == str(expected)
+        return False
+    # remove: matching override must be gone
+    for o in items:
+        if o.program == program and o.field == field and o.platform == platform:
+            return False
+    return True
+
+
 def _idempotency_key(command: str, parsed: dict | None, result: dict | None) -> str:
     raw = json.dumps(
         {
@@ -162,6 +263,8 @@ def run_autofresh_command(
         return base
 
     base["parsed"] = parsed
+    base["serialized"] = True
+    base["persist_confirmed"] = False
 
     if not persist and parsed.get("action") in {"set", "remove"}:
         # dry parse + plan only
@@ -187,9 +290,65 @@ def run_autofresh_command(
             platform=parsed.get("platform"),
         )
         base["idempotency_key"] = _idempotency_key(command, parsed, None)
+        base["persist_confirmed"] = True  # nothing to persist
         return base
 
+    replay_key = _idempotency_key(command, parsed, None)
+    lock_cm = _FileLock(_lock_path()) if persist and parsed.get("action") in {"set", "remove"} else None
+    if lock_cm:
+        try:
+            lock_cm.__enter__()
+        except TimeoutError as exc:
+            base["errors"].append({"code": "serialized_lock_timeout", "detail": str(exc)})
+            return base
     try:
+        return _run_autofresh_command_locked(
+            base,
+            command,
+            parsed,
+            persist=persist,
+            plan=plan,
+            run_writers=run_writers,
+            replay_key=replay_key,
+        )
+    finally:
+        if lock_cm:
+            lock_cm.__exit__(None, None, None)
+
+
+def _run_autofresh_command_locked(
+    base: dict[str, Any],
+    command: str,
+    parsed: dict,
+    *,
+    persist: bool,
+    plan: bool,
+    run_writers: bool,
+    replay_key: str,
+) -> dict[str, Any]:
+    if persist and parsed.get("action") in {"set", "remove"}:
+        ledger = _load_idempotency()
+        prev = (ledger.get("keys") or {}).get(replay_key)
+        if prev and prev.get("ok") and prev.get("persist_confirmed"):
+            base["ok"] = True
+            base["idempotent"] = True
+            base["replayed"] = True
+            base["persist_confirmed"] = True
+            base["result"] = prev.get("result") or {"note": "idempotent_replay"}
+            base["idempotency_key"] = replay_key
+            base["human_summary"] = prev.get("human_summary") or "idempotent replay"
+            base["write_status"] = write_summary()
+            base["platforms"] = []
+            return base
+
+    try:
+        if persist and parsed.get("action") in {"set", "remove"}:
+            try:
+                from lib.safety import snapshot_state
+
+                snapshot_state(f"hermes:{parsed.get('action')}:{parsed.get('program')}")
+            except Exception:
+                pass
         result = apply_operator_command(parsed, message=command)
     except ValueError as exc:
         base["errors"].append({"code": "apply_error", "detail": str(exc)})
@@ -199,6 +358,24 @@ def run_autofresh_command(
         return base
 
     base["result"] = result
+    if persist:
+        try:
+            confirmed = _confirm_override_persisted(parsed, result)
+        except Exception as exc:  # noqa: BLE001
+            confirmed = False
+            base["errors"].append({"code": "persist_verify_error", "detail": str(exc)})
+        base["persist_confirmed"] = confirmed
+        if parsed.get("action") in {"set", "remove"} and not confirmed:
+            base["errors"].append(
+                {
+                    "code": "persist_unconfirmed",
+                    "detail": "override file re-read did not match applied mutation",
+                }
+            )
+            base["ok"] = False
+            return base
+    else:
+        base["persist_confirmed"] = True
 
     # Idempotence note for set with same value
     if (
@@ -280,11 +457,30 @@ def run_autofresh_command(
         human += "\n\n" + json.dumps(result.get("status"), ensure_ascii=False, indent=2)
     base["human_summary"] = human
     base["idempotency_key"] = _idempotency_key(command, parsed, result)
-    base["ok"] = len(base["errors"]) == 0
+    base["ok"] = len(base["errors"]) == 0 and bool(base.get("persist_confirmed", True))
     base["artifacts"] = {
         "overrides_path": str(OPERATOR_OVERRIDES_PATH),
         "result_path": str(RESULT_PATH),
     }
+    if persist and base["ok"] and parsed.get("action") in {"set", "remove"}:
+        ledger = _load_idempotency()
+        keys = ledger.setdefault("keys", {})
+        keys[replay_key] = {
+            "ok": True,
+            "persist_confirmed": True,
+            "at": _now(),
+            "result": {
+                "action": result.get("action") if isinstance(result, dict) else None,
+                "new_effective": result.get("new_effective") if isinstance(result, dict) else None,
+                "new_source": result.get("new_source") if isinstance(result, dict) else None,
+            },
+            "human_summary": base.get("human_summary"),
+        }
+        # keep ledger bounded
+        if len(keys) > 200:
+            for old in list(keys.keys())[: len(keys) - 200]:
+                keys.pop(old, None)
+        _save_idempotency(ledger)
     return base
 
 

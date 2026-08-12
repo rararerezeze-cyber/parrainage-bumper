@@ -1,0 +1,30 @@
+{
+  "execute": false,
+  "ok": true,
+  "changed_fields": {
+    "personal_code": {
+      "old": "cpbrgddy",
+      "new": "4hpz4gdy"
+    },
+    "personal_link": {
+      "old": "https://invite.kraken.com/JDNW/4jdp7sea",
+      "new": "https://proinvite.kraken.com/9f1e/lqbuov8u"
+    },
+    "referee_reward": {
+      "old": "200 € en cryptomonnaies",
+      "new": "20 € en Bitcoin selon l’offre"
+    }
+  },
+  "structure_preserved": true,
+  "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100408",
+  "edit_url": null,
+  "platform_offer_id": "100408",
+  "pipeline": [
+    "login",
+    "edit",
+    "save",
+    "reread_account",
+    "reread_public"
+  ],
+  "live": false
+}

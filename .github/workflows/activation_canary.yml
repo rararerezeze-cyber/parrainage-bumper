@@ -223,6 +223,7 @@ jobs:
           if [ "$P" = "referralcode-tv" ]; then
             python -c "from platforms.referralcode_tv.writer import dry_run_report; import json; print(json.dumps(dry_run_report('$PROG'),indent=2,ensure_ascii=False))"
             echo "ReferralCode.tv: plan only until authenticated edit_url resolution is proven."
+            python tools/probe_referralcode_tv_edit.py --public || true
             exit 0
           fi
 
@@ -231,6 +232,7 @@ jobs:
           case "$P" in
             parrainage-co) TOOL="tools/controlled_write_parrainage_co.py" ;;
             code-parrainage) TOOL="tools/controlled_write_code_parrainage.py" ;;
+            1parrainage) TOOL="tools/controlled_write_1parrainage.py" ;;
             *) TOOL="" ;;
           esac
           if [ -n "$TOOL" ] && [ -f "$TOOL" ]; then

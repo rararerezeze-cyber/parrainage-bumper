@@ -45,6 +45,16 @@ SPECS = {
             "reread account (public if URL). Kraken first. Not WRITE_VERIFIED until post_match."
         ),
     },
+    "1parrainage": {
+        "module": "platforms.oneparrainage.writer",
+        "tool": "tools/controlled_write_1parrainage.py",
+        "secrets": ["ONEPARRAINAGE_EMAIL", "ONEPARRAINAGE_PASSWORD"],
+        "notes": (
+            "CANARY_READY: login /login + edit + save + reread account/public list. "
+            "Native style only. Kraken first (offer_id=100408). Not WRITE_VERIFIED until post_match. "
+            "No Boost/Remonter. Stop on 403/429/CAPTCHA/auth/unexpected DOM."
+        ),
+    },
 }
 
 

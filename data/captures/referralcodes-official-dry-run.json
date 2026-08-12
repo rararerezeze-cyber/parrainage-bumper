@@ -1,193 +1,61 @@
 {
   "platform": "referralcodes",
-  "method": "official_import_or_manual",
+  "method": "official_agent_import",
   "prefer": [
-    "Agent Import",
-    "official API if available",
-    "JSON/CSV export-import",
-    "Playwright only if official path impossible"
+    "Agent Import JSON/CSV",
+    "future API",
+    "no browser CAPTCHA bypass"
   ],
-  "write_mode": "WRITE_PREPARED",
+  "docs": "https://referralcodes.com/agents",
+  "import_ui": "https://referralcodes.com/profile/import/agent",
+  "schema_version": "1.0",
+  "write_mode": "CANARY_READY",
   "live": false,
+  "content_write_allowed": true,
+  "phase": "VALIDATION_LIVE",
+  "validation_ok": true,
+  "validation_errors": [],
+  "payload": {
+    "version": "1.0",
+    "items": [
+      {
+        "shop": "kraken",
+        "discount": "20 € en Bitcoin selon l’offre",
+        "url": "https://proinvite.kraken.com/9f1e/lqbuov8u",
+        "code": "4hpz4gdy",
+        "description": "Autofresh canary/import for kraken"
+      }
+    ]
+  },
   "programs": [
     {
-      "program": "airbnb",
-      "announcement_url": "https://referralcodes.com/TheSuperReff",
-      "changed_fields": {
-        "personal_code": {
-          "old": null,
-          "new": "adrienb12398"
-        },
-        "personal_link": {
-          "old": null,
-          "new": "https://www.airbnb.fr/r/adrienb12398"
-        },
-        "referee_reward": {
-          "old": "\\u2705 $40 in credits",
-          "new": "Réduction sur la 1ère réservation"
-        }
-      },
-      "action": "WOULD_IMPORT_UPDATE",
-      "operator_effective": true
-    },
-    {
-      "program": "coinbase",
-      "announcement_url": "https://referralcodes.com/TheSuperReff",
-      "changed_fields": {
-        "personal_code": {
-          "old": null,
-          "new": "8T83ZPS"
-        },
-        "personal_link": {
-          "old": null,
-          "new": "https://coinbase.com/join/8T83ZPS"
-        },
-        "referee_reward": {
-          "old": "\\u2b50\\ufe0f $20 in Bitcoin \\u2b50\\ufe0f",
-          "new": "Bonus variable selon la campagne"
-        }
-      },
-      "action": "WOULD_IMPORT_UPDATE",
-      "operator_effective": true
-    },
-    {
-      "program": "heetch",
-      "announcement_url": "https://referralcodes.com/TheSuperReff",
-      "changed_fields": {
-        "personal_code": {
-          "old": null,
-          "new": "ADRIEN21987265"
-        },
-        "referee_reward": {
-          "old": "\\u26a1\\ufe0f Get $5 Free",
-          "new": "5 € offerts sur la 1ère course"
-        }
-      },
-      "action": "WOULD_IMPORT_UPDATE",
-      "operator_effective": true
-    },
-    {
-      "program": "joko",
-      "announcement_url": "https://referralcodes.com/TheSuperReff",
-      "changed_fields": {
-        "personal_code": {
-          "old": null,
-          "new": "stxzzb"
-        },
-        "personal_link": {
-          "old": null,
-          "new": "https://hellojoko.app.link/tyX38HoTyP"
-        },
-        "referee_reward": {
-          "old": "\\u26a1 Get $5 OFF",
-          "new": "5 € offerts à l'inscription"
-        }
-      },
-      "action": "WOULD_IMPORT_UPDATE",
-      "operator_effective": true
-    },
-    {
       "program": "kraken",
-      "announcement_url": "https://referralcodes.com/TheSuperReff",
-      "changed_fields": {
-        "personal_code": {
-          "old": null,
-          "new": "4hpz4gdy"
-        },
-        "personal_link": {
-          "old": null,
-          "new": "https://proinvite.kraken.com/9f1e/lqbuov8u"
-        },
-        "referee_reward": {
-          "old": "\\u2b50\\ufe0f $200 in Crypto \\u2b50\\ufe0f",
-          "new": "20 € en Bitcoin selon l’offre"
-        }
+      "status": "ok",
+      "errors": [],
+      "item": {
+        "shop": "kraken",
+        "discount": "20 € en Bitcoin selon l’offre",
+        "url": "https://proinvite.kraken.com/9f1e/lqbuov8u",
+        "code": "4hpz4gdy",
+        "description": "Autofresh canary/import for kraken"
       },
-      "action": "WOULD_IMPORT_UPDATE",
-      "operator_effective": true
-    },
-    {
-      "program": "omio",
       "announcement_url": "https://referralcodes.com/TheSuperReff",
-      "changed_fields": {
-        "personal_code": {
-          "old": null,
-          "new": "adrieb6d4e1f"
-        },
-        "personal_link": {
-          "old": null,
-          "new": "https://go-refer.omio.com/jU1MJy"
-        },
-        "referee_reward": {
-          "old": "\\u26a1\\ufe0f $10 OFF \\u26a1\\ufe0f",
-          "new": "10 € offerts sur la 1ère réservation"
-        }
-      },
-      "action": "WOULD_IMPORT_UPDATE",
-      "operator_effective": true
-    },
-    {
-      "program": "unibet",
-      "announcement_url": "https://referralcodes.com/TheSuperReff",
-      "changed_fields": {
-        "personal_code": {
-          "old": null,
-          "new": "GAO92"
-        },
-        "personal_link": {
-          "old": null,
-          "new": "https://www.unibet.fr/myaccount/register.html?promo=GAO92"
-        },
-        "referee_reward": {
-          "old": "\\u26bd\\ufe0f\\u20ac150 in bonus\\u26bd\\ufe0f",
-          "new": "100 € remboursés + 30 € de bonus"
-        }
-      },
-      "action": "WOULD_IMPORT_UPDATE",
-      "operator_effective": true
-    },
-    {
-      "program": "widilo",
-      "announcement_url": "https://referralcodes.com/TheSuperReff",
-      "changed_fields": {
-        "personal_code": {
-          "old": null,
-          "new": "NGA684"
-        },
-        "personal_link": {
-          "old": null,
-          "new": "https://www.widilo.fr/i/NGA684"
-        },
-        "referee_reward": {
-          "old": "\\u2705 $6 offered",
-          "new": "5 € offerts à l'inscription"
-        }
-      },
-      "action": "WOULD_IMPORT_UPDATE",
-      "operator_effective": true
-    },
-    {
-      "program": "wise",
-      "announcement_url": "https://referralcodes.com/TheSuperReff",
-      "changed_fields": {
-        "personal_link": {
-          "old": null,
-          "new": "https://wise.com/invite/ihpc/27caf2a"
-        },
-        "referee_reward": {
-          "old": "Transfer up to $500\\u2b50",
-          "new": "Frais offerts sur le 1er transfert"
-        }
-      },
-      "action": "WOULD_IMPORT_UPDATE",
-      "operator_effective": true
+      "source": "mapping+offers"
     }
   ],
-  "notes": [
-    "ReferralCodes.com != ReferralCode.tv. Use REFERRALCODES_* secrets only.",
-    "Phase=VALIDATION_LIVE live_writes=False",
-    "WRITE_PREPARED: plan ready. WRITE_VERIFIED requires confirmed Agent Import schema + successful dry import of one program. No browser CAPTCHA bypass."
-  ],
-  "pending_updates": 9,
-  "blocker_to_write_verified": "Agent Import / API schema not validated with live credentials in CI. Next step: READ-ONLY login probe of /agents with REFERRALCODES_* secrets."
+  "pending_updates": 1,
+  "artifacts": {
+    "json": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\captures\\referralcodes-agent-import-kraken.json",
+    "csv": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\captures\\referralcodes-agent-import-kraken.csv",
+    "report": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\captures\\referralcodes-agent-import-kraken-report.json",
+    "validation_ok": true
+  },
+  "blocker_to_write_verified": "Live step remaining: login REFERRALCODES_* → open import UI → Validate → Commit one canary item → reread profile post_match",
+  "canary_steps": [
+    "python tools/prepare_referralcodes_agent_import.py --program kraken",
+    "Open https://referralcodes.com/profile/import/agent (authenticated)",
+    "Paste JSON → Validate → read #agent-import-result",
+    "Commit if ok → reread public profile",
+    "mark_write_verified only with post_match evidence"
+  ]
 }

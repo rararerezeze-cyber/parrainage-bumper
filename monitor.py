@@ -28,6 +28,7 @@ from lib.monitor.engine import (
     production_readiness_report,
     save_run_report,
 )
+from lib.monitor.shadow import run_shadow
 from lib.monitor.history import read_history
 from lib.monitor.models import ObservationStatus
 from lib.monitor.registry import coverage_stats, load_registry, priority_table
@@ -35,6 +36,65 @@ from lib.offers import OffersRepository
 from lib.paths import DATA_DIR
 
 REPORT_PATH = DATA_DIR / "captures" / "monitor-last-report.json"
+
+
+def _obs_from_report(prev: dict) -> list:
+    from lib.monitor.models import (
+        Confidence,
+        FailureCode,
+        FieldChange,
+        Observation,
+        ObservationStatus,
+    )
+
+    obs = []
+    for o in prev.get("observations") or []:
+        changes = [
+            FieldChange(field=c.get("field") or "*", old=c.get("old"), new=c.get("new"))
+            for c in (o.get("changes") or [])
+            if isinstance(c, dict)
+        ]
+        obs.append(
+            Observation(
+                program=o["program"],
+                status=ObservationStatus(o["status"]),
+                confidence=Confidence(o["confidence"]),
+                source_url=o.get("source_url"),
+                parser=o.get("parser") or "",
+                detected_at=o.get("detected_at") or "",
+                canonical_fields=o.get("canonical_fields") or {},
+                observed_fields=o.get("observed_fields") or {},
+                changes=changes,
+                failure_code=FailureCode(o.get("failure_code") or "NONE"),
+                source_class=o.get("source_class") or "UNVERIFIED",
+                offer_kind=o.get("offer_kind") or "PUBLIC_CAMPAIGN",
+                monitor_status=o.get("monitor_status") or "PUBLIC_MONITORABLE_PENDING",
+                high_streak=int(o.get("high_streak") or 0),
+                live_high_streak=int(o.get("live_high_streak") or o.get("high_streak") or 0),
+                impact_count=int(o.get("impact_count") or 0),
+                business_fingerprint=o.get("business_fingerprint") or "",
+                source_country=o.get("source_country") or "FR",
+                field_authority=o.get("field_authority") or {},
+            )
+        )
+    return obs
+
+
+def cmd_shadow_from_report() -> int:
+    if not REPORT_PATH.exists():
+        print("No monitor report — run monitor.py --all first")
+        return 1
+    prev = json.loads(REPORT_PATH.read_text(encoding="utf-8"))
+    obs = _obs_from_report(prev)
+    if not obs:
+        print("No observations in last report")
+        return 1
+    report = run_shadow(obs, persist=True)
+    print(json.dumps({k: report[k] for k in report if k != "decisions"}, ensure_ascii=False, indent=2))
+    print(f"decisions={len(report.get('decisions') or [])}")
+    print(f"MONITOR_SHADOW_READY={report.get('MONITOR_SHADOW_READY')}")
+    print("auto_accept=false auto_write=false")
+    return 0
 
 
 def cmd_coverage() -> int:
@@ -236,8 +296,15 @@ def main() -> int:
     p.add_argument("--production-report", action="store_true")
     p.add_argument("--should-commit", action="store_true", help="Exit 1 if no business change")
     p.add_argument("--impact", action="store_true", help="With --program: show announcement impact dry")
+    p.add_argument(
+        "--shadow",
+        action="store_true",
+        help="Run SHADOW acceptance on last report or --all (never auto-accept)",
+    )
     args = p.parse_args()
 
+    if args.shadow and not args.all and not args.program:
+        return cmd_shadow_from_report()
     if args.coverage:
         return cmd_coverage()
     if args.priority:
@@ -251,7 +318,10 @@ def main() -> int:
     if args.program:
         return cmd_program(args.program, impact=args.impact)
     if args.all:
-        return cmd_all(changes_only=False)
+        rc = cmd_all(changes_only=False)
+        if args.shadow:
+            cmd_shadow_from_report()
+        return rc
     p.print_help()
     return 2
 

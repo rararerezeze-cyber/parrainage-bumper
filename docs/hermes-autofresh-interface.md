@@ -136,3 +136,11 @@ Do not deploy it as the production bot for Autofresh.
 - structured errors
 - idempotence notes
 - no BotFather/webhook dependency for product path
+
+`HERMES_PRODUCTION_READY = YES` additionally requires:
+
+- process-level file lock (one mutating command at a time)
+- override file re-read (`persist_confirmed`) before `ok=true` on set/remove
+- idempotency ledger replay (same command does not re-apply)
+- snapshot of overrides/status before mutation
+- no secrets in JSON / logs (token names only)

@@ -69,9 +69,12 @@ DEFAULT_STATUS: dict[str, dict[str, Any]] = {
         ),
     },
     "1parrainage": {
-        "status": STATUS_WRITE_PREPARED,
+        "status": STATUS_CANARY_READY,
         "canary_program": "kraken",
-        "notes": "Templates/mappings ready; live edit canary not completed.",
+        "notes": (
+            "CANARY_READY: login /login + edit + save + reread account/public list. "
+            "Native style only. Kraken first. Not WRITE_VERIFIED until post_match."
+        ),
     },
     "referralcodes": {
         "status": STATUS_CANARY_READY,

@@ -1045,10 +1045,10 @@ async def capture_oneparrainage(browser, offers: OffersRepository) -> dict:
     try:
         # Try common login endpoints
         login_urls = [
+            f"{base}/login",
             f"{base}/connexion.php",
             f"{base}/login.php",
             f"{base}/membre.php",
-            f"{base}/",
         ]
         logged = False
         for lu in login_urls:

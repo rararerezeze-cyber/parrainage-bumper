@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-08-12T21:59:30.605007+00:00",
+  "updated_at": "2026-08-12T22:53:31.954016+00:00",
   "note": "Strict write readiness. WRITE_VERIFIED requires full post-verify evidence. Telegram live writes only for WRITE_VERIFIED platforms.",
   "write_verified_count": 0,
   "write_verified_ratio": "0/7",
@@ -23,9 +23,9 @@
       "notes": "CANARY_READY: login (slider solver as historical bumper) + edit + save + reread account (public if URL). Kraken first. Not WRITE_VERIFIED until post_match."
     },
     "1parrainage": {
-      "status": "WRITE_PREPARED",
+      "status": "CANARY_READY",
       "canary_program": "kraken",
-      "notes": "Templates/mappings ready; live edit canary not completed."
+      "notes": "CANARY_READY: login /login + edit + save + reread account/public list. Native style only. Kraken first (offer_id=100408). Not WRITE_VERIFIED until post_match. No Boost/Remonter. Stop on 403/429/CAPTCHA/auth/unexpected DOM."
     },
     "referralcodes": {
       "status": "CANARY_READY",

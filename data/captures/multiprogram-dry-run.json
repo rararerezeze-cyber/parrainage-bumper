@@ -1,0 +1,106 @@
+{
+  "at": "2026-08-12T22:53:31.123675+00:00",
+  "live": false,
+  "all_programs": false,
+  "platforms": [
+    {
+      "platform": "super-parrain",
+      "status": "CANARY_READY",
+      "blocked": false,
+      "programs": [
+        {
+          "program": "kraken",
+          "ok": true,
+          "structure_preserved": true,
+          "action": null,
+          "error": null,
+          "live": false
+        }
+      ],
+      "ok": true
+    },
+    {
+      "platform": "parrainage-co",
+      "status": "CANARY_READY",
+      "blocked": false,
+      "programs": [
+        {
+          "program": "kraken",
+          "ok": true,
+          "structure_preserved": true,
+          "action": "WOULD_UPDATE",
+          "error": null,
+          "live": false
+        }
+      ],
+      "ok": true
+    },
+    {
+      "platform": "code-parrainage",
+      "status": "CANARY_READY",
+      "blocked": false,
+      "programs": [
+        {
+          "program": "kraken",
+          "ok": true,
+          "structure_preserved": true,
+          "action": "WOULD_UPDATE",
+          "error": null,
+          "live": false
+        }
+      ],
+      "ok": true
+    },
+    {
+      "platform": "1parrainage",
+      "status": "CANARY_READY",
+      "blocked": false,
+      "programs": [
+        {
+          "program": "kraken",
+          "ok": true,
+          "structure_preserved": true,
+          "action": "WOULD_UPDATE",
+          "error": null,
+          "live": false
+        }
+      ],
+      "ok": true
+    },
+    {
+      "platform": "referralcodes",
+      "status": "CANARY_READY",
+      "blocked": false,
+      "programs": [
+        {
+          "program": "kraken",
+          "ok": true,
+          "structure_preserved": true,
+          "action": null,
+          "error": null,
+          "live": false
+        }
+      ],
+      "ok": true
+    },
+    {
+      "platform": "referralcode-tv",
+      "status": "WRITE_PREPARED",
+      "blocked": false,
+      "programs": [
+        {
+          "program": "kraken",
+          "ok": true,
+          "structure_preserved": true,
+          "action": null,
+          "error": null,
+          "live": false
+        }
+      ],
+      "ok": true
+    }
+  ],
+  "ALL_NON_BLOCKED_PLATFORMS_CANARY_READY": "NO",
+  "MULTIPROGRAM_DRY_RUN_READY": "YES",
+  "note": "Dry-run only. Super-Parrain cooldown untouched. No execute."
+}

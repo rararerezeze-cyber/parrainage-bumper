@@ -1,0 +1,7 @@
+{
+  "result": "SUPER_PENDING",
+  "super_parrain": "CANARY_READY",
+  "next": "super-parrain",
+  "live": false,
+  "note": "Auto sequence of platforms 2+ starts only after Super-Parrain WRITE_VERIFIED. Keep CANARY_PENDING intact."
+}

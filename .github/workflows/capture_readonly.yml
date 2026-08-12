@@ -57,6 +57,13 @@ jobs:
               print(f"{k}: {'yes' if v else 'no'} len={len(v)}")
           PY
           python tools/capture_auth_readonly.py --sites "$SITES"
+          # Extra READ-ONLY edit probes (never save)
+          if echo "$SITES" | grep -q referralcode; then
+            python tools/probe_referralcode_tv_edit.py --public --auth || true
+          fi
+          if echo "$SITES" | grep -q oneparrainage; then
+            python tools/probe_1parrainage_edit.py --public --auth || true
+          fi
       - name: Guard — no auth storage-state in workspace
         if: always()
         run: |
