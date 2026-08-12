@@ -328,14 +328,93 @@ def parse_vinted_referral_fr(html: str, cfg: SourceConfig, offer: dict | None = 
 
 
 def parse_totalenergies_referral_fr(html: str, cfg: SourceConfig, offer: dict | None = None) -> NormalizedOffer:
+    """Isolate parrainage bonus vs energy unit prices (1,99 €/kWh style)."""
     text = _text(html)
     fields: dict[str, str | None] = {}
-    m = re.search(r"(?i)(\d[\d\s.,]*\s*€)\s*(?:offerts?|de\s+bon|parrain)", text)
+    m = re.search(
+        r"(?i)(?:parrainage|filleul|parrain)[^\d]{0,60}(\d[\d\s.,]*\s*€)",
+        text,
+    )
+    if not m:
+        m = re.search(
+            r"(?i)(\d[\d\s.,]*\s*€)\s*(?:offerts?)?[^\n]{0,40}(?:parrainage|filleul|parrain)",
+            text,
+        )
     if m:
-        fields["referee_reward"] = normalize_reward(m.group(1))
+        reward = normalize_reward(m.group(1))
+        # reject tiny unit prices
+        nums = re.findall(r"\d+", (reward or "").replace(" ", "").replace(",", "."))
+        if reward and nums and int(float(nums[0])) >= 10:
+            fields["referee_reward"] = reward
+            fields["reward_type"] = "cash"
     if fields.get("referee_reward"):
-        return _base(cfg, html, fields, Confidence.HIGH, ["totalenergies_bonus"])
-    return parse_structured_first(html, cfg, offer)
+        return _base(cfg, html, fields, Confidence.HIGH, ["totalenergies_parrainage_context"])
+    return _base(
+        cfg,
+        html,
+        {},
+        Confidence.REVIEW,
+        ["totalenergies_no_parrainage_block"],
+        FailureCode.AMBIGUOUS_REWARD,
+    )
+
+
+def parse_acheel_referral_fr(html: str, cfg: SourceConfig, offer: dict | None = None) -> NormalizedOffer:
+    """Acheel: distinguish parrainage bonus from coverage ceilings (1000/20000 €)."""
+    text = _text(html)
+    fields: dict[str, str | None] = {}
+    m = re.search(
+        r"(?i)(?:parrainage|filleul|parrain|invitation)[^\d]{0,50}(\d[\d\s.,]*\s*€)",
+        text,
+    )
+    if not m:
+        m = re.search(
+            r"(?i)(\d[\d\s.,]*\s*€)\s*(?:offerts?)?[^\n]{0,30}(?:parrainage|à l['’]inscription)",
+            text,
+        )
+    if m:
+        reward = normalize_reward(m.group(1))
+        nums = re.findall(r"\d+", (reward or "").replace(" ", ""))
+        # coverage ceilings are typically ≥ 1000
+        if reward and nums and 5 <= int(nums[0]) <= 200:
+            fields["referee_reward"] = reward
+            return _base(cfg, html, fields, Confidence.HIGH, ["acheel_parrainage_amount"])
+    return _base(
+        cfg,
+        html,
+        {},
+        Confidence.REVIEW,
+        ["acheel_ambiguous_coverage_vs_bonus"],
+        FailureCode.AMBIGUOUS_REWARD,
+    )
+
+
+def parse_nrj_mobile_referral_fr(html: str, cfg: SourceConfig, offer: dict | None = None) -> NormalizedOffer:
+    """NRJ Mobile: plan prices (9/15/17/29 €) vs parrainage bonus."""
+    text = _text(html)
+    fields: dict[str, str | None] = {}
+    m = re.search(
+        r"(?i)(?:parrainage|filleul|parrain)[^\d]{0,50}(\d[\d\s.,]*\s*€)",
+        text,
+    )
+    if not m:
+        m = re.search(
+            r"(?i)(\d[\d\s.,]*\s*€)\s*(?:offerts?)[^\n]{0,40}(?:parrainage|filleul)",
+            text,
+        )
+    if m:
+        reward = normalize_reward(m.group(1))
+        if reward and is_plausible_reward(reward):
+            fields["referee_reward"] = reward
+            return _base(cfg, html, fields, Confidence.HIGH, ["nrj_parrainage_context"])
+    return _base(
+        cfg,
+        html,
+        {},
+        Confidence.REVIEW,
+        ["nrj_plan_prices_not_parrainage"],
+        FailureCode.AMBIGUOUS_REWARD,
+    )
 
 
 def parse_unibet_promos_fr(html: str, cfg: SourceConfig, offer: dict | None = None) -> NormalizedOffer:
@@ -432,6 +511,8 @@ PROGRAM_PARSERS = {
     "totalenergies_referral_fr": parse_totalenergies_referral_fr,
     "unibet_promos_fr": parse_unibet_promos_fr,
     "boursobank_parrainage_fr": parse_boursobank_parrainage_fr,
+    "acheel_referral_fr": parse_acheel_referral_fr,
+    "nrj_mobile_referral_fr": parse_nrj_mobile_referral_fr,
     "app_personalized_stub": parse_app_personalized_stub,
     "operator_only_stub": parse_operator_only_stub,
 }

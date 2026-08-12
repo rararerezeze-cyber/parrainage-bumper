@@ -8,6 +8,7 @@ from typing import Any
 from lib.monitor.models import (
     DEFAULT_FIELD_SOURCES,
     OfferKind,
+    PUBLIC_MUTABLE_FIELDS,
     SourceClass,
     SourceConfig,
 )
@@ -23,10 +24,8 @@ def mapping_impact_counts() -> dict[str, int]:
     if not MAPPINGS_DIR.exists():
         return {}
     for path in MAPPINGS_DIR.glob("*.json"):
-        # super-parrain.kraken.fr.json → program = kraken
         parts = path.stem.split(".")
         if len(parts) >= 2:
-            # platform.program.lang
             program = parts[1]
         else:
             program = parts[0]
@@ -43,13 +42,16 @@ def _cfg_from_dict(item: dict[str, Any], impact: dict[str, int]) -> SourceConfig
         merged.update(fs)
         fs = merged
     program = item["program"]
+    fa = item.get("field_authority_fr")
+    if not isinstance(fa, dict):
+        fa = {}
     return SourceConfig(
         program=program,
         source_url=item.get("source_url"),
         source_type=item.get("source_type") or "manual",
         extraction_method=item.get("extraction_method") or "none",
         fields_supported=list(item.get("fields_supported") or ["referee_reward"]),
-        locale=item.get("locale") or "fr",
+        locale=item.get("locale") or item.get("source_locale") or "fr",
         auth_required=bool(item.get("auth_required")),
         parser=item.get("parser") or "structured_first",
         confidence_default=item.get("confidence_default") or "REVIEW",
@@ -62,6 +64,13 @@ def _cfg_from_dict(item: dict[str, Any], impact: dict[str, int]) -> SourceConfig
         last_verify_http=item.get("last_verify_http"),
         last_verify_at=item.get("last_verify_at"),
         impact_count=int(item.get("impact_count") or impact.get(program) or 0),
+        source_country=(item.get("source_country") or "FR").upper(),
+        source_locale=item.get("source_locale") or item.get("locale") or "fr",
+        canonical_country=(item.get("canonical_country") or "FR").upper(),
+        campaign_scope=(item.get("campaign_scope") or "FR").upper(),
+        field_authority_fr={str(k): bool(v) for k, v in fa.items()},
+        final_status=item.get("final_status"),
+        parser_tests_passed=bool(item.get("parser_tests_passed")),
     )
 
 
@@ -74,7 +83,6 @@ def load_registry(path: Path | None = None) -> dict[str, SourceConfig]:
     out: dict[str, SourceConfig] = {}
     for item in raw.get("programs") or []:
         cfg = _cfg_from_dict(item, impact)
-        # always refresh impact from live mappings
         cfg.impact_count = impact.get(cfg.program, cfg.impact_count)
         out[cfg.program] = cfg
     return out
@@ -85,12 +93,16 @@ def save_registry(configs: dict[str, SourceConfig], path: Path | None = None) ->
     impact = mapping_impact_counts()
     for c in configs.values():
         c.impact_count = impact.get(c.program, c.impact_count)
-    programs = [c.to_dict() for c in sorted(configs.values(), key=lambda x: (-x.impact_count, x.program))]
+    programs = [
+        c.to_dict()
+        for c in sorted(configs.values(), key=lambda x: (-x.priority_score(), x.program))
+    ]
     payload = {
-        "version": 2,
+        "version": 3,
         "note": (
             "Public official sources only. Observation-only. "
             "source_class is verification status, not mere URL presence. "
+            "source_country/locale must match FR canonical authority for HIGH. "
             "No personal codes/links. No financial account login."
         ),
         "programs": programs,
@@ -115,12 +127,19 @@ def coverage_stats(configs: dict[str, SourceConfig], total_programs: int) -> dic
         "static_canonical_hint",
         "none",
     }
+    fr_compatible = sum(
+        1
+        for c in configs.values()
+        if (c.source_country or "").upper() == "FR"
+        or (c.campaign_scope or "").upper() in {"FR", "EU", "GLOBAL"}
+    )
     return {
         "programs_total": total_programs,
         "official_source_configured": len(enabled),
         "verified_official": sum(
             1 for c in configs.values() if c.source_class == SourceClass.VERIFIED_OFFICIAL.value
         ),
+        "fr_compatible_sources": fr_compatible,
         "by_source_type": by_type,
         "by_source_class": by_class,
         "by_offer_kind": by_kind,
@@ -143,19 +162,25 @@ def coverage_stats(configs: dict[str, SourceConfig], total_programs: int) -> dic
             1 for c in configs.values() if c.extraction_method == "playwright_public"
         ),
         "mappings_total": sum(mapping_impact_counts().values()),
+        "public_mutable_fields": list(PUBLIC_MUTABLE_FIELDS),
     }
 
 
 def priority_table(configs: dict[str, SourceConfig]) -> list[dict[str, Any]]:
-    """Rank programs by impact (mappings) for hardening order."""
+    """Rank programs by impact × mutable fields for hardening order."""
     rows = []
-    for c in sorted(configs.values(), key=lambda x: (-x.impact_count, x.program)):
+    for c in sorted(configs.values(), key=lambda x: (-x.priority_score(), x.program)):
         rows.append(
             {
                 "program": c.program,
                 "mapped_announcements": c.impact_count,
+                "mutable_public_fields": c.mutable_public_field_count(),
+                "priority_score": c.priority_score(),
                 "source_class": c.source_class,
                 "offer_kind": c.offer_kind,
+                "source_country": c.source_country,
+                "campaign_scope": c.campaign_scope,
+                "final_status": c.final_status,
                 "parser": c.parser,
                 "source_url": c.source_url,
                 "enabled": c.enabled,

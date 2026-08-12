@@ -23,7 +23,7 @@ sys.path.insert(0, str(ROOT))
 
 from lib.monitor.engine import (
     MonitorEngine,
-    has_business_change,
+    candidates_report,
     impact_report,
     production_readiness_report,
     save_run_report,
@@ -106,14 +106,27 @@ def cmd_all(*, changes_only: bool = False) -> int:
         "PUBLIC_MONITORABLE_PENDING",
         "APP_PERSONALIZED",
         "OPERATOR_ONLY",
+        "NO_PUBLIC_REFERRAL_SOURCE",
         "ANTI_BOT_BLOCKED",
         "BROKEN",
         "fetch_success",
-        "stable_high",
+        "live_stable_high",
         "mappings_impacted_by_verified",
+        "public_mutable_mapping_coverage",
+        "candidates_observed",
+        "candidates_with_valid_authority",
         "MONITORING_PRODUCTION_READY",
     ):
         print(f"  {k}: {prod.get(k)}")
+    cands = candidates_report(results)
+    if cands:
+        print("--- CANDIDATES (observation only, not accepted) ---")
+        for c in cands[:20]:
+            print(
+                f"  {c['program']} {c['field']}: {c['canonical']!r} -> {c['observed']!r} "
+                f"auth={c['authority']} locale={c['source_country']}/{c['source_locale']} "
+                f"impact={c['announcement_impact']} streak={c['live_high_streak']}"
+            )
     shown = 0
     for r in results:
         if changes_only and r.status in {

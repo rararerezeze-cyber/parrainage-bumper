@@ -37,6 +37,7 @@ class FailureCode(str, Enum):
     EMPTY_PAGE = "EMPTY_PAGE"
     FETCH_FAILED = "FETCH_FAILED"
     WRONG_OR_DEAD_URL = "WRONG_OR_DEAD_URL"
+    NO_FR_AUTHORITY = "NO_FR_AUTHORITY"
 
 
 class SourceClass(str, Enum):
@@ -62,8 +63,22 @@ class MonitorProgramStatus(str, Enum):
     APP_PERSONALIZED = "APP_PERSONALIZED"
     OPERATOR_ONLY = "OPERATOR_ONLY"
     ANTI_BOT_BLOCKED = "ANTI_BOT_BLOCKED"
+    NO_PUBLIC_REFERRAL_SOURCE = "NO_PUBLIC_REFERRAL_SOURCE"
     BROKEN = "BROKEN"
     UNCONFIGURED = "UNCONFIGURED"
+
+
+# Final statuses (not "still researching")
+FINAL_MONITOR_STATUSES = frozenset(
+    {
+        MonitorProgramStatus.MONITOR_VERIFIED.value,
+        MonitorProgramStatus.APP_PERSONALIZED.value,
+        MonitorProgramStatus.OPERATOR_ONLY.value,
+        MonitorProgramStatus.ANTI_BOT_BLOCKED.value,
+        MonitorProgramStatus.NO_PUBLIC_REFERRAL_SOURCE.value,
+        MonitorProgramStatus.BROKEN.value,
+    }
+)
 
 
 # Business fields the monitor may extract (never personal codes/links)
@@ -85,6 +100,19 @@ BUSINESS_FIELDS = (
     "campaign_name",
 )
 
+# Fields that can change public announcements (mutable public)
+PUBLIC_MUTABLE_FIELDS = (
+    "referee_reward",
+    "referrer_reward",
+    "conditions",
+    "min_deposit",
+    "min_spend",
+    "trade_min",
+    "qualification_days",
+    "expiry_date",
+    "reward_type",
+)
+
 
 # Default field authority
 DEFAULT_FIELD_SOURCES = {
@@ -102,6 +130,33 @@ DEFAULT_FIELD_SOURCES = {
     "reward_type": "OFFICIAL_PUBLIC_MONITOR",
     "geographic_scope": "OFFICIAL_PUBLIC_MONITOR",
     "campaign_variant": "OFFICIAL_PUBLIC_MONITOR",
+}
+
+# Documentary foreign source: may inform, never FR SoT for amounts
+FS_FOREIGN_DOC = {
+    **DEFAULT_FIELD_SOURCES,
+    "referee_reward": "OPERATOR",
+    "referrer_reward": "OPERATOR",
+    "min_deposit": "OPERATOR",
+    "min_spend": "OPERATOR",
+    "trade_min": "OPERATOR",
+    "qualification_days": "OPERATOR",
+    "expiry_date": "OPERATOR",
+    "conditions": "OPERATOR",  # conditions also geo-specific unless proven identical
+}
+
+FS_APP = {
+    **DEFAULT_FIELD_SOURCES,
+    "referee_reward": "OPERATOR",
+    "referrer_reward": "OPERATOR",
+    "conditions": "OFFICIAL_PUBLIC_MONITOR",
+}
+
+FS_OPERATOR_REWARD = {
+    **DEFAULT_FIELD_SOURCES,
+    "referee_reward": "OPERATOR",
+    "referrer_reward": "OPERATOR",
+    "conditions": "OPERATOR",
 }
 
 
@@ -125,14 +180,50 @@ class SourceConfig:
     last_verify_http: int | None = None
     last_verify_at: str | None = None
     impact_count: int = 0
+    # Locale / campaign scoping (canonical ads are FR)
+    source_country: str = "FR"
+    source_locale: str = "fr"
+    canonical_country: str = "FR"
+    campaign_scope: str = "FR"  # FR | EU | GLOBAL | US | UK | APP
+    # Per-field FR authority override: field -> bool (True = may drive FR canonical)
+    field_authority_fr: dict[str, bool] = field(default_factory=dict)
+    # Explicit final classification when research concluded (optional)
+    final_status: str | None = None
+    parser_tests_passed: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
-    def monitor_may_write_field(self, field: str) -> bool:
+    def monitor_may_write_field(self, field_name: str) -> bool:
         """Whether official monitor has authority over this field (policy only; no auto-accept yet)."""
-        src = (self.field_sources or {}).get(field) or DEFAULT_FIELD_SOURCES.get(field)
-        return src == "OFFICIAL_PUBLIC_MONITOR"
+        src = (self.field_sources or {}).get(field_name) or DEFAULT_FIELD_SOURCES.get(field_name)
+        if src != "OFFICIAL_PUBLIC_MONITOR":
+            return False
+        # Locale gate: foreign sources need explicit FR authority
+        if not self.has_fr_authority(field_name):
+            return False
+        return True
+
+    def has_fr_authority(self, field_name: str) -> bool:
+        """Can this source authoritatively set a FR canonical field?"""
+        if field_name in (self.field_authority_fr or {}):
+            return bool(self.field_authority_fr[field_name])
+        # Default: same country/campaign as FR canonical
+        sc = (self.source_country or "").upper()
+        cc = (self.canonical_country or "FR").upper()
+        scope = (self.campaign_scope or "").upper()
+        if sc == cc:
+            return True
+        if scope in {"GLOBAL", "EU"} and field_name in {"reward_type", "geographic_scope"}:
+            return True
+        # UK/US/international amounts do not drive FR by default
+        return False
+
+    def mutable_public_field_count(self) -> int:
+        return sum(1 for f in self.fields_supported if f in PUBLIC_MUTABLE_FIELDS)
+
+    def priority_score(self) -> int:
+        return int(self.impact_count) * max(1, self.mutable_public_field_count())
 
 
 @dataclass
@@ -183,8 +274,19 @@ class Observation:
     source_class: str = SourceClass.UNVERIFIED.value
     offer_kind: str = OfferKind.PUBLIC_CAMPAIGN.value
     monitor_status: str = MonitorProgramStatus.PUBLIC_MONITORABLE_PENDING.value
-    high_streak: int = 0
+    high_streak: int = 0  # legacy alias = live_high_streak when live
     impact_count: int = 0
+    # V2 fields
+    live_high_streak: int = 0
+    fixture_high_streak: int = 0
+    parser_tests_passed: bool = False
+    source_country: str = "FR"
+    source_locale: str = "fr"
+    campaign_scope: str = "FR"
+    field_authority: dict[str, str] = field(default_factory=dict)
+    consecutive_fetch_failures: int = 0
+    last_success_at: str | None = None
+    is_live: bool = True
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -206,7 +308,17 @@ class Observation:
             "offer_kind": self.offer_kind,
             "monitor_status": self.monitor_status,
             "high_streak": self.high_streak,
+            "live_high_streak": self.live_high_streak,
+            "fixture_high_streak": self.fixture_high_streak,
+            "parser_tests_passed": self.parser_tests_passed,
             "impact_count": self.impact_count,
+            "source_country": self.source_country,
+            "source_locale": self.source_locale,
+            "campaign_scope": self.campaign_scope,
+            "field_authority": self.field_authority,
+            "consecutive_fetch_failures": self.consecutive_fetch_failures,
+            "last_success_at": self.last_success_at,
+            "is_live": self.is_live,
         }
 
 

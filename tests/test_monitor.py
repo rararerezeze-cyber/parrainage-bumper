@@ -44,6 +44,10 @@ def _cfg(program: str = "kraken", parser: str = "generic_reward_html") -> Source
         source_class=SourceClass.VERIFIED_OFFICIAL.value,
         offer_kind=OfferKind.PUBLIC_CAMPAIGN.value,
         impact_count=5,
+        source_country="FR",
+        source_locale="fr",
+        campaign_scope="FR",
+        parser_tests_passed=True,
     )
 
 
@@ -188,48 +192,50 @@ def test_generic_not_final_when_structured_first():
         assert any("generic_only" in n for n in obs.notes)
 
 
-def test_high_streak_monitor_verified(tmp_path, monkeypatch):
-    """Three coherent HIGH runs → MONITOR_VERIFIED."""
-    from lib.monitor import engine as eng_mod
-    from lib.monitor import history as hist_mod
+def test_fixture_streak_does_not_verify():
+    """Replaying the same fixture must not grant MONITOR_VERIFIED (live required)."""
+    from lib.monitor.engine import _derive_monitor_status
 
-    last_path = tmp_path / "last-observations.json"
-    last_path.write_text("{}", encoding="utf-8")
-    monkeypatch.setattr(hist_mod, "LAST_OBS_PATH", last_path)
-    monkeypatch.setattr(eng_mod, "LAST_OBS_PATH", last_path)
-    monkeypatch.setattr(eng_mod, "HISTORY_DIR", tmp_path)
-    monkeypatch.setattr(eng_mod, "REPORT_PATH", tmp_path / "report.json")
+    cfg = _cfg("kraken", parser="kraken_referral_fr")
+    cfg.parser_tests_passed = True
+    mon = _derive_monitor_status(
+        cfg,
+        Confidence.HIGH,
+        FailureCode.NONE,
+        live_high_streak=5,
+        status=ObservationStatus.NO_CHANGE,
+        is_live=False,
+    )
+    assert mon != MonitorProgramStatus.MONITOR_VERIFIED.value
 
-    html = (FIXTURES / "kraken_same_reward.html").read_text(encoding="utf-8")
-    eng = MonitorEngine(live_fetch=False)
-    eng.registry["kraken"] = _cfg("kraken", parser="kraken_referral_fr")
 
-    streaks = []
-    statuses = []
-    for _ in range(3):
-        eng.last = hist_mod.load_last_observations()
-        obs = eng.run_program("kraken", html_override=html)
-        # force HIGH path if parser returned REVIEW but fields present
-        if obs.confidence != Confidence.HIGH and obs.observed_fields.get("referee_reward"):
-            obs.confidence = Confidence.HIGH
-            from lib.monitor.engine import _update_high_streak, _derive_monitor_status
+def test_live_streak_can_verify():
+    from lib.monitor.engine import _derive_monitor_status
 
-            obs.high_streak = _update_high_streak(
-                eng.last.get("kraken") or {}, Confidence.HIGH, obs.business_fingerprint
-            )
-            obs.monitor_status = _derive_monitor_status(
-                eng.registry["kraken"],
-                Confidence.HIGH,
-                FailureCode.NONE,
-                obs.high_streak,
-                obs.status,
-            )
-        save_run_report([obs], path=tmp_path / "report.json")
-        streaks.append(obs.high_streak)
-        statuses.append(obs.monitor_status)
+    cfg = _cfg("kraken", parser="kraken_referral_fr")
+    cfg.parser_tests_passed = True
+    mon = _derive_monitor_status(
+        cfg,
+        Confidence.HIGH,
+        FailureCode.NONE,
+        live_high_streak=3,
+        status=ObservationStatus.NO_CHANGE,
+        is_live=True,
+    )
+    assert mon == MonitorProgramStatus.MONITOR_VERIFIED.value
 
-    assert streaks[-1] >= 3
-    assert statuses[-1] == MonitorProgramStatus.MONITOR_VERIFIED.value
+
+def test_uk_source_no_fr_authority():
+    cfg = _cfg("paypal")
+    cfg.source_country = "UK"
+    cfg.campaign_scope = "UK"
+    cfg.field_authority_fr = {"referee_reward": False, "conditions": False}
+    cfg.field_sources = {
+        **cfg.field_sources,
+        "referee_reward": "OFFICIAL_PUBLIC_MONITOR",
+    }
+    assert cfg.has_fr_authority("referee_reward") is False
+    assert cfg.monitor_may_write_field("referee_reward") is False
 
 
 def test_no_business_change_skips_commit_flag(tmp_path, monkeypatch):
@@ -253,6 +259,7 @@ def test_no_business_change_skips_commit_flag(tmp_path, monkeypatch):
     o1.failure_code = FailureCode.NONE
     o1.monitor_status = MonitorProgramStatus.PUBLIC_MONITORABLE_PENDING.value
     o1.high_streak = 1
+    o1.live_high_streak = 1
     p1 = save_run_report([o1], path=tmp_path / "report.json")
     data1 = __import__("json").loads(p1.read_text(encoding="utf-8"))
     assert data1["should_commit"] is True  # first run always commits
@@ -266,6 +273,7 @@ def test_no_business_change_skips_commit_flag(tmp_path, monkeypatch):
     o2.failure_code = o1.failure_code
     o2.monitor_status = o1.monitor_status
     o2.high_streak = o1.high_streak
+    o2.live_high_streak = o1.live_high_streak
     o2.changes = []
     assert has_business_change([o2], data1) is False
     p2 = save_run_report([o2], path=tmp_path / "report.json")
@@ -332,8 +340,11 @@ def test_production_report_shape():
             observed_fields={"referee_reward": "20 €"},
             monitor_status=MonitorProgramStatus.MONITOR_VERIFIED.value,
             high_streak=3,
+            live_high_streak=3,
             impact_count=5,
             source_class=SourceClass.VERIFIED_OFFICIAL.value,
+            is_live=True,
+            parser_tests_passed=True,
         ),
         Observation(
             program="revolut",
@@ -351,19 +362,19 @@ def test_production_report_shape():
             source_class=SourceClass.AUTH_APP_ONLY.value,
         ),
     ]
-    # pad to 30 with pending
+    # pad to 30 with final non-pending statuses
     for i in range(28):
         results.append(
             Observation(
                 program=f"p{i}",
-                status=ObservationStatus.REVIEW,
-                confidence=Confidence.REVIEW,
+                status=ObservationStatus.SKIPPED,
+                confidence=Confidence.REJECT,
                 source_url=None,
-                parser="structured_first",
+                parser="operator_only_stub",
                 detected_at="t",
                 canonical_fields={},
                 observed_fields={},
-                monitor_status=MonitorProgramStatus.PUBLIC_MONITORABLE_PENDING.value,
+                monitor_status=MonitorProgramStatus.NO_PUBLIC_REFERRAL_SOURCE.value,
                 impact_count=1,
             )
         )
@@ -371,5 +382,7 @@ def test_production_report_shape():
     assert prod["programs"] == 30
     assert prod["MONITOR_VERIFIED"] == 1
     assert prod["APP_PERSONALIZED"] == 1
+    assert prod["PUBLIC_MONITORABLE_PENDING"] == 0
     assert "MONITORING_PRODUCTION_READY" in prod
     assert prod["MONITORING_BASE_READY"] == "YES"
+    assert "public_mutable_mapping_coverage" in prod
