@@ -1,98 +1,112 @@
 {
   "phase": "BASE",
-  "live_writes": false,
+  "live_writes_enabled": false,
   "live_canary_allowed": false,
   "programs": 38,
   "mapped_pairs": 117,
   "platforms": [
     {
       "platform": "super-parrain",
-      "capability": "AUTO",
+      "status": "BASE_READY",
       "mapped": 35,
       "full": 35,
       "partial": 0,
       "stale": 0,
-      "read_state": "READ_OK",
-      "write_state": "WRITE_PREPARED_COOLDOWN",
-      "base_status": "BASE_READY"
+      "write": "WRITE_PREPARED",
+      "writer_ok": true,
+      "note": "structure=True changes=['personal_code', 'personal_link', 'referee_reward']"
     },
     {
       "platform": "parrainage-co",
-      "capability": "AUTO",
+      "status": "BASE_READY",
       "mapped": 27,
       "full": 26,
       "partial": 0,
       "stale": 1,
-      "read_state": "READ_OK",
-      "write_state": "WRITE_TODO",
-      "base_status": "BASE_READY"
+      "write": "WRITE_PREPARED",
+      "writer_ok": true,
+      "note": "kraken structure=True; paypal_blocked=True"
     },
     {
       "platform": "code-parrainage",
-      "capability": "AUTO",
+      "status": "BASE_READY",
       "mapped": 24,
-      "full": 23,
-      "partial": 1,
+      "full": 24,
+      "partial": 0,
       "stale": 0,
-      "read_state": "CAPTURE_PARTIAL",
-      "write_state": "CAPTURE_PARTIAL",
-      "base_status": "BASE_READY"
+      "write": "WRITE_PREPARED",
+      "writer_ok": true,
+      "note": "structure=True"
     },
     {
       "platform": "referralcode-tv",
-      "capability": "AUTO",
+      "status": "BASE_READY / MANUAL_WRITE",
       "mapped": 10,
       "full": 10,
       "partial": 0,
       "stale": 0,
-      "read_state": "READ_OK",
-      "write_state": "MANUAL_WRITE",
-      "base_status": "BASE_READY_MANUAL"
+      "write": "MANUAL_WRITE",
+      "writer_ok": true,
+      "note": "mapped=10 — browser write not auto until risk review"
     },
     {
       "platform": "referralcodes",
-      "capability": "MANUAL",
+      "status": "BASE_READY / MANUAL_WRITE",
       "mapped": 9,
-      "full": 0,
+      "full": 9,
       "partial": 0,
       "stale": 0,
-      "read_state": "READ_OK",
-      "write_state": "MANUAL_WRITE",
-      "base_status": "BASE_READY_MANUAL"
+      "write": "MANUAL_WRITE",
+      "writer_ok": true,
+      "note": "official_import dry-run pending=9"
     },
     {
       "platform": "referraldrop",
-      "capability": "MANUAL",
+      "status": "BASE_READY / AUTH_BLOCKED",
       "mapped": 5,
-      "full": 0,
+      "full": 5,
       "partial": 0,
       "stale": 0,
-      "read_state": "READ_PUBLIC_ONLY",
-      "write_state": "AUTH_BLOCKED",
-      "base_status": "BASE_READY_AUTH_BLOCKED"
+      "write": "AUTH_BLOCKED",
+      "writer_ok": true,
+      "note": "AUTH_BLOCKED_GOOGLE"
     },
     {
       "platform": "1parrainage",
-      "capability": "MANUAL",
+      "status": "BASE_READY",
       "mapped": 7,
       "full": 7,
       "partial": 0,
       "stale": 0,
-      "read_state": "READ_OK",
-      "write_state": "WRITE_TODO",
-      "base_status": "BASE_READY"
+      "write": "WRITE_PREPARED",
+      "writer_ok": true,
+      "note": "sample=deblock structure=True"
     }
   ],
-  "base_ready_platforms": 7,
-  "writers_dry_plan_ok": 2,
-  "writer_notes": [
-    "super-parrain:dry_plan_ok",
-    "parrainage-co:dry_plan_ok"
-  ],
-  "blockers": [
-    "code-parrainage:partial_capture",
-    "1parrainage:inventory_incomplete_vs_profile"
-  ],
-  "note": "BASE_READY_ALL = all platforms BASE_READY* + no inventory blockers + writers dry-plan for Super+Parrainage.co + live_writes off",
-  "base_ready_all": false
+  "global_dry_run": {
+    "ok": true,
+    "rows": 117,
+    "hard_errors": 0,
+    "statuses": {
+      "in_sync": 30,
+      "missing_source": 1,
+      "pending_update": 86
+    }
+  },
+  "telegram_dry_run": {
+    "ok": true,
+    "returncode": 0,
+    "tail": "personal_code, personal_link, referee_reward)\n  - referralcodes: pending_update (referee_reward)\n  - super-parrain: pending_update (personal_code, personal_link, referee_reward)\n\n5 plateforme(s) avec mapping pour ce programme | 0 capture_pending | 0 manual (global)\nAucune publication reelle effectuee.\nPhase BASE: writers live desactives.\n\n[rapport] C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\captures\\telegram-last-report.txt\n"
+  },
+  "tests": {
+    "ok": true,
+    "returncode": 0,
+    "tail": ".................................                                        [100%]\n33 passed in 0.28s"
+  },
+  "blockers": [],
+  "base_ready_all": true,
+  "coverage": {
+    "programs_in_offers": 38,
+    "mapped_pairs": 117
+  }
 }

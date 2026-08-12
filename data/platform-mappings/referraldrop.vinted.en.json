@@ -1,11 +1,13 @@
 {
   "platform": "referraldrop",
-  "program": "airbnb",
+  "program": "vinted",
   "language": "en",
   "sync_mode": "manual_review_required",
   "template_status": "ready",
-  "golden_file": "airbnb.en.golden.txt",
-  "mutable_fields": [],
+  "golden_file": "vinted.en.golden.txt",
+  "mutable_fields": [
+    "personal_link"
+  ],
   "markers": {
     "personal_code": "{{PERSONAL_CODE}}",
     "personal_link": "{{PERSONAL_LINK}}",
@@ -19,11 +21,15 @@
     "referee_reward": "reward",
     "conditions": "cond"
   },
-  "announcement_url": "https://referraldrop.com/en/drop/airbnb",
+  "announcement_url": "https://referraldrop.com/en/drop/vinted",
   "edit_url": null,
-  "platform_values": {},
-  "confidences": {},
-  "notes": "lien offers.json non trouve dans le texte; bonus non marque (ambigu / non trouve) — texte laisse fixe; public capture only; AUTH_BLOCKED_GOOGLE; public capture only; AUTH_BLOCKED_GOOGLE",
+  "platform_values": {
+    "personal_link": "https://www.vinted.com/"
+  },
+  "confidences": {
+    "personal_link": "medium"
+  },
+  "notes": "lien plateforme != offers.json; bonus non marque (ambigu / non trouve) — texte laisse fixe; public capture only; AUTH_BLOCKED_GOOGLE; public capture only; AUTH_BLOCKED_GOOGLE",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",

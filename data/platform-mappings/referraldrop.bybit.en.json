@@ -24,12 +24,12 @@
   "announcement_url": "https://referraldrop.com/en/drop/bybit",
   "edit_url": null,
   "platform_values": {
-    "personal_link": "https://www.bybit.com/invite?ref=P8KM42"
+    "personal_link": "https://www.bybit.eu/invite?ref=YQ6B3O2"
   },
   "confidences": {
-    "personal_link": "medium"
+    "personal_link": "high"
   },
-  "notes": "lien plateforme != offers.json; bonus non marque (ambigu / non trouve) — texte laisse fixe; public capture only; AUTH_BLOCKED_GOOGLE; public capture only; AUTH_BLOCKED_GOOGLE",
+  "notes": "bonus non marque (ambigu / non trouve) — texte laisse fixe; public capture only; AUTH_BLOCKED_GOOGLE; public capture only; AUTH_BLOCKED_GOOGLE",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",

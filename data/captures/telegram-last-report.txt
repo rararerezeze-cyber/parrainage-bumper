@@ -1,27 +1,32 @@
 Kraken mis a jour (dry-run)
-code: '4hpz4gdy' -> 'DEMO999'
+code: '4hpz4gdy' -> 'ABC123TEST'
 offers.json ecrit: non (simulation)
 
 Programme kraken:
-  - parrainage-co: pending_update (referee_reward)
+  - 1parrainage: in_sync
+  - code-parrainage: pending_update (personal_code, personal_link, referee_reward)
+  - parrainage-co: pending_update (personal_code, personal_link, referee_reward)
+  - referralcodes: pending_update (referee_reward)
   - super-parrain: pending_update (personal_code, personal_link, referee_reward)
 
-2 plateforme(s) avec mapping pour ce programme | 1 capture_pending | 3 manual (global)
+5 plateforme(s) avec mapping pour ce programme | 0 capture_pending | 0 manual (global)
 Aucune publication reelle effectuee.
+Phase BASE: writers live desactives.
 
 {
-  "at": "2026-08-12T15:54:33.850453+00:00",
-  "message": "Kraken code DEMO999",
+  "at": "2026-08-12T18:43:23.446628+00:00",
+  "message": "Kraken code ABC123TEST",
   "parsed": {
     "program": "kraken",
     "field": "code",
-    "value": "DEMO999",
+    "value": "ABC123TEST",
     "offer_name": "Kraken"
   },
   "update": {
     "old": "4hpz4gdy",
-    "new": "DEMO999",
+    "new": "ABC123TEST",
     "written": false,
+    "phase": "BASE",
     "effective_offers_path": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\captures\\_offers_preview.json"
   }
 }

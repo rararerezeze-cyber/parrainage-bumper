@@ -498,7 +498,7 @@ AI-generated
 
 ","spotlightSvg":"
 
-","boostColor":"#3b82f6","spotlightColor":"#facc15","boostAria":"Boost","spotlightAria":"Spotlight","boostTooltip":"Boost: higher visibility for this code","spotlightTooltip":"Spotlight: featured code with guaranteed visibility"}" data-drop2-verified-url-patterns="["{{PERSONAL_LINK}}"]" data-drop2-verified-tooltip="Verified safe URL"> 
+","boostColor":"#3b82f6","spotlightColor":"#facc15","boostAria":"Boost","spotlightAria":"Spotlight","boostTooltip":"Boost: higher visibility for this code","spotlightTooltip":"Spotlight: featured code with guaranteed visibility"}" data-drop2-verified-url-patterns="["https://join.robinhood.com/*"]" data-drop2-verified-tooltip="Verified safe URL"> 
  
  
  
@@ -544,28 +544,58 @@ Get Spotlight
  
  
  
- J 
  
  
  
  
-Jesse Custer
+TheSuperPenguins
  
  
  
  
-@Freecuster
- 
- 
- 
- 
+@TheSuperPenguins
  
  
  
  
  
  
- https://join.robinhood.com/jessec3416 
+ Referral code 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+
+ 
+ 
+ 
+
+ 
+
+ 
+
+ 
+ 
+Copy
+ 
+ 
+ 
+ 
+ 
+
+ 
+ Referral link 
+ 
+ 
+ 
+ 
+ 
+ {{PERSONAL_LINK}} 
  
  
  
@@ -817,18 +847,4 @@ Information current as of May 19, 2026
  
  
  
-There is no limit on how many people you can invite to Robinhood.
- 
- 
- 
- 
- 
- 
- 
- Where is Robinhood available? 
- 
-
- 
- 
- 
- The Robinhood referral program
+There is no limit on how many people you can invite to

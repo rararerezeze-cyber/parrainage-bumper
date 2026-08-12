@@ -8,10 +8,9 @@
   "platforms_usable_read": 6,
   "writers_functional": 1,
   "cell_status_counts": {
-    "captured": 101,
+    "captured": 102,
     "missing_on_platform": 116,
     "stale_mapping": 1,
-    "capture_partial": 1,
     "manual_write": 14,
     "auth_blocked": 33
   },
@@ -45,13 +44,13 @@
     {
       "platform": "code-parrainage",
       "capability": "AUTO",
-      "read": "CAPTURE_PARTIAL",
+      "read": "READ_OK",
       "write": "CAPTURE_PARTIAL",
       "mapped_count": 24,
-      "full_quality": 23,
-      "partial_quality": 1,
+      "full_quality": 24,
+      "partial_quality": 0,
       "manual_quality": 0,
-      "inventory_quality": 23,
+      "inventory_quality": 24,
       "profile_url": null,
       "auth_status": null
     },

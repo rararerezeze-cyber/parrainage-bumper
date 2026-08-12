@@ -53,5 +53,82 @@
       }
     ],
     "errors": []
+  },
+  "referraldrop": {
+    "platform": "referraldrop",
+    "items": [
+      {
+        "program": "okx",
+        "status": "ok",
+        "mutable": [
+          "personal_link"
+        ],
+        "chars": 5000,
+        "url": "https://referraldrop.com/en/drop/okx"
+      },
+      {
+        "program": "whatnot",
+        "status": "ok",
+        "mutable": [
+          "personal_link"
+        ],
+        "chars": 5000,
+        "url": "https://referraldrop.com/en/drop/whatnot"
+      },
+      {
+        "program": "vinted",
+        "status": "ok",
+        "mutable": [
+          "personal_link"
+        ],
+        "chars": 5000,
+        "url": "https://referraldrop.com/en/drop/vinted"
+      },
+      {
+        "program": "gemini",
+        "status": "ok",
+        "mutable": [
+          "personal_link"
+        ],
+        "chars": 5000,
+        "url": "https://referraldrop.com/en/drop/gemini"
+      },
+      {
+        "program": "robinhood",
+        "status": "ok",
+        "mutable": [
+          "personal_link"
+        ],
+        "chars": 5000,
+        "url": "https://referraldrop.com/en/drop/robinhood"
+      },
+      {
+        "program": "bybit",
+        "status": "ok",
+        "mutable": [
+          "personal_link"
+        ],
+        "chars": 5000,
+        "url": "https://referraldrop.com/en/drop/bybit"
+      },
+      {
+        "program": "igraal",
+        "status": "ok",
+        "mutable": [
+          "personal_link"
+        ],
+        "chars": 5000,
+        "url": "https://referraldrop.com/en/drop/igraal"
+      },
+      {
+        "program": "airbnb",
+        "status": "ok",
+        "mutable": [],
+        "chars": 5000,
+        "url": "https://referraldrop.com/en/drop/airbnb"
+      }
+    ],
+    "errors": [],
+    "auth_status": "AUTH_BLOCKED_GOOGLE"
   }
 }

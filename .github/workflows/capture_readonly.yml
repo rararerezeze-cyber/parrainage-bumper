@@ -42,15 +42,19 @@ jobs:
           REFERRALCODES_PASSWORD: ${{ secrets.REFERRALCODES_PASSWORD }}
           ONEPARRAINAGE_EMAIL: ${{ secrets.ONEPARRAINAGE_EMAIL }}
           ONEPARRAINAGE_PASSWORD: ${{ secrets.ONEPARRAINAGE_PASSWORD }}
+          REFERRALCODES_EMAIL: ${{ secrets.REFERRALCODES_EMAIL }}
+          REFERRALCODES_PASSWORD: ${{ secrets.REFERRALCODES_PASSWORD }}
+          AUTOFRESH_PHASE: "BASE"
+          AUTOFRESH_LIVE_WRITES: "0"
         run: |
           SITES="${{ github.event.inputs.sites }}"
-          if [ -z "$SITES" ]; then SITES=parrainage; fi
+          if [ -z "$SITES" ]; then SITES=code; fi
           echo "sites=$SITES"
           # Presence only — never print secret values
           python - <<'PY'
           import os
           for k in ("PARRAINAGE_CO_EMAIL","PARRAINAGE_CO_PASSWORD","PARRAINAGE_CO_RM_COOKIE",
-                    "CODE_PARRAINAGE_EMAIL","REFERRALCODE_EMAIL"):
+                    "CODE_PARRAINAGE_EMAIL","REFERRALCODE_EMAIL","ONEPARRAINAGE_EMAIL","REFERRALCODES_EMAIL"):
               v=os.environ.get(k) or ""
               print(f"{k}: {'yes' if v else 'no'} len={len(v)}")
           PY

@@ -10,7 +10,7 @@ Writers functional: 1
 Per platform:
   super-parrain      READ=READ_OK            WRITE=WRITE_PREPARED_COOLDOWN mapped= 35 full=35 partial=0
   parrainage-co      READ=READ_OK            WRITE=WRITE_TODO             mapped= 27 full=26 partial=0
-  code-parrainage    READ=CAPTURE_PARTIAL    WRITE=CAPTURE_PARTIAL        mapped= 24 full=23 partial=1
+  code-parrainage    READ=READ_OK            WRITE=CAPTURE_PARTIAL        mapped= 24 full=24 partial=0
   referralcode-tv    READ=READ_OK            WRITE=MANUAL_WRITE           mapped= 10 full=10 partial=0
   referralcodes      READ=READ_OK            WRITE=MANUAL_WRITE           mapped=  9 full=0 partial=0
   referraldrop       READ=READ_PUBLIC_ONLY   WRITE=AUTH_BLOCKED           mapped=  5 full=0 partial=0
@@ -18,8 +18,7 @@ Per platform:
 
 Cell status counts:
   auth_blocked: 33
-  capture_partial: 1
-  captured: 101
+  captured: 102
   manual_write: 14
   missing_on_platform: 116
   stale_mapping: 1

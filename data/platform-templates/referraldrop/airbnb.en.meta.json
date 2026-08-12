@@ -6,17 +6,11 @@
   "role": "platform_target_historical_text_only",
   "not_business_source_of_truth": true,
   "announcement_url": "https://referraldrop.com/en/drop/airbnb",
-  "mutable_fields": [
-    "personal_link"
-  ],
-  "platform_values": {
-    "personal_link": "https://www.airbnb.com/c/gZHgGt7Qj3OXWLxB?unique_share_id=6afb6cb4-f930-4e69-93ee-5743a68e892c"
-  },
-  "confidences": {
-    "personal_link": "medium"
-  },
+  "mutable_fields": [],
+  "platform_values": {},
+  "confidences": {},
   "notes": [
-    "lien plateforme != offers.json",
+    "lien offers.json non trouve dans le texte",
     "bonus non marque (ambigu / non trouve) — texte laisse fixe",
     "public capture only; AUTH_BLOCKED_GOOGLE"
   ]

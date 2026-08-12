@@ -96,7 +96,14 @@ def apply_update(field: str, program: str, value: str, write: bool) -> dict:
 
     Pour le dry-run, on ecrit toujours un fichier temporaire utilise via
     BONUS_PARRAIN_OFFERS_PATH afin que run_all voie la nouvelle valeur.
+
+    Phase BASE: refuse --write (pas de mutation offers.json canonique).
     """
+    from lib.phase import live_writes_enabled, phase_name
+
+    if write and not live_writes_enabled():
+        # Force preview-only during BASE
+        write = False
     offers = OffersRepository()
     data = offers.load_all()
     old = None
@@ -123,6 +130,7 @@ def apply_update(field: str, program: str, value: str, write: bool) -> dict:
         "old": old,
         "new": value,
         "written": write,
+        "phase": phase_name(),
         "effective_offers_path": str(effective),
     }
 
@@ -169,6 +177,7 @@ def format_telegram_report(
         f"{len(pending_cap)} capture_pending | {len(manual)} manual (global)"
     )
     lines.append("Aucune publication reelle effectuee.")
+    lines.append("Phase BASE: writers live desactives.")
     return "\n".join(lines)
 
 

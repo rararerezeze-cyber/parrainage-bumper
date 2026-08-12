@@ -53,6 +53,10 @@ def _has_creds(site: str) -> bool:
         return bool(os.environ.get("CODE_PARRAINAGE_EMAIL") and os.environ.get("CODE_PARRAINAGE_PASSWORD"))
     if site == "referralcode":
         return bool(os.environ.get("REFERRALCODE_EMAIL") and os.environ.get("REFERRALCODE_PASSWORD"))
+    if site in ("oneparrainage", "1parrainage"):
+        return bool(os.environ.get("ONEPARRAINAGE_EMAIL") and os.environ.get("ONEPARRAINAGE_PASSWORD"))
+    if site == "referralcodes":
+        return bool(os.environ.get("REFERRALCODES_EMAIL") and os.environ.get("REFERRALCODES_PASSWORD"))
     return False
 
 
@@ -561,10 +565,16 @@ async def capture_parrainage_co(browser, offers: OffersRepository) -> dict:
 
 
 async def capture_code_parrainage(browser, offers: OffersRepository) -> dict:
-    """READ-ONLY: /moncompte — pas de clic Actualiser."""
+    """READ-ONLY: /moncompte + pages Modifier completes — jamais Actualiser/save."""
     cfg = bumper_mod.CONFIG["code"]
     platform = "code-parrainage"
-    report = {"platform": platform, "items": [], "errors": []}
+    report: dict = {
+        "platform": platform,
+        "items": [],
+        "errors": [],
+        "session_model": "single_login_then_sequential_edits",
+        "login": "pending",
+    }
     ctx = await bumper_mod.new_context(browser)
     page = await ctx.new_page()
     try:
@@ -578,7 +588,6 @@ async def capture_code_parrainage(browser, offers: OffersRepository) -> dict:
                 slider_ok = True
                 break
             await bumper_mod.human_sleep(1.0, 2.0)
-            # recharger le login pour un nouveau puzzle
             await page.goto(f"{cfg['url']}/login", wait_until="networkidle", timeout=60000)
             await bumper_mod.robust_fill(page, 'input[type="email"]', cfg["email"])
             await bumper_mod.robust_fill(page, 'input[type="password"]', cfg["password"])
@@ -595,34 +604,45 @@ async def capture_code_parrainage(browser, offers: OffersRepository) -> dict:
         await page.wait_for_load_state("networkidle")
         if not await bumper_mod.verify_login(page, "/login", platform):
             raise RuntimeError("login echoue")
+        report["login"] = "password"
 
         await page.goto(f"{cfg['url']}/moncompte", wait_until="networkidle", timeout=60000)
         await bumper_mod.human_sleep(2, 3)
         body_text = await page.inner_text("body")
         REPORT_DIR.mkdir(parents=True, exist_ok=True)
-        (REPORT_DIR / "code-parrainage-raw.txt").write_text(body_text[:50000], encoding="utf-8")
+        (REPORT_DIR / "code-parrainage-raw.txt").write_text(body_text[:80000], encoding="utf-8")
 
-        # Prefer Modifier / edit links for full text (not list previews)
-        edit_urls = await page.evaluate(
+        # Collect edit links + row labels for program matching
+        rows = await page.evaluate(
             """
             () => {
               const out = [];
-              for (const a of document.querySelectorAll('a[href], button')) {
-                const href = a.href || a.getAttribute('data-href') || '';
+              const seen = new Set();
+              for (const a of document.querySelectorAll('a[href]')) {
+                const href = a.href || '';
                 const label = ((a.innerText || a.textContent || '') + ' ' + href).toLowerCase();
-                if (!href && !label.includes('modif')) continue;
-                if (label.includes('actualis') || label.includes('supprim') || label.includes('delete')) continue;
-                if (label.includes('modif') || href.includes('edit') || href.includes('modif')) {
-                  if (href) out.push(href);
-                }
+                if (!href) continue;
+                if (label.includes('actualis') || label.includes('supprim') || label.includes('delete') || label.includes('boost')) continue;
+                const isEdit = label.includes('modif') || href.includes('edit') || href.includes('modif')
+                  || href.includes('annonce') || href.includes('update');
+                if (!isEdit) continue;
+                if (seen.has(href)) continue;
+                seen.add(href);
+                let rowText = '';
+                const row = a.closest('tr, .card, li, article, div');
+                if (row) rowText = (row.innerText || '').slice(0, 300);
+                out.push({edit: href, rowText});
               }
-              return Array.from(new Set(out));
+              return out;
             }
             """
         )
-        report["edit_urls_found"] = len(edit_urls)
-        seen = set()
-        for url in edit_urls[:80]:
+        report["edit_urls_found"] = len(rows or [])
+        seen: set[str] = set()
+        for row in (rows or [])[:100]:
+            url = row.get("edit")
+            if not url:
+                continue
             try:
                 await page.goto(url, wait_until="domcontentloaded", timeout=45000)
                 await bumper_mod.human_sleep(1.0, 1.8)
@@ -632,60 +652,119 @@ async def capture_code_parrainage(browser, offers: OffersRepository) -> dict:
                       const areas = Array.from(document.querySelectorAll('textarea'))
                         .map(t => (t.value || t.innerText || '').trim())
                         .filter(t => t.length > 20);
-                      const body = areas.sort((a,b)=>b.length-a.length)[0]
-                        || (document.querySelector('main, form, .content, article') || document.body).innerText || '';
+                      const inputs = {};
+                      document.querySelectorAll('input').forEach(i => {
+                        const n = ((i.name||'')+' '+(i.id||'')+' '+(i.placeholder||'')).toLowerCase();
+                        const v = (i.value||'').trim();
+                        if (v) inputs[n||'field'] = v;
+                      });
+                      const ce = document.querySelector('[contenteditable="true"], .ql-editor, .ProseMirror');
+                      let body = areas.sort((a,b)=>b.length-a.length)[0] || '';
+                      if (ce) {
+                        const t = (ce.innerText||'').trim();
+                        if (t.length > body.length) body = t;
+                      }
+                      if (!body || body.length < 40) {
+                        body = (document.querySelector('main, form, .content, article') || document.body).innerText || '';
+                      }
                       const title = (document.querySelector('h1,h2') || {}).innerText || document.title || '';
-                      return {title, body: body.slice(0, 8000), url: location.href};
+                      return {title, body: body.slice(0, 12000), inputs, url: location.href};
                     }
                     """
                 )
                 body = (payload.get("body") or "").strip()
-                # Reject pure list chrome / truncated previews when we expected full form
                 if len(body) < 60:
+                    report["errors"].append({"url": url, "error": "body_too_short", "len": len(body)})
                     continue
-                title = payload.get("title") or body.split("\n", 1)[0]
-                slug = _slug_from_text(title, offers)
+                title = payload.get("title") or row.get("rowText") or body.split("\n", 1)[0]
+                first = ""
+                for ln in body.splitlines():
+                    if ln.strip() and len(ln.strip()) > 8:
+                        first = ln.strip()
+                        break
+                blob = f"{title}\n{row.get('rowText') or ''}\n{first}\n{body[:500]}"
+                slug = _guess_slug(title, body, offers) or _slug_from_text(title, offers)
                 if not slug:
                     for o in offers.load_all():
                         n = o.get("name") or ""
-                        if n and n.lower() in body.lower():
+                        if n and n.lower() in blob.lower():
                             slug = o.get("lk")
                             break
-                if not slug or slug in seen:
+                if not slug:
+                    report["errors"].append(
+                        {"url": url, "error": "program_unknown", "title": (title or "")[:80], "first": first[:80]}
+                    )
                     continue
+                if slug in seen:
+                    # Keep longer body if we already had partial
+                    continue
+                force: dict[str, str] = {}
+                for k, v in (payload.get("inputs") or {}).items():
+                    if not v:
+                        continue
+                    if "code" in k and "postal" not in k and len(v) < 80:
+                        force.setdefault("personal_code", v)
+                    if any(x in k for x in ("lien", "link", "url")) and str(v).startswith("http"):
+                        if "code-parrainage" not in v.lower():
+                            force.setdefault("personal_link", v)
+
                 try:
                     offer = offers.get_by_slug(slug)
                 except KeyError:
                     offer = None
-                item = _save_result(platform, slug, "fr", body, payload.get("url") or url, offer)
-                # Clear partial quality if we got a real edit body
-                from pathlib import Path
-                import json as _json
-                mp = Path(item["paths"]["mapping"]) if "paths" in item else None
-                # _save_result returns paths relative — rebuild
-                mpath = ROOT / "data" / "platform-mappings" / f"code-parrainage.{slug}.fr.json"
-                if mpath.exists():
-                    d = _json.loads(mpath.read_text(encoding="utf-8"))
-                    d.pop("quality", None)
-                    d["quality"] = "full_edit" if len(body) > 200 else "capture_partial"
-                    if len(body) <= 200:
-                        d["quality"] = "capture_partial"
-                    mpath.write_text(_json.dumps(d, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+                result = build_from_text(
+                    platform=platform,
+                    program=slug,
+                    language="fr",
+                    golden_text=body,
+                    offer=offer,
+                    announcement_url=None,
+                    force_values=force or None,
+                )
+                _prune_null_offer_mutables(result, offer)
+                paths = write_build_result(result)
+                mpath = paths["mapping"]
+                d = json.loads(mpath.read_text(encoding="utf-8"))
+                d["edit_url"] = url
+                d["quality"] = "full_edit" if len(body) > 200 else "capture_partial"
+                d["notes"] = "; ".join(
+                    filter(
+                        None,
+                        [
+                            d.get("notes"),
+                            f"auth_edit_url={url}",
+                            f"chars={len(body)}",
+                        ],
+                    )
+                )
+                mpath.write_text(json.dumps(d, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
                 seen.add(slug)
-                report["items"].append({**item, "chars": len(body)})
+                report["items"].append(
+                    {
+                        "program": slug,
+                        "status": "ok",
+                        "mutable": result.mutable_fields,
+                        "chars": len(body),
+                        "edit_url": url,
+                        "quality": d["quality"],
+                    }
+                )
             except Exception as exc:  # noqa: BLE001
                 report["errors"].append({"url": url, "error": str(exc)})
 
+        report["programs_captured"] = sorted(seen)
         if not report["items"]:
             report["errors"].append(
                 {
                     "error": "aucune annonce complete via pages Modifier — DOM a cartographier",
                     "hint": "raw dump: data/captures/code-parrainage-raw.txt",
-                    "edit_urls_found": len(edit_urls),
+                    "edit_urls_found": report.get("edit_urls_found"),
                 }
             )
     except Exception as exc:  # noqa: BLE001
-        report["errors"].append({"error": str(exc)})
+        kind = classify_auth_failure(str(exc))
+        report["errors"].append({"error": str(exc), "kind": kind.value})
+        report["login"] = "failed"
     finally:
         await page.close()
         await ctx.close()
@@ -923,17 +1002,198 @@ async def amain(sites: list[str]) -> dict:
                             )
                 else:
                     summary["missing_credentials"].append("referralcode-tv")
+            if any(s in sites for s in ("oneparrainage", "1parrainage")):
+                if _has_creds("oneparrainage"):
+                    try:
+                        summary["sites"]["1parrainage"] = await capture_oneparrainage(
+                            browser, offers
+                        )
+                    except Exception as exc:  # noqa: BLE001
+                        kind = classify_auth_failure(str(exc))
+                        summary["sites"]["1parrainage"] = {
+                            "platform": "1parrainage",
+                            "items": [],
+                            "errors": [{"error": str(exc), "kind": kind.value}],
+                        }
+                        if should_stop_platform(kind):
+                            summary["stopped_platforms"].append(
+                                {"platform": "1parrainage", "kind": kind.value}
+                            )
+                else:
+                    summary["missing_credentials"].append("1parrainage")
         finally:
             await browser.close()
     return summary
+
+
+async def capture_oneparrainage(browser, offers: OffersRepository) -> dict:
+    """READ-ONLY auth 1Parrainage — style natif, jamais de save."""
+    email = os.environ.get("ONEPARRAINAGE_EMAIL") or ""
+    password = os.environ.get("ONEPARRAINAGE_PASSWORD") or ""
+    platform = "1parrainage"
+    base = "https://www.1parrainage.com"
+    report: dict = {
+        "platform": platform,
+        "items": [],
+        "errors": [],
+        "login": "pending",
+        "session_model": "single_login_then_sequential_edits",
+        "style_policy": "native_platform_style_only",
+    }
+    ctx = await bumper_mod.new_context(browser)
+    page = await ctx.new_page()
+    try:
+        # Try common login endpoints
+        login_urls = [
+            f"{base}/connexion.php",
+            f"{base}/login.php",
+            f"{base}/membre.php",
+            f"{base}/",
+        ]
+        logged = False
+        for lu in login_urls:
+            try:
+                await page.goto(lu, wait_until="domcontentloaded", timeout=45000)
+                await bumper_mod.human_sleep(1, 2)
+            except Exception:
+                continue
+            # fill email/password if present
+            email_ok = await bumper_mod.smart_fill(
+                page,
+                [
+                    'input[type="email"]',
+                    'input[name*="mail" i]',
+                    'input[name*="login" i]',
+                    'input[name*="user" i]',
+                ],
+                email,
+                timeout=5000,
+            )
+            pass_ok = await bumper_mod.smart_fill(
+                page,
+                ['input[type="password"]', 'input[name*="pass" i]'],
+                password,
+                timeout=5000,
+            )
+            if email_ok and pass_ok:
+                btn = page.locator(
+                    'button[type="submit"], input[type="submit"], button:has-text("Connexion"), button:has-text("Se connecter")'
+                ).first
+                try:
+                    await bumper_mod.human_click(page, btn)
+                    await page.wait_for_load_state("networkidle")
+                    logged = True
+                    report["login"] = "password"
+                    break
+                except Exception:
+                    continue
+        if not logged:
+            # Fall back to public list inventory
+            report["login"] = "public_fallback"
+            report["errors"].append(
+                {
+                    "error": "login form not found or failed — using public list inventory",
+                    "kind": "expected_login_flow",
+                }
+            )
+
+        # Public list is also source of truth for native style
+        list_url = "https://www.1parrainage.com/listeannonces_98906_Adrien89.php"
+        await page.goto(list_url, wait_until="domcontentloaded", timeout=60000)
+        await bumper_mod.human_sleep(1.5, 2.5)
+        html = await page.content()
+        REPORT_DIR.mkdir(parents=True, exist_ok=True)
+        (REPORT_DIR / "1parrainage-auth-list.html").write_text(html[:200000], encoding="utf-8")
+
+        # Extract offer blocks from list (native text)
+        blocks = await page.evaluate(
+            """
+            () => {
+              const out = [];
+              const nodes = document.querySelectorAll('.annonce, .panel, .card, tr, .media, article, .list-group-item');
+              for (const n of nodes) {
+                const t = (n.innerText || '').trim();
+                if (t.length < 80 || t.length > 8000) continue;
+                if (!/(parrain|code|lien|http|€|offre)/i.test(t)) continue;
+                const a = n.querySelector('a[href]');
+                out.push({body: t.slice(0, 6000), href: a ? a.href : location.href});
+              }
+              // fallback: split body by double newlines-ish
+              if (out.length < 3) {
+                const body = (document.body.innerText || '');
+                const parts = body.split(/\\n{2,}/);
+                for (const p of parts) {
+                  const t = p.trim();
+                  if (t.length > 100 && t.length < 5000 && /parrain|code|€/i.test(t)) {
+                    out.push({body: t, href: location.href});
+                  }
+                }
+              }
+              return out.slice(0, 80);
+            }
+            """
+        )
+        seen: set[str] = set()
+        for b in blocks or []:
+            body = (b.get("body") or "").strip()
+            if len(body) < 80:
+                continue
+            slug = _guess_slug(body.split("\n", 1)[0], body, offers)
+            if not slug:
+                for o in offers.load_all():
+                    n = o.get("name") or ""
+                    if n and n.lower() in body.lower()[:400]:
+                        slug = o.get("lk")
+                        break
+            if not slug or slug in seen:
+                continue
+            try:
+                offer = offers.get_by_slug(slug)
+            except KeyError:
+                offer = None
+            try:
+                result = build_from_text(
+                    platform=platform,
+                    program=slug,
+                    language="fr",
+                    golden_text=body,
+                    offer=offer,
+                    announcement_url=b.get("href"),
+                )
+                _prune_null_offer_mutables(result, offer)
+                result.notes.append("native_platform_style_only")
+                paths = write_build_result(result)
+                mpath = paths["mapping"]
+                d = json.loads(mpath.read_text(encoding="utf-8"))
+                d["quality"] = "native_list_or_auth"
+                d["style_policy"] = "native_platform_style_only"
+                d["notes"] = "; ".join(filter(None, [d.get("notes"), "no emoji re-injection"]))
+                mpath.write_text(json.dumps(d, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+                seen.add(slug)
+                report["items"].append(
+                    {"program": slug, "status": "ok", "chars": len(body), "mutable": result.mutable_fields}
+                )
+            except Exception as exc:  # noqa: BLE001
+                report["errors"].append({"program": slug, "error": str(exc)})
+        report["programs_captured"] = sorted(seen)
+        if not report["items"]:
+            report["errors"].append({"error": "no blocks extracted from 1parrainage list"})
+    except Exception as exc:  # noqa: BLE001
+        kind = classify_auth_failure(str(exc))
+        report["errors"].append({"error": str(exc), "kind": kind.value})
+        report["login"] = "failed"
+    finally:
+        await page.close()
+        await ctx.close()
+    return report
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--sites",
-        default="parrainage,code,referralcode",
-        help="Liste separee par virgules: parrainage,code,referralcode",
+        default="parrainage,code,referralcode,oneparrainage",
+        help="Liste separee: parrainage,code,referralcode,oneparrainage",
     )
     args = parser.parse_args()
     sites = [s.strip() for s in args.sites.split(",") if s.strip()]
@@ -945,6 +1205,8 @@ def main() -> int:
         ("PARRAINAGE_CO", _has_creds("parrainage")),
         ("CODE_PARRAINAGE", _has_creds("code")),
         ("REFERRALCODE", _has_creds("referralcode")),
+        ("ONEPARRAINAGE", _has_creds("oneparrainage")),
+        ("REFERRALCODES", _has_creds("referralcodes")),
     ]:
         print(f"  creds {label}: {'yes' if ok else 'no'}")
 
