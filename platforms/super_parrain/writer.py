@@ -5,6 +5,7 @@ import asyncio
 import logging
 import re
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 import sys
@@ -158,52 +159,54 @@ async def _login_super(page, cfg: dict[str, str]) -> None:
 
 
 async def _find_kraken_edit_url(page, base: str, program: str) -> str:
-    """Trouve l'URL d'edition de l'annonce (pas seulement codes-promo bump)."""
+    """Trouve l'URL d'edition du contenu Kraken (prefere annonces > codes-promo)."""
     bumper_mod = _bumper()
+    # Prefer content-oriented dashboards first (codes-promo edit = often remontee/bump only)
     candidates_pages = [
         f"{base}/tableau-de-bord/annonces",
         f"{base}/tableau-de-bord/mes-annonces",
+        f"{base}/tableau-de-bord/parrainages",
         f"{base}/tableau-de-bord",
         f"{base}/tableau-de-bord/codes-promo",
-        f"{base}/tableau-de-bord/parrainages",
     ]
-    found: list[str] = []
+    ranked: list[tuple[int, str]] = []
     for url in candidates_pages:
         try:
             await page.goto(url, wait_until="domcontentloaded", timeout=45000)
-            await bumper_mod.human_sleep(1.5, 2.5)
+            await bumper_mod.human_sleep(1.2, 2.0)
+            await _dismiss_blocking_modals(page)
         except Exception:
             continue
         hrefs = await page.evaluate(
             """
-            (program) => {
+            () => {
               const out = [];
-              const all = Array.from(document.querySelectorAll('a[href]'));
-              for (const a of all) {
+              for (const a of document.querySelectorAll('a[href]')) {
                 const href = a.href || '';
-                const txt = ((a.innerText || a.textContent || '') + ' ' + href).toLowerCase();
+                const label = ((a.innerText || a.textContent || '') + ' ' + href).toLowerCase();
                 if (!href) continue;
                 if (href.includes('boost') || href.includes('supprim') || href.includes('delete')) continue;
-                const isEdit = href.includes('edit') || href.includes('modifier')
-                  || (a.innerText || '').toLowerCase().includes('modifier')
-                  || (a.innerText || '').toLowerCase().includes('éditer')
-                  || (a.innerText || '').toLowerCase().includes('editer');
-                const isKraken = txt.includes('kraken') || href.includes('kraken');
-                if (isEdit && (isKraken || href.includes('annonce') || href.includes('parrainage'))) {
-                  out.push({href, txt: (a.innerText||'').trim().slice(0,80), kraken: isKraken});
-                }
+                const isEdit = href.includes('/edit') || href.includes('modifier')
+                  || label.includes('modifier') || label.includes('éditer') || label.includes('editer');
+                if (!isEdit) continue;
+                const isKraken = label.includes('kraken') || href.includes('kraken');
+                out.push({href, isKraken, isCodesPromo: href.includes('codes-promo')});
               }
               return out;
             }
-            """,
-            program,
+            """
         )
         for h in hrefs:
-            if h.get("kraken"):
-                return h["href"]
-            found.append(h["href"])
+            if not h.get("isKraken"):
+                continue
+            # Prefer non-codes-promo edit URLs (likely content)
+            score = 0
+            if not h.get("isCodesPromo"):
+                score += 10
+            if "annonce" in h["href"]:
+                score += 5
+            ranked.append((score, h["href"]))
 
-        # Also scan page text for kraken rows + nearest edit link
         pair = await page.evaluate(
             """
             () => {
@@ -211,7 +214,7 @@ async def _find_kraken_edit_url(page, base: str, program: str) -> str:
               for (const row of rows) {
                 const t = (row.innerText || '').toLowerCase();
                 if (!t.includes('kraken')) continue;
-                const a = row.querySelector('a[href*="edit"], a[href*="modifier"], a[href*="annonce"]');
+                const a = row.querySelector('a[href*="edit"], a[href*="modifier"]');
                 if (a && a.href) return a.href;
               }
               return null;
@@ -219,16 +222,21 @@ async def _find_kraken_edit_url(page, base: str, program: str) -> str:
             """
         )
         if pair:
-            return pair
+            score = 10 if "codes-promo" not in pair else 1
+            ranked.append((score, pair))
 
-    # Public announcement page sometimes has edit for owner
+    if ranked:
+        ranked.sort(key=lambda x: -x[0])
+        return ranked[0][1]
+
+    # Public page owner edit
     try:
         await page.goto(
             f"{base}/offres/kraken/parrainage-kraken/annonces/adrien-b-8",
             wait_until="domcontentloaded",
             timeout=45000,
         )
-        await _bumper().human_sleep(1, 2)
+        await bumper_mod.human_sleep(1, 2)
         edit = await page.evaluate(
             """
             () => {
@@ -247,79 +255,198 @@ async def _find_kraken_edit_url(page, base: str, program: str) -> str:
     except Exception:
         pass
 
-    if found:
-        # last resort: first edit-like link
-        return found[0]
     raise RuntimeError(
-        "URL d'edition Kraken introuvable sur le tableau de bord Super-Parrain"
+        "URL d'edition Kraken introuvable (contenu). "
+        "Le lien codes-promo/edit est le flux remontee et peut etre bloque 24h."
     )
 
 
-async def _fill_announcement_body(page, text: str) -> str:
-    """Remplit le corps d'annonce sans cliquer de bump. Retourne le selecteur utilise."""
-    # Prefer textarea with current long content or name message/description
-    info = await page.evaluate(
+async def _dismiss_blocking_modals(page) -> list[str]:
+    notes: list[str] = []
+    # Modal 24h remontee
+    body = ""
+    try:
+        body = await page.inner_text("body")
+    except Exception:
+        pass
+    if "moins de 24" in body.lower() or "24h" in body.lower() and "réessayer" in body.lower():
+        notes.append("modal_24h_detected")
+        for sel in (
+            'button:has-text("OK")',
+            'button:has-text("Fermer")',
+            'button:has-text("Close")',
+            '[aria-label="Close"]',
+            ".modal .close",
+            "button.close",
+            ".modal button",
+        ):
+            loc = page.locator(sel).first
+            try:
+                if await loc.count() and await loc.is_visible():
+                    await loc.click(timeout=2000)
+                    notes.append(f"dismissed:{sel}")
+                    await _bumper().human_sleep(0.5, 1.0)
+                    break
+            except Exception:
+                continue
+    return notes
+
+
+async def _dump_form_debug(page, path: str) -> dict[str, Any]:
+    data = await page.evaluate(
         """
         () => {
-          const areas = Array.from(document.querySelectorAll('textarea'));
-          return areas.map((t, i) => ({
-            i,
-            name: t.name || '',
-            id: t.id || '',
-            len: (t.value || t.innerText || '').length,
-            preview: (t.value || '').slice(0, 80),
+          const inputs = Array.from(document.querySelectorAll('input, textarea, select, [contenteditable="true"]'))
+            .map(el => ({
+              tag: el.tagName,
+              type: el.type || '',
+              name: el.name || '',
+              id: el.id || '',
+              role: el.getAttribute('role') || '',
+              contenteditable: el.getAttribute('contenteditable') || '',
+              className: (el.className || '').toString().slice(0, 120),
+              valueLen: ((el.value != null ? el.value : el.innerText) || '').length,
+              preview: ((el.value != null ? el.value : el.innerText) || '').slice(0, 100),
+            }));
+          const iframes = Array.from(document.querySelectorAll('iframe')).map(f => ({
+            src: f.src || '', id: f.id || '', className: (f.className||'').toString().slice(0,80)
           }));
+          return {url: location.href, title: document.title, inputs, iframes, bodyPreview: document.body.innerText.slice(0, 1500)};
         }
         """
     )
-    if not info:
-        # contenteditable
-        ce = page.locator('[contenteditable="true"]').first
-        if await ce.count() > 0:
-            await ce.click()
-            await page.keyboard.press("Control+A")
-            await page.keyboard.type(text, delay=5)
-            return "contenteditable"
-        raise RuntimeError("Aucun textarea/contenteditable sur la page d'edition")
+    try:
+        Path(path).write_text(
+            __import__("json").dumps(data, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+    except Exception:
+        pass
+    return data
 
-    # Choose longest textarea (likely announcement body)
-    best = max(info, key=lambda x: x["len"])
-    # Prefer names containing message/description/contenu/texte
-    for cand in info:
-        n = (cand.get("name") or cand.get("id") or "").lower()
-        if any(k in n for k in ("message", "description", "contenu", "texte", "annonce", "body")):
-            best = cand
-            break
 
-    idx = best["i"]
-    loc = page.locator("textarea").nth(idx)
-    await loc.wait_for(state="visible", timeout=15000)
-    await loc.scroll_into_view_if_needed()
-    await loc.click()
-    await _bumper().human_sleep(0.2, 0.4)
-    await loc.fill(text)
-    # Verify fill
-    val = await loc.input_value()
-    if val != text:
-        # try evaluate set
+async def _fill_announcement_body(page, text: str, *, code: str | None = None, link: str | None = None) -> str:
+    """Remplit le corps d'annonce. Gere textarea, contenteditable, editeurs iframe, champs code/lien."""
+    await _dismiss_blocking_modals(page)
+    debug = await _dump_form_debug(page, "debug_super_write_form.json")
+
+    # 1) textareas classiques
+    info = await page.evaluate(
+        """
+        () => Array.from(document.querySelectorAll('textarea')).map((t, i) => ({
+            i, name: t.name || '', id: t.id || '',
+            len: (t.value || '').length,
+            preview: (t.value || '').slice(0, 80),
+          }))
+        """
+    )
+    if info:
+        best = max(info, key=lambda x: x["len"])
+        for cand in info:
+            n = (cand.get("name") or cand.get("id") or "").lower()
+            if any(k in n for k in ("message", "description", "contenu", "texte", "annonce", "body", "content")):
+                best = cand
+                break
+        idx = best["i"]
+        loc = page.locator("textarea").nth(idx)
+        await loc.wait_for(state="visible", timeout=15000)
+        await loc.click()
+        await _bumper().human_sleep(0.2, 0.4)
+        await loc.fill(text)
+        val = await loc.input_value()
+        if val != text:
+            await page.evaluate(
+                """
+                ({idx, text}) => {
+                  const t = document.querySelectorAll('textarea')[idx];
+                  if (!t) return;
+                  t.value = text;
+                  t.dispatchEvent(new Event('input', {bubbles: true}));
+                  t.dispatchEvent(new Event('change', {bubbles: true}));
+                }
+                """,
+                {"idx": idx, "text": text},
+            )
+            val = await loc.input_value()
+        if val == text:
+            return f"textarea[{idx}] name={best.get('name')}"
+
+    # 2) contenteditable / TinyMCE-like
+    ce = page.locator('[contenteditable="true"], .ql-editor, .ProseMirror, .note-editable').first
+    if await ce.count() > 0:
+        await ce.click()
+        await page.keyboard.press("Control+A")
+        # Prefer insert via evaluate for exact whitespace
         await page.evaluate(
             """
-            ({idx, text}) => {
-              const t = document.querySelectorAll('textarea')[idx];
-              if (!t) return;
-              t.value = text;
-              t.dispatchEvent(new Event('input', {bubbles: true}));
-              t.dispatchEvent(new Event('change', {bubbles: true}));
+            (text) => {
+              const el = document.querySelector('[contenteditable="true"], .ql-editor, .ProseMirror, .note-editable');
+              if (!el) return;
+              el.focus();
+              el.innerText = text;
+              el.dispatchEvent(new Event('input', {bubbles: true}));
             }
             """,
-            {"idx": idx, "text": text},
+            text,
         )
-        val = await loc.input_value()
-    if val != text:
-        raise RuntimeError(
-            f"Echec remplissage textarea (len got={len(val)} expected={len(text)})"
-        )
-    return f"textarea[{idx}] name={best.get('name')}"
+        return "contenteditable"
+
+    # 3) iframe editors (tinymce/ckeditor)
+    for frame in page.frames:
+        try:
+            body = frame.locator("body[contenteditable='true'], body.mce-content-body, .cke_editable")
+            if await body.count() > 0:
+                await body.first.evaluate(
+                    """(el, text) => { el.innerText = text; el.dispatchEvent(new Event('input', {bubbles:true})); }""",
+                    text,
+                )
+                return f"iframe_editor:{frame.url[:60]}"
+        except Exception:
+            continue
+
+    # 4) Fallback: discrete code/title/link inputs (Super-Parrain codes-promo table)
+    filled_parts = []
+    if code:
+        for sel in (
+            'input[name*="code" i]',
+            'input[id*="code" i]',
+            'input[placeholder*="code" i]',
+        ):
+            loc = page.locator(sel).first
+            try:
+                if await loc.count() and await loc.is_visible():
+                    await loc.fill(code)
+                    filled_parts.append(f"code:{sel}")
+                    break
+            except Exception:
+                continue
+    if link:
+        for sel in (
+            'input[name*="lien" i]',
+            'input[name*="link" i]',
+            'input[name*="url" i]',
+            'input[id*="lien" i]',
+            'input[id*="link" i]',
+        ):
+            loc = page.locator(sel).first
+            try:
+                if await loc.count() and await loc.is_visible():
+                    await loc.fill(link)
+                    filled_parts.append(f"link:{sel}")
+                    break
+            except Exception:
+                continue
+
+    if filled_parts:
+        return "fields:" + ",".join(filled_parts)
+
+    # Helpful error with page context
+    preview = (debug.get("bodyPreview") or "")[:300].replace("\n", " ")
+    raise RuntimeError(
+        "Aucun champ d'edition de texte trouve sur la page. "
+        f"url={debug.get('url')} inputs={len(debug.get('inputs') or [])} "
+        f"iframes={len(debug.get('iframes') or [])} body={preview!r}"
+    )
 
 
 async def _click_save_not_boost(page) -> None:
@@ -431,9 +558,39 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
             except Exception:
                 pass
 
+            # Detect 24h remontee lock before filling
+            dismiss_notes = await _dismiss_blocking_modals(page)
+            steps.extend(dismiss_notes)
+            body_now = (await page.inner_text("body")).lower()
+            if "moins de 24" in body_now or (
+                "24h" in body_now and "réessayer" in body_now
+            ) or ("24h" in body_now and "reessayer" in body_now):
+                return WriteResult(
+                    ok=False,
+                    plan=plan,
+                    edit_url=edit_url,
+                    error=(
+                        "Super-Parrain bloque l'edition/remontee: code promo "
+                        "modifie il y a moins de 24h. Impossible d'ecrire maintenant "
+                        "sans risquer le flux bump. Reessayer apres le delai 24h."
+                    ),
+                    steps=steps + ["blocked_24h"],
+                )
+
             steps.append("fill_body")
-            sel = await _fill_announcement_body(page, plan.rendered)
+            sel = await _fill_announcement_body(
+                page,
+                plan.rendered,
+                code=plan.variables.get("personal_code"),
+                link=plan.variables.get("personal_link"),
+            )
             steps.append(f"filled_via={sel}")
+
+            # If we only filled discrete code/link fields, still try full text path warning
+            if sel.startswith("fields:") and "textarea" not in sel:
+                steps.append(
+                    "warn: only discrete code/link fields found — full announcement body may be separate"
+                )
 
             steps.append("save")
             await _click_save_not_boost(page)
