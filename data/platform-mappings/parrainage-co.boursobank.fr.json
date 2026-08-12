@@ -2,7 +2,7 @@
   "platform": "parrainage-co",
   "program": "boursobank",
   "language": "fr",
-  "sync_mode": "REVIEW",
+  "sync_mode": "SAFE_AUTO",
   "template_status": "ready",
   "golden_file": "boursobank.fr.golden.txt",
   "mutable_fields": [
@@ -22,19 +22,19 @@
     "conditions": "cond"
   },
   "announcement_url": "https://parrainage.co/offers/75195",
-  "edit_url": null,
+  "edit_url": "https://parrainage.co/account/offers/edit/75195",
   "platform_values": {
     "personal_link": "https://bour.so/p/cdRUvTEbxaf"
   },
   "confidences": {
-    "personal_link": "medium"
+    "personal_link": "high"
   },
-  "notes": "lien plateforme != offers.json; bonus non marque (ambigu / non trouve) — texte laisse fixe; site_code_widget=ADBE5645; personal_code: offers.json absent — laisse immutable dans le template",
+  "notes": "lien plateforme != offers.json; bonus non marque (ambigu / non trouve) — texte laisse fixe; personal_code: offers.json absent — immutable; auth_edit_url=https://parrainage.co/account/offers/edit/75195",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",
     "referee_reward": "offers_json_then_official",
     "announcement_text": "platform_target_only"
   },
-  "quality": "public_refetch"
+  "quality": "auth_edit_refetch"
 }

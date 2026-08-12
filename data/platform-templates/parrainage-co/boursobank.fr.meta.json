@@ -13,12 +13,12 @@
     "personal_link": "https://bour.so/p/cdRUvTEbxaf"
   },
   "confidences": {
-    "personal_link": "medium"
+    "personal_link": "high"
   },
   "notes": [
     "lien plateforme != offers.json",
     "bonus non marque (ambigu / non trouve) — texte laisse fixe",
-    "site_code_widget=ADBE5645",
-    "personal_code: offers.json absent — laisse immutable dans le template"
+    "personal_code: offers.json absent — immutable",
+    "auth_edit_url=https://parrainage.co/account/offers/edit/75195"
   ]
 }

@@ -162,6 +162,16 @@
           "edit_url": "https://parrainage.co/account/offers/edit/127408"
         },
         {
+          "program": "boursobank",
+          "status": "ok",
+          "mutable": [
+            "personal_link"
+          ],
+          "chars": 1804,
+          "announcement_url": "https://parrainage.co/offers/75195",
+          "edit_url": "https://parrainage.co/account/offers/edit/75195"
+        },
+        {
           "program": "gemini",
           "status": "ok",
           "mutable": [
@@ -172,6 +182,17 @@
           "chars": 1252,
           "announcement_url": "https://parrainage.co/offers/115388",
           "edit_url": "https://parrainage.co/account/offers/edit/115388"
+        },
+        {
+          "program": "acheel",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "referee_reward"
+          ],
+          "chars": 768,
+          "announcement_url": "https://parrainage.co/offers/92118",
+          "edit_url": "https://parrainage.co/account/offers/edit/92118"
         },
         {
           "program": "widilo",
@@ -219,20 +240,7 @@
           "edit_url": "https://parrainage.co/account/offers/edit/110585"
         }
       ],
-      "errors": [
-        {
-          "url": "https://parrainage.co/account/offers/edit/75195",
-          "error": "program_unknown",
-          "title": "⭐️ Jusqu’à 200 € OFFERTS en ce MOMENT ⭐️",
-          "first_line": "⭐️ Jusqu’à 200 € OFFERTS en ce MOMENT ⭐️"
-        },
-        {
-          "url": "https://parrainage.co/account/offers/edit/92118",
-          "error": "program_unknown",
-          "title": "⭐️ Offre spéciale : 1 mois offert ⭐️",
-          "first_line": "⭐️ Offre spéciale : 1 mois offert ⭐️"
-        }
-      ],
+      "errors": [],
       "orphans": [
         {
           "program": "plum",
@@ -396,8 +404,10 @@
         }
       ],
       "programs_captured": [
+        "acheel",
         "betclic",
         "bitstack",
+        "boursobank",
         "bybit",
         "coinbase",
         "ebuyclub",
