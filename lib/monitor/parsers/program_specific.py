@@ -144,15 +144,24 @@ def parse_kraken_referral_fr(html: str, cfg: SourceConfig, offer: dict | None = 
         text,
     )
     pick = None
+    notes: list[str] = []
+    conf = Confidence.HIGH
+    # Prefer explicit pair / "jusqu'à" headline over a smaller "X € en Bitcoin"
+    # (global /referrals often shows 20 € BTC plus a larger jusqu'à 200 € campaign).
     if m_pair:
         pick = f"{m_pair.group(1)} €"
-    elif m2:
-        pick = m2.group(1)
     elif m:
         pick = f"{m.group(1)} €"
+        if m2 and (m2.group(1) or "").replace(" ", "") != (m.group(1) or "").replace(" ", ""):
+            notes.append("conflicting_amounts_jusqua_vs_bitcoin")
+            conf = Confidence.REVIEW
+    elif m2:
+        pick = m2.group(1)
+        notes.append("bitcoin_amount_only_no_jusqua")
+        conf = Confidence.REVIEW
     if pick:
         has_btc = "bitcoin" in text.lower() or "btc" in text.lower()
-        reward = normalize_reward(f"{pick} en Bitcoin" if has_btc else pick)
+        reward = normalize_reward(f"{pick} en Bitcoin" if has_btc and "jusqu" not in (m.group(0).lower() if m else "") else pick)
         if reward and is_plausible_reward(reward):
             fields["referee_reward"] = reward
             fields["reward_type"] = "crypto" if has_btc else "cash"
@@ -163,9 +172,10 @@ def parse_kraken_referral_fr(html: str, cfg: SourceConfig, offer: dict | None = 
     if days:
         fields["qualification_days"] = days.group(1)
     if fields.get("referee_reward") and (m_pair or fields.get("trade_min")):
-        return _base(cfg, html, fields, Confidence.HIGH, ["kraken_pair_or_trade_context"])
+        use_conf = conf if conf == Confidence.REVIEW else Confidence.HIGH
+        return _base(cfg, html, fields, use_conf, notes + ["kraken_pair_or_trade_context"])
     if fields.get("referee_reward"):
-        return _base(cfg, html, fields, Confidence.HIGH, ["kraken_reward_amount"])
+        return _base(cfg, html, fields, conf, notes + ["kraken_reward_amount"])
     st.notes = ["kraken_fallback"] + st.notes
     st.parser = cfg.parser
     return st

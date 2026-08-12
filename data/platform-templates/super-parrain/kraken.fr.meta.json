@@ -19,11 +19,11 @@
   "confidences": {
     "personal_code": "medium",
     "personal_link": "medium",
-    "referee_reward": "medium"
+    "referee_reward": "high"
   },
   "notes": [
-    "code plateforme 'cpbrgddy' != offers.json '4hpz4gdy'",
-    "lien plateforme != offers.json",
-    "bonus extrait du texte plateforme (confiance moyenne)"
+    "code plateforme 'cpbrgddy' vs offers.json '4hpz4gdy' (candidat identité)",
+    "lien plateforme vs proinvite (candidat identité)",
+    "referee_reward opérateur-validé: 200 € en cryptomonnaies — ne pas publier 20 € Bitcoin"
   ]
 }

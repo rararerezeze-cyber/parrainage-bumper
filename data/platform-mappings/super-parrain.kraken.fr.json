@@ -33,13 +33,13 @@
   "confidences": {
     "personal_code": "medium",
     "personal_link": "medium",
-    "referee_reward": "medium"
+    "referee_reward": "high"
   },
-  "notes": "code plateforme 'cpbrgddy' != offers.json '4hpz4gdy'; lien plateforme != offers.json; bonus extrait du texte plateforme (confiance moyenne)",
+  "notes": "code plateforme 'cpbrgddy' vs offers.json '4hpz4gdy' (candidat identité, non auto-validé); lien plateforme vs proinvite (candidat); referee_reward opérateur-validé 200 € — monitor 20 € BTC observation only",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",
-    "referee_reward": "offers_json_then_official",
+    "referee_reward": "operator_validated_then_platform_golden",
     "announcement_text": "platform_target_only"
   }
 }

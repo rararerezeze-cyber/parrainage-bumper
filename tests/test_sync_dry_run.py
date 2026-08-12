@@ -32,7 +32,10 @@ class FixtureTemplateRepository(TemplateRepository):
         return (FIXTURES / platform / f"{program}.{language}.golden.txt").exists()
 
 
-def test_dry_run_success_with_fixtures(tmp_path):
+def test_dry_run_success_with_fixtures(tmp_path, monkeypatch):
+    ov = tmp_path / "operator-overrides.json"
+    ov.write_text('{"version":1,"overrides":[]}\n', encoding="utf-8")
+    monkeypatch.setattr("lib.operator_overrides.OPERATOR_OVERRIDES_PATH", ov)
     adapter = SuperParrainAdapter(
         mappings=FixtureMappingRepository(),
         templates=FixtureTemplateRepository(),

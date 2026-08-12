@@ -22,7 +22,10 @@ def kraken_template() -> str:
 
 
 @pytest.fixture
-def renderer() -> Renderer:
+def renderer(tmp_path, monkeypatch) -> Renderer:
+    ov = tmp_path / "operator-overrides.json"
+    ov.write_text('{"version":1,"overrides":[]}\n', encoding="utf-8")
+    monkeypatch.setattr("lib.operator_overrides.OPERATOR_OVERRIDES_PATH", ov)
     return Renderer(OffersRepository(path=FIXTURES / "offers.json"))
 
 

@@ -37,7 +37,7 @@ def test_circuit_and_snapshot_roundtrip(tmp_path, monkeypatch):
 
 def test_shadow_never_auto_accepts():
     cand = {
-        "program": "kraken",
+        "program": "generic-test",
         "field": "referee_reward",
         "canonical": "10 €",
         "observed": "20 €",

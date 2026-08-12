@@ -31,6 +31,41 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def _operator_locks_field(program: str | None, field: str | None) -> bool:
+    """Operator override / OPERATOR_VALIDATED fields cannot be shadowed into canon."""
+    if not program or not field:
+        return False
+    try:
+        from lib.operator_overrides import OperatorOverrideStore
+
+        for o in OperatorOverrideStore().list_for_program(program):
+            if o.field == field:
+                return True
+    except Exception:
+        pass
+    try:
+        from lib.monitor.registry import load_registry
+
+        cfg = load_registry().get(program)
+        src = (getattr(cfg, "field_sources", None) or {}).get(field)
+        if src in {"OPERATOR_VALIDATED", "TELEGRAM_OPERATOR"}:
+            return True
+        if cfg and not cfg.has_fr_authority(field):
+            return True
+    except Exception:
+        pass
+    return False
+
+
+def may_write_canonical(decision: str, *, program: str | None = None, field: str | None = None) -> tuple[bool, str]:
+    """Hard rule: SHADOW never writes offers.json / accepted-fields / ads."""
+    if decision != SHADOW_ACCEPT:
+        return False, "only_explicit_human_accept_may_write"
+    if _operator_locks_field(program, field):
+        return False, "operator_validated_field_locked"
+    return False, "shadow_never_auto_writes"
+
+
 def decide_candidate(cand: dict[str, Any], *, circuits: dict[str, Any] | None = None) -> dict[str, Any]:
     """Score one CANDIDATE row. Never mutates canonical data."""
     reasons: list[str] = []
@@ -70,6 +105,13 @@ def decide_candidate(cand: dict[str, Any], *, circuits: dict[str, Any] | None = 
         decision = SHADOW_REJECT
         reasons.append("personal_field_operator_only")
 
+    if _operator_locks_field(cand.get("program"), cand.get("field")):
+        decision = SHADOW_REJECT
+        reasons.append("operator_validated_or_no_fr_authority")
+
+    allowed, why = may_write_canonical(
+        decision, program=cand.get("program"), field=cand.get("field")
+    )
     out = {
         "decision": decision,
         "auto_applied": False,
@@ -85,6 +127,8 @@ def decide_candidate(cand: dict[str, Any], *, circuits: dict[str, Any] | None = 
         "live_high_streak": streak,
         "announcement_impact": impact,
         "observation_only": True,
+        "canonical_write_allowed": allowed,
+        "canonical_write_block": why,
         "at": _now(),
     }
     return out

@@ -238,6 +238,46 @@ def test_uk_source_no_fr_authority():
     assert cfg.monitor_may_write_field("referee_reward") is False
 
 
+def test_kraken_parser_does_not_prefer_small_btc_over_jusqua():
+    html = """
+    <html><body>
+    Jusqu'à 200 € offerts pour les filleuls.
+    Recevez aussi 20 € en Bitcoin selon l'offre.
+    </body></html>
+    """
+    cfg = _cfg("kraken", parser="kraken_referral_fr")
+    obs = parse_kraken_referral_fr(html, cfg, None)
+    assert obs.confidence == Confidence.REVIEW
+    assert any("conflicting" in n for n in obs.notes)
+    # Must not treat 20 € BTC as HIGH authority
+    assert obs.confidence != Confidence.HIGH
+
+
+def test_shadow_never_writes_canonical(tmp_path):
+    from lib.monitor.shadow import SHADOW_ACCEPT, SHADOW_REJECT, may_write_canonical
+    from lib.paths import OFFERS_PATH
+
+    before = OFFERS_PATH.read_text(encoding="utf-8")
+    ok, why = may_write_canonical(SHADOW_REJECT, program="kraken", field="referee_reward")
+    assert ok is False
+    ok2, why2 = may_write_canonical(SHADOW_ACCEPT, program="kraken", field="referee_reward")
+    assert ok2 is False
+    assert "shadow" in why2 or "operator" in why2 or "never" in why2
+    after = OFFERS_PATH.read_text(encoding="utf-8")
+    assert after == before
+
+
+def test_super_parrain_canary_keeps_200_reward():
+    from platforms.super_parrain.writer import build_write_plan
+
+    plan = build_write_plan("super-parrain", "kraken", "fr")
+    assert "referee_reward" not in (plan.changed_fields or {})
+    assert plan.variables.get("referee_reward") == "200 € en cryptomonnaies"
+    assert "20 €" not in plan.rendered
+    assert "Jusqu’à 200 € offerts" in plan.rendered or "Jusqu'à 200 € offerts" in plan.rendered
+    assert "200 € en cryptomonnaies" in plan.rendered
+
+
 def test_no_business_change_skips_commit_flag(tmp_path, monkeypatch):
     from lib.monitor import engine as eng_mod
     from lib.monitor import history as hist_mod
