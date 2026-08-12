@@ -959,6 +959,25 @@ async def main():
 
     # Verification 24h super-parrain
     if to_run == ["super"] or (len(to_run) == 1 and "super" in to_run):
+        # Defense in depth: while content canary is not WRITE_VERIFIED, do not
+        # consume the 24h slot with a historical bump-only pass.
+        try:
+            from lib.super_parrain_schedule import (
+                is_super_parrain_canary_pending,
+                super_parrain_runtime_mode,
+            )
+
+            if is_super_parrain_canary_pending():
+                log.info(
+                    "  CANARY_PENDING (%s) — bumper blocked; "
+                    "content canary owns next eligible slot (no last_super_run write)",
+                    super_parrain_runtime_mode(),
+                )
+                return
+        except Exception as e:
+            log.warning("  CANARY_PENDING check failed (%s) — fail-safe: skip super bumper", e)
+            return
+
         last_file = "last_super_run.txt"
         if os.path.exists(last_file):
             try:

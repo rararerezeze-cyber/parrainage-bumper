@@ -79,3 +79,52 @@ def test_cooldown_waits_like_historical(tmp_path, monkeypatch):
     assert d["run_bump"] is False
     assert d["run_canary"] is False
     assert d["canary_pending"] is True
+
+
+def test_cycle_execute_blocked_while_canary_pending(tmp_path, monkeypatch):
+    """super_parrain_cycle --execute must not launch bumper under CANARY_PENDING."""
+    import sys
+
+    import lib.super_parrain_schedule as sched
+    import lib.write_status as ws
+    import tools.super_parrain_cycle as cycle
+
+    pending = tmp_path / "pending_writes.json"
+    last = tmp_path / "last.txt"
+    status = tmp_path / "platform-write-status.json"
+    status.write_text(
+        '{"version":1,"platforms":{"super-parrain":{"status":"CANARY_READY"}}}',
+        encoding="utf-8",
+    )
+    report = tmp_path / "super-parrain-last-cycle.json"
+    monkeypatch.setattr(sched, "PENDING_PATH", pending)
+    monkeypatch.setattr(sched, "LAST_SUPER_RUN", last)
+    monkeypatch.setattr(sched, "CYCLE_REPORT", report)
+    monkeypatch.setattr(ws, "STATUS_PATH", status)
+    monkeypatch.setattr(sys, "argv", ["super_parrain_cycle.py", "--execute"])
+    monkeypatch.setattr(
+        cycle,
+        "dry_precheck_report",
+        lambda env=None: {
+            "programs_scanned": 0,
+            "need_update": [],
+            "need_update_count": 0,
+            "canary_need_update": [],
+            "canary_need_update_count": 0,
+            "policy": {"mode": "canary", "canary_programs": ["kraken"]},
+        },
+    )
+
+    launched = {"bumper": False}
+
+    def _no_bumper(*_a, **_k):
+        launched["bumper"] = True
+        raise AssertionError("bumper must not run while CANARY_PENDING")
+
+    monkeypatch.setattr(cycle.subprocess, "run", _no_bumper)
+    rc = cycle.main()
+    assert rc == 3
+    assert launched["bumper"] is False
+    assert report.exists()
+    body = report.read_text(encoding="utf-8")
+    assert "BLOCKED_CANARY_PENDING" in body

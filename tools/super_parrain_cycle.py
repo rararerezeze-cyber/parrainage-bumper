@@ -156,6 +156,25 @@ def main() -> int:
         print(f"report={path}")
         return 0
 
+    # CANARY_PENDING: never run historical bumper / never touch last_super_run
+    if decision.get("skip_bump") or decision.get("action") == "canary_exclusive":
+        report["summary"] = {
+            "PRE_CHECK": "SKIP",
+            "UPDATE_IF_NEEDED": "DEFER_TO_CONTROLLED_WRITE",
+            "POST_VERIFY": "SKIP",
+            "BUMP_CYCLE_24H": "BLOCKED_CANARY_PENDING",
+            "server_actions": 0,
+            "reason": decision.get("reason") or "CANARY_PENDING_exclusive_slot_no_bump",
+            "hint": (
+                "Use tools/controlled_write_super_parrain.py --program kraken "
+                "--execute --force when slot is open (canary owns the 24h window)."
+            ),
+        }
+        path = save_cycle_report(report)
+        print(json.dumps(report["summary"], ensure_ascii=False, indent=2))
+        print(f"report={path}")
+        return 3
+
     # Execute fused cycle via bumper (canary by default)
     env = _ensure_canary_env(os.environ.copy())
     if args.full:
