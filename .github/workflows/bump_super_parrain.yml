@@ -3,6 +3,11 @@ on:
   schedule:
     - cron: "0 */2 * * *"
   workflow_dispatch:
+    inputs:
+      mode:
+        description: "bump (default) | write_kraken (controlled Autofresh write)"
+        required: false
+        default: "bump"
 concurrency:
   group: parrainage-bumper-super
   cancel-in-progress: false
@@ -17,24 +22,50 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: 📦 Dépendances
+      - name: Dependencies
         run: |
           pip install -r requirements.txt
           playwright install --with-deps chromium
-      - name: 🚀 Bump Super Parrain
+      - name: Super Parrain action
         env:
-          SUPER_PARRAIN_EMAIL:    ${{ secrets.SUPER_PARRAIN_EMAIL }}
+          SUPER_PARRAIN_EMAIL: ${{ secrets.SUPER_PARRAIN_EMAIL }}
           SUPER_PARRAIN_PASSWORD: ${{ secrets.SUPER_PARRAIN_PASSWORD }}
-          TARGET_SITES:           "super"
-        run: python bumper.py
-      - name: 📋 Logs
+          TARGET_SITES: "super"
+        run: |
+          MODE="${{ github.event.inputs.mode }}"
+          if [ -z "$MODE" ]; then MODE=bump; fi
+          echo "mode=$MODE"
+          if [ "$MODE" = "write_kraken" ]; then
+            python tools/controlled_write_super_parrain.py --program kraken --execute --force
+          else
+            python bumper.py
+          fi
+      - name: Logs / write report
         if: always()
-        run: cat bumper.log || true
-      - name: 💾 Sauvegarder heure du run
+        run: |
+          cat bumper.log || true
+          ls -la data/captures/write-*.json 2>/dev/null || true
+          cat data/captures/write-super-parrain-kraken.json 2>/dev/null || true
+      - name: Upload write artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: super-parrain-run
+          retention-days: 5
+          if-no-files-found: ignore
+          path: |
+            data/captures/write-*.json
+            debug_super_write_*.png
+            bumper.log
+      - name: Commit results
         if: success()
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add last_super_run.txt
-          git diff --staged --quiet || git commit -m "Update last super run time"
-          git push
+          git add last_super_run.txt data/captures/write-*.json data/platform-mappings/super-parrain.kraken.fr.json data/platform-templates/super-parrain/kraken.fr.golden.txt 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "Nothing to commit"
+          else
+            git commit -m "chore: super-parrain run results (mode=${{ github.event.inputs.mode || 'bump' }})"
+            git push
+          fi
