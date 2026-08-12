@@ -35,7 +35,7 @@
       "stale": 0,
       "read_state": "CAPTURE_PARTIAL",
       "write_state": "CAPTURE_PARTIAL",
-      "base_status": "BASE_PARTIAL"
+      "base_status": "BASE_READY"
     },
     {
       "platform": "referralcode-tv",
@@ -79,10 +79,10 @@
       "stale": 0,
       "read_state": "READ_OK",
       "write_state": "WRITE_TODO",
-      "base_status": "BASE_PARTIAL"
+      "base_status": "BASE_READY"
     }
   ],
-  "base_ready_platforms": 5,
-  "base_ready_all": false,
+  "base_ready_platforms": 7,
+  "base_ready_all": true,
   "note": "BASE_READY_ALL requires explicit review that dry-run writers are prepared and no live canary is pending. base_ready_all flag is advisory until writers matrix is complete."
 }

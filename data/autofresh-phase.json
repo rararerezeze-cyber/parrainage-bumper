@@ -3,7 +3,8 @@
   "live_writes": false,
   "live_canary": false,
   "note": "BASE phase: capture/mapping/dry-run/writer-prepared only. No real platform publishes until BASE_READY_ALL then VALIDATION_LIVE.",
-  "super_parrain_status": "CANARY_READY_DEFERRED",
+  "super_parrain_status": "BASE_READY_CANARY_DEFERRED",
   "deferred_until": "BASE_READY_ALL",
+  "live_canary_waiter": "DISABLED",
   "updated_at": "2026-08-12"
 }

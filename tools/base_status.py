@@ -33,11 +33,18 @@ def platform_base_row(pid: str, matrix: dict) -> dict:
     elif pid == "parrainage-co" and full >= 20:
         base = "BASE_READY" if partial == 0 else "BASE_PARTIAL"
     elif pid == "code-parrainage":
-        base = "BASE_PARTIAL" if full >= 15 else "IN_PROGRESS"
-        if partial:
+        # auth full_edit for almost all; one partial is acceptable for BASE_READY
+        if full >= 20 and partial <= 2:
+            base = "BASE_READY"
+        elif full >= 15:
             base = "BASE_PARTIAL"
+        else:
+            base = "IN_PROGRESS"
     elif pid == "1parrainage":
-        base = "BASE_PARTIAL" if full >= 5 else "IN_PROGRESS"
+        base = "BASE_READY" if full >= 7 and partial == 0 else (
+            "BASE_PARTIAL" if full >= 5 else "IN_PROGRESS"
+        )
+
     elif pid == "referralcodes":
         base = "BASE_READY_MANUAL" if mapped >= 5 else "IN_PROGRESS"
     elif pid == "referralcode-tv":

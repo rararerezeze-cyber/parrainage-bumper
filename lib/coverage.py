@@ -44,7 +44,9 @@ def mapping_quality(mapping_path: Path) -> str:
         return "stale_mapping"
     if data.get("write_eligible") is False and "stale" in q:
         return "stale_mapping"
-    if "truncat" in q or "partial" in q or "list_preview" in q:
+    if q in {"full_edit", "auth_edit_refetch", "public_refetch", "from_orphan_promoted", "auth_orphan_promoted"}:
+        return "captured"
+    if "truncat" in q or "partial" in q or "list_preview" in q or "capture_partial" in q:
         return "capture_partial"
     if data.get("template_status") == "missing_source":
         return "missing_source"
