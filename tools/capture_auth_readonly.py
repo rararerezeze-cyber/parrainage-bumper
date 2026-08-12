@@ -78,11 +78,81 @@ def _save_result(platform: str, program: str, language: str, text: str, url: str
     }
 
 
+def _prune_null_offer_mutables(result, offer: dict | None) -> None:
+    """Si offers.json n'a pas code/link, ne pas marquer le champ mutable (laisse immutable)."""
+    if not offer:
+        return
+    from lib.template_builder import DEFAULT_MARKERS
+
+    cleaned = []
+    for f in list(result.mutable_fields):
+        ofield = {
+            "personal_code": "code",
+            "personal_link": "link",
+            "referee_reward": "reward",
+        }.get(f)
+        if ofield is None:
+            cleaned.append(f)
+            continue
+        ov = offer.get(ofield)
+        if ov is None or str(ov).strip() == "":
+            marker = DEFAULT_MARKERS.get(f)
+            if marker and marker in result.template and f in result.platform_values:
+                result.template = result.template.replace(marker, result.platform_values[f])
+            result.notes.append(f"{f}: offers.json absent — immutable")
+            continue
+        cleaned.append(f)
+    result.mutable_fields = cleaned
+    result.platform_values = {
+        k: v for k, v in result.platform_values.items() if k in cleaned
+    }
+    result.confidences = {k: v for k, v in result.confidences.items() if k in cleaned}
+
+
+def _guess_slug(title: str, body: str, offers: OffersRepository) -> str | None:
+    slug = _slug_from_text(title, offers)
+    if slug:
+        return slug
+    blob = f"{title}\n{body}".lower()
+    best, best_len = None, 0
+    for o in offers.load_all():
+        n = (o.get("name") or "").strip()
+        lk = o.get("lk") or ""
+        if n and n.lower() in blob and len(n) > best_len:
+            best, best_len = lk, len(n)
+        if lk and re.search(rf"\b{re.escape(lk)}\b", blob) and len(lk) > best_len:
+            best, best_len = lk, len(lk)
+    # Orphan aliases not in offers
+    for key, sk in (
+        ("vinted", "vinted"),
+        ("plum", "plum"),
+        ("okx", "okx"),
+        ("whatnot", "whatnot"),
+        ("nrj", "nrj-mobile"),
+        ("paypal", "paypal"),
+        ("pay pal", "paypal"),
+    ):
+        if key in blob:
+            return sk
+    return best
+
+
 async def capture_parrainage_co(browser, offers: OffersRepository) -> dict:
-    """READ-ONLY: /account/offers puis pages Modifier — jamais boost/save."""
+    """READ-ONLY: login compte → /account/offers → pages Modifier — jamais boost/save.
+
+    Source de verite capture = formulaire d'edition authentifie (complet),
+    pas le seul profil public.
+    """
     cfg = bumper_mod.CONFIG["parrainage"]
     platform = "parrainage-co"
-    report = {"platform": platform, "items": [], "errors": [], "quality": "detail_pages"}
+    report: dict = {
+        "platform": platform,
+        "items": [],
+        "errors": [],
+        "orphans": [],
+        "quality": "auth_edit_pages",
+        "login": "pending",
+    }
     ctx = await bumper_mod.new_context(browser)
     page = await ctx.new_page()
     try:
@@ -102,7 +172,7 @@ async def capture_parrainage_co(browser, offers: OffersRepository) -> dict:
             )
         await page.goto(f"{cfg['url']}/account/offers", wait_until="domcontentloaded", timeout=60000)
         await bumper_mod.human_sleep(2, 3)
-        if "/login" in page.url:
+        if "/login" in page.url or "connexion" in (page.url or "").lower():
             if not email or not password:
                 raise RuntimeError("session requise (cookie/login manquant)")
             await page.goto(f"{cfg['url']}/account/login", wait_until="domcontentloaded", timeout=60000)
@@ -110,51 +180,76 @@ async def capture_parrainage_co(browser, offers: OffersRepository) -> dict:
             ok = await bumper_mod.smart_login_parrainage(page, email, password)
             if not ok:
                 raise RuntimeError("login echoue")
+            report["login"] = "password"
             await page.goto(f"{cfg['url']}/account/offers", wait_until="domcontentloaded", timeout=60000)
             await bumper_mod.human_sleep(2, 3)
+        else:
+            report["login"] = "cookie_or_session"
+
+        if "/login" in page.url:
+            raise RuntimeError("toujours sur /login apres auth")
 
         body_text = await page.inner_text("body")
         REPORT_DIR.mkdir(parents=True, exist_ok=True)
-        (REPORT_DIR / "parrainage-co-raw.txt").write_text(body_text[:50000], encoding="utf-8")
+        (REPORT_DIR / "parrainage-co-raw.txt").write_text(body_text[:80000], encoding="utf-8")
+        try:
+            await page.screenshot(path=str(REPORT_DIR / "parrainage-co-account-offers.png"), full_page=True)
+        except Exception:
+            pass
 
-        # Liens Modifier / edit uniquement (pas boost, pas supprimer)
-        edit_urls = await page.evaluate(
+        # Collect edit + public URLs from dashboard rows
+        rows = await page.evaluate(
             """
             () => {
               const out = [];
-              for (const a of document.querySelectorAll('a[href]')) {
+              const seen = new Set();
+              // Prefer table/card rows
+              const anchors = Array.from(document.querySelectorAll('a[href]'));
+              for (const a of anchors) {
                 const href = a.href || '';
-                const label = (a.innerText || a.textContent || '').trim().toLowerCase();
+                const label = ((a.innerText || a.textContent || '') + ' ' + href).toLowerCase();
                 if (!href) continue;
                 if (href.includes('boost') || href.includes('delete') || href.includes('supprim')) continue;
-                if (label.includes('modifier') || href.includes('/edit') || href.includes('update')
-                    || href.includes('/account/offers/') && label.includes('modifier')) {
-                  out.push(href);
+                const isEdit = label.includes('modifier') || href.includes('/edit')
+                  || /\\/account\\/offers\\/\\d+/.test(href)
+                  || href.includes('/account/offers/edit');
+                if (!isEdit) continue;
+                if (seen.has(href)) continue;
+                seen.add(href);
+                // try find public /offers/ID nearby
+                let publicUrl = null;
+                let row = a.closest('tr, .card, .offer, li, article, div');
+                if (row) {
+                  for (const x of row.querySelectorAll('a[href*="/offers/"]')) {
+                    const h = x.href || '';
+                    if (/\\/offers\\/\\d+/.test(h) && !h.includes('/account/')) {
+                      publicUrl = h; break;
+                    }
+                  }
+                  const rowText = (row.innerText || '').slice(0, 200);
+                  out.push({edit: href, public: publicUrl, rowText});
+                } else {
+                  out.push({edit: href, public: null, rowText: label.slice(0,120)});
                 }
               }
-              return Array.from(new Set(out));
+              return out;
             }
             """
         )
-        # Fallback: tout lien offers/* non boost
-        if not edit_urls:
-            edit_urls = await page.evaluate(
-                """
-                () => Array.from(new Set(
-                  Array.from(document.querySelectorAll('a[href*="/account/offers"]'))
-                    .map(a => a.href)
-                    .filter(h => h && !h.includes('boost') && !h.endsWith('/offers') && !h.includes('boost-all'))
-                ))
-                """
-            )
+        report["edit_urls_found"] = len(rows)
+        report["dashboard_preview"] = [
+            {"edit": r.get("edit"), "public": r.get("public"), "row": (r.get("rowText") or "")[:80]}
+            for r in (rows or [])[:40]
+        ]
 
-        report["edit_urls_found"] = len(edit_urls)
-        seen = set()
-        for url in edit_urls[:80]:
+        seen: set[str] = set()
+        for row in (rows or [])[:100]:
+            url = row.get("edit")
+            if not url:
+                continue
             try:
                 await page.goto(url, wait_until="domcontentloaded", timeout=45000)
                 await bumper_mod.human_sleep(1.0, 1.8)
-                # Extraire texte complet depuis textarea / champs description
                 payload = await page.evaluate(
                     """
                     () => {
@@ -167,23 +262,30 @@ async def capture_parrainage_co(browser, offers: OffersRepository) -> dict:
                         .map(t => (t.value || t.innerText || '').trim())
                         .filter(t => t.length > 20);
                       const inputs = {};
-                      document.querySelectorAll('input[type="text"], input:not([type])').forEach(i => {
-                        const n = (i.name || i.id || i.placeholder || 'field').toLowerCase();
-                        if (i.value) inputs[n] = i.value.trim();
+                      document.querySelectorAll('input').forEach(i => {
+                        const n = ((i.name || '') + ' ' + (i.id || '') + ' ' + (i.placeholder || '')).toLowerCase();
+                        const v = (i.value || '').trim();
+                        if (v) inputs[n || 'field'] = v;
                       });
-                      const title = pick('h1') || pick('h2') || document.title || '';
+                      // contenteditable
+                      const ce = document.querySelector('[contenteditable="true"], .ql-editor, .ProseMirror');
                       let body = areas.sort((a,b)=>b.length-a.length)[0] || '';
-                      if (!body) {
-                        // fallback: bloc principal sans boutons
-                        body = (document.querySelector('main, .content, .card, form') || document.body)
-                          .innerText || '';
+                      if (ce) {
+                        const t = (ce.innerText || '').trim();
+                        if (t.length > body.length) body = t;
                       }
-                      return {title, body, inputs, url: location.href};
+                      const title = pick('h1') || pick('h2') || document.title || '';
+                      // public link on page
+                      let publicUrl = null;
+                      for (const a of document.querySelectorAll('a[href*="/offers/"]')) {
+                        const h = a.href || '';
+                        if (/\\/offers\\/\\d+/.test(h) && !h.includes('/account/')) { publicUrl = h; break; }
+                      }
+                      return {title, body, inputs, url: location.href, publicUrl};
                     }
                     """
                 )
                 body = (payload.get("body") or "").strip()
-                # Nettoyer chrome UI si present
                 for noise in (
                     "Remonter toutes mes annonces",
                     "Remettre en haut",
@@ -196,42 +298,110 @@ async def capture_parrainage_co(browser, offers: OffersRepository) -> dict:
                     if body.startswith(noise):
                         body = body.replace(noise, "", 1).strip()
                 if len(body) < 40:
+                    report["errors"].append({"url": url, "error": "body_too_short", "len": len(body)})
                     continue
-                title = payload.get("title") or body.split("\n", 1)[0]
-                slug = _slug_from_text(title, offers)
+
+                title = payload.get("title") or row.get("rowText") or body.split("\n", 1)[0]
+                slug = _guess_slug(title, body, offers)
                 if not slug:
-                    for o in offers.load_all():
-                        n = o.get("name") or ""
-                        if n and n.lower() in (title + "\n" + body).lower():
-                            slug = o.get("lk")
-                            break
-                if not slug or slug in seen:
+                    report["errors"].append(
+                        {"url": url, "error": "program_unknown", "title": (title or "")[:80]}
+                    )
                     continue
-                # Prefer explicit code/link inputs if present
-                force = {}
+                if slug in seen:
+                    continue
+
+                force: dict[str, str] = {}
                 inputs = payload.get("inputs") or {}
                 for k, v in inputs.items():
                     if not v:
                         continue
-                    if "code" in k and "postal" not in k:
-                        force["personal_code"] = v
-                    if "lien" in k or "link" in k or "url" in k:
-                        if v.startswith("http"):
-                            force["personal_link"] = v
+                    if "code" in k and "postal" not in k and len(v) < 80:
+                        force.setdefault("personal_code", v)
+                    if any(x in k for x in ("lien", "link", "url", "invite")) and v.startswith("http"):
+                        if "parrainage.co" not in v.lower() and "discord" not in v.lower():
+                            force.setdefault("personal_link", v)
+
+                public_url = (
+                    row.get("public")
+                    or payload.get("publicUrl")
+                    or None
+                )
+                # Never store account/edit as announcement_url if we have public
+                announcement_url = public_url
+                if not announcement_url:
+                    # try extract offer id from edit path
+                    m = re.search(r"/offers/(?:edit/)?(\d+)", url)
+                    if m:
+                        announcement_url = f"https://parrainage.co/offers/{m.group(1)}"
+
                 try:
                     offer = offers.get_by_slug(slug)
+                    in_offers = True
                 except KeyError:
                     offer = None
+                    in_offers = False
+
+                if not in_offers:
+                    # Orphan: save golden only + NCD
+                    orphans_dir = ROOT / "data" / "orphans" / "parrainage-co"
+                    orphans_dir.mkdir(parents=True, exist_ok=True)
+                    gpath = orphans_dir / f"{slug}.fr.golden.txt"
+                    gpath.write_text(body, encoding="utf-8")
+                    vals, conf, notes = detect_platform_values(body, None)
+                    vals.update(force)
+                    ncd_path = ROOT / "data" / "needs_canonical_data.json"
+                    data = json.loads(ncd_path.read_text(encoding="utf-8")) if ncd_path.exists() else {"items": [], "version": 1}
+                    items = [
+                        x for x in (data.get("items") or [])
+                        if not (x.get("program_key") == slug and x.get("platform") == platform)
+                    ]
+                    items.append(
+                        {
+                            "name": title[:80],
+                            "program_key": slug,
+                            "url": announcement_url or url,
+                            "edit_url": url,
+                            "platform": platform,
+                            "language": "fr",
+                            "status": "needs_canonical_data",
+                            "reason": "auth capture: pas dans offers.json",
+                            "golden_file": f"data/orphans/parrainage-co/{slug}.fr.golden.txt",
+                            "golden_text": body,
+                            "detected_values": vals,
+                            "confidences": conf,
+                            "notes": notes,
+                        }
+                    )
+                    data["items"] = items
+                    data["count"] = len(items)
+                    ncd_path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+                    seen.add(slug)
+                    report["orphans"].append({"program": slug, "url": announcement_url or url, "edit": url})
+                    continue
+
                 result = build_from_text(
                     platform=platform,
                     program=slug,
                     language="fr",
                     golden_text=body,
                     offer=offer,
-                    announcement_url=payload.get("url") or url,
+                    announcement_url=announcement_url,
                     force_values=force or None,
                 )
+                _prune_null_offer_mutables(result, offer)
+                result.notes.append(f"auth_edit_url={url}")
+                if not announcement_url:
+                    result.notes.append("public announcement_url unknown")
                 paths = write_build_result(result)
+                # patch mapping edit_url
+                mpath = paths["mapping"]
+                mdata = json.loads(mpath.read_text(encoding="utf-8"))
+                mdata["edit_url"] = url
+                mdata["quality"] = "auth_edit_refetch"
+                mdata["notes"] = "; ".join(result.notes) if result.notes else mdata.get("notes")
+                mpath.write_text(json.dumps(mdata, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
                 seen.add(slug)
                 report["items"].append(
                     {
@@ -239,22 +409,25 @@ async def capture_parrainage_co(browser, offers: OffersRepository) -> dict:
                         "status": "ok",
                         "mutable": result.mutable_fields,
                         "chars": len(body),
-                        "url": payload.get("url") or url,
+                        "announcement_url": announcement_url,
+                        "edit_url": url,
                     }
                 )
             except Exception as exc:  # noqa: BLE001
                 report["errors"].append({"url": url, "error": str(exc)})
 
-        if not report["items"]:
+        report["programs_captured"] = sorted(seen)
+        if not report["items"] and not report["orphans"]:
             report["errors"].append(
                 {
                     "error": "aucune annonce detail extraite",
                     "hint": "raw dump: data/captures/parrainage-co-raw.txt",
-                    "edit_urls_found": len(edit_urls),
+                    "edit_urls_found": report.get("edit_urls_found"),
                 }
             )
     except Exception as exc:  # noqa: BLE001
         report["errors"].append({"error": str(exc)})
+        report["login"] = "failed"
     finally:
         await page.close()
         await ctx.close()

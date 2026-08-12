@@ -3,9 +3,9 @@ on:
   workflow_dispatch:
     inputs:
       sites:
-        description: "parrainage,code,referralcode (tv only — NOT referralcodes.com)"
+        description: "parrainage,code,referralcode (tv only — NOT referralcodes.com). Prefer single site for focused runs."
         required: false
-        default: "code,referralcode"
+        default: "parrainage"
 permissions:
   contents: write
 concurrency:
@@ -43,14 +43,18 @@ jobs:
           ONEPARRAINAGE_EMAIL: ${{ secrets.ONEPARRAINAGE_EMAIL }}
           ONEPARRAINAGE_PASSWORD: ${{ secrets.ONEPARRAINAGE_PASSWORD }}
         run: |
-          python tools/capture_auth_readonly.py --sites "${{ github.event.inputs.sites || 'code,referralcode' }}"
-      - name: Public onboard refresh (no secrets used for passwords)
-        run: |
-          python tools/onboard_public.py --only referralcode-tv,referralcodes,1parrainage,referraldrop || true
-      - name: Inventory + coverage
-        run: |
-          python tools/inventory_needs_canonical.py || true
-          python sync.py --coverage || true
+          SITES="${{ github.event.inputs.sites }}"
+          if [ -z "$SITES" ]; then SITES=parrainage; fi
+          echo "sites=$SITES"
+          # Presence only — never print secret values
+          python - <<'PY'
+          import os
+          for k in ("PARRAINAGE_CO_EMAIL","PARRAINAGE_CO_PASSWORD","PARRAINAGE_CO_RM_COOKIE",
+                    "CODE_PARRAINAGE_EMAIL","REFERRALCODE_EMAIL"):
+              v=os.environ.get(k) or ""
+              print(f"{k}: {'yes' if v else 'no'} len={len(v)}")
+          PY
+          python tools/capture_auth_readonly.py --sites "$SITES"
       - name: Upload capture artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -63,17 +67,17 @@ jobs:
             data/platform-templates/
             data/needs_canonical_data.json
             data/orphans/
-            data/coverage-report.*
+            debug_*.png
           if-no-files-found: ignore
       - name: Commit capture results on branch
         if: success()
         run: |
           git config user.name "autofresh-bot"
           git config user.email "autofresh-bot@users.noreply.github.com"
-          git add data/platform-mappings data/platform-templates data/captures data/needs_canonical_data.json data/orphans data/coverage-report.json data/coverage-report.txt data/platform-profiles.json || true
+          git add data/platform-mappings data/platform-templates data/captures data/needs_canonical_data.json data/orphans || true
           if git diff --cached --quiet; then
             echo "No capture files to commit"
           else
-            git commit -m "chore(capture): READ-ONLY multi-site onboarding artifacts"
+            git commit -m "chore(capture): AUTH READ-ONLY account capture artifacts"
             git push
           fi
