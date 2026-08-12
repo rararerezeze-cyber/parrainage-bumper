@@ -1,0 +1,292 @@
+{
+  "sites": {
+    "parrainage-co": {
+      "platform": "parrainage-co",
+      "items": [
+        {
+          "program": "coinbase",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/parrainage-co/coinbase.fr.golden.txt",
+            "template": "data/platform-templates/parrainage-co/coinbase.fr.txt",
+            "mapping": "data/platform-mappings/parrainage-co.coinbase.fr.json",
+            "meta": "data/platform-templates/parrainage-co/coinbase.fr.meta.json"
+          }
+        },
+        {
+          "program": "revolut",
+          "status": "ok",
+          "mutable": [
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/parrainage-co/revolut.fr.golden.txt",
+            "template": "data/platform-templates/parrainage-co/revolut.fr.txt",
+            "mapping": "data/platform-mappings/parrainage-co.revolut.fr.json",
+            "meta": "data/platform-templates/parrainage-co/revolut.fr.meta.json"
+          }
+        },
+        {
+          "program": "bitstack",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/parrainage-co/bitstack.fr.golden.txt",
+            "template": "data/platform-templates/parrainage-co/bitstack.fr.txt",
+            "mapping": "data/platform-mappings/parrainage-co.bitstack.fr.json",
+            "meta": "data/platform-templates/parrainage-co/bitstack.fr.meta.json"
+          }
+        },
+        {
+          "program": "kraken",
+          "status": "ok",
+          "mutable": [
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/parrainage-co/kraken.fr.golden.txt",
+            "template": "data/platform-templates/parrainage-co/kraken.fr.txt",
+            "mapping": "data/platform-mappings/parrainage-co.kraken.fr.json",
+            "meta": "data/platform-templates/parrainage-co/kraken.fr.meta.json"
+          }
+        },
+        {
+          "program": "swissborg",
+          "status": "ok",
+          "mutable": [
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/parrainage-co/swissborg.fr.golden.txt",
+            "template": "data/platform-templates/parrainage-co/swissborg.fr.txt",
+            "mapping": "data/platform-mappings/parrainage-co.swissborg.fr.json",
+            "meta": "data/platform-templates/parrainage-co/swissborg.fr.meta.json"
+          }
+        },
+        {
+          "program": "poulpeo",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/parrainage-co/poulpeo.fr.golden.txt",
+            "template": "data/platform-templates/parrainage-co/poulpeo.fr.txt",
+            "mapping": "data/platform-mappings/parrainage-co.poulpeo.fr.json",
+            "meta": "data/platform-templates/parrainage-co/poulpeo.fr.meta.json"
+          }
+        },
+        {
+          "program": "ebuyclub",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/parrainage-co/ebuyclub.fr.golden.txt",
+            "template": "data/platform-templates/parrainage-co/ebuyclub.fr.txt",
+            "mapping": "data/platform-mappings/parrainage-co.ebuyclub.fr.json",
+            "meta": "data/platform-templates/parrainage-co/ebuyclub.fr.meta.json"
+          }
+        },
+        {
+          "program": "betclic",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/parrainage-co/betclic.fr.golden.txt",
+            "template": "data/platform-templates/parrainage-co/betclic.fr.txt",
+            "mapping": "data/platform-mappings/parrainage-co.betclic.fr.json",
+            "meta": "data/platform-templates/parrainage-co/betclic.fr.meta.json"
+          }
+        },
+        {
+          "program": "traderepublic",
+          "status": "ok",
+          "mutable": [
+            "personal_code"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/parrainage-co/traderepublic.fr.golden.txt",
+            "template": "data/platform-templates/parrainage-co/traderepublic.fr.txt",
+            "mapping": "data/platform-mappings/parrainage-co.traderepublic.fr.json",
+            "meta": "data/platform-templates/parrainage-co/traderepublic.fr.meta.json"
+          }
+        },
+        {
+          "program": "robinhood",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/parrainage-co/robinhood.fr.golden.txt",
+            "template": "data/platform-templates/parrainage-co/robinhood.fr.txt",
+            "mapping": "data/platform-mappings/parrainage-co.robinhood.fr.json",
+            "meta": "data/platform-templates/parrainage-co/robinhood.fr.meta.json"
+          }
+        },
+        {
+          "program": "igraal",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/parrainage-co/igraal.fr.golden.txt",
+            "template": "data/platform-templates/parrainage-co/igraal.fr.txt",
+            "mapping": "data/platform-mappings/parrainage-co.igraal.fr.json",
+            "meta": "data/platform-templates/parrainage-co/igraal.fr.meta.json"
+          }
+        },
+        {
+          "program": "bybit",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/parrainage-co/bybit.fr.golden.txt",
+            "template": "data/platform-templates/parrainage-co/bybit.fr.txt",
+            "mapping": "data/platform-mappings/parrainage-co.bybit.fr.json",
+            "meta": "data/platform-templates/parrainage-co/bybit.fr.meta.json"
+          }
+        },
+        {
+          "program": "gemini",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/parrainage-co/gemini.fr.golden.txt",
+            "template": "data/platform-templates/parrainage-co/gemini.fr.txt",
+            "mapping": "data/platform-mappings/parrainage-co.gemini.fr.json",
+            "meta": "data/platform-templates/parrainage-co/gemini.fr.meta.json"
+          }
+        },
+        {
+          "program": "widilo",
+          "status": "ok",
+          "mutable": [
+            "personal_code"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/parrainage-co/widilo.fr.golden.txt",
+            "template": "data/platform-templates/parrainage-co/widilo.fr.txt",
+            "mapping": "data/platform-mappings/parrainage-co.widilo.fr.json",
+            "meta": "data/platform-templates/parrainage-co/widilo.fr.meta.json"
+          }
+        },
+        {
+          "program": "joko",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/parrainage-co/joko.fr.golden.txt",
+            "template": "data/platform-templates/parrainage-co/joko.fr.txt",
+            "mapping": "data/platform-mappings/parrainage-co.joko.fr.json",
+            "meta": "data/platform-templates/parrainage-co/joko.fr.meta.json"
+          }
+        },
+        {
+          "program": "ledger",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/parrainage-co/ledger.fr.golden.txt",
+            "template": "data/platform-templates/parrainage-co/ledger.fr.txt",
+            "mapping": "data/platform-mappings/parrainage-co.ledger.fr.json",
+            "meta": "data/platform-templates/parrainage-co/ledger.fr.meta.json"
+          }
+        },
+        {
+          "program": "totalenergies",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "personal_link"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/parrainage-co/totalenergies.fr.golden.txt",
+            "template": "data/platform-templates/parrainage-co/totalenergies.fr.txt",
+            "mapping": "data/platform-mappings/parrainage-co.totalenergies.fr.json",
+            "meta": "data/platform-templates/parrainage-co/totalenergies.fr.meta.json"
+          }
+        }
+      ],
+      "errors": []
+    },
+    "code-parrainage": {
+      "platform": "code-parrainage",
+      "items": [],
+      "errors": [
+        {
+          "error": "slider captcha non resolu (pas de contournement)"
+        }
+      ]
+    },
+    "referralcode-tv": {
+      "platform": "referralcode-tv",
+      "items": [
+        {
+          "program": "paypal",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "personal_link",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/referralcode-tv/paypal.en.golden.txt",
+            "template": "data/platform-templates/referralcode-tv/paypal.en.txt",
+            "mapping": "data/platform-mappings/referralcode-tv.paypal.en.json",
+            "meta": "data/platform-templates/referralcode-tv/paypal.en.meta.json"
+          }
+        }
+      ],
+      "errors": []
+    }
+  },
+  "missing_credentials": []
+}

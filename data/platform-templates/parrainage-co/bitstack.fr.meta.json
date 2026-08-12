@@ -1,0 +1,25 @@
+{
+  "platform": "parrainage-co",
+  "program": "bitstack",
+  "language": "fr",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": "https://parrainage.co/offers/114464",
+  "mutable_fields": [
+    "personal_code",
+    "referee_reward"
+  ],
+  "platform_values": {
+    "personal_code": "2ggoINn50hMn0zYayaTS2IxyLEt",
+    "referee_reward": "5 € en BTC ✅ Recevez 5 € en Bitcoin ... Lire la suite"
+  },
+  "confidences": {
+    "personal_code": "high",
+    "referee_reward": "medium"
+  },
+  "notes": [
+    "lien offers.json non trouve dans le texte",
+    "bonus extrait du texte plateforme (confiance moyenne)"
+  ]
+}

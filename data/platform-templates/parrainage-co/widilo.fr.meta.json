@@ -1,0 +1,22 @@
+{
+  "platform": "parrainage-co",
+  "program": "widilo",
+  "language": "fr",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": "https://parrainage.co/offers/109021",
+  "mutable_fields": [
+    "personal_code"
+  ],
+  "platform_values": {
+    "personal_code": "NGA684"
+  },
+  "confidences": {
+    "personal_code": "high"
+  },
+  "notes": [
+    "lien offers.json non trouve dans le texte",
+    "bonus non marque (ambigu / non trouve) — texte laisse fixe"
+  ]
+}
