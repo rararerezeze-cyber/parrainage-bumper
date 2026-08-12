@@ -21,7 +21,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from lib.phase import live_canary_allowed, phase_name
+from lib.phase import live_canary_allowed, live_writes_enabled, phase_name
 from lib.super_parrain_schedule import is_eligible
 
 BRANCH = "autofresh/phase2b-kraken-capture"
@@ -43,11 +43,10 @@ def status() -> dict:
 
 
 def dispatch() -> int:
-    if not live_canary_allowed():
+    if not live_canary_allowed("super-parrain") or not live_writes_enabled("super-parrain"):
         print(
-            f"LIVE_CANARY_DISABLED phase={phase_name()} — "
-            "no dispatch (BASE phase until BASE_READY_ALL). "
-            "Set AUTOFRESH_FORCE_LIVE=1 only after BASE_READY_ALL.",
+            f"LIVE_CANARY_DISABLED phase={phase_name()} "
+            f"super_live={live_writes_enabled('super-parrain')} — no dispatch.",
             flush=True,
         )
         return 4
@@ -182,15 +181,15 @@ def main() -> int:
 
     st = status()
     st["phase"] = phase_name()
-    st["live_canary_allowed"] = live_canary_allowed()
+    st["live_canary_allowed"] = live_canary_allowed("super-parrain")
+    st["super_live_writes"] = live_writes_enabled("super-parrain")
     print(json.dumps(st, indent=2), flush=True)
     if args.status:
         return 0
 
-    if not live_canary_allowed():
+    if not live_canary_allowed("super-parrain") or not live_writes_enabled("super-parrain"):
         print(
-            f"ABORTED: live canary disabled (phase={phase_name()}). "
-            "Waiter will not run. BASE phase active.",
+            f"ABORTED: Super-Parrain live canary disabled (phase={phase_name()}).",
             flush=True,
         )
         return 4

@@ -38,5 +38,13 @@
   },
   "quality": "native_list_full_inventory",
   "style_policy": "native_platform_style_only",
-  "platform_offer_id": "101211"
+  "platform_offer_id": "101211",
+  "occurrences": [
+    {
+      "offer_id": "101211",
+      "brand": "coupon promotionnel deblock",
+      "chars": 388
+    }
+  ],
+  "occurrence_count": 1
 }

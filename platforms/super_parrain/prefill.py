@@ -127,14 +127,15 @@ async def prepare_before_save(page, edit_url: str) -> dict[str, Any]:
         log.info("  Autofresh: programme inconnu pour URL — bump seul")
         return result
 
-    # Phase BASE: jamais de prefill contenu (canary reporte jusqu'a BASE_READY_ALL)
-    if not live_writes_enabled():
+    # Prefill contenu seulement si live writes actives pour Super-Parrain
+    # (VALIDATION_LIVE + enabled/write_verified). Sinon bump seul.
+    if not live_writes_enabled("super-parrain"):
         result["skipped"] = True
-        result["reason"] = f"base_phase_no_live_writes ({phase_name()})"
-        result["policy"] = "base_phase"
+        result["reason"] = f"live_writes_off_for_platform ({phase_name()})"
+        result["policy"] = "content_writes_disabled"
         log.info(
-            f"  Autofresh [{program}]: phase BASE — prefill contenu OFF, "
-            "Enregistrer = remontee seule (canary deferred)"
+            f"  Autofresh [{program}]: content writes OFF for super-parrain "
+            f"(phase={phase_name()}) — Enregistrer = remontee seule"
         )
         return result
 

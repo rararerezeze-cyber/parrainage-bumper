@@ -38,5 +38,13 @@
   },
   "quality": "native_list_full_inventory",
   "style_policy": "native_platform_style_only",
-  "platform_offer_id": "400"
+  "platform_offer_id": "400",
+  "occurrences": [
+    {
+      "offer_id": "400",
+      "brand": "coupon promotionnel Winamax",
+      "chars": 400
+    }
+  ],
+  "occurrence_count": 1
 }

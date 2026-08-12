@@ -23,7 +23,7 @@
   "edit_url": null,
   "platform_values": {},
   "confidences": {},
-  "notes": "lien offers.json non trouve dans le texte; bonus non marque (ambigu / non trouve) — texte laisse fixe; native style only — no emoji reinjection; list_brand=coupon promotionnel Boursorama Banque",
+  "notes": "lien offers.json non trouve dans le texte; bonus non marque (ambigu / non trouve) — texte laisse fixe; native style only — no emoji reinjection; list_brand=coupon promotionnel Boursorama Banque; multi_occurrence=2 distinct offer_ids",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",
@@ -32,5 +32,18 @@
   },
   "quality": "native_list_full_inventory",
   "style_policy": "native_platform_style_only",
-  "platform_offer_id": "79"
+  "platform_offer_id": "79",
+  "occurrences": [
+    {
+      "offer_id": "79",
+      "brand": "coupon promotionnel Boursorama Banque",
+      "chars": 408
+    },
+    {
+      "offer_id": "95",
+      "brand": "coupon promotionnel Boursobank",
+      "chars": 401
+    }
+  ],
+  "occurrence_count": 2
 }

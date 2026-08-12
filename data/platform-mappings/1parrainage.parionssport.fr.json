@@ -41,5 +41,13 @@
   },
   "quality": "native_list_full_inventory",
   "style_policy": "native_platform_style_only",
-  "platform_offer_id": "750"
+  "platform_offer_id": "750",
+  "occurrences": [
+    {
+      "offer_id": "750",
+      "brand": "coupon promotionnel Parions Sport",
+      "chars": 414
+    }
+  ],
+  "occurrence_count": 1
 }

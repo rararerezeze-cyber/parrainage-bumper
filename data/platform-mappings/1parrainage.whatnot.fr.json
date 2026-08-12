@@ -38,5 +38,13 @@
   },
   "quality": "native_list_full_inventory",
   "style_policy": "native_platform_style_only",
-  "platform_offer_id": "101206"
+  "platform_offer_id": "101206",
+  "occurrences": [
+    {
+      "offer_id": "101206",
+      "brand": "coupon promotionnel whatnot",
+      "chars": 395
+    }
+  ],
+  "occurrence_count": 1
 }

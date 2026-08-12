@@ -128,22 +128,44 @@ def run_all() -> list[DryRunResult]:
             )
         )
 
-    # Ligne synthese needs_canonical_data
-    ncd = _needs_canonical_count()
-    if ncd:
-        results.append(
-            DryRunResult(
-                platform="inventory",
-                program="needs_canonical_data",
-                language="*",
-                sync_mode="REVIEW",
-                status="needs_canonical_data",
-                historical_text=None,
-                rendered_text=None,
-                error=f"{ncd} annonce(s) sans entree offers.json",
-                blocking=False,
-            )
-        )
+    # Une ligne par item needs_canonical_data (comptage exact, pas un seul resume)
+    ncd_path = DATA_DIR / "needs_canonical_data.json"
+    if ncd_path.exists():
+        try:
+            ncd_data = json.loads(ncd_path.read_text(encoding="utf-8"))
+            for item in ncd_data.get("items") or []:
+                pk = item.get("program_key") or "unknown"
+                plat = item.get("platform") or "inventory"
+                results.append(
+                    DryRunResult(
+                        platform=plat,
+                        program=pk,
+                        language=item.get("language") or "fr",
+                        sync_mode="REVIEW",
+                        status="needs_canonical_data",
+                        historical_text=None,
+                        rendered_text=None,
+                        error=item.get("reason")
+                        or "annonce sans entree offers.json (pas d'invention)",
+                        blocking=False,
+                    )
+                )
+        except Exception:
+            ncd = _needs_canonical_count()
+            if ncd:
+                results.append(
+                    DryRunResult(
+                        platform="inventory",
+                        program="needs_canonical_data",
+                        language="*",
+                        sync_mode="REVIEW",
+                        status="needs_canonical_data",
+                        historical_text=None,
+                        rendered_text=None,
+                        error=f"{ncd} annonce(s) sans entree offers.json",
+                        blocking=False,
+                    )
+                )
     return results
 
 

@@ -94,11 +94,11 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
         return WriteResult(ok=False, plan=plan, error="structure_not_preserved", steps=["plan"])
     if not plan.changed_fields:
         return WriteResult(ok=True, plan=plan, steps=["noop"], post_match=True)
-    if dry_run or not live_writes_enabled():
+    if dry_run or not live_writes_enabled("1parrainage"):
         return WriteResult(
             ok=True,
             plan=plan,
-            steps=["dry-run only" if dry_run else f"BASE_PHASE_NO_LIVE ({phase_name()})"],
+            steps=["dry-run only" if dry_run else f"LIVE_DISABLED ({phase_name()})"],
             post_match=None,
         )
     return WriteResult(

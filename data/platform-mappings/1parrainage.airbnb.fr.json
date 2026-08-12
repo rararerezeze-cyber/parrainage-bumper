@@ -29,7 +29,7 @@
   "confidences": {
     "personal_link": "medium"
   },
-  "notes": "lien plateforme != offers.json; bonus non marque (ambigu / non trouve) — texte laisse fixe; native style only — no emoji reinjection; list_brand=coupon promotionnel AirBnB Hote",
+  "notes": "lien plateforme != offers.json; bonus non marque (ambigu / non trouve) — texte laisse fixe; native style only — no emoji reinjection; list_brand=coupon promotionnel AirBnB Hote; multi_occurrence=2 distinct offer_ids",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",
@@ -38,5 +38,18 @@
   },
   "quality": "native_list_full_inventory",
   "style_policy": "native_platform_style_only",
-  "platform_offer_id": "1487"
+  "platform_offer_id": "1487",
+  "occurrences": [
+    {
+      "offer_id": "1487",
+      "brand": "coupon promotionnel AirBnB Hote",
+      "chars": 404
+    },
+    {
+      "offer_id": "256",
+      "brand": "coupon promotionnel AirBnB",
+      "chars": 405
+    }
+  ],
+  "occurrence_count": 2
 }

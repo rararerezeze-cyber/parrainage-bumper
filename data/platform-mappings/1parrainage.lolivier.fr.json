@@ -29,7 +29,7 @@
   "confidences": {
     "referee_reward": "medium"
   },
-  "notes": "lien offers.json non trouve dans le texte; bonus extrait du texte plateforme (confiance moyenne); native style only — no emoji reinjection; list_brand=coupon promotionnel L olivier assurance",
+  "notes": "lien offers.json non trouve dans le texte; bonus extrait du texte plateforme (confiance moyenne); native style only — no emoji reinjection; list_brand=coupon promotionnel L olivier assurance; multi_occurrence=2 distinct offer_ids",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",
@@ -38,5 +38,18 @@
   },
   "quality": "native_list_full_inventory",
   "style_policy": "native_platform_style_only",
-  "platform_offer_id": "988"
+  "platform_offer_id": "988",
+  "occurrences": [
+    {
+      "offer_id": "988",
+      "brand": "coupon promotionnel L olivier assurance",
+      "chars": 420
+    },
+    {
+      "offer_id": "100960",
+      "brand": "coupon promotionnel l Olivier Assurance Habitation",
+      "chars": 574
+    }
+  ],
+  "occurrence_count": 2
 }

@@ -32,5 +32,13 @@
   },
   "quality": "native_list_full_inventory",
   "style_policy": "native_platform_style_only",
-  "platform_offer_id": "1082"
+  "platform_offer_id": "1082",
+  "occurrences": [
+    {
+      "offer_id": "1082",
+      "brand": "coupon promotionnel Binance",
+      "chars": 443
+    }
+  ],
+  "occurrence_count": 1
 }

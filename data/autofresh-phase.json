@@ -1,10 +1,15 @@
 {
-  "phase": "BASE",
-  "live_writes": false,
-  "live_canary": false,
-  "note": "BASE phase: capture/mapping/dry-run/writer-prepared only. No real platform publishes until BASE_READY_ALL then VALIDATION_LIVE.",
-  "super_parrain_status": "BASE_READY_CANARY_DEFERRED",
-  "deferred_until": "BASE_READY_ALL",
-  "live_canary_waiter": "DISABLED",
+  "phase": "VALIDATION_LIVE",
+  "live_writes": true,
+  "live_canary": true,
+  "enabled_platforms": ["super-parrain"],
+  "write_verified": [],
+  "canary": {
+    "platform": "super-parrain",
+    "programs": ["kraken"],
+    "mode": "canary"
+  },
+  "note": "VALIDATION_LIVE: only Super-Parrain enabled for Kraken canary. WRITE_PREPARED platforms stay dry-run until WRITE_VERIFIED.",
+  "live_canary_waiter": "ENABLED_FOR_SUPER_PARRAIN_ONLY",
   "updated_at": "2026-08-12"
 }

@@ -41,5 +41,13 @@
   },
   "quality": "native_list_full_inventory",
   "style_policy": "native_platform_style_only",
-  "platform_offer_id": "101381"
+  "platform_offer_id": "101381",
+  "occurrences": [
+    {
+      "offer_id": "101381",
+      "brand": "coupon promotionnel plum",
+      "chars": 412
+    }
+  ],
+  "occurrence_count": 1
 }

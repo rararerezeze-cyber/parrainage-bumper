@@ -38,5 +38,13 @@
   },
   "quality": "native_list_full_inventory",
   "style_policy": "native_platform_style_only",
-  "platform_offer_id": "100577"
+  "platform_offer_id": "100577",
+  "occurrences": [
+    {
+      "offer_id": "100577",
+      "brand": "coupon promotionnel Finary",
+      "chars": 443
+    }
+  ],
+  "occurrence_count": 1
 }

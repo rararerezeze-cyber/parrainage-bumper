@@ -44,5 +44,13 @@
   },
   "quality": "native_list_full_inventory",
   "style_policy": "native_platform_style_only",
-  "platform_offer_id": "910"
+  "platform_offer_id": "910",
+  "occurrences": [
+    {
+      "offer_id": "910",
+      "brand": "coupon promotionnel Vinted",
+      "chars": 441
+    }
+  ],
+  "occurrence_count": 1
 }

@@ -41,5 +41,13 @@
   },
   "quality": "native_list_full_inventory",
   "style_policy": "native_platform_style_only",
-  "platform_offer_id": "501"
+  "platform_offer_id": "501",
+  "occurrences": [
+    {
+      "offer_id": "501",
+      "brand": "coupon promotionnel poulpeo",
+      "chars": 418
+    }
+  ],
+  "occurrence_count": 1
 }
