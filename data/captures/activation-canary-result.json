@@ -1,0 +1,7 @@
+{
+  "platform": "super-parrain",
+  "result": "WAIT",
+  "reason": "cooldown_24h",
+  "next_eligible_at": "2026-08-13T05:37:10.549152+00:00",
+  "hours_remaining": 8.79
+}
