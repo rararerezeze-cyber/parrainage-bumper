@@ -1,10 +1,10 @@
 {
-  "mode": "dry",
+  "mode": "fused_bumper",
   "decision": {
     "action": "wait",
     "reason": "cooldown_24h_historical_slot",
     "next_eligible_at": "2026-08-13T05:37:10.549152+00:00",
-    "hours_remaining": 12.5,
+    "hours_remaining": 12.42,
     "pending_count": 1,
     "skip_bump": true,
     "run_precheck": false,
@@ -12,1017 +12,185 @@
   },
   "eligible": false,
   "next_eligible_at": "2026-08-13T05:37:10.549152+00:00",
-  "hours_remaining": 12.5,
+  "hours_remaining": 12.42,
   "pre_check": {
     "programs_scanned": 29,
     "need_update": [
       {
         "program": "airbnb",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "personal_link": {
-            "old": "https://www.airbnb.fr/rp/adrienb12398?p=stay",
-            "new": "https://www.airbnb.fr/r/adrienb12398"
-          }
-        }
+        "changed_fields": [
+          "personal_link",
+          "body"
+        ]
       },
       {
         "program": "betclic",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "referee_reward": {
-            "old": "jusqu’à 140 € en paris gratuits et premier pari remboursé ✅",
-            "new": "100 € remboursés + 30 € de bonus"
-          }
-        }
+        "changed_fields": [
+          "referee_reward",
+          "body"
+        ]
       },
       {
         "program": "binance",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "personal_link": {
-            "old": "https://www.binance.com/activity/referral-entry/CPA?ref=CPA_005OB3BF01",
-            "new": "https://accounts.binance.com/register?ref=451859119"
-          }
-        }
+        "changed_fields": [
+          "personal_link",
+          "body"
+        ]
       },
       {
         "program": "bitstack",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "referee_reward": {
-            "old": "5 € en BTC ✅",
-            "new": "5 € offerts en Bitcoin"
-          }
-        }
+        "changed_fields": [
+          "referee_reward",
+          "body"
+        ]
       },
       {
         "program": "coinbase",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "referee_reward": {
-            "old": "20€ en BTC",
-            "new": "Bonus variable selon la campagne"
-          }
-        }
+        "changed_fields": [
+          "referee_reward",
+          "body"
+        ]
       },
       {
         "program": "deblock",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "referee_reward": {
-            "old": "prime aléatoire jusqu’à 500 € ✅",
-            "new": "Récompense selon la campagne"
-          }
-        }
+        "changed_fields": [
+          "referee_reward",
+          "body"
+        ]
       },
       {
         "program": "ebuyclub",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "referee_reward": {
-            "old": "5€ de bienvenue crédités dès votre inscription via mon lien parrainage ✅",
-            "new": "5 € offerts à l'inscription"
-          }
-        }
+        "changed_fields": [
+          "referee_reward",
+          "body"
+        ]
       },
       {
         "program": "gemini",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "personal_link": {
-            "old": "https://exchange.gemini.com/register?ref=wd8yn943e",
-            "new": "https://exchange.gemini.com/register?referral=wd8yn943e&type=referral"
-          },
-          "referee_reward": {
-            "old": "50$ dans cryptomonnaie de votre choix après votre premier achat/échange éligible",
-            "new": "20 € offerts en Bitcoin"
-          }
-        }
+        "changed_fields": [
+          "personal_link",
+          "referee_reward",
+          "body"
+        ]
       },
       {
         "program": "heetch",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "referee_reward": {
-            "old": "5€ ✅",
-            "new": "5 € offerts sur la 1ère course"
-          }
-        }
+        "changed_fields": [
+          "referee_reward",
+          "body"
+        ]
       },
       {
         "program": "igraal",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "personal_link": {
-            "old": "https://fr.igraal.com/parrainage?parrain=AG_608d8f9aded43",
-            "new": "https://fr.igraal.com/appshare?pid=invitation&c=sponsorship&godfather=AG_608d8f9aded43"
-          },
-          "referee_reward": {
-            "old": "5 € offers sur votre compte iGraal m via mon lien ✅",
-            "new": "5 € offerts à l'inscription"
-          }
-        }
+        "changed_fields": [
+          "personal_link",
+          "referee_reward",
+          "body"
+        ]
       },
       {
         "program": "joko",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "referee_reward": {
-            "old": "5€ crédités à l’inscription via mon lien ou code parrainage ✅",
-            "new": "5 € offerts à l'inscription"
-          }
-        }
+        "changed_fields": [
+          "referee_reward",
+          "body"
+        ]
       },
       {
         "program": "kraken",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "personal_code": {
-            "old": "cpbrgddy",
-            "new": "4hpz4gdy"
-          },
-          "personal_link": {
-            "old": "https://invite.kraken.com/JDNW/s5qudqe4",
-            "new": "https://proinvite.kraken.com/9f1e/lqbuov8u"
-          },
-          "referee_reward": {
-            "old": "200 € en cryptomonnaies",
-            "new": "20 € en Bitcoin selon l’offre"
-          }
-        }
+        "changed_fields": [
+          "personal_code",
+          "personal_link",
+          "referee_reward",
+          "body"
+        ]
       },
       {
         "program": "ledger",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "personal_link": {
-            "old": "https://shop.ledger.com/fr/pages/referral-program?referral_code=",
-            "new": "https://shop.ledger.com/fr/pages/referral-program?referral_code=20DA401DG841C"
-          },
-          "referee_reward": {
-            "old": "20 € offerts",
-            "new": "20 € offerts en Bitcoin"
-          }
-        }
+        "changed_fields": [
+          "personal_link",
+          "referee_reward",
+          "body"
+        ]
       },
       {
         "program": "omio",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "referee_reward": {
-            "old": "10 € de réduction ✅",
-            "new": "10 € offerts sur la 1ère réservation"
-          }
-        }
+        "changed_fields": [
+          "referee_reward",
+          "body"
+        ]
       },
       {
         "program": "paypal",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "personal_link": {
-            "old": "https://py.pl/DZfFM",
-            "new": "https://py.pl/4brPwnRoe9b"
-          },
-          "referee_reward": {
-            "old": "10 € offerts !",
-            "new": "10 € offerts"
-          }
-        }
+        "changed_fields": [
+          "personal_link",
+          "referee_reward",
+          "body"
+        ]
       },
       {
         "program": "poulpeo",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "personal_link": {
-            "old": "https://www.poulpeo.com/inscription/parrainage?sponsor_key=4KD2ab&utm_source=chatgpt.com",
-            "new": "https://www.poulpeo.com/p/4KD2ab"
-          },
-          "referee_reward": {
-            "old": "5€ de bienvenue crédités dès votre inscription via mon code parrain ✅",
-            "new": "5 € offerts à l'inscription"
-          }
-        }
+        "changed_fields": [
+          "personal_link",
+          "referee_reward",
+          "body"
+        ]
       },
       {
         "program": "revolut",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "personal_link": {
-            "old": "https://revolut.com/referral/?referral-code=adrienhcos!JUL2-26-AR-H1&geo-redirect",
-            "new": "https://revolut.com/referral/?referral-code=adrienhcos!FEB2-26-VR-FR&geo-redirect"
-          },
-          "referee_reward": {
-            "old": "200 € offerts !",
-            "new": "Avantage selon la campagne"
-          }
-        }
+        "changed_fields": [
+          "personal_link",
+          "referee_reward",
+          "body"
+        ]
       },
       {
         "program": "swissborg",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "personal_link": {
-            "old": "https://swissborg.com/fr/r/adrienOCZI39JF",
-            "new": "https://swissborg.com/fr/r/adrienHVRYZMOZ"
-          },
-          "referee_reward": {
-            "old": "1. Inscrivez-vous via le lien ci-dessus",
-            "new": "Jusqu'à 50 € offerts en Bitcoin"
-          }
-        }
+        "changed_fields": [
+          "personal_link",
+          "referee_reward",
+          "body"
+        ]
       },
       {
         "program": "totalenergies",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "personal_link": {
-            "old": "https://redir-totalenergies.web.app/je-parraine?_bp=114052844",
-            "new": "https://maconso.page.link/gYvy"
-          }
-        }
+        "changed_fields": [
+          "personal_link",
+          "body"
+        ]
       },
       {
         "program": "unibet",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "personal_link": {
-            "old": "https://www.unibet.fr/inscription/?campaign=280526&parrain=03356181D410779A",
-            "new": "https://www.unibet.fr/myaccount/register.html?promo=GAO92"
-          },
-          "referee_reward": {
-            "old": "100€ premier pari remboursé ✅",
-            "new": "100 € remboursés + 30 € de bonus"
-          }
-        }
+        "changed_fields": [
+          "personal_link",
+          "referee_reward",
+          "body"
+        ]
       },
       {
         "program": "widilo",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "referee_reward": {
-            "old": "1.    Inscrivez-vous via le lien de parrainage ci-dessus pour recevoir 5€",
-            "new": "5 € offerts à l'inscription"
-          }
-        }
+        "changed_fields": [
+          "referee_reward",
+          "body"
+        ]
       },
       {
         "program": "wise",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "referee_reward": {
-            "old": "500 € !",
-            "new": "Frais offerts sur le 1er transfert"
-          }
-        }
+        "changed_fields": [
+          "referee_reward",
+          "body"
+        ]
       }
     ],
-    "all": [
-      {
-        "program": "acheel",
-        "language": "fr",
-        "needs_update": false,
-        "structure_preserved": true,
-        "changed_fields": {}
-      },
-      {
-        "program": "airbnb",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "personal_link": {
-            "old": "https://www.airbnb.fr/rp/adrienb12398?p=stay",
-            "new": "https://www.airbnb.fr/r/adrienb12398"
-          }
-        }
-      },
-      {
-        "program": "betclic",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "referee_reward": {
-            "old": "jusqu’à 140 € en paris gratuits et premier pari remboursé ✅",
-            "new": "100 € remboursés + 30 € de bonus"
-          }
-        }
-      },
-      {
-        "program": "binance",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "personal_link": {
-            "old": "https://www.binance.com/activity/referral-entry/CPA?ref=CPA_005OB3BF01",
-            "new": "https://accounts.binance.com/register?ref=451859119"
-          }
-        }
-      },
-      {
-        "program": "bitstack",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "referee_reward": {
-            "old": "5 € en BTC ✅",
-            "new": "5 € offerts en Bitcoin"
-          }
-        }
-      },
-      {
-        "program": "boursobank",
-        "language": "fr",
-        "error": "Valeur manquante pour champ mutable personal_code",
-        "needs_update": false
-      },
-      {
-        "program": "bybit",
-        "language": "fr",
-        "needs_update": false,
-        "structure_preserved": true,
-        "changed_fields": {}
-      },
-      {
-        "program": "coinbase",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "referee_reward": {
-            "old": "20€ en BTC",
-            "new": "Bonus variable selon la campagne"
-          }
-        }
-      },
-      {
-        "program": "deblock",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "referee_reward": {
-            "old": "prime aléatoire jusqu’à 500 € ✅",
-            "new": "Récompense selon la campagne"
-          }
-        }
-      },
-      {
-        "program": "ebuyclub",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "referee_reward": {
-            "old": "5€ de bienvenue crédités dès votre inscription via mon lien parrainage ✅",
-            "new": "5 € offerts à l'inscription"
-          }
-        }
-      },
-      {
-        "program": "finary",
-        "language": "fr",
-        "needs_update": false,
-        "structure_preserved": true,
-        "changed_fields": {}
-      },
-      {
-        "program": "gemini",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "personal_link": {
-            "old": "https://exchange.gemini.com/register?ref=wd8yn943e",
-            "new": "https://exchange.gemini.com/register?referral=wd8yn943e&type=referral"
-          },
-          "referee_reward": {
-            "old": "50$ dans cryptomonnaie de votre choix après votre premier achat/échange éligible",
-            "new": "20 € offerts en Bitcoin"
-          }
-        }
-      },
-      {
-        "program": "heetch",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "referee_reward": {
-            "old": "5€ ✅",
-            "new": "5 € offerts sur la 1ère course"
-          }
-        }
-      },
-      {
-        "program": "igraal",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "personal_link": {
-            "old": "https://fr.igraal.com/parrainage?parrain=AG_608d8f9aded43",
-            "new": "https://fr.igraal.com/appshare?pid=invitation&c=sponsorship&godfather=AG_608d8f9aded43"
-          },
-          "referee_reward": {
-            "old": "5 € offers sur votre compte iGraal m via mon lien ✅",
-            "new": "5 € offerts à l'inscription"
-          }
-        }
-      },
-      {
-        "program": "joko",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "referee_reward": {
-            "old": "5€ crédités à l’inscription via mon lien ou code parrainage ✅",
-            "new": "5 € offerts à l'inscription"
-          }
-        }
-      },
-      {
-        "program": "kraken",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "personal_code": {
-            "old": "cpbrgddy",
-            "new": "4hpz4gdy"
-          },
-          "personal_link": {
-            "old": "https://invite.kraken.com/JDNW/s5qudqe4",
-            "new": "https://proinvite.kraken.com/9f1e/lqbuov8u"
-          },
-          "referee_reward": {
-            "old": "200 € en cryptomonnaies",
-            "new": "20 € en Bitcoin selon l’offre"
-          }
-        }
-      },
-      {
-        "program": "ledger",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "personal_link": {
-            "old": "https://shop.ledger.com/fr/pages/referral-program?referral_code=",
-            "new": "https://shop.ledger.com/fr/pages/referral-program?referral_code=20DA401DG841C"
-          },
-          "referee_reward": {
-            "old": "20 € offerts",
-            "new": "20 € offerts en Bitcoin"
-          }
-        }
-      },
-      {
-        "program": "lolivier",
-        "language": "fr",
-        "needs_update": false,
-        "structure_preserved": false,
-        "changed_fields": {
-          "referee_reward": {
-            "old": "50 € offerts",
-            "new": "50 € offerts sur votre contrat"
-          }
-        }
-      },
-      {
-        "program": "omio",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "referee_reward": {
-            "old": "10 € de réduction ✅",
-            "new": "10 € offerts sur la 1ère réservation"
-          }
-        }
-      },
-      {
-        "program": "paypal",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "personal_link": {
-            "old": "https://py.pl/DZfFM",
-            "new": "https://py.pl/4brPwnRoe9b"
-          },
-          "referee_reward": {
-            "old": "10 € offerts !",
-            "new": "10 € offerts"
-          }
-        }
-      },
-      {
-        "program": "poulpeo",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "personal_link": {
-            "old": "https://www.poulpeo.com/inscription/parrainage?sponsor_key=4KD2ab&utm_source=chatgpt.com",
-            "new": "https://www.poulpeo.com/p/4KD2ab"
-          },
-          "referee_reward": {
-            "old": "5€ de bienvenue crédités dès votre inscription via mon code parrain ✅",
-            "new": "5 € offerts à l'inscription"
-          }
-        }
-      },
-      {
-        "program": "revolut",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "personal_link": {
-            "old": "https://revolut.com/referral/?referral-code=adrienhcos!JUL2-26-AR-H1&geo-redirect",
-            "new": "https://revolut.com/referral/?referral-code=adrienhcos!FEB2-26-VR-FR&geo-redirect"
-          },
-          "referee_reward": {
-            "old": "200 € offerts !",
-            "new": "Avantage selon la campagne"
-          }
-        }
-      },
-      {
-        "program": "swissborg",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "personal_link": {
-            "old": "https://swissborg.com/fr/r/adrienOCZI39JF",
-            "new": "https://swissborg.com/fr/r/adrienHVRYZMOZ"
-          },
-          "referee_reward": {
-            "old": "1. Inscrivez-vous via le lien ci-dessus",
-            "new": "Jusqu'à 50 € offerts en Bitcoin"
-          }
-        }
-      },
-      {
-        "program": "totalenergies",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "personal_link": {
-            "old": "https://redir-totalenergies.web.app/je-parraine?_bp=114052844",
-            "new": "https://maconso.page.link/gYvy"
-          }
-        }
-      },
-      {
-        "program": "traderepublic",
-        "language": "fr",
-        "needs_update": false,
-        "structure_preserved": true,
-        "changed_fields": {}
-      },
-      {
-        "program": "unibet",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "personal_link": {
-            "old": "https://www.unibet.fr/inscription/?campaign=280526&parrain=03356181D410779A",
-            "new": "https://www.unibet.fr/myaccount/register.html?promo=GAO92"
-          },
-          "referee_reward": {
-            "old": "100€ premier pari remboursé ✅",
-            "new": "100 € remboursés + 30 € de bonus"
-          }
-        }
-      },
-      {
-        "program": "widilo",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "referee_reward": {
-            "old": "1.    Inscrivez-vous via le lien de parrainage ci-dessus pour recevoir 5€",
-            "new": "5 € offerts à l'inscription"
-          }
-        }
-      },
-      {
-        "program": "winamax",
-        "language": "fr",
-        "error": "Valeur manquante pour champ mutable personal_link",
-        "needs_update": false
-      },
-      {
-        "program": "wise",
-        "language": "fr",
-        "needs_update": true,
-        "structure_preserved": true,
-        "changed_fields": {
-          "referee_reward": {
-            "old": "500 € !",
-            "new": "Frais offerts sur le 1er transfert"
-          }
-        }
-      }
-    ]
+    "need_update_count": 22
   },
-  "updates": [
-    {
-      "program": "airbnb",
-      "language": "fr",
-      "needs_update": true,
-      "structure_preserved": true,
-      "changed_fields": {
-        "personal_link": {
-          "old": "https://www.airbnb.fr/rp/adrienb12398?p=stay",
-          "new": "https://www.airbnb.fr/r/adrienb12398"
-        }
-      },
-      "update": "dry_run_would_update"
-    },
-    {
-      "program": "betclic",
-      "language": "fr",
-      "needs_update": true,
-      "structure_preserved": true,
-      "changed_fields": {
-        "referee_reward": {
-          "old": "jusqu’à 140 € en paris gratuits et premier pari remboursé ✅",
-          "new": "100 € remboursés + 30 € de bonus"
-        }
-      },
-      "update": "dry_run_would_update"
-    },
-    {
-      "program": "binance",
-      "language": "fr",
-      "needs_update": true,
-      "structure_preserved": true,
-      "changed_fields": {
-        "personal_link": {
-          "old": "https://www.binance.com/activity/referral-entry/CPA?ref=CPA_005OB3BF01",
-          "new": "https://accounts.binance.com/register?ref=451859119"
-        }
-      },
-      "update": "dry_run_would_update"
-    },
-    {
-      "program": "bitstack",
-      "language": "fr",
-      "needs_update": true,
-      "structure_preserved": true,
-      "changed_fields": {
-        "referee_reward": {
-          "old": "5 € en BTC ✅",
-          "new": "5 € offerts en Bitcoin"
-        }
-      },
-      "update": "dry_run_would_update"
-    },
-    {
-      "program": "coinbase",
-      "language": "fr",
-      "needs_update": true,
-      "structure_preserved": true,
-      "changed_fields": {
-        "referee_reward": {
-          "old": "20€ en BTC",
-          "new": "Bonus variable selon la campagne"
-        }
-      },
-      "update": "dry_run_would_update"
-    },
-    {
-      "program": "deblock",
-      "language": "fr",
-      "needs_update": true,
-      "structure_preserved": true,
-      "changed_fields": {
-        "referee_reward": {
-          "old": "prime aléatoire jusqu’à 500 € ✅",
-          "new": "Récompense selon la campagne"
-        }
-      },
-      "update": "dry_run_would_update"
-    },
-    {
-      "program": "ebuyclub",
-      "language": "fr",
-      "needs_update": true,
-      "structure_preserved": true,
-      "changed_fields": {
-        "referee_reward": {
-          "old": "5€ de bienvenue crédités dès votre inscription via mon lien parrainage ✅",
-          "new": "5 € offerts à l'inscription"
-        }
-      },
-      "update": "dry_run_would_update"
-    },
-    {
-      "program": "gemini",
-      "language": "fr",
-      "needs_update": true,
-      "structure_preserved": true,
-      "changed_fields": {
-        "personal_link": {
-          "old": "https://exchange.gemini.com/register?ref=wd8yn943e",
-          "new": "https://exchange.gemini.com/register?referral=wd8yn943e&type=referral"
-        },
-        "referee_reward": {
-          "old": "50$ dans cryptomonnaie de votre choix après votre premier achat/échange éligible",
-          "new": "20 € offerts en Bitcoin"
-        }
-      },
-      "update": "dry_run_would_update"
-    },
-    {
-      "program": "heetch",
-      "language": "fr",
-      "needs_update": true,
-      "structure_preserved": true,
-      "changed_fields": {
-        "referee_reward": {
-          "old": "5€ ✅",
-          "new": "5 € offerts sur la 1ère course"
-        }
-      },
-      "update": "dry_run_would_update"
-    },
-    {
-      "program": "igraal",
-      "language": "fr",
-      "needs_update": true,
-      "structure_preserved": true,
-      "changed_fields": {
-        "personal_link": {
-          "old": "https://fr.igraal.com/parrainage?parrain=AG_608d8f9aded43",
-          "new": "https://fr.igraal.com/appshare?pid=invitation&c=sponsorship&godfather=AG_608d8f9aded43"
-        },
-        "referee_reward": {
-          "old": "5 € offers sur votre compte iGraal m via mon lien ✅",
-          "new": "5 € offerts à l'inscription"
-        }
-      },
-      "update": "dry_run_would_update"
-    },
-    {
-      "program": "joko",
-      "language": "fr",
-      "needs_update": true,
-      "structure_preserved": true,
-      "changed_fields": {
-        "referee_reward": {
-          "old": "5€ crédités à l’inscription via mon lien ou code parrainage ✅",
-          "new": "5 € offerts à l'inscription"
-        }
-      },
-      "update": "dry_run_would_update"
-    },
-    {
-      "program": "kraken",
-      "language": "fr",
-      "needs_update": true,
-      "structure_preserved": true,
-      "changed_fields": {
-        "personal_code": {
-          "old": "cpbrgddy",
-          "new": "4hpz4gdy"
-        },
-        "personal_link": {
-          "old": "https://invite.kraken.com/JDNW/s5qudqe4",
-          "new": "https://proinvite.kraken.com/9f1e/lqbuov8u"
-        },
-        "referee_reward": {
-          "old": "200 € en cryptomonnaies",
-          "new": "20 € en Bitcoin selon l’offre"
-        }
-      },
-      "update": "dry_run_would_update"
-    },
-    {
-      "program": "ledger",
-      "language": "fr",
-      "needs_update": true,
-      "structure_preserved": true,
-      "changed_fields": {
-        "personal_link": {
-          "old": "https://shop.ledger.com/fr/pages/referral-program?referral_code=",
-          "new": "https://shop.ledger.com/fr/pages/referral-program?referral_code=20DA401DG841C"
-        },
-        "referee_reward": {
-          "old": "20 € offerts",
-          "new": "20 € offerts en Bitcoin"
-        }
-      },
-      "update": "dry_run_would_update"
-    },
-    {
-      "program": "omio",
-      "language": "fr",
-      "needs_update": true,
-      "structure_preserved": true,
-      "changed_fields": {
-        "referee_reward": {
-          "old": "10 € de réduction ✅",
-          "new": "10 € offerts sur la 1ère réservation"
-        }
-      },
-      "update": "dry_run_would_update"
-    },
-    {
-      "program": "paypal",
-      "language": "fr",
-      "needs_update": true,
-      "structure_preserved": true,
-      "changed_fields": {
-        "personal_link": {
-          "old": "https://py.pl/DZfFM",
-          "new": "https://py.pl/4brPwnRoe9b"
-        },
-        "referee_reward": {
-          "old": "10 € offerts !",
-          "new": "10 € offerts"
-        }
-      },
-      "update": "dry_run_would_update"
-    },
-    {
-      "program": "poulpeo",
-      "language": "fr",
-      "needs_update": true,
-      "structure_preserved": true,
-      "changed_fields": {
-        "personal_link": {
-          "old": "https://www.poulpeo.com/inscription/parrainage?sponsor_key=4KD2ab&utm_source=chatgpt.com",
-          "new": "https://www.poulpeo.com/p/4KD2ab"
-        },
-        "referee_reward": {
-          "old": "5€ de bienvenue crédités dès votre inscription via mon code parrain ✅",
-          "new": "5 € offerts à l'inscription"
-        }
-      },
-      "update": "dry_run_would_update"
-    },
-    {
-      "program": "revolut",
-      "language": "fr",
-      "needs_update": true,
-      "structure_preserved": true,
-      "changed_fields": {
-        "personal_link": {
-          "old": "https://revolut.com/referral/?referral-code=adrienhcos!JUL2-26-AR-H1&geo-redirect",
-          "new": "https://revolut.com/referral/?referral-code=adrienhcos!FEB2-26-VR-FR&geo-redirect"
-        },
-        "referee_reward": {
-          "old": "200 € offerts !",
-          "new": "Avantage selon la campagne"
-        }
-      },
-      "update": "dry_run_would_update"
-    },
-    {
-      "program": "swissborg",
-      "language": "fr",
-      "needs_update": true,
-      "structure_preserved": true,
-      "changed_fields": {
-        "personal_link": {
-          "old": "https://swissborg.com/fr/r/adrienOCZI39JF",
-          "new": "https://swissborg.com/fr/r/adrienHVRYZMOZ"
-        },
-        "referee_reward": {
-          "old": "1. Inscrivez-vous via le lien ci-dessus",
-          "new": "Jusqu'à 50 € offerts en Bitcoin"
-        }
-      },
-      "update": "dry_run_would_update"
-    },
-    {
-      "program": "totalenergies",
-      "language": "fr",
-      "needs_update": true,
-      "structure_preserved": true,
-      "changed_fields": {
-        "personal_link": {
-          "old": "https://redir-totalenergies.web.app/je-parraine?_bp=114052844",
-          "new": "https://maconso.page.link/gYvy"
-        }
-      },
-      "update": "dry_run_would_update"
-    },
-    {
-      "program": "unibet",
-      "language": "fr",
-      "needs_update": true,
-      "structure_preserved": true,
-      "changed_fields": {
-        "personal_link": {
-          "old": "https://www.unibet.fr/inscription/?campaign=280526&parrain=03356181D410779A",
-          "new": "https://www.unibet.fr/myaccount/register.html?promo=GAO92"
-        },
-        "referee_reward": {
-          "old": "100€ premier pari remboursé ✅",
-          "new": "100 € remboursés + 30 € de bonus"
-        }
-      },
-      "update": "dry_run_would_update"
-    },
-    {
-      "program": "widilo",
-      "language": "fr",
-      "needs_update": true,
-      "structure_preserved": true,
-      "changed_fields": {
-        "referee_reward": {
-          "old": "1.    Inscrivez-vous via le lien de parrainage ci-dessus pour recevoir 5€",
-          "new": "5 € offerts à l'inscription"
-        }
-      },
-      "update": "dry_run_would_update"
-    },
-    {
-      "program": "wise",
-      "language": "fr",
-      "needs_update": true,
-      "structure_preserved": true,
-      "changed_fields": {
-        "referee_reward": {
-          "old": "500 € !",
-          "new": "Frais offerts sur le 1er transfert"
-        }
-      },
-      "update": "dry_run_would_update"
-    }
-  ],
-  "bump": {
-    "ok": null,
-    "note": "dry-run — bumper not executed"
-  },
-  "server_actions": 0,
+  "note": "Au creneau: bumper.py ouvre chaque codes-promo/edit, Autofresh prefill si diff, UN SEUL Enregistrer = update+remonte. Cible ~N saves pour N codes (pas N_update + N_bump).",
   "summary": {
     "PRE_CHECK": "OK",
-    "UPDATE_IF_NEEDED": "DRY",
-    "POST_VERIFY": "DRY",
+    "UPDATE_IF_NEEDED": "DRY (22 programmes)",
+    "POST_VERIFY": "DEFERRED_TO_LIVE_CYCLE",
     "BUMP_CYCLE_24H": "DRY",
-    "programs_needing_update": 22,
-    "updates_ok": 0,
-    "updates_failed": 0,
-    "would_update_dry": 22,
-    "server_actions": 0
+    "server_actions": 0,
+    "max_saves_if_executed": "≈N codes-promo (1 save/code fuse)"
   },
-  "at": "2026-08-12T17:06:53.107258+00:00"
+  "at": "2026-08-12T17:12:05.542900+00:00"
 }

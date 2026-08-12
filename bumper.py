@@ -345,21 +345,77 @@ async def run_super(browser):
             log.info(f"  {len(edit_urls)} codes a remonter")
             if not edit_urls:
                 raise RuntimeError("Aucun code trouve: page ou selecteurs probablement modifies")
+
+            # Autofresh: enrichit CHAQUE sauvegarde historique (update+remonte = 1 clic)
+            # Desactiveable: AUTOFRESH_SUPER=0
+            autofresh_on = os.environ.get("AUTOFRESH_SUPER", "1") != "0"
+            autofresh_stats = {"updated": 0, "bump_only": 0, "failed_prefill": 0, "details": []}
+
             bumped = 0
             for i, url in enumerate(edit_urls):
                 try:
                     await page.goto(url, wait_until="networkidle")
                     await human_sleep(2, 3)
+
+                    # --- Autofresh PRE-CHECK + prefill (optionnel) ---
+                    if autofresh_on:
+                        try:
+                            from platforms.super_parrain.prefill import prepare_before_save
+                            info = await prepare_before_save(page, url)
+                            autofresh_stats["details"].append(info)
+                            if info.get("fields_filled"):
+                                autofresh_stats["updated"] += 1
+                            else:
+                                autofresh_stats["bump_only"] += 1
+                        except Exception as e:
+                            autofresh_stats["failed_prefill"] += 1
+                            log.warning(f"  Autofresh prefill ignore ({i+1}): {e}")
+
+                    # --- UN SEUL Enregistrer = update eventuel + remontee ---
                     await human_click(page, page.locator(
                         'button:has-text("Enregistrer"), input[type="submit"], button[type="submit"]').first)
                     await page.wait_for_load_state("networkidle")
                     await human_sleep(2, 4)
                     bumped += 1
-                    log.info(f"  Code {i+1}/{len(edit_urls)} remonte")
+                    log.info(f"  Code {i+1}/{len(edit_urls)} enregistre"
+                             f"{' (contenu+remonte)' if autofresh_on else ''}")
                 except Exception as e:
                     log.debug(f"  Erreur code {i}: {e}")
+                    # Stop on hard anti-bot signals
+                    msg = str(e).lower()
+                    if any(x in msg for x in ("403", "429", "captcha", "challenge", "blocked")):
+                        log.error(f"  Stop Super-Parrain: signal anti-bot/DOM — {e}")
+                        break
 
-            log.info(f"  {bumped} code(s) remontes")
+            log.info(f"  {bumped}/{len(edit_urls)} code(s) enregistres (1 save/code)")
+            if autofresh_on:
+                log.info(
+                    f"  Autofresh: updated={autofresh_stats['updated']} "
+                    f"bump_only={autofresh_stats['bump_only']} "
+                    f"prefill_fail={autofresh_stats['failed_prefill']}"
+                )
+                try:
+                    import json
+                    from pathlib import Path
+                    out = Path("data/captures/super-parrain-last-cycle.json")
+                    out.parent.mkdir(parents=True, exist_ok=True)
+                    out.write_text(
+                        json.dumps(
+                            {
+                                "mode": "fused_bumper",
+                                "total_edit_urls": len(edit_urls),
+                                "saves": bumped,
+                                "autofresh": autofresh_stats,
+                                "max_saves_target": len(edit_urls),
+                            },
+                            ensure_ascii=False,
+                            indent=2,
+                        )
+                        + "\n",
+                        encoding="utf-8",
+                    )
+                except Exception:
+                    pass
             if bumped != len(edit_urls):
                 raise RuntimeError(f"Remontee incomplete: {bumped}/{len(edit_urls)}")
             with open("last_super_run.txt", "w") as f:

@@ -1,5 +1,5 @@
 name: Bump — Super Parrain (1x/jour)
-# Cycle historique ~24h conserve. Autofresh = PRE-CHECK avant bumper, pas un remplacement.
+# 1 Enregistrer / code promo = remontee (+ update Autofresh si diff). Pas de double passe.
 on:
   schedule:
     - cron: "0 */2 * * *"
@@ -27,49 +27,43 @@ jobs:
         run: |
           pip install -r requirements.txt
           playwright install --with-deps chromium
-      - name: Decide slot (historical 24h)
+      - name: Decide 24h slot
         id: decide
         run: |
           set +e
           python tools/super_parrain_decide.py --json > /tmp/decision.json
-          CODE=$?
           set -e
           cat /tmp/decision.json
           ACTION=$(python -c "import json;print(json.load(open('/tmp/decision.json'))['action'])")
           echo "action=$ACTION" >> "$GITHUB_OUTPUT"
           MODE="${{ github.event.inputs.mode }}"
           if [ -z "$MODE" ]; then MODE=auto; fi
-          echo "mode=$MODE" >> "$GITHUB_OUTPUT"
-          if [ "$MODE" = "dry_precheck" ]; then
-            echo "action=dry" >> "$GITHUB_OUTPUT"
-          elif [ "$MODE" = "cycle" ]; then
-            echo "action=cycle" >> "$GITHUB_OUTPUT"
-          fi
-      - name: Super-Parrain cycle (pre-check → update? → bump)
+          if [ "$MODE" = "dry_precheck" ]; then echo "action=dry" >> "$GITHUB_OUTPUT"; fi
+          if [ "$MODE" = "cycle" ]; then echo "action=cycle" >> "$GITHUB_OUTPUT"; fi
+      - name: Super-Parrain fused cycle
         env:
           SUPER_PARRAIN_EMAIL: ${{ secrets.SUPER_PARRAIN_EMAIL }}
           SUPER_PARRAIN_PASSWORD: ${{ secrets.SUPER_PARRAIN_PASSWORD }}
           TARGET_SITES: "super"
+          AUTOFRESH_SUPER: "1"
         run: |
           ACTION="${{ steps.decide.outputs.action }}"
           echo "action=$ACTION"
           if [ "$ACTION" = "wait" ]; then
-            echo "Hors creneau 24h — skip (comportement bumper historique)"
-            cat /tmp/decision.json
+            echo "Hors creneau 24h — skip (bumper historique)"
             exit 0
           fi
           if [ "$ACTION" = "dry" ]; then
             python tools/super_parrain_cycle.py --force-slot
             exit 0
           fi
-          # cycle: PRE-CHECK + update si besoin + bumper.py inchange
+          # Une seule passe: bumper.py + Autofresh prefill avant chaque Enregistrer
           python tools/super_parrain_cycle.py --execute
       - name: Logs
         if: always()
         run: |
           cat bumper.log || true
           cat data/captures/super-parrain-last-cycle.json || true
-          cat data/captures/write-super-parrain-kraken.json || true
       - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -79,20 +73,17 @@ jobs:
           if-no-files-found: ignore
           path: |
             data/captures/super-parrain-last-cycle.json
-            data/captures/write-*.json
-            data/pending_writes.json
-            debug_super_write_*.png
-            debug_super_write_form.json
             bumper.log
+            debug_super_*.png
       - name: Commit results
         if: success()
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add last_super_run.txt data/captures data/pending_writes.json \
+          git add last_super_run.txt data/captures/super-parrain-last-cycle.json \
             data/platform-mappings/super-parrain.*.json \
-            data/platform-templates/super-parrain/ data/sync-state.json 2>/dev/null || true
+            data/platform-templates/super-parrain/ 2>/dev/null || true
           if git diff --staged --quiet; then echo "no commit"; else
-            git commit -m "chore: super-parrain cycle results"
+            git commit -m "chore: super-parrain fused cycle results"
             git push
           fi
