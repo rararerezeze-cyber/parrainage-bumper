@@ -1,1 +1,40 @@
-⭐️ Offre Parrainage Airbnb – Jusqu’à 40€ de crédits offerts ⭐ ⚡ Bonus : {{REFEREE_REWARD}}
+⭐️ Offre Parrainage Airbnb – Jusqu’à {{REFEREE_REWARD}} ⭐
+
+⚡ Bonus : Jusqu’à 40 € de réduction sur votre 1ère réservation logement + 10 € sur votre 1ère expérience ✅
+
+⸻
+
+⭐️ Lien de parrainage :
+www.airbnb.fr/r/{{PERSONAL_CODE}}
+
+⸻
+
+✅ Détails de l’offre logement (hors frais et taxes) :
+• Dépensez 200 € → obtenez 10 € de réduction
+• Dépensez 400 € → obtenez 20 € de réduction
+• Dépensez 600 € → obtenez 30 € de réduction
+• Dépensez 800 € ou plus → obtenez 40 € de réduction
+
+➤ Bonus supplémentaire : 10 € de réduction sur votre 1ère réservation d’une expérience d’au moins 40 €
+
+⸻
+
+✅ Pour en profiter :
+1. Inscrivez-vous pour la première fois sur Airbnb via ce lien :
+⭐ www.airbnb.fr/r/{{PERSONAL_CODE}} ⭐
+2. Faites votre première réservation logement ou expérience
+3. La réduction s’appliquera automatiquement selon les conditions
+
+⸻
+
+ℹ️ À savoir :
+• Offre réservée aux nouveaux utilisateurs Airbnb
+• La réduction s’applique uniquement à la première réservation logement ou expérience
+• Valable sous conditions de montant minimum
+
+⸻
+
+⭐️ Besoin d’aide ou d’un suivi personnalisé ?
+DM-moi — je t’accompagne étape par étape !
+
+↪️ https://discord.gg/dDEMb6jEbn ↩️

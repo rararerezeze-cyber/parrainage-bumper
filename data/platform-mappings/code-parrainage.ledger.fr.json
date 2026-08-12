@@ -6,6 +6,8 @@
   "template_status": "ready",
   "golden_file": "ledger.fr.golden.txt",
   "mutable_fields": [
+    "personal_code",
+    "personal_link",
     "referee_reward"
   ],
   "markers": {
@@ -21,20 +23,24 @@
     "referee_reward": "reward",
     "conditions": "cond"
   },
-  "announcement_url": "https://code-parrainage.net/moncompte",
+  "announcement_url": "https://code-parrainage.net/modif/84107",
   "edit_url": null,
   "platform_values": {
-    "referee_reward": "20 $ offerts ⚡ Bonus : Recevez 20 $ en BTC ap"
+    "personal_code": "20DA401DG841C",
+    "personal_link": "https://shop.ledger.com/fr/pages/referral-program?referral_code=20DA401DG841C",
+    "referee_reward": "20 $ offerts"
   },
   "confidences": {
+    "personal_code": "high",
+    "personal_link": "high",
     "referee_reward": "medium"
   },
-  "notes": "lien offers.json non trouve dans le texte; bonus extrait du texte plateforme (confiance moyenne); source: liste moncompte (texte peut etre tronque) — detail edit a capturer plus tard; list preview moncompte; may be truncated",
+  "notes": "bonus extrait du texte plateforme (confiance moyenne)",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",
     "referee_reward": "offers_json_then_official",
     "announcement_text": "platform_target_only"
   },
-  "quality": "capture_partial"
+  "quality": "full_edit"
 }

@@ -720,7 +720,7 @@ Recommended For You
 
  
 
- ✅ Lien : {{PERSONAL_LINK}}
+ €23 Welcome Bonus
  
 
  
@@ -765,7 +765,7 @@ Get Code
 
  
 
- ✅ Lien : {{PERSONAL_LINK}}
+ €23 Welcome Bonus
  
 
  
@@ -950,7 +950,7 @@ View Offer
 
  
 
- Get €5 free
+ ✅ Lien : {{PERSONAL_LINK}}
  
 
  
@@ -995,7 +995,7 @@ Get Code
 
  
 
- Get €5 free
+ ✅ Lien : {{PERSONAL_LINK}}
  
 
  
@@ -1458,7 +1458,7 @@ Code saved to clipboard..
 
 
  
- Added 51m ago 
+ Added 59m ago 
  
  
  

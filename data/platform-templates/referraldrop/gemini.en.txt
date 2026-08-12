@@ -525,12 +525,12 @@ Get Spotlight
  
  
  
-Justin Barton
+Joe Hallissey
  
  
  
  
-@dozer
+@joehallissey
  
  
  
@@ -839,10 +839,6 @@ Suggest a change?
  Recommended 
  
 More drops you might like
- 
- 
- 
- 
  
  
  

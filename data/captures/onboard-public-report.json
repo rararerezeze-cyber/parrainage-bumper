@@ -1,232 +1,4 @@
 {
-  "parrainage-co": {
-    "platform": "parrainage-co",
-    "items": [
-      {
-        "program": "betclic",
-        "status": "ok",
-        "mutable": [
-          "personal_code",
-          "referee_reward"
-        ],
-        "chars": 3573,
-        "url": "https://parrainage.co/offers/75172"
-      },
-      {
-        "program": "boursobank",
-        "status": "ok",
-        "mutable": [
-          "personal_code",
-          "personal_link"
-        ],
-        "chars": 4319,
-        "url": "https://parrainage.co/offers/75195"
-      },
-      {
-        "program": "coinbase",
-        "status": "ok",
-        "mutable": [
-          "personal_code",
-          "personal_link",
-          "referee_reward"
-        ],
-        "chars": 3582,
-        "url": "https://parrainage.co/offers/76562"
-      },
-      {
-        "program": "ebuyclub",
-        "status": "ok",
-        "mutable": [
-          "personal_code",
-          "personal_link",
-          "referee_reward"
-        ],
-        "chars": 3189,
-        "url": "https://parrainage.co/offers/84358"
-      },
-      {
-        "program": "igraal",
-        "status": "ok",
-        "mutable": [
-          "personal_code",
-          "personal_link",
-          "referee_reward"
-        ],
-        "chars": 3295,
-        "url": "https://parrainage.co/offers/75178"
-      },
-      {
-        "program": "poulpeo",
-        "status": "ok",
-        "mutable": [
-          "personal_code",
-          "referee_reward"
-        ],
-        "chars": 3049,
-        "url": "https://parrainage.co/offers/84354"
-      },
-      {
-        "program": "revolut",
-        "status": "ok",
-        "mutable": [
-          "personal_link",
-          "referee_reward"
-        ],
-        "chars": 3519,
-        "url": "https://parrainage.co/offers/76563"
-      },
-      {
-        "program": "totalenergies",
-        "status": "ok",
-        "mutable": [
-          "personal_code",
-          "personal_link"
-        ],
-        "chars": 3187,
-        "url": "https://parrainage.co/offers/110585"
-      },
-      {
-        "program": "unibet",
-        "status": "ok",
-        "mutable": [
-          "personal_link",
-          "referee_reward"
-        ],
-        "chars": 3838,
-        "url": "https://parrainage.co/offers/75173"
-      },
-      {
-        "program": "winamax",
-        "status": "ok",
-        "mutable": [
-          "personal_code",
-          "personal_link",
-          "referee_reward"
-        ],
-        "chars": 3714,
-        "url": "https://parrainage.co/offers/75175"
-      },
-      {
-        "program": "swissborg",
-        "status": "ok",
-        "mutable": [
-          "personal_link",
-          "referee_reward"
-        ],
-        "chars": 3353,
-        "url": "https://parrainage.co/offers/114509"
-      },
-      {
-        "program": "traderepublic",
-        "status": "ok",
-        "mutable": [
-          "personal_code",
-          "personal_link"
-        ],
-        "chars": 3967,
-        "url": "https://parrainage.co/offers/75174"
-      },
-      {
-        "program": "joko",
-        "status": "ok",
-        "mutable": [
-          "personal_code",
-          "referee_reward"
-        ],
-        "chars": 3065,
-        "url": "https://parrainage.co/offers/86502"
-      },
-      {
-        "program": "widilo",
-        "status": "ok",
-        "mutable": [
-          "personal_code",
-          "personal_link",
-          "referee_reward"
-        ],
-        "chars": 3131,
-        "url": "https://parrainage.co/offers/109021"
-      },
-      {
-        "program": "bybit",
-        "status": "ok",
-        "mutable": [
-          "personal_code",
-          "personal_link"
-        ],
-        "chars": 3285,
-        "url": "https://parrainage.co/offers/127408"
-      },
-      {
-        "program": "ledger",
-        "status": "ok",
-        "mutable": [
-          "personal_code",
-          "personal_link",
-          "referee_reward"
-        ],
-        "chars": 3589,
-        "url": "https://parrainage.co/offers/115693"
-      },
-      {
-        "program": "kraken",
-        "status": "ok",
-        "mutable": [
-          "personal_code",
-          "personal_link",
-          "referee_reward"
-        ],
-        "chars": 3172,
-        "url": "https://parrainage.co/offers/113735"
-      },
-      {
-        "program": "gemini",
-        "status": "ok",
-        "mutable": [
-          "personal_code",
-          "personal_link",
-          "referee_reward"
-        ],
-        "chars": 3680,
-        "url": "https://parrainage.co/offers/115388"
-      },
-      {
-        "program": "acheel",
-        "status": "ok",
-        "mutable": [
-          "personal_code",
-          "referee_reward"
-        ],
-        "chars": 3152,
-        "url": "https://parrainage.co/offers/92118"
-      },
-      {
-        "program": "bitstack",
-        "status": "ok",
-        "mutable": [
-          "personal_code",
-          "personal_link",
-          "referee_reward"
-        ],
-        "chars": 3274,
-        "url": "https://parrainage.co/offers/114464"
-      },
-      {
-        "program": "robinhood",
-        "status": "ok",
-        "mutable": [
-          "personal_code",
-          "personal_link",
-          "referee_reward"
-        ],
-        "chars": 3630,
-        "url": "https://parrainage.co/offers/115110"
-      }
-    ],
-    "errors": [],
-    "mode": "public_profile",
-    "links": 60
-  },
   "1parrainage": {
     "platform": "1parrainage",
     "items": [
@@ -490,7 +262,7 @@
           "personal_link",
           "referee_reward"
         ],
-        "chars": 5240,
+        "chars": 5252,
         "url": "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-ebuyclub-referral-offer-e5-welcome-bonus-%e2%ad%90%ef%b8%8f-join-ebuyclub-a-cashback-platform-that-lets-you-earn-money-while-shopping-online/?__sid=23055"
       },
       {
@@ -499,7 +271,7 @@
         "mutable": [
           "referee_reward"
         ],
-        "chars": 5794,
+        "chars": 5752,
         "url": "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-revolut-referral-offer-up-to-200-bonus-%e2%ad%90%ef%b8%8f-join-revolut-a-leading-global-banking-and-finance-app/?__sid=23058"
       },
       {
@@ -525,7 +297,7 @@
           "personal_code",
           "referee_reward"
         ],
-        "chars": 5355,
+        "chars": 5231,
         "url": "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-bybit-referral-offer-up-to-30-welcome-bonus-%e2%ad%90%ef%b8%8f-join-bybit-one-of-the-leading-global-crypto-exchanges/?__sid=23025"
       },
       {
@@ -559,10 +331,9 @@
         "status": "ok",
         "mutable": [
           "personal_code",
-          "personal_link",
           "referee_reward"
         ],
-        "chars": 5062,
+        "chars": 5184,
         "url": "https://www.referralcode.tv/referral-code/%e2%9a%a1%ef%b8%8f-widilo-signup-bonus-up-to-e6-free-%e2%9a%a1%ef%b8%8f-get-cashback-rewards-just-for-signing-up-and-installing-the-extension/?__sid=23043"
       }
     ],

@@ -4,14 +4,14 @@
   "orphan_programs": 6,
   "programs_total_known": 38,
   "platforms": 7,
-  "mapped_pairs": 100,
-  "platforms_usable_read": 5,
+  "mapped_pairs": 104,
+  "platforms_usable_read": 6,
   "writers_functional": 1,
   "cell_status_counts": {
-    "captured": 66,
+    "captured": 89,
     "needs_canonical_data": 6,
-    "missing_on_platform": 127,
-    "capture_partial": 20,
+    "missing_on_platform": 123,
+    "capture_partial": 1,
     "manual_write": 14,
     "auth_blocked": 33
   },
@@ -25,6 +25,7 @@
       "full_quality": 29,
       "partial_quality": 0,
       "manual_quality": 0,
+      "inventory_quality": 29,
       "profile_url": "https://www.super-parrain.com/users/adrien-b-8",
       "auth_status": null
     },
@@ -37,6 +38,7 @@
       "full_quality": 22,
       "partial_quality": 0,
       "manual_quality": 0,
+      "inventory_quality": 22,
       "profile_url": "https://parrainage.co/user/adrien89",
       "auth_status": null
     },
@@ -45,10 +47,11 @@
       "capability": "AUTO",
       "read": "CAPTURE_PARTIAL",
       "write": "CAPTURE_PARTIAL",
-      "mapped_count": 20,
-      "full_quality": 0,
-      "partial_quality": 20,
+      "mapped_count": 24,
+      "full_quality": 23,
+      "partial_quality": 1,
       "manual_quality": 0,
+      "inventory_quality": 23,
       "profile_url": null,
       "auth_status": null
     },
@@ -61,30 +64,33 @@
       "full_quality": 10,
       "partial_quality": 0,
       "manual_quality": 0,
+      "inventory_quality": 10,
       "profile_url": "https://www.referralcode.tv/author/thesuperreff/",
       "auth_status": null
     },
     {
       "platform": "referralcodes",
       "capability": "MANUAL",
-      "read": "MANUAL",
+      "read": "READ_OK",
       "write": "MANUAL_WRITE",
       "mapped_count": 9,
       "full_quality": 0,
       "partial_quality": 0,
       "manual_quality": 9,
+      "inventory_quality": 9,
       "profile_url": "https://referralcodes.com/TheSuperReff",
       "auth_status": null
     },
     {
       "platform": "referraldrop",
       "capability": "MANUAL",
-      "read": "AUTH_BLOCKED",
+      "read": "READ_PUBLIC_ONLY",
       "write": "AUTH_BLOCKED",
       "mapped_count": 5,
       "full_quality": 0,
       "partial_quality": 0,
       "manual_quality": 5,
+      "inventory_quality": 5,
       "profile_url": "https://referraldrop.com/en/user/TheSuperPenguins",
       "auth_status": "AUTH_BLOCKED_GOOGLE"
     },
@@ -97,6 +103,7 @@
       "full_quality": 5,
       "partial_quality": 0,
       "manual_quality": 0,
+      "inventory_quality": 5,
       "profile_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php",
       "auth_status": null
     }
@@ -160,6 +167,7 @@
     "code-parrainage": [
       "airbnb",
       "betclic",
+      "binance",
       "bitstack",
       "bybit",
       "coinbase",
@@ -177,6 +185,9 @@
       "swissborg",
       "totalenergies",
       "traderepublic",
+      "unibet",
+      "widilo",
+      "winamax",
       "wise"
     ],
     "parrainage-co": [

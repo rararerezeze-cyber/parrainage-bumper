@@ -1,39 +1,8 @@
 {
   "sites": {
-    "parrainage-co": {
-      "platform": "parrainage-co",
+    "code-parrainage": {
+      "platform": "code-parrainage",
       "items": [
-        {
-          "program": "coinbase",
-          "status": "ok",
-          "mutable": [
-            "personal_code",
-            "personal_link",
-            "referee_reward"
-          ],
-          "chars": 1192,
-          "url": "https://parrainage.co/account/offers/edit/76562"
-        },
-        {
-          "program": "revolut",
-          "status": "ok",
-          "mutable": [
-            "personal_link",
-            "referee_reward"
-          ],
-          "chars": 1104,
-          "url": "https://parrainage.co/account/offers/edit/76563"
-        },
-        {
-          "program": "bitstack",
-          "status": "ok",
-          "mutable": [
-            "personal_link",
-            "referee_reward"
-          ],
-          "chars": 879,
-          "url": "https://parrainage.co/account/offers/edit/114464"
-        },
         {
           "program": "kraken",
           "status": "ok",
@@ -42,39 +11,14 @@
             "personal_link",
             "referee_reward"
           ],
-          "chars": 750,
-          "url": "https://parrainage.co/account/offers/edit/113735"
-        },
-        {
-          "program": "swissborg",
-          "status": "ok",
-          "mutable": [
-            "personal_code",
-            "personal_link",
-            "referee_reward"
-          ],
-          "chars": 929,
-          "url": "https://parrainage.co/account/offers/edit/114509"
-        },
-        {
-          "program": "poulpeo",
-          "status": "ok",
-          "mutable": [
-            "personal_code",
-            "referee_reward"
-          ],
-          "chars": 672,
-          "url": "https://parrainage.co/account/offers/edit/84354"
-        },
-        {
-          "program": "ebuyclub",
-          "status": "ok",
-          "mutable": [
-            "personal_link",
-            "referee_reward"
-          ],
-          "chars": 815,
-          "url": "https://parrainage.co/account/offers/edit/84358"
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/code-parrainage/kraken.fr.golden.txt",
+            "template": "data/platform-templates/code-parrainage/kraken.fr.txt",
+            "mapping": "data/platform-mappings/code-parrainage.kraken.fr.json",
+            "meta": "data/platform-templates/code-parrainage/kraken.fr.meta.json"
+          },
+          "chars": 750
         },
         {
           "program": "betclic",
@@ -83,101 +27,14 @@
             "personal_code",
             "referee_reward"
           ],
-          "chars": 1159,
-          "url": "https://parrainage.co/account/offers/edit/75172"
-        },
-        {
-          "program": "unibet",
-          "status": "ok",
-          "mutable": [
-            "personal_code",
-            "personal_link",
-            "referee_reward"
-          ],
-          "chars": 1359,
-          "url": "https://parrainage.co/account/offers/edit/75173"
-        },
-        {
-          "program": "traderepublic",
-          "status": "ok",
-          "mutable": [
-            "personal_code",
-            "personal_link"
-          ],
-          "chars": 1447,
-          "url": "https://parrainage.co/account/offers/edit/75174"
-        },
-        {
-          "program": "robinhood",
-          "status": "ok",
-          "mutable": [
-            "personal_link",
-            "referee_reward"
-          ],
-          "chars": 1227,
-          "url": "https://parrainage.co/account/offers/edit/115110"
-        },
-        {
-          "program": "winamax",
-          "status": "ok",
-          "mutable": [
-            "personal_code",
-            "personal_link",
-            "referee_reward"
-          ],
-          "chars": 1259,
-          "url": "https://parrainage.co/account/offers/edit/75175"
-        },
-        {
-          "program": "paypal",
-          "status": "ok",
-          "mutable": [
-            "personal_link",
-            "referee_reward"
-          ],
-          "chars": 834,
-          "url": "https://parrainage.co/account/offers/edit/75178"
-        },
-        {
-          "program": "bybit",
-          "status": "ok",
-          "mutable": [
-            "personal_code",
-            "personal_link"
-          ],
-          "chars": 839,
-          "url": "https://parrainage.co/account/offers/edit/127408"
-        },
-        {
-          "program": "gemini",
-          "status": "ok",
-          "mutable": [
-            "personal_code",
-            "personal_link",
-            "referee_reward"
-          ],
-          "chars": 1252,
-          "url": "https://parrainage.co/account/offers/edit/115388"
-        },
-        {
-          "program": "widilo",
-          "status": "ok",
-          "mutable": [
-            "personal_link",
-            "referee_reward"
-          ],
-          "chars": 732,
-          "url": "https://parrainage.co/account/offers/edit/109021"
-        },
-        {
-          "program": "joko",
-          "status": "ok",
-          "mutable": [
-            "personal_code",
-            "referee_reward"
-          ],
-          "chars": 681,
-          "url": "https://parrainage.co/account/offers/edit/86502"
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/code-parrainage/betclic.fr.golden.txt",
+            "template": "data/platform-templates/code-parrainage/betclic.fr.txt",
+            "mapping": "data/platform-mappings/code-parrainage.betclic.fr.json",
+            "meta": "data/platform-templates/code-parrainage/betclic.fr.meta.json"
+          },
+          "chars": 1156
         },
         {
           "program": "ledger",
@@ -187,8 +44,174 @@
             "personal_link",
             "referee_reward"
           ],
-          "chars": 1192,
-          "url": "https://parrainage.co/account/offers/edit/115693"
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/code-parrainage/ledger.fr.golden.txt",
+            "template": "data/platform-templates/code-parrainage/ledger.fr.txt",
+            "mapping": "data/platform-mappings/code-parrainage.ledger.fr.json",
+            "meta": "data/platform-templates/code-parrainage/ledger.fr.meta.json"
+          },
+          "chars": 1160
+        },
+        {
+          "program": "widilo",
+          "status": "ok",
+          "mutable": [
+            "personal_link",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/code-parrainage/widilo.fr.golden.txt",
+            "template": "data/platform-templates/code-parrainage/widilo.fr.txt",
+            "mapping": "data/platform-mappings/code-parrainage.widilo.fr.json",
+            "meta": "data/platform-templates/code-parrainage/widilo.fr.meta.json"
+          },
+          "chars": 775
+        },
+        {
+          "program": "paypal",
+          "status": "ok",
+          "mutable": [
+            "personal_link",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/code-parrainage/paypal.fr.golden.txt",
+            "template": "data/platform-templates/code-parrainage/paypal.fr.txt",
+            "mapping": "data/platform-mappings/code-parrainage.paypal.fr.json",
+            "meta": "data/platform-templates/code-parrainage/paypal.fr.meta.json"
+          },
+          "chars": 840
+        },
+        {
+          "program": "bitstack",
+          "status": "ok",
+          "mutable": [
+            "personal_link",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/code-parrainage/bitstack.fr.golden.txt",
+            "template": "data/platform-templates/code-parrainage/bitstack.fr.txt",
+            "mapping": "data/platform-mappings/code-parrainage.bitstack.fr.json",
+            "meta": "data/platform-templates/code-parrainage/bitstack.fr.meta.json"
+          },
+          "chars": 804
+        },
+        {
+          "program": "unibet",
+          "status": "ok",
+          "mutable": [
+            "personal_link",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/code-parrainage/unibet.fr.golden.txt",
+            "template": "data/platform-templates/code-parrainage/unibet.fr.txt",
+            "mapping": "data/platform-mappings/code-parrainage.unibet.fr.json",
+            "meta": "data/platform-templates/code-parrainage/unibet.fr.meta.json"
+          },
+          "chars": 1359
+        },
+        {
+          "program": "binance",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "personal_link"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/code-parrainage/binance.fr.golden.txt",
+            "template": "data/platform-templates/code-parrainage/binance.fr.txt",
+            "mapping": "data/platform-mappings/code-parrainage.binance.fr.json",
+            "meta": "data/platform-templates/code-parrainage/binance.fr.meta.json"
+          },
+          "chars": 991
+        },
+        {
+          "program": "coinbase",
+          "status": "ok",
+          "mutable": [
+            "personal_link",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/code-parrainage/coinbase.fr.golden.txt",
+            "template": "data/platform-templates/code-parrainage/coinbase.fr.txt",
+            "mapping": "data/platform-mappings/code-parrainage.coinbase.fr.json",
+            "meta": "data/platform-templates/code-parrainage/coinbase.fr.meta.json"
+          },
+          "chars": 1122
+        },
+        {
+          "program": "poulpeo",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/code-parrainage/poulpeo.fr.golden.txt",
+            "template": "data/platform-templates/code-parrainage/poulpeo.fr.txt",
+            "mapping": "data/platform-mappings/code-parrainage.poulpeo.fr.json",
+            "meta": "data/platform-templates/code-parrainage/poulpeo.fr.meta.json"
+          },
+          "chars": 625
+        },
+        {
+          "program": "deblock",
+          "status": "ok",
+          "mutable": [
+            "personal_link",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/code-parrainage/deblock.fr.golden.txt",
+            "template": "data/platform-templates/code-parrainage/deblock.fr.txt",
+            "mapping": "data/platform-mappings/code-parrainage.deblock.fr.json",
+            "meta": "data/platform-templates/code-parrainage/deblock.fr.meta.json"
+          },
+          "chars": 905
+        },
+        {
+          "program": "airbnb",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/code-parrainage/airbnb.fr.golden.txt",
+            "template": "data/platform-templates/code-parrainage/airbnb.fr.txt",
+            "mapping": "data/platform-mappings/code-parrainage.airbnb.fr.json",
+            "meta": "data/platform-templates/code-parrainage/airbnb.fr.meta.json"
+          },
+          "chars": 1154
+        },
+        {
+          "program": "traderepublic",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "personal_link"
+          ],
+          "sync_mode": "SAFE_AUTO",
+          "paths": {
+            "golden": "data/platform-templates/code-parrainage/traderepublic.fr.golden.txt",
+            "template": "data/platform-templates/code-parrainage/traderepublic.fr.txt",
+            "mapping": "data/platform-mappings/code-parrainage.traderepublic.fr.json",
+            "meta": "data/platform-templates/code-parrainage/traderepublic.fr.meta.json"
+          },
+          "chars": 1447
         },
         {
           "program": "totalenergies",
@@ -197,30 +220,171 @@
             "personal_code",
             "personal_link"
           ],
-          "chars": 731,
-          "url": "https://parrainage.co/account/offers/edit/110585"
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/code-parrainage/totalenergies.fr.golden.txt",
+            "template": "data/platform-templates/code-parrainage/totalenergies.fr.txt",
+            "mapping": "data/platform-mappings/code-parrainage.totalenergies.fr.json",
+            "meta": "data/platform-templates/code-parrainage/totalenergies.fr.meta.json"
+          },
+          "chars": 710
+        },
+        {
+          "program": "ebuyclub",
+          "status": "ok",
+          "mutable": [
+            "personal_link",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/code-parrainage/ebuyclub.fr.golden.txt",
+            "template": "data/platform-templates/code-parrainage/ebuyclub.fr.txt",
+            "mapping": "data/platform-mappings/code-parrainage.ebuyclub.fr.json",
+            "meta": "data/platform-templates/code-parrainage/ebuyclub.fr.meta.json"
+          },
+          "chars": 770
+        },
+        {
+          "program": "winamax",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "personal_link",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/code-parrainage/winamax.fr.golden.txt",
+            "template": "data/platform-templates/code-parrainage/winamax.fr.txt",
+            "mapping": "data/platform-mappings/code-parrainage.winamax.fr.json",
+            "meta": "data/platform-templates/code-parrainage/winamax.fr.meta.json"
+          },
+          "chars": 1259
+        },
+        {
+          "program": "robinhood",
+          "status": "ok",
+          "mutable": [
+            "personal_link",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/code-parrainage/robinhood.fr.golden.txt",
+            "template": "data/platform-templates/code-parrainage/robinhood.fr.txt",
+            "mapping": "data/platform-mappings/code-parrainage.robinhood.fr.json",
+            "meta": "data/platform-templates/code-parrainage/robinhood.fr.meta.json"
+          },
+          "chars": 1190
+        },
+        {
+          "program": "revolut",
+          "status": "ok",
+          "mutable": [
+            "personal_link",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/code-parrainage/revolut.fr.golden.txt",
+            "template": "data/platform-templates/code-parrainage/revolut.fr.txt",
+            "mapping": "data/platform-mappings/code-parrainage.revolut.fr.json",
+            "meta": "data/platform-templates/code-parrainage/revolut.fr.meta.json"
+          },
+          "chars": 1075
+        },
+        {
+          "program": "heetch",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/code-parrainage/heetch.fr.golden.txt",
+            "template": "data/platform-templates/code-parrainage/heetch.fr.txt",
+            "mapping": "data/platform-mappings/code-parrainage.heetch.fr.json",
+            "meta": "data/platform-templates/code-parrainage/heetch.fr.meta.json"
+          },
+          "chars": 803
+        },
+        {
+          "program": "wise",
+          "status": "ok",
+          "mutable": [
+            "personal_link",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/code-parrainage/wise.fr.golden.txt",
+            "template": "data/platform-templates/code-parrainage/wise.fr.txt",
+            "mapping": "data/platform-mappings/code-parrainage.wise.fr.json",
+            "meta": "data/platform-templates/code-parrainage/wise.fr.meta.json"
+          },
+          "chars": 1201
+        },
+        {
+          "program": "bybit",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "personal_link"
+          ],
+          "sync_mode": "SAFE_AUTO",
+          "paths": {
+            "golden": "data/platform-templates/code-parrainage/bybit.fr.golden.txt",
+            "template": "data/platform-templates/code-parrainage/bybit.fr.txt",
+            "mapping": "data/platform-mappings/code-parrainage.bybit.fr.json",
+            "meta": "data/platform-templates/code-parrainage/bybit.fr.meta.json"
+          },
+          "chars": 839
+        },
+        {
+          "program": "swissborg",
+          "status": "ok",
+          "mutable": [
+            "personal_link",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/code-parrainage/swissborg.fr.golden.txt",
+            "template": "data/platform-templates/code-parrainage/swissborg.fr.txt",
+            "mapping": "data/platform-mappings/code-parrainage.swissborg.fr.json",
+            "meta": "data/platform-templates/code-parrainage/swissborg.fr.meta.json"
+          },
+          "chars": 889
+        },
+        {
+          "program": "joko",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "personal_link",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/code-parrainage/joko.fr.golden.txt",
+            "template": "data/platform-templates/code-parrainage/joko.fr.txt",
+            "mapping": "data/platform-mappings/code-parrainage.joko.fr.json",
+            "meta": "data/platform-templates/code-parrainage/joko.fr.meta.json"
+          },
+          "chars": 710
         }
       ],
       "errors": [],
-      "quality": "detail_pages",
-      "edit_urls_found": 26
-    },
-    "code-parrainage": {
-      "platform": "code-parrainage",
-      "items": [],
-      "errors": [
-        {
-          "error": "aucune annonce structuree extraite — DOM a cartographier",
-          "hint": "raw dump: data/captures/code-parrainage-raw.txt"
-        }
-      ]
+      "edit_urls_found": 36
     },
     "referralcode-tv": {
       "platform": "referralcode-tv",
       "items": [],
       "errors": [
         {
-          "error": "Page.goto: Timeout 45000ms exceeded.\nCall log:\n  - navigating to \"https://www.referralcode.tv/my-account/?tab=listings\", waiting until \"networkidle\"\n"
+          "error": "Page.evaluate: SyntaxError: Failed to execute 'querySelectorAll' on 'Document': 'a[href*=\"edit\"], a:has-text(\"Edit\"), button:has-text(\"Edit Code\")' is not a valid selector.\n    at eval (eval at evaluate (:311:30), <anonymous>:2:35)\n    at UtilityScript.evaluate (<anonymous>:318:18)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
         }
       ]
     }

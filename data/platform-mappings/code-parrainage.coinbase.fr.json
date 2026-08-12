@@ -6,6 +6,7 @@
   "template_status": "ready",
   "golden_file": "coinbase.fr.golden.txt",
   "mutable_fields": [
+    "personal_link",
     "referee_reward"
   ],
   "markers": {
@@ -21,20 +22,22 @@
     "referee_reward": "reward",
     "conditions": "cond"
   },
-  "announcement_url": "https://code-parrainage.net/moncompte",
+  "announcement_url": "https://code-parrainage.net/modif/60471",
   "edit_url": null,
   "platform_values": {
+    "personal_link": "https://coinbase.com/join/8T83ZPS",
     "referee_reward": "20€ en BTC"
   },
   "confidences": {
+    "personal_link": "high",
     "referee_reward": "medium"
   },
-  "notes": "lien offers.json non trouve dans le texte; bonus extrait du texte plateforme (confiance moyenne); source: liste moncompte (texte peut etre tronque) — detail edit a capturer plus tard; list preview moncompte; may be truncated",
+  "notes": "bonus extrait du texte plateforme (confiance moyenne)",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",
     "referee_reward": "offers_json_then_official",
     "announcement_text": "platform_target_only"
   },
-  "quality": "capture_partial"
+  "quality": "full_edit"
 }

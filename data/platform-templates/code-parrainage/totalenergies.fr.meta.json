@@ -5,19 +5,21 @@
   "status": "ready",
   "role": "platform_target_historical_text_only",
   "not_business_source_of_truth": true,
-  "announcement_url": "https://code-parrainage.net/moncompte",
+  "announcement_url": "https://code-parrainage.net/modif/72025",
   "mutable_fields": [
+    "personal_code",
     "personal_link"
   ],
   "platform_values": {
+    "personal_code": "114052844",
     "personal_link": "https://redir-totalenergies.web.app/je-parraine?_bp=114052844"
   },
   "confidences": {
+    "personal_code": "high",
     "personal_link": "medium"
   },
   "notes": [
     "lien plateforme != offers.json",
-    "bonus non marque (ambigu / non trouve) — texte laisse fixe",
-    "source: liste moncompte (texte peut etre tronque) — detail edit a capturer plus tard"
+    "bonus non marque (ambigu / non trouve) — texte laisse fixe"
   ]
 }

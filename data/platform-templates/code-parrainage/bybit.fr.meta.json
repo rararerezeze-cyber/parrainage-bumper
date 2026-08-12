@@ -5,19 +5,20 @@
   "status": "ready",
   "role": "platform_target_historical_text_only",
   "not_business_source_of_truth": true,
-  "announcement_url": "https://code-parrainage.net/moncompte",
+  "announcement_url": "https://code-parrainage.net/modif/83674",
   "mutable_fields": [
-    "referee_reward"
+    "personal_code",
+    "personal_link"
   ],
   "platform_values": {
-    "referee_reward": "25 UDSC offerts en crypto pour les nouveaux utilisateurs s’inscriv..."
+    "personal_code": "YQ6B3O2",
+    "personal_link": "https://www.bybit.eu/invite?ref=YQ6B3O2"
   },
   "confidences": {
-    "referee_reward": "medium"
+    "personal_code": "high",
+    "personal_link": "high"
   },
   "notes": [
-    "lien offers.json non trouve dans le texte",
-    "bonus extrait du texte plateforme (confiance moyenne)",
-    "source: liste moncompte (texte peut etre tronque) — detail edit a capturer plus tard"
+    "bonus non marque (ambigu / non trouve) — texte laisse fixe"
   ]
 }

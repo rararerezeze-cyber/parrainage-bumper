@@ -498,17 +498,17 @@ Get Spotlight
  
  
  
- J 
+ P 
  
  
  
  
-Justin Barton
+PROTOTYPE
  
  
  
  
-@dozer
+@PROTOTYPE
  
  
  
@@ -824,4 +824,4 @@ More drops you might like
  
  
  
- Raise is an online platform that allow
+ Raise 
