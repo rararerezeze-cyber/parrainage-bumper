@@ -147,33 +147,64 @@ def dry_run_report(program: str = "kraken", language: str = "fr") -> dict[str, A
 
 
 async def _login(page, ctx, cfg: dict) -> None:
+    """Prefer remember-me cookie (avoids Turnstile). Password path needs TWOCAPTCHA_KEY."""
+    import os
+
     bumper = _bumper()
-    rm = cfg.get("rm_cookie") or ""
+    rm = (cfg.get("rm_cookie") or os.environ.get("PARRAINAGE_CO_RM_COOKIE") or "").strip()
+    email = cfg.get("email") or os.environ.get("PARRAINAGE_CO_EMAIL") or ""
+    password = cfg.get("password") or os.environ.get("PARRAINAGE_CO_PASSWORD") or ""
+
     if rm:
-        await ctx.add_cookies(
-            [
-                {
-                    "name": "parrainageco_rm",
-                    "value": rm.strip(),
-                    "domain": "parrainage.co",
-                    "path": "/",
-                }
-            ]
+        # Inject on apex + www (site may set either host)
+        for domain in ("parrainage.co", ".parrainage.co", "www.parrainage.co"):
+            try:
+                await ctx.add_cookies(
+                    [
+                        {
+                            "name": "parrainageco_rm",
+                            "value": rm,
+                            "domain": domain,
+                            "path": "/",
+                        }
+                    ]
+                )
+            except Exception:
+                continue
+        log.info("cookie PARRAINAGE_CO_RM_COOKIE injecte (len=%s)", len(rm))
+    else:
+        log.warning("PARRAINAGE_CO_RM_COOKIE absent — password login will hit Turnstile")
+
+    await page.goto(f"{cfg['url']}/account/offers", wait_until="domcontentloaded", timeout=60000)
+    await bumper.human_sleep(1.5, 2.5)
+    if "/login" not in page.url:
+        log.info("session cookie OK — logged in without password")
+        return
+
+    log.warning("cookie session invalide/expiree → fallback password")
+    if not email or not password:
+        raise RuntimeError(
+            "AUTH_REQUIRED: PARRAINAGE_CO_RM_COOKIE expired/missing and "
+            "PARRAINAGE_CO_EMAIL/PASSWORD not set"
+        )
+    has_2captcha = bool(os.environ.get("TWOCAPTCHA_KEY"))
+    if not has_2captcha:
+        log.warning(
+            "TWOCAPTCHA_KEY missing — password login often fails on Cloudflare Turnstile"
+        )
+    await page.goto(f"{cfg['url']}/account/login", wait_until="domcontentloaded", timeout=60000)
+    ok = await bumper.smart_login_parrainage(page, email, password)
+    if not ok:
+        raise RuntimeError(
+            "login parrainage.co echoue "
+            f"(cookie_invalid=true, turnstile_solver={'on' if has_2captcha else 'off'}). "
+            "Refresh GH secret PARRAINAGE_CO_RM_COOKIE (preferred) "
+            "or set TWOCAPTCHA_KEY for password+Turnstile path."
         )
     await page.goto(f"{cfg['url']}/account/offers", wait_until="domcontentloaded", timeout=60000)
     await bumper.human_sleep(1.5, 2.5)
     if "/login" in page.url:
-        if not cfg.get("email") or not cfg.get("password"):
-            raise RuntimeError(
-                "session requise — set PARRAINAGE_CO_RM_COOKIE or "
-                "PARRAINAGE_CO_EMAIL + PARRAINAGE_CO_PASSWORD"
-            )
-        await page.goto(f"{cfg['url']}/account/login", wait_until="domcontentloaded", timeout=60000)
-        ok = await bumper.smart_login_parrainage(page, cfg["email"], cfg["password"])
-        if not ok:
-            raise RuntimeError("login parrainage.co echoue")
-        await page.goto(f"{cfg['url']}/account/offers", wait_until="domcontentloaded", timeout=60000)
-        await bumper.human_sleep(1.5, 2.5)
+        raise RuntimeError("login parrainage.co: still on /login after password path")
 
 
 async def _resolve_edit_url(page, plan: WritePlan) -> str:
