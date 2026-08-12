@@ -1,0 +1,128 @@
+name: Hermes operator (Autofresh backend)
+# Primary product entry for Hermes (not BotFather).
+# Hermes dispatches this workflow with a natural-language command and reads JSON artifact.
+#
+# Security:
+# - Only callable via authenticated GitHub API (fine-grained PAT / GitHub App).
+# - Optional AUTOFRESH_OPERATOR_TOKEN check inside hermes_autofresh when set.
+# - No public webhook, no Autofresh-owned Telegram bot required.
+on:
+  workflow_dispatch:
+    inputs:
+      command:
+        description: "Natural language operator command (e.g. Kraken gain filleul 20 €)"
+        required: true
+      requester:
+        description: "Hermes identity string"
+        required: false
+        default: "hermes"
+      correlation_id:
+        description: "Optional correlation id for Hermes"
+        required: false
+        default: ""
+      run_writers:
+        description: "Run WRITE_VERIFIED writers (true/false)"
+        required: false
+        default: "true"
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: autofresh-hermes-operator
+  cancel-in-progress: false
+jobs:
+  operator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Dependencies
+        run: |
+          pip install -r requirements.txt
+          python - <<'PY'
+          from lib.write_status import summary
+          s = summary()
+          open("/tmp/need_browser","w").write("1" if s.get("write_verified_count") else "0")
+          print("WRITE_VERIFIED", s.get("WRITE_VERIFIED"))
+          PY
+          if [ "$(cat /tmp/need_browser)" = "1" ]; then
+            playwright install --with-deps chromium
+          fi
+      - name: Run Hermes Autofresh command
+        id: run
+        env:
+          SUPER_PARRAIN_EMAIL: ${{ secrets.SUPER_PARRAIN_EMAIL }}
+          SUPER_PARRAIN_PASSWORD: ${{ secrets.SUPER_PARRAIN_PASSWORD }}
+          PARRAINAGE_CO_EMAIL: ${{ secrets.PARRAINAGE_CO_EMAIL }}
+          PARRAINAGE_CO_PASSWORD: ${{ secrets.PARRAINAGE_CO_PASSWORD }}
+          PARRAINAGE_CO_RM_COOKIE: ${{ secrets.PARRAINAGE_CO_RM_COOKIE }}
+          AUTOFRESH_OPERATOR_TOKEN: ${{ secrets.AUTOFRESH_OPERATOR_TOKEN }}
+          HERMES_SHARED_TOKEN: ${{ secrets.HERMES_SHARED_TOKEN }}
+          AUTOFRESH_PHASE: "VALIDATION_LIVE"
+          GITHUB_ACTIONS: "true"
+        run: |
+          set -e
+          CMD='${{ github.event.inputs.command }}'
+          REQ='${{ github.event.inputs.requester }}'
+          CID='${{ github.event.inputs.correlation_id }}'
+          RW='${{ github.event.inputs.run_writers }}'
+          python - <<PY
+          import json, os, subprocess, sys
+          from pathlib import Path
+          cmd = os.environ.get("CMD") or """${{ github.event.inputs.command }}"""
+          # rebuild request for hermes_autofresh
+          req = {
+            "action": "autofresh",
+            "command": """${{ github.event.inputs.command }}""",
+            "requester": {
+              "source": "hermes",
+              "identity": """${{ github.event.inputs.requester }}""" or "hermes",
+              "token": os.environ.get("AUTOFRESH_OPERATOR_TOKEN") or os.environ.get("HERMES_SHARED_TOKEN") or "",
+            },
+            "options": {
+              "persist": True,
+              "plan": True,
+              "run_writers": ("""${{ github.event.inputs.run_writers }}""" or "true").lower() == "true",
+            },
+            "correlation_id": """${{ github.event.inputs.correlation_id }}""" or None,
+          }
+          Path("/tmp/hermes-request.json").write_text(json.dumps(req, ensure_ascii=False), encoding="utf-8")
+          print(json.dumps(req, ensure_ascii=False, indent=2))
+          PY
+          set +e
+          python tools/hermes_autofresh.py --request-file /tmp/hermes-request.json > /tmp/hermes-result.json
+          RC=$?
+          set -e
+          echo "hermes_exit=$RC"
+          # Always keep structured result
+          cp /tmp/hermes-result.json data/captures/hermes-last-result.json 2>/dev/null || true
+          python -c "import json; d=json.load(open('/tmp/hermes-result.json',encoding='utf-8')); print('ok=',d.get('ok'),'errors=',d.get('errors')); print('WRITE_VERIFIED', (d.get('write_status') or {}).get('WRITE_VERIFIED'))"
+          # Non-zero only for hard failures; parse/auth still upload artifact
+          exit 0
+      - name: Upload Hermes JSON result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hermes-autofresh-result
+          retention-days: 30
+          path: |
+            data/captures/hermes-last-result.json
+            data/captures/verified-writers-report.json
+            data/operator-overrides.json
+            data/platform-write-status.json
+            /tmp/hermes-result.json
+          if-no-files-found: ignore
+      - name: Commit overrides + status
+        if: success()
+        run: |
+          git config user.name "autofresh-bot"
+          git config user.email "autofresh-bot@users.noreply.github.com"
+          git add data/operator-overrides.json data/platform-write-status.json data/captures/hermes-last-result.json data/captures data/pending_writes.json data/platform-mappings data/platform-templates data/sync-state.json last_super_run.txt data/autofresh-phase.json 2>/dev/null || true
+          if git diff --cached --quiet; then echo "no commit"; else
+            git commit -m "chore(hermes): operator command result"
+            git pull --rebase origin "${{ github.ref_name }}" || true
+            git push || true
+          fi

@@ -27,59 +27,60 @@ def main() -> int:
     ov = ROOT / "data" / "operator-overrides.json"
     ov_ok = ov.exists()
 
+    hermes_cli = ROOT / "tools" / "hermes_autofresh.py"
+    hermes_lib = ROOT / "lib" / "hermes_interface.py"
+    hermes_wf = ROOT / ".github" / "workflows" / "hermes_operator.yml"
+    hermes_docs = ROOT / "docs" / "hermes-autofresh-interface.md"
+    hermes_ready = all(p.exists() for p in (hermes_cli, hermes_lib, hermes_wf, hermes_docs))
+
     report = {
-        "mode": "END_TO_END_OPERATOR",
+        "mode": "HERMES_BACKEND",
         "monitor_mode": "OBSERVATION_ONLY",
-        "telegram_worker_code": "PASS" if worker_ok and has_allowlist and has_dispatch else "FAIL",
-        "telegram_worker_full_commands": "PASS" if has_full_cmds else "FAIL",
-        "telegram_real_webhook_deploy": "UNKNOWN",  # requires wrangler + secrets outside CI
-        "telegram_reply_workflow": "PASS",  # telegram_sync notifies when chat_id set
+        "architecture": "Telegram→Hermes→Autofresh→JSON→Hermes→Telegram",
+        "telegram_bot_owned_by": "Hermes (not Autofresh)",
+        "hermes_interface_code": "PASS" if hermes_ready else "FAIL",
+        "telegram_worker_optional": "YES",
+        "telegram_worker_required": "NO",
+        "telegram_worker_code_present": "YES" if worker_ok else "NO",
         "operator_overrides_store": "PASS" if ov_ok else "FAIL",
         "WRITE_VERIFIED": ws.get("WRITE_VERIFIED"),
         "write_verified_count": ws.get("write_verified_count"),
         "telegram_live_capable": ws.get("telegram_live_capable"),
         "platforms": ws.get("platforms"),
         "by_status": ws.get("by_status"),
+        "HERMES_AUTOFRESH_INTERFACE_READY": "YES" if hermes_ready and ov_ok else "NO",
         "END_TO_END_OPERATOR_READY": (
             "YES"
-            if (
-                worker_ok
-                and has_allowlist
-                and has_dispatch
-                and has_full_cmds
-                and ov_ok
-                and (ws.get("write_verified_count") or 0) >= 1
-            )
+            if hermes_ready and ov_ok and (ws.get("write_verified_count") or 0) >= 1
             else "NO"
         ),
         "blockers_to_ready": [],
         "note": (
-            "WRITE_VERIFIED requires real authenticated canary + post-verify. "
-            "Telegram live updates only for verified platforms. "
-            "Webhook deploy + secrets are operator-side (wrangler)."
+            "Product path: Hermes calls tools/hermes_autofresh.py or workflow hermes_operator.yml. "
+            "telegram-worker is optional/test only. "
+            "WRITE_VERIFIED requires real authenticated canary + post-verify."
         ),
     }
     if (ws.get("write_verified_count") or 0) < 1:
         report["blockers_to_ready"].append(
-            "No WRITE_VERIFIED platform yet — Super-Parrain is CANARY_READY; run controlled canary with secrets"
+            "No WRITE_VERIFIED platform yet — Super-Parrain is CANARY_READY until real post-verify canary"
         )
-    if report["telegram_real_webhook_deploy"] == "UNKNOWN":
-        report["blockers_to_ready"].append(
-            "Deploy telegram-worker with wrangler secrets + setWebhook (ops step)"
-        )
+    if not hermes_ready:
+        report["blockers_to_ready"].append("Hermes interface files incomplete")
 
     out = ROOT / "data" / "captures" / "e2e-status.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
-    print("=== AUTOFRESH END-TO-END ===")
-    print(f"Telegram worker code: {report['telegram_worker_code']}")
-    print(f"Telegram full commands: {report['telegram_worker_full_commands']}")
-    print(f"Telegram real webhook deploy: {report['telegram_real_webhook_deploy']}")
+    print("=== AUTOFRESH / HERMES INTERFACE ===")
+    print(f"Architecture: {report['architecture']}")
+    print(f"Hermes interface: {report['hermes_interface_code']}")
+    print(f"telegram-worker required: {report['telegram_worker_required']}")
     print(f"WRITE_VERIFIED: {report['WRITE_VERIFIED']}")
-    print(f"Telegram live-capable: {len(report['telegram_live_capable'] or [])}/7")
+    print(f"Live-capable platforms: {len(report['telegram_live_capable'] or [])}/7")
     for p in report["platforms"] or []:
         print(f"  {p['platform']:18} {p['status']:22} tg={p['telegram_action']}")
+    print(f"HERMES_AUTOFRESH_INTERFACE_READY = {report['HERMES_AUTOFRESH_INTERFACE_READY']}")
     print(f"END_TO_END_OPERATOR_READY = {report['END_TO_END_OPERATOR_READY']}")
     if report["blockers_to_ready"]:
         print("Blockers:")

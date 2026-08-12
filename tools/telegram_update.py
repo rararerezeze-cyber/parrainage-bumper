@@ -280,8 +280,10 @@ def apply_operator_command(parsed: dict, *, message: str) -> dict:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Telegram FULL OPERATOR CONTROL")
-    parser.add_argument("message", help="Message naturel style Telegram")
+    parser = argparse.ArgumentParser(
+        description="Operator control entry (legacy Telegram CLI; prefer tools/hermes_autofresh.py for Hermes)"
+    )
+    parser.add_argument("message", help="Message naturel operator")
     parser.add_argument(
         "--write",
         action="store_true",
@@ -292,6 +294,11 @@ def main() -> int:
         action="store_true",
         help="Parse only, do not persist overrides",
     )
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Emit Hermes-compatible JSON (via lib.hermes_interface)",
+    )
     parser.add_argument("--report-file", default="")
     parser.add_argument(
         "--no-plan",
@@ -299,6 +306,24 @@ def main() -> int:
         help="Skip cross-platform impact plan",
     )
     args = parser.parse_args()
+
+    # Preferred path for machine consumers
+    if args.json:
+        import os
+
+        os.environ.setdefault("AUTOFRESH_ALLOW_LOCAL_OPERATOR", "1")
+        from lib.hermes_interface import run_autofresh_command, save_result
+
+        payload = run_autofresh_command(
+            args.message,
+            requester={"source": "telegram_update_cli", "identity": "legacy"},
+            persist=not args.dry_run_parse,
+            plan=not args.no_plan,
+            run_writers=bool(args.write) and not args.dry_run_parse,
+        )
+        save_result(payload)
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0 if payload.get("ok") else 2
 
     offers = OffersRepository()
     try:
@@ -393,6 +418,7 @@ def main() -> int:
                 "result": result,
                 "plan_summary": plan.get("summary"),
                 "mode": "FULL_OPERATOR_CONTROL",
+                "note": "Prefer tools/hermes_autofresh.py for Hermes JSON interface",
             },
             ensure_ascii=False,
             indent=2,

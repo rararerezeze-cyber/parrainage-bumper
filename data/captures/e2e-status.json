@@ -1,10 +1,12 @@
 {
-  "mode": "END_TO_END_OPERATOR",
+  "mode": "HERMES_BACKEND",
   "monitor_mode": "OBSERVATION_ONLY",
-  "telegram_worker_code": "PASS",
-  "telegram_worker_full_commands": "PASS",
-  "telegram_real_webhook_deploy": "UNKNOWN",
-  "telegram_reply_workflow": "PASS",
+  "architecture": "Telegram→Hermes→Autofresh→JSON→Hermes→Telegram",
+  "telegram_bot_owned_by": "Hermes (not Autofresh)",
+  "hermes_interface_code": "PASS",
+  "telegram_worker_optional": "YES",
+  "telegram_worker_required": "NO",
+  "telegram_worker_code_present": "YES",
   "operator_overrides_store": "PASS",
   "WRITE_VERIFIED": "0/7",
   "write_verified_count": 0,
@@ -72,10 +74,10 @@
     "WRITE_PREPARED": 5,
     "AUTH_BLOCKED_GOOGLE": 1
   },
+  "HERMES_AUTOFRESH_INTERFACE_READY": "YES",
   "END_TO_END_OPERATOR_READY": "NO",
   "blockers_to_ready": [
-    "No WRITE_VERIFIED platform yet — Super-Parrain is CANARY_READY; run controlled canary with secrets",
-    "Deploy telegram-worker with wrangler secrets + setWebhook (ops step)"
+    "No WRITE_VERIFIED platform yet — Super-Parrain is CANARY_READY until real post-verify canary"
   ],
-  "note": "WRITE_VERIFIED requires real authenticated canary + post-verify. Telegram live updates only for verified platforms. Webhook deploy + secrets are operator-side (wrangler)."
+  "note": "Product path: Hermes calls tools/hermes_autofresh.py or workflow hermes_operator.yml. telegram-worker is optional/test only. WRITE_VERIFIED requires real authenticated canary + post-verify."
 }
