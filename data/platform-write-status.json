@@ -9,7 +9,8 @@
     "super-parrain": {
       "status": "CANARY_READY",
       "canary_program": "kraken",
-      "notes": "Writer + post-verify + cooldown ready. Not WRITE_VERIFIED until real auth edit + submit + reread + field post-match."
+      "runtime_mode": "CANARY_PENDING",
+      "notes": "CANARY_PENDING: historical bumper blocked — exclusive content canary on next 24h slot. Not WRITE_VERIFIED until real auth edit + submit + reread + post_match."
     },
     "parrainage-co": {
       "status": "WRITE_PREPARED",

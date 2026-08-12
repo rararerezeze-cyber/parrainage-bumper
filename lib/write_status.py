@@ -46,9 +46,10 @@ DEFAULT_STATUS: dict[str, dict[str, Any]] = {
     "super-parrain": {
         "status": STATUS_CANARY_READY,
         "canary_program": "kraken",
+        "runtime_mode": "CANARY_PENDING",
         "notes": (
-            "Writer + post-verify + cooldown ready. "
-            "Not WRITE_VERIFIED until real auth edit + submit + reread + field post-match."
+            "CANARY_PENDING: historical bumper blocked until content canary WRITE_VERIFIED. "
+            "Exclusive slot for Kraken auth edit + post_match."
         ),
     },
     "parrainage-co": {
@@ -230,6 +231,11 @@ def mark_write_verified(
     meta["status"] = STATUS_WRITE_VERIFIED
     meta["canary_program"] = program
     meta["last_write_verified_at"] = _now()
+    if platform == "super-parrain":
+        meta["runtime_mode"] = "NORMAL_BUMP"
+        meta["notes"] = (
+            "WRITE_VERIFIED — content canary passed; historical bumper re-enabled."
+        )
     meta["evidence"] = {
         "program": program,
         "checks": checks,
@@ -244,9 +250,20 @@ def mark_write_verified(
     save_write_status(data)
 
     # keep phase.json in sync for live_writes_enabled
-    from lib.phase import mark_write_verified as phase_mark
+    from lib.phase import mark_write_verified as phase_mark, load_phase, save_phase
 
     phase_mark(platform)
+    if platform == "super-parrain":
+        try:
+            ph = load_phase()
+            ph["super_parrain_runtime"] = "NORMAL_BUMP"
+            ph["note"] = (
+                (ph.get("note") or "")
+                + " Super-Parrain WRITE_VERIFIED: bumper re-enabled."
+            ).strip()
+            save_phase(ph)
+        except Exception:
+            pass
     return {"ok": True, "platform": platform, "status": STATUS_WRITE_VERIFIED}
 
 

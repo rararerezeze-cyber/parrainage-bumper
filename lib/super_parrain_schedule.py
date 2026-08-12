@@ -140,37 +140,95 @@ def mark_pending_done(platform: str, program: str, language: str = "fr") -> None
     save_pending(data)
 
 
+def is_super_parrain_canary_pending() -> bool:
+    """True until Super-Parrain content canary is WRITE_VERIFIED.
+
+    While True, the historical bumper must NOT consume the 24h slot —
+    the content canary has exclusive priority on the next eligible window.
+    """
+    try:
+        from lib.write_status import is_write_verified
+
+        return not is_write_verified("super-parrain")
+    except Exception:
+        # Fail-safe: reserve slot for canary if status cannot be read
+        return True
+
+
+def super_parrain_runtime_mode() -> str:
+    """CANARY_PENDING | NORMAL_BUMP"""
+    return "CANARY_PENDING" if is_super_parrain_canary_pending() else "NORMAL_BUMP"
+
+
 def decide_super_parrain_action() -> dict[str, Any]:
     """Decide l'action du cron historique Super-Parrain.
 
-    - wait: hors creneau 24h (comportement bumper historique)
-    - cycle: creneau atteint → PRE-CHECK Autofresh puis bump normal
+    - wait: hors creneau 24h
+    - canary_exclusive: creneau ouvert mais canary Kraken pas encore WRITE_VERIFIED
+      → aucun bump/save bumper; créneau réservé au content canary
+    - cycle: WRITE_VERIFIED + creneau → PRE-CHECK + bump normal
 
-    Un pending content update NE bloque PAS le bump: il est traite AU creneau,
-    avant la remontee.
+    Race-safe with activation_canary.yml via shared concurrency group
+    `parrainage-bumper-super`.
     """
     eligible, nxt, hours = is_eligible()
     pending = list_pending_super_parrain()
+    mode = super_parrain_runtime_mode()
+    canary_pending = mode == "CANARY_PENDING"
+
     if not eligible:
         return {
             "action": "wait",
-            "reason": "cooldown_24h_historical_slot",
+            "reason": (
+                "canary_pending_cooldown"
+                if canary_pending
+                else "cooldown_24h_historical_slot"
+            ),
+            "runtime_mode": mode,
+            "canary_pending": canary_pending,
             "next_eligible_at": nxt.isoformat(),
             "hours_remaining": round(hours, 2),
             "pending_count": len(pending),
-            "skip_bump": True,  # hors creneau, comme bumper.py aujourd'hui
+            "skip_bump": True,
             "run_precheck": False,
             "run_bump": False,
+            "run_canary": False,
         }
+
+    # Slot open — canary owns it until WRITE_VERIFIED
+    if canary_pending:
+        return {
+            "action": "canary_exclusive",
+            "reason": "CANARY_PENDING_exclusive_slot_no_bump",
+            "runtime_mode": mode,
+            "canary_pending": True,
+            "next_eligible_at": nxt.isoformat(),
+            "hours_remaining": 0,
+            "pending_count": len(pending),
+            "skip_bump": True,
+            "run_precheck": False,
+            "run_bump": False,
+            "run_canary": True,
+            "canary_program": "kraken",
+            "note": (
+                "Bumper Super-Parrain blocked until content canary post_match=true "
+                "→ WRITE_VERIFIED. Do not consume 24h cooldown with bump-only."
+            ),
+            "pending_programs": [p.get("program") for p in pending],
+        }
+
     return {
         "action": "cycle",
-        "reason": "slot_reached_precheck_then_bump",
+        "reason": "slot_reached_write_verified_precheck_then_bump",
+        "runtime_mode": mode,
+        "canary_pending": False,
         "next_eligible_at": nxt.isoformat(),
         "hours_remaining": 0,
         "pending_count": len(pending),
         "skip_bump": False,
         "run_precheck": True,
         "run_bump": True,
+        "run_canary": False,
         "pending_programs": [p.get("program") for p in pending],
     }
 
