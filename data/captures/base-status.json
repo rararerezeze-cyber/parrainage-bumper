@@ -1,6 +1,7 @@
 {
   "phase": "BASE",
   "live_writes": false,
+  "live_canary_allowed": false,
   "programs": 38,
   "mapped_pairs": 117,
   "platforms": [
@@ -83,6 +84,15 @@
     }
   ],
   "base_ready_platforms": 7,
-  "base_ready_all": true,
-  "note": "BASE_READY_ALL requires explicit review that dry-run writers are prepared and no live canary is pending. base_ready_all flag is advisory until writers matrix is complete."
+  "writers_dry_plan_ok": 2,
+  "writer_notes": [
+    "super-parrain:dry_plan_ok",
+    "parrainage-co:dry_plan_ok"
+  ],
+  "blockers": [
+    "code-parrainage:partial_capture",
+    "1parrainage:inventory_incomplete_vs_profile"
+  ],
+  "note": "BASE_READY_ALL = all platforms BASE_READY* + no inventory blockers + writers dry-plan for Super+Parrainage.co + live_writes off",
+  "base_ready_all": false
 }

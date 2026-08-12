@@ -92,23 +92,61 @@ def main() -> int:
         for p in platforms
         if str(p["base_status"]).startswith("BASE_READY")
     )
+    # Stricter gates for BASE_READY_ALL (not just inventory)
+    from platforms.parrainage_co.writer import build_write_plan as pco_plan
+    from platforms.super_parrain.writer import build_write_plan as sp_plan
+
+    writers_ok = 0
+    writer_notes = []
+    try:
+        sp = sp_plan(program="kraken")
+        if sp.structure_preserved:
+            writers_ok += 1
+            writer_notes.append("super-parrain:dry_plan_ok")
+    except Exception as exc:  # noqa: BLE001
+        writer_notes.append(f"super-parrain:fail:{exc}")
+    try:
+        pc = pco_plan(program="kraken")
+        if pc.structure_preserved:
+            writers_ok += 1
+            writer_notes.append("parrainage-co:dry_plan_ok")
+    except Exception as exc:  # noqa: BLE001
+        writer_notes.append(f"parrainage-co:fail:{exc}")
+
+    blockers = []
+    if not live_writes_enabled() is False:
+        pass
+    # code-parrainage still partial capture quality cell
+    for p in platforms:
+        if p["platform"] == "code-parrainage" and p.get("partial", 0) > 0:
+            blockers.append("code-parrainage:partial_capture")
+        if p["platform"] == "referralcode-tv" and p.get("full", 0) < 5:
+            blockers.append("referralcode-tv:thin_capture")
+        if p["platform"] == "1parrainage" and p.get("mapped", 0) < 10:
+            blockers.append("1parrainage:inventory_incomplete_vs_profile")
+
     report = {
         "phase": phase_name(),
         "live_writes": live_writes_enabled(),
+        "live_canary_allowed": False,
         "programs": offers_n,
         "mapped_pairs": len(refs),
         "platforms": platforms,
         "base_ready_platforms": readyish,
-        "base_ready_all": readyish >= 7 and phase_name() == "BASE",
+        "writers_dry_plan_ok": writers_ok,
+        "writer_notes": writer_notes,
+        "blockers": blockers,
         "note": (
-            "BASE_READY_ALL requires explicit review that dry-run writers are prepared "
-            "and no live canary is pending. base_ready_all flag is advisory until writers "
-            "matrix is complete."
+            "BASE_READY_ALL = all platforms BASE_READY* + no inventory blockers "
+            "+ writers dry-plan for Super+Parrainage.co + live_writes off"
         ),
     }
-    # Stricter: all platforms BASE_READY*
-    report["base_ready_all"] = all(
-        str(p["base_status"]).startswith("BASE_READY") for p in platforms
+    report["base_ready_all"] = (
+        readyish >= 7
+        and writers_ok >= 2
+        and not blockers
+        and phase_name() == "BASE"
+        and not live_writes_enabled()
     )
     out = ROOT / "data" / "captures" / "base-status.json"
     out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
