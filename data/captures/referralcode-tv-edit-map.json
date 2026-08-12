@@ -125,5 +125,14 @@
       "listings": "https://www.referralcode.tv/my-account/?tab=listings",
       "boost_button": "#cliccami (bump only — not content edit)"
     }
+  },
+  "auth": {
+    "mode": "auth",
+    "ok": false,
+    "login": "failed",
+    "pages": [],
+    "edit_urls": [],
+    "errors": [],
+    "error": "Timeout 30000ms exceeded."
   }
 }
