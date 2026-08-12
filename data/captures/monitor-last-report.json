@@ -1,0 +1,1014 @@
+{
+  "generated_at": "2026-08-12T19:35:23.409866+00:00",
+  "mode": "OBSERVATION_ONLY",
+  "count": 38,
+  "by_status": {
+    "ERROR": 11,
+    "REJECTED": 15,
+    "REVIEW": 12
+  },
+  "by_confidence": {
+    "REJECT": 26,
+    "REVIEW": 9,
+    "HIGH": 3
+  },
+  "observations": [
+    {
+      "program": "boursobank",
+      "status": "ERROR",
+      "confidence": "REJECT",
+      "source_url": "https://www.boursobank.com/offre-parrainage",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:34:10.604550+00:00",
+      "canonical_fields": {
+        "referee_reward": "Programme à confirmer",
+        "conditions": "La disponibilité et le montant du parrainage BoursoBank changent selon les campagnes. Aucun bonus ne doit être considéré comme garanti avant sa confirmation sur le parcours officiel."
+      },
+      "observed_fields": {},
+      "changes": [],
+      "notes": [
+        "fetch_failed"
+      ],
+      "error": "HTTP 404 for https://www.boursobank.com/offre-parrainage",
+      "business_fingerprint": "",
+      "html_changed_hint": false
+    },
+    {
+      "program": "paypal",
+      "status": "ERROR",
+      "confidence": "REJECT",
+      "source_url": "https://www.paypal.com/fr/webapps/mpp/referral",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:34:14.805422+00:00",
+      "canonical_fields": {
+        "referee_reward": "10 €",
+        "conditions": "Un achat minimum de 5 € doit être effectué dans les 30 jours suivant l'inscription pour déclencher le crédit."
+      },
+      "observed_fields": {},
+      "changes": [],
+      "notes": [
+        "fetch_failed"
+      ],
+      "error": "HTTP 404 for https://www.paypal.com/fr/webapps/mpp/referral",
+      "business_fingerprint": "",
+      "html_changed_hint": false
+    },
+    {
+      "program": "revolut",
+      "status": "REJECTED",
+      "confidence": "REJECT",
+      "source_url": "https://www.revolut.com/referral/",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:34:21.403581+00:00",
+      "canonical_fields": {
+        "referee_reward": "Avantage",
+        "conditions": "Le nombre d’achats, leur montant minimum, la date limite et l’existence d’un avantage pour le filleul varient selon la campagne affichée dans l’application Revolut. Aucun montant fixe n’est garanti."
+      },
+      "observed_fields": {},
+      "changes": [],
+      "notes": [
+        "challenge_or_error_page",
+        "rejected_extraction",
+        "page_fp=ca6e2d3f427b2f7e"
+      ],
+      "error": null,
+      "business_fingerprint": "",
+      "html_changed_hint": false
+    },
+    {
+      "program": "wise",
+      "status": "REJECTED",
+      "confidence": "REJECT",
+      "source_url": "https://wise.com/invite",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:34:24.292372+00:00",
+      "canonical_fields": {
+        "referee_reward": "Frais sur le 1er transfert",
+        "conditions": "La réduction porte uniquement sur les frais du premier transfert. Elle ne s'applique pas aux transferts suivants."
+      },
+      "observed_fields": {},
+      "changes": [],
+      "notes": [
+        "no_reward_phrase_found",
+        "rejected_extraction",
+        "page_fp=422f52fd1cd10c17"
+      ],
+      "error": null,
+      "business_fingerprint": "",
+      "html_changed_hint": false
+    },
+    {
+      "program": "traderepublic",
+      "status": "REJECTED",
+      "confidence": "REJECT",
+      "source_url": "https://traderepublic.com/fr-fr",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:34:24.845733+00:00",
+      "canonical_fields": {
+        "referee_reward": "Action ou ETF",
+        "conditions": "La récompense et les critères sont personnalisés et visibles dans l’application. Le filleul reçoit une action ou un ETF uniquement après avoir rempli toutes les conditions de sa campagne."
+      },
+      "observed_fields": {},
+      "changes": [],
+      "notes": [
+        "no_reward_phrase_found",
+        "rejected_extraction",
+        "page_fp=2c44ce95feae6a2f"
+      ],
+      "error": null,
+      "business_fingerprint": "",
+      "html_changed_hint": false
+    },
+    {
+      "program": "robinhood",
+      "status": "ERROR",
+      "confidence": "REJECT",
+      "source_url": "https://robinhood.com/us/en/support/articles/referral-program/",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:34:25.495377+00:00",
+      "canonical_fields": {
+        "referee_reward": "10 €",
+        "conditions": "Robinhood annonce 10 € ou plus en crypto. Le dépôt minimum et le montant exact de la récompense sont ceux indiqués dans l'application au moment de l'inscription."
+      },
+      "observed_fields": {},
+      "changes": [],
+      "notes": [
+        "fetch_failed"
+      ],
+      "error": "HTTP 404 for https://robinhood.com/us/en/support/articles/referral-program/",
+      "business_fingerprint": "",
+      "html_changed_hint": false
+    },
+    {
+      "program": "coinbase",
+      "status": "REJECTED",
+      "confidence": "REJECT",
+      "source_url": "https://www.coinbase.com/invite",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:34:26.353085+00:00",
+      "canonical_fields": {
+        "referee_reward": "Bonus variable",
+        "conditions": "Le montant, le volume de transactions requis et la période de qualification dépendent de la campagne Coinbase présentée au nouvel utilisateur. La récompense peut varier et le programme peut être modifié ou retiré."
+      },
+      "observed_fields": {},
+      "changes": [],
+      "notes": [
+        "empty_or_short_page",
+        "rejected_extraction",
+        "page_fp=68a728a7f6dc091f"
+      ],
+      "error": null,
+      "business_fingerprint": "",
+      "html_changed_hint": false
+    },
+    {
+      "program": "binance",
+      "status": "REJECTED",
+      "confidence": "REJECT",
+      "source_url": "https://www.binance.com/en/activity/referral",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:34:26.858454+00:00",
+      "canonical_fields": {
+        "referee_reward": "10% de réduction sur les frais",
+        "conditions": "La réduction de 10% est permanente et s'applique sur l'ensemble des transactions dès lors que le code a été saisi lors de l'inscription."
+      },
+      "observed_fields": {},
+      "changes": [],
+      "notes": [
+        "challenge_or_error_page",
+        "rejected_extraction",
+        "page_fp=c452c02edff6c0e0"
+      ],
+      "error": null,
+      "business_fingerprint": "",
+      "html_changed_hint": false
+    },
+    {
+      "program": "kraken",
+      "status": "ERROR",
+      "confidence": "REJECT",
+      "source_url": "https://www.kraken.com/en-us/features/referral-program",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:34:27.432847+00:00",
+      "canonical_fields": {
+        "referee_reward": "20 € en Bitcoin",
+        "conditions": "Kraken indique généralement un bonus équivalent à 20 € en Bitcoin pour la France, après dépôt et volume de trading réalisés sous 30 jours. Les seuils exacts restent affichés dans l'application et le versement peut prendre jusqu'à 21 jours."
+      },
+      "observed_fields": {},
+      "changes": [],
+      "notes": [
+        "fetch_failed"
+      ],
+      "error": "HTTP 404 for https://www.kraken.com/en-us/features/referral-program",
+      "business_fingerprint": "",
+      "html_changed_hint": false
+    },
+    {
+      "program": "bybit",
+      "status": "REJECTED",
+      "confidence": "REJECT",
+      "source_url": "https://www.bybit.com/en/help-center/article/Referral-Program",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:34:28.391597+00:00",
+      "canonical_fields": {
+        "referee_reward": "10% de réduction sur les frais",
+        "conditions": "La réduction de 10% est permanente et s'applique dès lors que le code a été renseigné lors de l'inscription."
+      },
+      "observed_fields": {},
+      "changes": [],
+      "notes": [
+        "no_reward_phrase_found",
+        "rejected_extraction",
+        "page_fp=8ea5f2e65622fe0a"
+      ],
+      "error": null,
+      "business_fingerprint": "",
+      "html_changed_hint": false
+    },
+    {
+      "program": "swissborg",
+      "status": "REJECTED",
+      "confidence": "REJECT",
+      "source_url": "https://swissborg.com/fr/r",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:34:29.819517+00:00",
+      "canonical_fields": {
+        "referee_reward": "Jusqu'à 50 € en Bitcoin",
+        "conditions": "Le filleul doit être nouveau, compléter le KYC et réussir le défi affiché dans l'application. La campagne actuelle peut demander un dépôt puis au moins 100 € d'échanges. La récompense prend la forme d'un coupon fixe ou d'un ticket allant jusqu'à 50 € en Bitcoin."
+      },
+      "observed_fields": {
+        "conditions": "Conditions d’utilisation"
+      },
+      "changes": [],
+      "notes": [
+        "no_reward_phrase_found",
+        "rejected_extraction",
+        "page_fp=79c84e1c37922cf9"
+      ],
+      "error": null,
+      "business_fingerprint": "conditions=conditions d’utilisation",
+      "html_changed_hint": false
+    },
+    {
+      "program": "bitstack",
+      "status": "REVIEW",
+      "confidence": "REVIEW",
+      "source_url": "https://bitstack-app.com/",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:34:30.295099+00:00",
+      "canonical_fields": {
+        "referee_reward": "5 € en Bitcoin",
+        "conditions": "Les conditions publiées en avril 2026 exigent une identité vérifiée, 100 € cumulés d'achats de Bitcoin et un plan d'épargne actif dans les 30 jours. Le filleul reçoit alors 5 € en Bitcoin, généralement crédités sous sept jours."
+      },
+      "observed_fields": {
+        "referee_reward": "0,60 € en 0",
+        "conditions": "Conditions générales"
+      },
+      "changes": [
+        {
+          "field": "referee_reward",
+          "old": "5 € en Bitcoin",
+          "new": "0,60 € en 0"
+        },
+        {
+          "field": "conditions",
+          "old": "Les conditions publiées en avril 2026 exigent une identité vérifiée, 100 € cumulés d'achats de Bitcoin et un plan d'épargne actif dans les 30 jours. Le filleul reçoit alors 5 € en Bitcoin, généralement crédités sous sept jours.",
+          "new": "Conditions générales"
+        }
+      ],
+      "notes": [
+        "multiple_reward_candidates=['0,60 € en 0']",
+        "needs_human_review",
+        "page_fp=0add36c5624a65e9",
+        "mass_change_guard_triggered"
+      ],
+      "error": null,
+      "business_fingerprint": "conditions=conditions générales|referee_reward=0,60 € en 0",
+      "html_changed_hint": false
+    },
+    {
+      "program": "deblock",
+      "status": "REJECTED",
+      "confidence": "REJECT",
+      "source_url": "https://deblock.com/",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:34:31.056291+00:00",
+      "canonical_fields": {
+        "referee_reward": "Récompense",
+        "conditions": "Les campagnes Deblock peuvent proposer une récompense fixe ou variable. Le montant et les actions requises doivent être confirmés dans les conditions de la campagne active au moment de l’inscription."
+      },
+      "observed_fields": {},
+      "changes": [],
+      "notes": [
+        "no_reward_phrase_found",
+        "rejected_extraction",
+        "page_fp=0b6352a672823956"
+      ],
+      "error": null,
+      "business_fingerprint": "",
+      "html_changed_hint": false
+    },
+    {
+      "program": "gemini",
+      "status": "ERROR",
+      "confidence": "REJECT",
+      "source_url": "https://www.gemini.com/share",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:34:31.735889+00:00",
+      "canonical_fields": {
+        "referee_reward": "20 € en Bitcoin",
+        "conditions": "Le montant du bonus dépend de l'offre Gemini en vigueur. Vérifiez les conditions dans l'application lors de votre inscription."
+      },
+      "observed_fields": {},
+      "changes": [],
+      "notes": [
+        "fetch_failed"
+      ],
+      "error": "HTTP 500 for https://www.gemini.com/share",
+      "business_fingerprint": "",
+      "html_changed_hint": false
+    },
+    {
+      "program": "ledger",
+      "status": "REJECTED",
+      "confidence": "REJECT",
+      "source_url": "https://shop.ledger.com/pages/referral-program",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:34:32.817766+00:00",
+      "canonical_fields": {
+        "referee_reward": "20 € en Bitcoin",
+        "conditions": "L'achat d'un appareil Ledger sur le site officiel via le code de parrainage est requis pour bénéficier du bonus."
+      },
+      "observed_fields": {
+        "conditions": "Conditions Privacy Policy Cookie Policy Disclaimers"
+      },
+      "changes": [],
+      "notes": [
+        "no_reward_phrase_found",
+        "rejected_extraction",
+        "page_fp=a1616e9a1bfe7cbb"
+      ],
+      "error": null,
+      "business_fingerprint": "conditions=conditions privacy policy cookie policy disclaimers",
+      "html_changed_hint": false
+    },
+    {
+      "program": "betclic",
+      "status": "REVIEW",
+      "confidence": "HIGH",
+      "source_url": "https://www.betclic.fr/parrainage",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:34:36.859708+00:00",
+      "canonical_fields": {
+        "referee_reward": "100 €",
+        "conditions": "Offre réservée aux nouveaux clients de 18 ans et plus. Un dépôt et une mise minimale de 10 € sont requis. Le bonus est soumis à des conditions de mise avant tout retrait."
+      },
+      "observed_fields": {
+        "referee_reward": "0,00 €",
+        "conditions": "Conditions générales d'utilisation"
+      },
+      "changes": [
+        {
+          "field": "referee_reward",
+          "old": "100 €",
+          "new": "0,00 €"
+        },
+        {
+          "field": "conditions",
+          "old": "Offre réservée aux nouveaux clients de 18 ans et plus. Un dépôt et une mise minimale de 10 € sont requis. Le bonus est soumis à des conditions de mise avant tout retrait.",
+          "new": "Conditions générales d'utilisation"
+        }
+      ],
+      "notes": [
+        "single_reward_candidate",
+        "high_confidence_candidate",
+        "page_fp=07f5f43019f58bf3",
+        "mass_change_guard_triggered"
+      ],
+      "error": null,
+      "business_fingerprint": "conditions=conditions générales d'utilisation|referee_reward=0,00 €",
+      "html_changed_hint": false
+    },
+    {
+      "program": "unibet",
+      "status": "REJECTED",
+      "confidence": "REJECT",
+      "source_url": "https://www.unibet.fr/promotions",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:34:37.705370+00:00",
+      "canonical_fields": {
+        "referee_reward": "100 €",
+        "conditions": "Offre réservée aux nouveaux clients de 18 ans et plus. Un dépôt et une mise minimale de 10 € sont requis. Les conditions de mise s'appliquent avant tout retrait."
+      },
+      "observed_fields": {
+        "conditions": "Conditions Générales d'Utilisation"
+      },
+      "changes": [],
+      "notes": [
+        "no_reward_phrase_found",
+        "rejected_extraction",
+        "page_fp=9bbb1ecabfba15fc"
+      ],
+      "error": null,
+      "business_fingerprint": "conditions=conditions générales d'utilisation",
+      "html_changed_hint": false
+    },
+    {
+      "program": "winamax",
+      "status": "REVIEW",
+      "confidence": "REVIEW",
+      "source_url": "https://www.winamax.fr/parrainage",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:34:38.211482+00:00",
+      "canonical_fields": {
+        "referee_reward": "100 €",
+        "conditions": "Le code AD8RAY doit être saisi directement sur winamax.fr. Offre réservée aux nouveaux clients de 18 ans et plus. Conditions de mise applicables."
+      },
+      "observed_fields": {
+        "referee_reward": "+ 10 € FREEBETS",
+        "conditions": "condition que les comptes soient vérifiés : papiers d'identité et domiciliation validés."
+      },
+      "changes": [
+        {
+          "field": "referee_reward",
+          "old": "100 €",
+          "new": "+ 10 € FREEBETS"
+        },
+        {
+          "field": "conditions",
+          "old": "Le code AD8RAY doit être saisi directement sur winamax.fr. Offre réservée aux nouveaux clients de 18 ans et plus. Conditions de mise applicables.",
+          "new": "condition que les comptes soient vérifiés : papiers d'identité et domiciliation validés."
+        }
+      ],
+      "notes": [
+        "multiple_reward_candidates=['+ 10 € FREEBETS', '+ 10 € en Freebets', '150 €', 'et 10 € en Freebets seront au filleul', 'et 10 € en Freebets']",
+        "needs_human_review",
+        "page_fp=a0534a60868b0585",
+        "mass_change_guard_triggered"
+      ],
+      "error": null,
+      "business_fingerprint": "conditions=condition que les comptes soient vérifiés : papiers d'identité et domiciliation validés.|referee_reward=+ 10 € freebets",
+      "html_changed_hint": false
+    },
+    {
+      "program": "parionssport",
+      "status": "ERROR",
+      "confidence": "REJECT",
+      "source_url": "https://www.enligne.parionssport.fdj.fr/",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:34:38.939046+00:00",
+      "canonical_fields": {
+        "referee_reward": "100 €",
+        "conditions": "Offre réservée aux nouveaux clients de 18 ans et plus. Un dépôt et une mise minimale de 10 € sont requis. Les crédits bonus sont soumis à conditions de mise."
+      },
+      "observed_fields": {},
+      "changes": [],
+      "notes": [
+        "fetch_failed",
+        "rate_limit_or_challenge"
+      ],
+      "error": "HTTP 403 for https://www.enligne.parionssport.fdj.fr/",
+      "business_fingerprint": "",
+      "html_changed_hint": false
+    },
+    {
+      "program": "heetch",
+      "status": "REJECTED",
+      "confidence": "REJECT",
+      "source_url": "https://www.heetch.com/fr",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:34:39.711183+00:00",
+      "canonical_fields": {
+        "referee_reward": "5 €",
+        "conditions": "La réduction de 5 € s'applique sur la première course uniquement, après saisie du code dans l'application."
+      },
+      "observed_fields": {},
+      "changes": [],
+      "notes": [
+        "no_reward_phrase_found",
+        "rejected_extraction",
+        "page_fp=b7675625e54026f4"
+      ],
+      "error": null,
+      "business_fingerprint": "",
+      "html_changed_hint": false
+    },
+    {
+      "program": "omio",
+      "status": "ERROR",
+      "confidence": "REJECT",
+      "source_url": "https://www.omio.com/refer",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:34:40.429638+00:00",
+      "canonical_fields": {
+        "referee_reward": "10 €",
+        "conditions": "La réduction de 10 € s'applique uniquement sur la première réservation effectuée via Omio."
+      },
+      "observed_fields": {},
+      "changes": [],
+      "notes": [
+        "fetch_failed"
+      ],
+      "error": "HTTP 410 for https://www.omio.com/refer",
+      "business_fingerprint": "",
+      "html_changed_hint": false
+    },
+    {
+      "program": "airbnb",
+      "status": "REJECTED",
+      "confidence": "REJECT",
+      "source_url": "https://www.airbnb.fr/help/article/2856",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:34:42.564572+00:00",
+      "canonical_fields": {
+        "referee_reward": "Réduction sur la 1ère réservation",
+        "conditions": "La réduction s'applique sur la première réservation effectuée via le lien de parrainage. Le montant exact peut varier selon les offres promotionnelles Airbnb en cours."
+      },
+      "observed_fields": {
+        "conditions": "Conditions et dispositions juridiques"
+      },
+      "changes": [],
+      "notes": [
+        "no_reward_phrase_found",
+        "rejected_extraction",
+        "page_fp=7af764b684e6b81f"
+      ],
+      "error": null,
+      "business_fingerprint": "conditions=conditions et dispositions juridiques",
+      "html_changed_hint": false
+    },
+    {
+      "program": "totalenergies",
+      "status": "ERROR",
+      "confidence": "REJECT",
+      "source_url": "https://www.totalenergies.fr/particuliers/parrainage",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:34:43.094402+00:00",
+      "canonical_fields": {
+        "referee_reward": "20 €",
+        "conditions": "Le crédit de 20 € est appliqué sur la première facture émise après activation du contrat, généralement dans les 2 à 3 mois suivant la souscription."
+      },
+      "observed_fields": {},
+      "changes": [],
+      "notes": [
+        "fetch_failed"
+      ],
+      "error": "HTTP 404 for https://www.totalenergies.fr/particuliers/parrainage",
+      "business_fingerprint": "",
+      "html_changed_hint": false
+    },
+    {
+      "program": "igraal",
+      "status": "REVIEW",
+      "confidence": "HIGH",
+      "source_url": "https://fr.igraal.com/",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:34:43.803569+00:00",
+      "canonical_fields": {
+        "referee_reward": "5 €",
+        "conditions": "Le bonus de 5 € est crédité après réalisation du premier achat qualifié via iGraal."
+      },
+      "observed_fields": {
+        "referee_reward": "15 €",
+        "conditions": "Conditions de référencement et classement des offres Rétractation du contrat Gérer les cookies"
+      },
+      "changes": [
+        {
+          "field": "referee_reward",
+          "old": "5 €",
+          "new": "15 €"
+        },
+        {
+          "field": "conditions",
+          "old": "Le bonus de 5 € est crédité après réalisation du premier achat qualifié via iGraal.",
+          "new": "Conditions de référencement et classement des offres Rétractation du contrat Gérer les cookies"
+        }
+      ],
+      "notes": [
+        "multiple_reward_candidates=['15 €', '20 €', '3,5 €', '50 €', '425 €']",
+        "partial_match_canonical_reward",
+        "high_confidence_candidate",
+        "page_fp=3446da15cf4b74cf",
+        "mass_change_guard_triggered"
+      ],
+      "error": null,
+      "business_fingerprint": "conditions=conditions de référencement et classement des offres rétractation du contrat gérer les cookies|referee_reward=15 €",
+      "html_changed_hint": false
+    },
+    {
+      "program": "poulpeo",
+      "status": "REVIEW",
+      "confidence": "REVIEW",
+      "source_url": "https://www.poulpeo.com/",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:34:44.634854+00:00",
+      "canonical_fields": {
+        "referee_reward": "5 €",
+        "conditions": "Le bonus de 5 € est crédité après réalisation du premier achat éligible via Poulpeo."
+      },
+      "observed_fields": {
+        "referee_reward": "40 € en ligne"
+      },
+      "changes": [
+        {
+          "field": "referee_reward",
+          "old": "5 €",
+          "new": "40 € en ligne"
+        }
+      ],
+      "notes": [
+        "multiple_reward_candidates=['40 € en ligne', '15 € en ligne', '12 € en ligne', '3 €', '6% de cashback']",
+        "field_missing_in_observation:conditions",
+        "needs_human_review",
+        "page_fp=35e62698cd456411",
+        "mass_change_guard_triggered"
+      ],
+      "error": null,
+      "business_fingerprint": "referee_reward=40 € en ligne",
+      "html_changed_hint": false
+    },
+    {
+      "program": "ebuyclub",
+      "status": "REVIEW",
+      "confidence": "REVIEW",
+      "source_url": "https://www.ebuyclub.com/",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:34:45.057841+00:00",
+      "canonical_fields": {
+        "referee_reward": "5 €",
+        "conditions": "Le bonus de 5 € est crédité après réalisation du premier achat éligible via eBuyClub."
+      },
+      "observed_fields": {
+        "referee_reward": "3 €",
+        "conditions": "conditions du marchand choisi. Pour encore plus d’économies, vous pouvez cumuler le CashBack sur les bons d’achat avec le CashBack en ligne ou le CashBack en ma"
+      },
+      "changes": [
+        {
+          "field": "referee_reward",
+          "old": "5 €",
+          "new": "3 €"
+        },
+        {
+          "field": "conditions",
+          "old": "Le bonus de 5 € est crédité après réalisation du premier achat éligible via eBuyClub.",
+          "new": "conditions du marchand choisi. Pour encore plus d’économies, vous pouvez cumuler le CashBack sur les bons d’achat avec le CashBack en ligne ou le CashBack en ma"
+        }
+      ],
+      "notes": [
+        "multiple_reward_candidates=['3 €']",
+        "needs_human_review",
+        "page_fp=7daac3c0463d31fe",
+        "mass_change_guard_triggered"
+      ],
+      "error": null,
+      "business_fingerprint": "conditions=conditions du marchand choisi. pour encore plus d’économies, vous pouvez cumuler le cashback sur les bons d’achat avec le cashback en ligne ou le cashback en ma|referee_reward=3 €",
+      "html_changed_hint": false
+    },
+    {
+      "program": "joko",
+      "status": "REVIEW",
+      "confidence": "REVIEW",
+      "source_url": "https://www.hellojoko.com/",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:34:46.988191+00:00",
+      "canonical_fields": {
+        "referee_reward": "5 €",
+        "conditions": "Le bonus de 5 € est crédité après connexion de la carte bancaire et réalisation du premier achat qualifié."
+      },
+      "observed_fields": {
+        "referee_reward": "000000 €",
+        "conditions": "Conditions générales Politique de confidentialité Éthique & signalement"
+      },
+      "changes": [
+        {
+          "field": "referee_reward",
+          "old": "5 €",
+          "new": "000000 €"
+        },
+        {
+          "field": "conditions",
+          "old": "Le bonus de 5 € est crédité après connexion de la carte bancaire et réalisation du premier achat qualifié.",
+          "new": "Conditions générales Politique de confidentialité Éthique & signalement"
+        }
+      ],
+      "notes": [
+        "multiple_reward_candidates=['000000 €', '700 €', '20 €']",
+        "needs_human_review",
+        "page_fp=0aa666105a41ea9b",
+        "mass_change_guard_triggered"
+      ],
+      "error": null,
+      "business_fingerprint": "conditions=conditions générales politique de confidentialité éthique & signalement|referee_reward=000000 €",
+      "html_changed_hint": false
+    },
+    {
+      "program": "widilo",
+      "status": "REVIEW",
+      "confidence": "REVIEW",
+      "source_url": "https://www.widilo.fr/",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:34:47.749749+00:00",
+      "canonical_fields": {
+        "referee_reward": "5 €",
+        "conditions": "Le bonus de bienvenue est variable selon l'offre promotionnelle Widilo en cours au moment de l'inscription."
+      },
+      "observed_fields": {
+        "referee_reward": "110 €",
+        "conditions": "conditions du cashback et des codes promo pour chaque marchand."
+      },
+      "changes": [
+        {
+          "field": "referee_reward",
+          "old": "5 €",
+          "new": "110 €"
+        },
+        {
+          "field": "conditions",
+          "old": "Le bonus de bienvenue est variable selon l'offre promotionnelle Widilo en cours au moment de l'inscription.",
+          "new": "conditions du cashback et des codes promo pour chaque marchand."
+        }
+      ],
+      "notes": [
+        "multiple_reward_candidates=['110 €', '55 €', '15 €', '62 €', '18,7 €']",
+        "needs_human_review",
+        "page_fp=daba78f53b6209bb",
+        "mass_change_guard_triggered"
+      ],
+      "error": null,
+      "business_fingerprint": "conditions=conditions du cashback et des codes promo pour chaque marchand.|referee_reward=110 €",
+      "html_changed_hint": false
+    },
+    {
+      "program": "acheel",
+      "status": "REVIEW",
+      "confidence": "REVIEW",
+      "source_url": "https://www.acheel.com/",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:34:49.168703+00:00",
+      "canonical_fields": {
+        "referee_reward": "1 mois",
+        "conditions": "Le premier mois est offert sur toute nouvelle souscription via le lien avec le code ADBE5645."
+      },
+      "observed_fields": {
+        "referee_reward": "30 €",
+        "conditions": "conditions prévues, que ce soit pour un petit pépin ou de gros dégâts."
+      },
+      "changes": [
+        {
+          "field": "referee_reward",
+          "old": "1 mois",
+          "new": "30 €"
+        },
+        {
+          "field": "conditions",
+          "old": "Le premier mois est offert sur toute nouvelle souscription via le lien avec le code ADBE5645.",
+          "new": "conditions prévues, que ce soit pour un petit pépin ou de gros dégâts."
+        }
+      ],
+      "notes": [
+        "multiple_reward_candidates=['30 €', '20 000 €', \"jusqu'à 30 €\", 'jusqu’à 20 000 €']",
+        "needs_human_review",
+        "page_fp=b9b2b037c79c266b",
+        "mass_change_guard_triggered"
+      ],
+      "error": null,
+      "business_fingerprint": "conditions=conditions prévues, que ce soit pour un petit pépin ou de gros dégâts.|referee_reward=30 €",
+      "html_changed_hint": false
+    },
+    {
+      "program": "lolivier",
+      "status": "ERROR",
+      "confidence": "REJECT",
+      "source_url": "https://www.olivierassurance.fr/",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:35:10.418394+00:00",
+      "canonical_fields": {
+        "referee_reward": "50 €",
+        "conditions": "Le crédit de 50 € est déduit sur le premier paiement du contrat souscrit via le code LOA-GVSN35. Numéro de parrain : 5950467715."
+      },
+      "observed_fields": {},
+      "changes": [],
+      "notes": [
+        "fetch_failed"
+      ],
+      "error": "URL error for https://www.olivierassurance.fr/: <urlopen error [WinError 10060] Une tentative de connexion a échoué car le parti connecté n’a pas répondu convenablement au-delà d’une certaine durée ou une connexion établie a échoué car l’hôte de connexion n’a pas répondu>",
+      "business_fingerprint": "",
+      "html_changed_hint": false
+    },
+    {
+      "program": "finary",
+      "status": "REVIEW",
+      "confidence": "REVIEW",
+      "source_url": "https://finary.com/",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:35:11.450295+00:00",
+      "canonical_fields": {
+        "referee_reward": "1 mois Premium",
+        "conditions": "Un mois d'accès Premium est offert après inscription via le code KEDEA4."
+      },
+      "observed_fields": {
+        "referee_reward": "0% de frais d'entrée, de versement ou d'arbitrage"
+      },
+      "changes": [
+        {
+          "field": "referee_reward",
+          "old": "1 mois Premium",
+          "new": "0% de frais d'entrée, de versement ou d'arbitrage"
+        }
+      ],
+      "notes": [
+        "multiple_reward_candidates=[\"0% de frais d'entrée, de versement ou d'arbitrage\", \"0 % de frais d'entrée, de versement et d'arbitrage\"]",
+        "field_missing_in_observation:conditions",
+        "needs_human_review",
+        "page_fp=8ea2c1daf8ef64ee",
+        "mass_change_guard_triggered"
+      ],
+      "error": null,
+      "business_fingerprint": "referee_reward=0% de frais d'entrée, de versement ou d'arbitrage",
+      "html_changed_hint": false
+    },
+    {
+      "program": "grass",
+      "status": "REJECTED",
+      "confidence": "REJECT",
+      "source_url": "https://www.grass.io/",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:35:12.047057+00:00",
+      "canonical_fields": {
+        "referee_reward": "5 000 points",
+        "conditions": "Les 5000 points de bienvenue sont crédités après inscription et installation de l'extension. La valeur des tokens GRASS est déterminée par le marché et peut varier significativement."
+      },
+      "observed_fields": {
+        "conditions": "Conditions Wallet Terms and Conditions Rewards Terms and Conditions Network Use Policy Cookie Policy Cookie Settings"
+      },
+      "changes": [],
+      "notes": [
+        "no_reward_phrase_found",
+        "rejected_extraction",
+        "page_fp=69d1261f59ec4b4a"
+      ],
+      "error": null,
+      "business_fingerprint": "conditions=conditions wallet terms and conditions rewards terms and conditions network use policy cookie policy cookie settings",
+      "html_changed_hint": false
+    },
+    {
+      "program": "fdj-francaise-des-jeux",
+      "status": "ERROR",
+      "confidence": "REJECT",
+      "source_url": "https://www.fdj.fr/",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:35:12.424868+00:00",
+      "canonical_fields": {
+        "referee_reward": "1. Crée un compte FDJ via le lien ci-dessus",
+        "conditions": "Conditions selon l'offre officielle en vigueur."
+      },
+      "observed_fields": {},
+      "changes": [],
+      "notes": [
+        "fetch_failed",
+        "rate_limit_or_challenge"
+      ],
+      "error": "HTTP 403 for https://www.fdj.fr/",
+      "business_fingerprint": "",
+      "html_changed_hint": false
+    },
+    {
+      "program": "nrj-mobile",
+      "status": "REVIEW",
+      "confidence": "HIGH",
+      "source_url": "https://www.nrjmobile.fr/",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:35:13.099619+00:00",
+      "canonical_fields": {
+        "referee_reward": "10 €",
+        "conditions": "Conditions selon l'offre officielle en vigueur."
+      },
+      "observed_fields": {
+        "referee_reward": "10 €",
+        "conditions": "conditions et liste des destinations Europe/DOM sur nrjmobile.fr."
+      },
+      "changes": [
+        {
+          "field": "conditions",
+          "old": "Conditions selon l'offre officielle en vigueur.",
+          "new": "conditions et liste des destinations Europe/DOM sur nrjmobile.fr."
+        }
+      ],
+      "notes": [
+        "multiple_reward_candidates=['10 €']",
+        "matches_canonical_reward",
+        "high_confidence_candidate",
+        "page_fp=bbeb9b88bec8ea43",
+        "mass_change_guard_triggered"
+      ],
+      "error": null,
+      "business_fingerprint": "conditions=conditions et liste des destinations €ope/dom sur nrjmobile.fr.|referee_reward=10 €",
+      "html_changed_hint": false
+    },
+    {
+      "program": "okx",
+      "status": "ERROR",
+      "confidence": "REJECT",
+      "source_url": "https://www.okx.com/fr/help/referral-program",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:35:13.969667+00:00",
+      "canonical_fields": {
+        "referee_reward": "250 € en Bitcoin",
+        "conditions": "Conditions selon l'offre officielle en vigueur."
+      },
+      "observed_fields": {},
+      "changes": [],
+      "notes": [
+        "fetch_failed"
+      ],
+      "error": "HTTP 404 for https://www.okx.com/fr/help/referral-program",
+      "business_fingerprint": "",
+      "html_changed_hint": false
+    },
+    {
+      "program": "plum",
+      "status": "REVIEW",
+      "confidence": "REVIEW",
+      "source_url": "https://withplum.com/",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:35:15.374343+00:00",
+      "canonical_fields": {
+        "referee_reward": "10 €",
+        "conditions": "Conditions selon l'offre officielle en vigueur."
+      },
+      "observed_fields": {
+        "referee_reward": "1 €",
+        "conditions": "Conditions générales"
+      },
+      "changes": [
+        {
+          "field": "referee_reward",
+          "old": "10 €",
+          "new": "1 €"
+        },
+        {
+          "field": "conditions",
+          "old": "Conditions selon l'offre officielle en vigueur.",
+          "new": "Conditions générales"
+        }
+      ],
+      "notes": [
+        "multiple_reward_candidates=['1 €', '3,99 €', '8,99 €', '11,99 €']",
+        "needs_human_review",
+        "page_fp=0f3bc9f203b23785",
+        "mass_change_guard_triggered"
+      ],
+      "error": null,
+      "business_fingerprint": "conditions=conditions générales|referee_reward=1 €",
+      "html_changed_hint": false
+    },
+    {
+      "program": "vinted",
+      "status": "REJECTED",
+      "confidence": "REJECT",
+      "source_url": "https://www.vinted.fr/help/96",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:35:20.181820+00:00",
+      "canonical_fields": {
+        "referee_reward": "inscription via mon lien de parrainage ✅",
+        "conditions": "Conditions selon l'offre officielle en vigueur."
+      },
+      "observed_fields": {
+        "conditions": "conditions de Vinted Pro"
+      },
+      "changes": [],
+      "notes": [
+        "no_reward_phrase_found",
+        "rejected_extraction",
+        "page_fp=36d00791058c2633"
+      ],
+      "error": null,
+      "business_fingerprint": "conditions=conditions de vinted pro",
+      "html_changed_hint": false
+    },
+    {
+      "program": "whatnot",
+      "status": "REJECTED",
+      "confidence": "REJECT",
+      "source_url": "https://www.whatnot.com/",
+      "parser": "generic_reward_html",
+      "detected_at": "2026-08-12T19:35:23.407858+00:00",
+      "canonical_fields": {
+        "referee_reward": "tu reçois le même montant en crédit quand ton ami passe sa première commande",
+        "conditions": "Conditions selon l'offre officielle en vigueur."
+      },
+      "observed_fields": {
+        "conditions": "Conditions d'utilisation Confidentialité"
+      },
+      "changes": [],
+      "notes": [
+        "no_reward_phrase_found",
+        "rejected_extraction",
+        "page_fp=40371488a48dd05a"
+      ],
+      "error": null,
+      "business_fingerprint": "conditions=conditions d'utilisation confidentialité",
+      "html_changed_hint": false
+    }
+  ]
+}

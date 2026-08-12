@@ -1,0 +1,354 @@
+{
+  "kraken": {
+    "status": "ERROR",
+    "confidence": "REJECT",
+    "business_fingerprint": "",
+    "detected_at": "2026-08-12T19:34:27.432847+00:00",
+    "raw_fingerprint": null,
+    "observed_fields": {}
+  },
+  "boursobank": {
+    "status": "ERROR",
+    "confidence": "REJECT",
+    "business_fingerprint": "",
+    "detected_at": "2026-08-12T19:34:10.604550+00:00",
+    "raw_fingerprint": null,
+    "observed_fields": {}
+  },
+  "paypal": {
+    "status": "ERROR",
+    "confidence": "REJECT",
+    "business_fingerprint": "",
+    "detected_at": "2026-08-12T19:34:14.805422+00:00",
+    "raw_fingerprint": null,
+    "observed_fields": {}
+  },
+  "revolut": {
+    "status": "REJECTED",
+    "confidence": "REJECT",
+    "business_fingerprint": "",
+    "detected_at": "2026-08-12T19:34:21.403581+00:00",
+    "raw_fingerprint": "ca6e2d3f427b2f7e",
+    "observed_fields": {}
+  },
+  "wise": {
+    "status": "REJECTED",
+    "confidence": "REJECT",
+    "business_fingerprint": "",
+    "detected_at": "2026-08-12T19:34:24.292372+00:00",
+    "raw_fingerprint": "422f52fd1cd10c17",
+    "observed_fields": {}
+  },
+  "traderepublic": {
+    "status": "REJECTED",
+    "confidence": "REJECT",
+    "business_fingerprint": "",
+    "detected_at": "2026-08-12T19:34:24.845733+00:00",
+    "raw_fingerprint": "2c44ce95feae6a2f",
+    "observed_fields": {}
+  },
+  "robinhood": {
+    "status": "ERROR",
+    "confidence": "REJECT",
+    "business_fingerprint": "",
+    "detected_at": "2026-08-12T19:34:25.495377+00:00",
+    "raw_fingerprint": null,
+    "observed_fields": {}
+  },
+  "coinbase": {
+    "status": "REJECTED",
+    "confidence": "REJECT",
+    "business_fingerprint": "",
+    "detected_at": "2026-08-12T19:34:26.353085+00:00",
+    "raw_fingerprint": "68a728a7f6dc091f",
+    "observed_fields": {}
+  },
+  "binance": {
+    "status": "REJECTED",
+    "confidence": "REJECT",
+    "business_fingerprint": "",
+    "detected_at": "2026-08-12T19:34:26.858454+00:00",
+    "raw_fingerprint": "c452c02edff6c0e0",
+    "observed_fields": {}
+  },
+  "bybit": {
+    "status": "REJECTED",
+    "confidence": "REJECT",
+    "business_fingerprint": "",
+    "detected_at": "2026-08-12T19:34:28.391597+00:00",
+    "raw_fingerprint": "8ea5f2e65622fe0a",
+    "observed_fields": {}
+  },
+  "swissborg": {
+    "status": "REJECTED",
+    "confidence": "REJECT",
+    "business_fingerprint": "conditions=conditions d’utilisation",
+    "detected_at": "2026-08-12T19:34:29.819517+00:00",
+    "raw_fingerprint": "79c84e1c37922cf9",
+    "observed_fields": {
+      "conditions": "Conditions d’utilisation"
+    }
+  },
+  "bitstack": {
+    "status": "REVIEW",
+    "confidence": "REVIEW",
+    "business_fingerprint": "conditions=conditions générales|referee_reward=0,60 € en 0",
+    "detected_at": "2026-08-12T19:34:30.295099+00:00",
+    "raw_fingerprint": "0add36c5624a65e9",
+    "observed_fields": {
+      "referee_reward": "0,60 € en 0",
+      "conditions": "Conditions générales"
+    }
+  },
+  "deblock": {
+    "status": "REJECTED",
+    "confidence": "REJECT",
+    "business_fingerprint": "",
+    "detected_at": "2026-08-12T19:34:31.056291+00:00",
+    "raw_fingerprint": "0b6352a672823956",
+    "observed_fields": {}
+  },
+  "gemini": {
+    "status": "ERROR",
+    "confidence": "REJECT",
+    "business_fingerprint": "",
+    "detected_at": "2026-08-12T19:34:31.735889+00:00",
+    "raw_fingerprint": null,
+    "observed_fields": {}
+  },
+  "ledger": {
+    "status": "REJECTED",
+    "confidence": "REJECT",
+    "business_fingerprint": "conditions=conditions privacy policy cookie policy disclaimers",
+    "detected_at": "2026-08-12T19:34:32.817766+00:00",
+    "raw_fingerprint": "a1616e9a1bfe7cbb",
+    "observed_fields": {
+      "conditions": "Conditions Privacy Policy Cookie Policy Disclaimers"
+    }
+  },
+  "betclic": {
+    "status": "REVIEW",
+    "confidence": "HIGH",
+    "business_fingerprint": "conditions=conditions générales d'utilisation|referee_reward=0,00 €",
+    "detected_at": "2026-08-12T19:34:36.859708+00:00",
+    "raw_fingerprint": "07f5f43019f58bf3",
+    "observed_fields": {
+      "referee_reward": "0,00 €",
+      "conditions": "Conditions générales d'utilisation"
+    }
+  },
+  "unibet": {
+    "status": "REJECTED",
+    "confidence": "REJECT",
+    "business_fingerprint": "conditions=conditions générales d'utilisation",
+    "detected_at": "2026-08-12T19:34:37.705370+00:00",
+    "raw_fingerprint": "9bbb1ecabfba15fc",
+    "observed_fields": {
+      "conditions": "Conditions Générales d'Utilisation"
+    }
+  },
+  "winamax": {
+    "status": "REVIEW",
+    "confidence": "REVIEW",
+    "business_fingerprint": "conditions=condition que les comptes soient vérifiés : papiers d'identité et domiciliation validés.|referee_reward=+ 10 € freebets",
+    "detected_at": "2026-08-12T19:34:38.211482+00:00",
+    "raw_fingerprint": "a0534a60868b0585",
+    "observed_fields": {
+      "referee_reward": "+ 10 € FREEBETS",
+      "conditions": "condition que les comptes soient vérifiés : papiers d'identité et domiciliation validés."
+    }
+  },
+  "parionssport": {
+    "status": "ERROR",
+    "confidence": "REJECT",
+    "business_fingerprint": "",
+    "detected_at": "2026-08-12T19:34:38.939046+00:00",
+    "raw_fingerprint": null,
+    "observed_fields": {}
+  },
+  "heetch": {
+    "status": "REJECTED",
+    "confidence": "REJECT",
+    "business_fingerprint": "",
+    "detected_at": "2026-08-12T19:34:39.711183+00:00",
+    "raw_fingerprint": "b7675625e54026f4",
+    "observed_fields": {}
+  },
+  "omio": {
+    "status": "ERROR",
+    "confidence": "REJECT",
+    "business_fingerprint": "",
+    "detected_at": "2026-08-12T19:34:40.429638+00:00",
+    "raw_fingerprint": null,
+    "observed_fields": {}
+  },
+  "airbnb": {
+    "status": "REJECTED",
+    "confidence": "REJECT",
+    "business_fingerprint": "conditions=conditions et dispositions juridiques",
+    "detected_at": "2026-08-12T19:34:42.564572+00:00",
+    "raw_fingerprint": "7af764b684e6b81f",
+    "observed_fields": {
+      "conditions": "Conditions et dispositions juridiques"
+    }
+  },
+  "totalenergies": {
+    "status": "ERROR",
+    "confidence": "REJECT",
+    "business_fingerprint": "",
+    "detected_at": "2026-08-12T19:34:43.094402+00:00",
+    "raw_fingerprint": null,
+    "observed_fields": {}
+  },
+  "igraal": {
+    "status": "REVIEW",
+    "confidence": "HIGH",
+    "business_fingerprint": "conditions=conditions de référencement et classement des offres rétractation du contrat gérer les cookies|referee_reward=15 €",
+    "detected_at": "2026-08-12T19:34:43.803569+00:00",
+    "raw_fingerprint": "3446da15cf4b74cf",
+    "observed_fields": {
+      "referee_reward": "15 €",
+      "conditions": "Conditions de référencement et classement des offres Rétractation du contrat Gérer les cookies"
+    }
+  },
+  "poulpeo": {
+    "status": "REVIEW",
+    "confidence": "REVIEW",
+    "business_fingerprint": "referee_reward=40 € en ligne",
+    "detected_at": "2026-08-12T19:34:44.634854+00:00",
+    "raw_fingerprint": "35e62698cd456411",
+    "observed_fields": {
+      "referee_reward": "40 € en ligne"
+    }
+  },
+  "ebuyclub": {
+    "status": "REVIEW",
+    "confidence": "REVIEW",
+    "business_fingerprint": "conditions=conditions du marchand choisi. pour encore plus d’économies, vous pouvez cumuler le cashback sur les bons d’achat avec le cashback en ligne ou le cashback en ma|referee_reward=3 €",
+    "detected_at": "2026-08-12T19:34:45.057841+00:00",
+    "raw_fingerprint": "7daac3c0463d31fe",
+    "observed_fields": {
+      "referee_reward": "3 €",
+      "conditions": "conditions du marchand choisi. Pour encore plus d’économies, vous pouvez cumuler le CashBack sur les bons d’achat avec le CashBack en ligne ou le CashBack en ma"
+    }
+  },
+  "joko": {
+    "status": "REVIEW",
+    "confidence": "REVIEW",
+    "business_fingerprint": "conditions=conditions générales politique de confidentialité éthique & signalement|referee_reward=000000 €",
+    "detected_at": "2026-08-12T19:34:46.988191+00:00",
+    "raw_fingerprint": "0aa666105a41ea9b",
+    "observed_fields": {
+      "referee_reward": "000000 €",
+      "conditions": "Conditions générales Politique de confidentialité Éthique & signalement"
+    }
+  },
+  "widilo": {
+    "status": "REVIEW",
+    "confidence": "REVIEW",
+    "business_fingerprint": "conditions=conditions du cashback et des codes promo pour chaque marchand.|referee_reward=110 €",
+    "detected_at": "2026-08-12T19:34:47.749749+00:00",
+    "raw_fingerprint": "daba78f53b6209bb",
+    "observed_fields": {
+      "referee_reward": "110 €",
+      "conditions": "conditions du cashback et des codes promo pour chaque marchand."
+    }
+  },
+  "acheel": {
+    "status": "REVIEW",
+    "confidence": "REVIEW",
+    "business_fingerprint": "conditions=conditions prévues, que ce soit pour un petit pépin ou de gros dégâts.|referee_reward=30 €",
+    "detected_at": "2026-08-12T19:34:49.168703+00:00",
+    "raw_fingerprint": "b9b2b037c79c266b",
+    "observed_fields": {
+      "referee_reward": "30 €",
+      "conditions": "conditions prévues, que ce soit pour un petit pépin ou de gros dégâts."
+    }
+  },
+  "lolivier": {
+    "status": "ERROR",
+    "confidence": "REJECT",
+    "business_fingerprint": "",
+    "detected_at": "2026-08-12T19:35:10.418394+00:00",
+    "raw_fingerprint": null,
+    "observed_fields": {}
+  },
+  "finary": {
+    "status": "REVIEW",
+    "confidence": "REVIEW",
+    "business_fingerprint": "referee_reward=0% de frais d'entrée, de versement ou d'arbitrage",
+    "detected_at": "2026-08-12T19:35:11.450295+00:00",
+    "raw_fingerprint": "8ea2c1daf8ef64ee",
+    "observed_fields": {
+      "referee_reward": "0% de frais d'entrée, de versement ou d'arbitrage"
+    }
+  },
+  "grass": {
+    "status": "REJECTED",
+    "confidence": "REJECT",
+    "business_fingerprint": "conditions=conditions wallet terms and conditions rewards terms and conditions network use policy cookie policy cookie settings",
+    "detected_at": "2026-08-12T19:35:12.047057+00:00",
+    "raw_fingerprint": "69d1261f59ec4b4a",
+    "observed_fields": {
+      "conditions": "Conditions Wallet Terms and Conditions Rewards Terms and Conditions Network Use Policy Cookie Policy Cookie Settings"
+    }
+  },
+  "fdj-francaise-des-jeux": {
+    "status": "ERROR",
+    "confidence": "REJECT",
+    "business_fingerprint": "",
+    "detected_at": "2026-08-12T19:35:12.424868+00:00",
+    "raw_fingerprint": null,
+    "observed_fields": {}
+  },
+  "nrj-mobile": {
+    "status": "REVIEW",
+    "confidence": "HIGH",
+    "business_fingerprint": "conditions=conditions et liste des destinations €ope/dom sur nrjmobile.fr.|referee_reward=10 €",
+    "detected_at": "2026-08-12T19:35:13.099619+00:00",
+    "raw_fingerprint": "bbeb9b88bec8ea43",
+    "observed_fields": {
+      "referee_reward": "10 €",
+      "conditions": "conditions et liste des destinations Europe/DOM sur nrjmobile.fr."
+    }
+  },
+  "okx": {
+    "status": "ERROR",
+    "confidence": "REJECT",
+    "business_fingerprint": "",
+    "detected_at": "2026-08-12T19:35:13.969667+00:00",
+    "raw_fingerprint": null,
+    "observed_fields": {}
+  },
+  "plum": {
+    "status": "REVIEW",
+    "confidence": "REVIEW",
+    "business_fingerprint": "conditions=conditions générales|referee_reward=1 €",
+    "detected_at": "2026-08-12T19:35:15.374343+00:00",
+    "raw_fingerprint": "0f3bc9f203b23785",
+    "observed_fields": {
+      "referee_reward": "1 €",
+      "conditions": "Conditions générales"
+    }
+  },
+  "vinted": {
+    "status": "REJECTED",
+    "confidence": "REJECT",
+    "business_fingerprint": "conditions=conditions de vinted pro",
+    "detected_at": "2026-08-12T19:35:20.181820+00:00",
+    "raw_fingerprint": "36d00791058c2633",
+    "observed_fields": {
+      "conditions": "conditions de Vinted Pro"
+    }
+  },
+  "whatnot": {
+    "status": "REJECTED",
+    "confidence": "REJECT",
+    "business_fingerprint": "conditions=conditions d'utilisation confidentialité",
+    "detected_at": "2026-08-12T19:35:23.407858+00:00",
+    "raw_fingerprint": "40371488a48dd05a",
+    "observed_fields": {
+      "conditions": "Conditions d'utilisation Confidentialité"
+    }
+  }
+}

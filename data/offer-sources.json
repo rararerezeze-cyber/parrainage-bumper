@@ -1,0 +1,614 @@
+{
+  "version": 1,
+  "note": "Public official sources only. No personal codes/links. No financial account login.",
+  "programs": [
+    {
+      "program": "acheel",
+      "source_url": "https://www.acheel.com/",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "airbnb",
+      "source_url": "https://www.airbnb.fr/help/article/2856",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "betclic",
+      "source_url": "https://www.betclic.fr/parrainage",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "binance",
+      "source_url": "https://www.binance.com/en/activity/referral",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "bitstack",
+      "source_url": "https://bitstack-app.com/",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "boursobank",
+      "source_url": "https://www.boursobank.com/offre-parrainage",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": "campaign often suspended — expect REVIEW",
+      "enabled": true
+    },
+    {
+      "program": "bybit",
+      "source_url": "https://www.bybit.com/en/help-center/article/Referral-Program",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "coinbase",
+      "source_url": "https://www.coinbase.com/invite",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "deblock",
+      "source_url": "https://deblock.com/",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "ebuyclub",
+      "source_url": "https://www.ebuyclub.com/",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "fdj-francaise-des-jeux",
+      "source_url": "https://www.fdj.fr/",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "finary",
+      "source_url": "https://finary.com/",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "gemini",
+      "source_url": "https://www.gemini.com/share",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "grass",
+      "source_url": "https://www.grass.io/",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "heetch",
+      "source_url": "https://www.heetch.com/fr",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "igraal",
+      "source_url": "https://fr.igraal.com/",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "joko",
+      "source_url": "https://www.hellojoko.com/",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "kraken",
+      "source_url": "https://www.kraken.com/en-us/features/referral-program",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": "URL may redirect; 404 → REJECT not business change",
+      "enabled": true
+    },
+    {
+      "program": "ledger",
+      "source_url": "https://shop.ledger.com/pages/referral-program",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "lolivier",
+      "source_url": "https://www.olivierassurance.fr/",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "nrj-mobile",
+      "source_url": "https://www.nrjmobile.fr/",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "okx",
+      "source_url": "https://www.okx.com/fr/help/referral-program",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "omio",
+      "source_url": "https://www.omio.com/refer",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "parionssport",
+      "source_url": "https://www.enligne.parionssport.fdj.fr/",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "paypal",
+      "source_url": "https://www.paypal.com/fr/webapps/mpp/referral",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "plum",
+      "source_url": "https://withplum.com/",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "poulpeo",
+      "source_url": "https://www.poulpeo.com/",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "revolut",
+      "source_url": "https://www.revolut.com/referral/",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "robinhood",
+      "source_url": "https://robinhood.com/us/en/support/articles/referral-program/",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "swissborg",
+      "source_url": "https://swissborg.com/fr/r",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "totalenergies",
+      "source_url": "https://www.totalenergies.fr/particuliers/parrainage",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "traderepublic",
+      "source_url": "https://traderepublic.com/fr-fr",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": "referral amount often campaign-based / app-gated",
+      "enabled": true
+    },
+    {
+      "program": "unibet",
+      "source_url": "https://www.unibet.fr/promotions",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "vinted",
+      "source_url": "https://www.vinted.fr/help/96",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "whatnot",
+      "source_url": "https://www.whatnot.com/",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "widilo",
+      "source_url": "https://www.widilo.fr/",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "winamax",
+      "source_url": "https://www.winamax.fr/parrainage",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    },
+    {
+      "program": "wise",
+      "source_url": "https://wise.com/invite",
+      "source_type": "official_page",
+      "extraction_method": "http_fetch",
+      "fields_supported": [
+        "referee_reward",
+        "conditions"
+      ],
+      "locale": "fr",
+      "auth_required": false,
+      "parser": "generic_reward_html",
+      "confidence_default": "REVIEW",
+      "notes": null,
+      "enabled": true
+    }
+  ]
+}
