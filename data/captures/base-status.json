@@ -1,0 +1,88 @@
+{
+  "phase": "BASE",
+  "live_writes": false,
+  "programs": 38,
+  "mapped_pairs": 117,
+  "platforms": [
+    {
+      "platform": "super-parrain",
+      "capability": "AUTO",
+      "mapped": 35,
+      "full": 35,
+      "partial": 0,
+      "stale": 0,
+      "read_state": "READ_OK",
+      "write_state": "WRITE_PREPARED_COOLDOWN",
+      "base_status": "BASE_READY"
+    },
+    {
+      "platform": "parrainage-co",
+      "capability": "AUTO",
+      "mapped": 27,
+      "full": 26,
+      "partial": 0,
+      "stale": 1,
+      "read_state": "READ_OK",
+      "write_state": "WRITE_TODO",
+      "base_status": "BASE_READY"
+    },
+    {
+      "platform": "code-parrainage",
+      "capability": "AUTO",
+      "mapped": 24,
+      "full": 23,
+      "partial": 1,
+      "stale": 0,
+      "read_state": "CAPTURE_PARTIAL",
+      "write_state": "CAPTURE_PARTIAL",
+      "base_status": "BASE_PARTIAL"
+    },
+    {
+      "platform": "referralcode-tv",
+      "capability": "AUTO",
+      "mapped": 10,
+      "full": 10,
+      "partial": 0,
+      "stale": 0,
+      "read_state": "READ_OK",
+      "write_state": "MANUAL_WRITE",
+      "base_status": "BASE_READY_MANUAL"
+    },
+    {
+      "platform": "referralcodes",
+      "capability": "MANUAL",
+      "mapped": 9,
+      "full": 0,
+      "partial": 0,
+      "stale": 0,
+      "read_state": "READ_OK",
+      "write_state": "MANUAL_WRITE",
+      "base_status": "BASE_READY_MANUAL"
+    },
+    {
+      "platform": "referraldrop",
+      "capability": "MANUAL",
+      "mapped": 5,
+      "full": 0,
+      "partial": 0,
+      "stale": 0,
+      "read_state": "READ_PUBLIC_ONLY",
+      "write_state": "AUTH_BLOCKED",
+      "base_status": "BASE_READY_AUTH_BLOCKED"
+    },
+    {
+      "platform": "1parrainage",
+      "capability": "MANUAL",
+      "mapped": 7,
+      "full": 7,
+      "partial": 0,
+      "stale": 0,
+      "read_state": "READ_OK",
+      "write_state": "WRITE_TODO",
+      "base_status": "BASE_PARTIAL"
+    }
+  ],
+  "base_ready_platforms": 5,
+  "base_ready_all": false,
+  "note": "BASE_READY_ALL requires explicit review that dry-run writers are prepared and no live canary is pending. base_ready_all flag is advisory until writers matrix is complete."
+}

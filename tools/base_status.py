@@ -19,13 +19,13 @@ from platforms.registry import ALL_PLATFORMS, platform_capability
 
 
 def platform_base_row(pid: str, matrix: dict) -> dict:
-    rows = {r["platform"]: r for r in matrix.get("platforms") or []}
+    rows = {r["platform"]: r for r in matrix.get("platform_rows") or []}
     row = rows.get(pid) or {}
-    mapped = row.get("mapped") or 0
-    full = row.get("full") or 0
-    partial = row.get("partial") or 0
-    read = row.get("read_state") or "?"
-    write = row.get("write_state") or "?"
+    mapped = row.get("mapped_count") or 0
+    full = row.get("full_quality") or 0
+    partial = row.get("partial_quality") or 0
+    read = row.get("read") or "?"
+    write = row.get("write") or "?"
 
     # Overrides for BASE labels
     if pid == "super-parrain" and full >= 29:
