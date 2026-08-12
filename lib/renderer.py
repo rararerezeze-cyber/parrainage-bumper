@@ -49,15 +49,18 @@ class Renderer:
         offer: dict[str, Any] | None = None,
         overrides: dict[str, str | None] | None = None,
     ) -> dict[str, str | None]:
+        """Build variables with operator precedence:
+
+        PLATFORM_OPERATOR > GLOBAL_OPERATOR > ACCEPTED_MONITOR > local overrides > CANONICAL
+        """
+        from lib.operator_overrides import effective_variables_for_mapping
+
         offer = offer or self.offers.get_by_slug(mapping.program)
-        overrides = overrides or {}
-        variables: dict[str, str | None] = {}
-        for logical_name, offer_field in mapping.offer_fields.items():
-            if logical_name in overrides:
-                variables[logical_name] = overrides[logical_name]
-            else:
-                variables[logical_name] = self.offers.resolve_field(offer, offer_field)
-        return variables
+        return effective_variables_for_mapping(
+            mapping,
+            offer,
+            local_overrides=overrides,
+        )
 
     def render(
         self,

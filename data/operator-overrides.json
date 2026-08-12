@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "updated_at": null,
+  "note": "Operator overrides (Telegram). Precedence: PLATFORM_OPERATOR > GLOBAL_OPERATOR > ACCEPTED_MONITOR > CANONICAL. Monitor observations must never overwrite these.",
+  "overrides": []
+}

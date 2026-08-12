@@ -30,7 +30,7 @@ jobs:
         run: |
           pip install -r requirements.txt
           playwright install --with-deps chromium
-      - name: Apply Telegram message (write offers + dry-run)
+      - name: Apply Telegram operator control (overrides + plan)
         id: apply
         env:
           SUPER_PARRAIN_EMAIL: ${{ secrets.SUPER_PARRAIN_EMAIL }}
@@ -41,10 +41,14 @@ jobs:
         run: |
           set -e
           MSG='${{ github.event.inputs.message }}'
+          # FULL OPERATOR CONTROL: persist overrides, cross-platform plan, no auto-accept monitor
           python tools/telegram_update.py "$MSG" --write | tee /tmp/tg-report.txt
+          # ReferralCodes / ReferralCode.tv prepared plans (no live publish)
+          python -c "from platforms.referralcodes.writer import dry_run_report; dry_run_report()" || true
+          python -c "from platforms.referralcode_tv.writer import dry_run_report; dry_run_report()" || true
           # Queue Super-Parrain pending content update
           python tools/super_parrain_decide.py --enqueue-kraken || true
-          # Attempt verified writers only when eligible
+          # Attempt verified writers only when eligible (WRITE_VERIFIED / canary)
           python tools/run_verified_writers.py --from-telegram || true
           cat /tmp/tg-report.txt data/captures/telegram-last-report.txt 2>/dev/null | tee /tmp/final-report.txt || true
       - name: Notify Telegram
@@ -76,8 +80,8 @@ jobs:
         run: |
           git config user.name "autofresh-bot"
           git config user.email "autofresh-bot@users.noreply.github.com"
-          git add data/offers.json data/captures data/pending_writes.json data/platform-mappings data/platform-templates data/sync-state.json last_super_run.txt 2>/dev/null || true
+          git add data/operator-overrides.json data/offers.json data/captures data/pending_writes.json data/platform-mappings data/platform-templates data/sync-state.json last_super_run.txt 2>/dev/null || true
           if git diff --cached --quiet; then echo "no commit"; else
-            git commit -m "chore(telegram): apply update from message"
+            git commit -m "chore(telegram): operator override / sync plan"
             git push
           fi

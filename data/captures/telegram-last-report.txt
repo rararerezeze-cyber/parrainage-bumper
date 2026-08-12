@@ -1,32 +1,54 @@
-Kraken mis a jour (dry-run)
-code: '4hpz4gdy' -> 'ABC123TEST'
-offers.json ecrit: non (simulation)
+kraken referee_reward → '20 €'  [GLOBAL]
+source effective: GLOBAL_OPERATOR_OVERRIDE
+effective value: '20 € en Bitcoin selon l’offre' → '20 €'
 
-Programme kraken:
-  - 1parrainage: pending_update (personal_code, personal_link, referee_reward)
-  - code-parrainage: pending_update (personal_code, personal_link, referee_reward)
-  - parrainage-co: pending_update (personal_code, personal_link, referee_reward)
-  - referralcodes: pending_update (referee_reward)
-  - super-parrain: pending_update (personal_code, personal_link, referee_reward)
+Cross-platform impact:
+  1parrainage        pending_update   WRITE_PREPARED               personal_code: None→'4hpz4gdy' | personal_link: None→'https://proinvite.kraken.com/9f1e/lqbuov8u' | referee_reward: '200 € en cryptomonnaies'→'20 €'
+  code-parrainage    pending_update   WRITE_PREPARED               personal_code: None→'4hpz4gdy' | personal_link: None→'https://proinvite.kraken.com/9f1e/lqbuov8u' | referee_reward: '200 € en cryptomonnaies'→'20 €'
+  parrainage-co      pending_update   WRITE_PREPARED               personal_code: None→'4hpz4gdy' | personal_link: None→'https://proinvite.kraken.com/9f1e/lqbuov8u' | referee_reward: '200 € en cryptomonnaies'→'20 €'
+  referralcodes      pending_update   WRITE_PREPARED               referee_reward: '\\u2b50\\ufe0f $200 in Crypto \\u2b50\\ufe0f'→'20 €'
+  super-parrain      pending_update   WRITE_VERIFIED_OR_CANARY     personal_code: None→'4hpz4gdy' | personal_link: None→'https://proinvite.kraken.com/9f1e/lqbuov8u' | referee_reward: '200 € en cryptomonnaies'→'20 €'
 
-5 plateforme(s) avec mapping pour ce programme | 0 capture_pending | 0 manual (global)
-Aucune publication reelle effectuee.
-Phase BASE: writers live desactives.
+Mapped: 5 | pending: 5 | in_sync: 0
+Phase: VALIDATION_LIVE | auto-capable labels: 5 | WRITE_VERIFIED live: 1
+Aucune publication live sauf writers WRITE_VERIFIED/canary déjà armés.
 
 {
-  "at": "2026-08-12T19:02:06.558108+00:00",
-  "message": "Kraken code ABC123TEST",
+  "at": "2026-08-12T20:28:41.729467+00:00",
+  "message": "Kraken gain filleul 20 €",
   "parsed": {
+    "action": "set",
     "program": "kraken",
-    "field": "code",
-    "value": "ABC123TEST",
-    "offer_name": "Kraken"
+    "offer_name": "Kraken",
+    "platform": null,
+    "field": "referee_reward",
+    "value": "20 €"
   },
-  "update": {
-    "old": "4hpz4gdy",
-    "new": "ABC123TEST",
-    "written": false,
-    "phase": "BASE",
-    "effective_offers_path": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\captures\\_offers_preview.json"
-  }
+  "result": {
+    "action": "set",
+    "override": {
+      "program": "kraken",
+      "field": "referee_reward",
+      "value": "20 €",
+      "platform": null,
+      "source": "GLOBAL_OPERATOR_OVERRIDE",
+      "created_at": "2026-08-12T20:28:41.651326+00:00",
+      "updated_at": "2026-08-12T20:28:41.651326+00:00",
+      "message": "Kraken gain filleul 20 €",
+      "id": "global:kraken:referee_reward"
+    },
+    "old_effective": "20 € en Bitcoin selon l’offre",
+    "old_source": "CANONICAL_DEFAULT",
+    "new_effective": "20 €",
+    "new_source": "GLOBAL_OPERATOR_OVERRIDE",
+    "written_overrides_path": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\operator-overrides.json"
+  },
+  "plan_summary": {
+    "platforms_mapped": 5,
+    "pending_update": 5,
+    "in_sync": 0,
+    "auto_capable_labels": 5,
+    "write_verified_live": 1
+  },
+  "mode": "FULL_OPERATOR_CONTROL"
 }

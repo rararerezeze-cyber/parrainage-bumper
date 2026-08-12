@@ -1,6 +1,7 @@
 """ReferralCodes.com — prefer official import/API over browser.
 
-BASE phase: inventory + dry-run plan only. No live publish.
+WRITE_PREPARED: dry-run import plan with effective operator values.
+WRITE_VERIFIED: blocked until official Agent Import format validated with secrets.
 """
 from __future__ import annotations
 
@@ -11,6 +12,7 @@ from typing import Any
 
 from lib.inventory import list_mapping_refs
 from lib.offers import OffersRepository
+from lib.operator_overrides import apply_effective_to_offer
 from lib.phase import live_writes_enabled, phase_name
 from lib.renderer import MappingRepository
 
@@ -30,28 +32,34 @@ class OfficialImportPlan:
         ]
     )
     programs: list[dict[str, Any]] = field(default_factory=list)
-    write_mode: str = "MANUAL_WRITE"
+    write_mode: str = "WRITE_PREPARED"
     live: bool = False
     notes: list[str] = field(default_factory=list)
 
 
-def build_official_import_plan() -> OfficialImportPlan:
-    """Build dry-run view of what an official import would update."""
+def build_official_import_plan(program: str | None = None) -> OfficialImportPlan:
+    """Build dry-run view of what an official import would update (operator-effective)."""
     offers = OffersRepository()
     plan = OfficialImportPlan()
     plan.notes.append(
         "ReferralCodes.com != ReferralCode.tv. Use REFERRALCODES_* secrets only."
     )
     plan.notes.append(
-        f"Phase={phase_name()} live_writes={live_writes_enabled()} — no live import."
+        f"Phase={phase_name()} live_writes={live_writes_enabled('referralcodes')}"
+    )
+    plan.notes.append(
+        "WRITE_PREPARED: plan ready. WRITE_VERIFIED requires confirmed Agent Import "
+        "schema + successful dry import of one program. No browser CAPTCHA bypass."
     )
 
     mapped = [r for r in list_mapping_refs() if r.platform == "referralcodes"]
+    if program:
+        mapped = [r for r in mapped if r.program == program]
     repo = MappingRepository()
     for ref in mapped:
         try:
             m = repo.load(ref.platform, ref.program, ref.language)
-            offer = offers.get_by_slug(ref.program)
+            offer = apply_effective_to_offer(offers.get_by_slug(ref.program), platform="referralcodes")
         except Exception as exc:  # noqa: BLE001
             plan.programs.append(
                 {"program": ref.program, "status": "error", "error": str(exc)}
@@ -81,20 +89,22 @@ def build_official_import_plan() -> OfficialImportPlan:
                 "announcement_url": m.announcement_url,
                 "changed_fields": changed,
                 "action": "WOULD_IMPORT_UPDATE" if changed else "IN_SYNC_OR_UNKNOWN",
+                "operator_effective": True,
             }
         )
 
-    # Capability: without confirmed Agent Import API endpoint, stay MANUAL
-    plan.write_mode = "MANUAL_WRITE"
-    plan.notes.append(
-        "No public Agent Import API schema confirmed in-repo; keep MANUAL_WRITE "
-        "until operator validates official import format. Dry-run lists desired field diffs only."
-    )
+    # Prepared (not verified): inventory + operator-effective diffs ready for official import
+    plan.write_mode = "WRITE_PREPARED"
+    plan.live = False
+    if live_writes_enabled("referralcodes"):
+        plan.notes.append(
+            "Live writes enabled in phase but official import endpoint not verified — still no auto publish."
+        )
     return plan
 
 
-def dry_run_report() -> dict[str, Any]:
-    plan = build_official_import_plan()
+def dry_run_report(program: str | None = None) -> dict[str, Any]:
+    plan = build_official_import_plan(program=program)
     out = {
         "platform": plan.platform,
         "method": plan.method,
@@ -103,11 +113,23 @@ def dry_run_report() -> dict[str, Any]:
         "live": False,
         "programs": plan.programs,
         "notes": plan.notes,
-        "pending_updates": sum(
-            1 for p in plan.programs if p.get("changed_fields")
+        "pending_updates": sum(1 for p in plan.programs if p.get("changed_fields")),
+        "blocker_to_write_verified": (
+            "Agent Import / API schema not validated with live credentials in CI. "
+            "Next step: READ-ONLY login probe of /agents with REFERRALCODES_* secrets."
         ),
     }
     path = ROOT / "data" / "captures" / "referralcodes-official-dry-run.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(out, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return out
+
+
+def execute_write(*_a, **_k) -> dict[str, Any]:
+    """Live write blocked until WRITE_VERIFIED — returns prepared plan only."""
+    return {
+        "ok": False,
+        "write_mode": "WRITE_PREPARED",
+        "error": "referralcodes_not_write_verified_use_official_import",
+        "plan": dry_run_report(),
+    }
