@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "key": "super-parrain:kraken:fr",
+      "platform": "super-parrain",
+      "program": "kraken",
+      "language": "fr",
+      "status": "pending",
+      "reason": "content_update",
+      "created_at": "2026-08-12T16:55:45.155034+00:00",
+      "next_eligible_at": "2026-08-13T05:37:10.549152+00:00",
+      "hours_remaining": 8.93,
+      "priority": 100,
+      "updated_at": "2026-08-12T20:41:25.841206+00:00"
+    }
+  ],
+  "updated_at": "2026-08-12T20:41:25.842206+00:00"
+}

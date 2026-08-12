@@ -1,0 +1,1418 @@
+[
+  {
+    "id": 0,
+    "name": "BoursoBank",
+    "cat": "banque",
+    "lk": "boursobank",
+    "susp": true,
+    "reward": "Programme à confirmer",
+    "bn": 0,
+    "code": null,
+    "link": "https://bour.so/p/baRSnwZKuQX",
+    "about": "BoursoBank est une banque en ligne française. Son programme de parrainage ouvre et ferme selon les campagnes : vérifiez sa disponibilité avant toute ouverture de compte.",
+    "steps": [
+      "Ouvrez le lien de parrainage",
+      "Vérifiez que la campagne est actuellement proposée",
+      "Consultez le montant et les conditions affichés par BoursoBank",
+      "N’ouvrez le compte qu’après avoir confirmé votre éligibilité"
+    ],
+    "advs": [
+      "Aucun frais de tenue de compte",
+      "Carte Visa internationale incluse",
+      "Livret d'épargne disponible"
+    ],
+    "cond": "La disponibilité et le montant du parrainage BoursoBank changent selon les campagnes. Aucun bonus ne doit être considéré comme garanti avant sa confirmation sur le parcours officiel.",
+    "faq": [
+      {
+        "q": "Est-il possible d'ouvrir un compte pendant la suspension ?",
+        "a": "L'ouverture de compte reste possible, mais la prime de parrainage ne sera pas versée tant que le programme est suspendu."
+      },
+      {
+        "q": "Le code ADBE5645 sera-t-il toujours valide à la réouverture ?",
+        "a": "Oui. Les codes de parrainage BoursoBank ne sont pas invalidés lors des suspensions. Il pourra être utilisé dès la reprise officielle du programme."
+      }
+    ],
+    "logo": "boursobank.png",
+    "reviewStatus": "suspended",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "Programme suspendu",
+    "boost": false
+  },
+  {
+    "id": 1,
+    "name": "PayPal",
+    "cat": "banque",
+    "lk": "paypal",
+    "susp": false,
+    "reward": "10 € offerts",
+    "bn": 10,
+    "code": null,
+    "link": "https://py.pl/4brPwnRoe9b",
+    "about": "PayPal est un service de paiement en ligne présent dans plus de 200 pays, avec protection acheteur intégrée et transferts entre particuliers sans frais.",
+    "steps": [
+      "Créez votre compte via le lien de parrainage",
+      "Effectuez un premier achat d'au moins 5 € dans les 30 jours",
+      "Le crédit de 10 € est automatiquement appliqué à votre compte"
+    ],
+    "advs": [
+      "Accepté sur des millions de sites marchands",
+      "Protection acheteur sur les achats éligibles",
+      "Transferts entre particuliers sans commission"
+    ],
+    "cond": "Un achat minimum de 5 € doit être effectué dans les 30 jours suivant l'inscription pour déclencher le crédit.",
+    "faq": [
+      {
+        "q": "Dans quel délai les 10 € sont-ils crédités ?",
+        "a": "Le crédit apparaît généralement sous 72 heures après validation du premier achat éligible."
+      },
+      {
+        "q": "Le compte PayPal est-il gratuit ?",
+        "a": "Oui, l'ouverture et la gestion du compte sont entièrement gratuites. Des frais peuvent s'appliquer sur certains types de transferts internationaux."
+      }
+    ],
+    "logo": "paypal.svg",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "10 € offerts",
+    "boost": false
+  },
+  {
+    "id": 2,
+    "name": "Revolut",
+    "cat": "banque",
+    "lk": "revolut",
+    "susp": false,
+    "reward": "Avantage selon la campagne",
+    "bn": 50,
+    "code": null,
+    "link": "https://revolut.com/referral/?referral-code=adrienhcos!FEB2-26-VR-FR&geo-redirect",
+    "about": "Revolut est une néobanque multidevise proposant un compte courant, une carte internationale, des investissements et un livret d'épargne. Le montant du bonus varie selon les offres promotionnelles en cours.",
+    "steps": [
+      "Ouvrez un nouveau compte depuis le lien personnel",
+      "Vérifiez votre identité",
+      "Ajoutez de l’argent et commandez une carte physique si la campagne l’exige",
+      "Réalisez le nombre d’achats et le montant minimum indiqués dans l’application avant la date limite"
+    ],
+    "advs": [
+      "Compte disponible en 30+ devises",
+      "Taux de change interbancaire sans marge",
+      "Livret d'épargne rémunéré",
+      "Investissements en actions et crypto intégrés"
+    ],
+    "cond": "Le nombre d’achats, leur montant minimum, la date limite et l’existence d’un avantage pour le filleul varient selon la campagne affichée dans l’application Revolut. Aucun montant fixe n’est garanti.",
+    "faq": [
+      {
+        "q": "L'offre Standard de Revolut est-elle gratuite ?",
+        "a": "Oui, le compte Standard n'a aucun frais mensuel. Des offres Premium et Metal sont disponibles avec des avantages supplémentaires."
+      },
+      {
+        "q": "Revolut est-il disponible hors de France ?",
+        "a": "Oui, Revolut est accessible dans plus de 50 pays. Le compte fonctionne à l'international sans frais de change sur les devises principales."
+      }
+    ],
+    "logo": "revolut.svg",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "Bonus selon offre en cours",
+    "boost": false,
+    "sourceUrl": "https://help.revolut.com/fr-FR/help/referrals/other/what-are-the-requirements-to-get-my-referral-reward/"
+  },
+  {
+    "id": 3,
+    "name": "Wise",
+    "cat": "banque",
+    "lk": "wise",
+    "susp": false,
+    "reward": "Frais offerts sur le 1er transfert",
+    "bn": 0,
+    "code": null,
+    "link": "https://wise.com/invite/ihpc/27caf2a",
+    "about": "Wise applique le taux de change interbancaire réel, sans marge cachée. Les frais exacts sont affichés avant chaque transfert, ce qui permet de comparer facilement avec votre banque habituelle.",
+    "steps": [
+      "Créez votre compte via le lien de parrainage",
+      "Effectuez votre premier transfert international",
+      "La réduction sur les frais est appliquée automatiquement"
+    ],
+    "advs": [
+      "Taux de change interbancaire réel, sans marge",
+      "Frais transparents affichés avant validation",
+      "Compte multidevise disponible",
+      "Carte Wise utilisable dans 150+ pays"
+    ],
+    "cond": "La réduction porte uniquement sur les frais du premier transfert. Elle ne s'applique pas aux transferts suivants.",
+    "faq": [
+      {
+        "q": "Quel est le coût habituel d'un transfert Wise ?",
+        "a": "Les frais varient généralement entre 0,4% et 1% selon la devise cible. Le montant exact est toujours affiché avant confirmation, sans surprise à la réception."
+      },
+      {
+        "q": "Wise est-il réglementé en Europe ?",
+        "a": "Oui. Wise est agréé en tant qu'établissement de paiement par la Financial Conduct Authority au Royaume-Uni et opère sous passeport européen."
+      }
+    ],
+    "logo": "wise.svg",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "Frais offerts sur le 1er transfert",
+    "boost": false,
+    "sourceUrl": "https://wise.com/fr/help/articles/7vTYerlMrgU24Wzn1fUoXP/comment-fonctionne-le-programme-dinvitation-de-partenariat"
+  },
+  {
+    "id": 4,
+    "name": "Trade Republic",
+    "cat": "crypto",
+    "lk": "traderepublic",
+    "susp": false,
+    "reward": "Action ou ETF selon l’offre",
+    "bn": 100,
+    "code": "s931znqx",
+    "link": "https://refnocode.trade.re/s931znqx",
+    "about": "Trade Republic est un courtier agréé par la BCE proposant des actions, ETF et obligations à 1 € de frais par ordre, avec 4% d'intérêts annuels sur les liquidités non investies.",
+    "steps": [
+      "Ouvrez le lien d’invitation",
+      "Créez et vérifiez votre nouveau compte",
+      "Consultez les conditions personnalisées affichées dans l’application",
+      "Réalisez les actions demandées dans le délai indiqué pour recevoir l’action ou l’ETF"
+    ],
+    "advs": [
+      "Frais fixes de 1 € par ordre, sans commission cachée",
+      "4% d'intérêts annuels sur les liquidités",
+      "Plans d'investissement automatiques disponibles",
+      "Agréé et régulé par la BCE"
+    ],
+    "cond": "La récompense et les critères sont personnalisés et visibles dans l’application. Le filleul reçoit une action ou un ETF uniquement après avoir rempli toutes les conditions de sa campagne.",
+    "faq": [
+      {
+        "q": "La valeur de l'action offerte est-elle garantie ?",
+        "a": "Non. L'action est sélectionnée aléatoirement parmi une liste définie par Trade Republic. La valeur peut varier de quelques euros à plusieurs dizaines d'euros."
+      },
+      {
+        "q": "Quel est le montant minimum pour investir ?",
+        "a": "L'achat fractionné permet d'investir à partir de 1 € sur la plupart des titres disponibles."
+      }
+    ],
+    "logo": "trade-republic.png",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "1 action offerte d'une valeur de 10 €",
+    "boost": false,
+    "sourceUrl": "https://traderepublic.com/fr-fr/support?articleId=3d97615c-3524-4bdb-a48d-dfe2f079d5d8"
+  },
+  {
+    "id": 5,
+    "name": "Robinhood",
+    "cat": "crypto",
+    "lk": "robinhood",
+    "susp": false,
+    "reward": "10 € ou plus en crypto",
+    "bn": 10,
+    "code": "adrienb-999a02",
+    "link": "https://join.robinhood.com/eu_crypto/adrienb-999a02/",
+    "about": "Robinhood permet aux résidents européens d'acheter des cryptomonnaies sans commission sur les transactions.",
+    "steps": [
+      "Saisissez le code adrienb-999a02 à l'inscription",
+      "Créez et vérifiez votre compte",
+      "Consultez le dépôt minimum demandé dans l'application",
+      "Effectuez le dépôt indiqué pour recevoir la récompense en crypto"
+    ],
+    "advs": [
+      "Aucune commission sur les transactions crypto",
+      "Interface claire, adaptée aux débutants",
+      "Retraits vers wallet externe disponibles"
+    ],
+    "cond": "Robinhood annonce 10 € ou plus en crypto. Le dépôt minimum et le montant exact de la récompense sont ceux indiqués dans l'application au moment de l'inscription.",
+    "faq": [
+      {
+        "q": "Quelles cryptomonnaies sont disponibles sur Robinhood EU ?",
+        "a": "Les principaux actifs sont disponibles : Bitcoin, Ethereum, Solana, ainsi que d'autres cryptomonnaies majeures. La liste peut évoluer."
+      },
+      {
+        "q": "Est-il possible de transférer ses crypto vers un wallet personnel ?",
+        "a": "Oui. La version européenne de Robinhood permet les retraits vers un wallet externe, contrairement à certaines plateformes concurrentes."
+      }
+    ],
+    "logo": "robinhood.svg",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "30 € offerts en crypto",
+    "boost": false,
+    "sourceUrl": "https://robinhood.com/eu/en/support/articles/rewards/"
+  },
+  {
+    "id": 6,
+    "name": "Coinbase",
+    "cat": "crypto",
+    "lk": "coinbase",
+    "susp": false,
+    "reward": "Bonus variable selon la campagne",
+    "bn": 10,
+    "code": "8T83ZPS",
+    "link": "https://coinbase.com/join/8T83ZPS",
+    "about": "Coinbase est une plateforme crypto cotée au NASDAQ, proposant plus de 200 cryptomonnaies avec une interface pensée pour les débutants.",
+    "steps": [
+      "Saisissez le code 8T83ZPS à l'inscription",
+      "Complétez la vérification d'identité",
+      "Effectuez un achat d'au moins 100 $",
+      "Recevez 10 $ en Bitcoin crédités sur votre compte"
+    ],
+    "advs": [
+      "Société cotée au NASDAQ, transparence financière",
+      "Plus de 200 cryptomonnaies disponibles",
+      "Interface adaptée aux débutants"
+    ],
+    "cond": "Le montant, le volume de transactions requis et la période de qualification dépendent de la campagne Coinbase présentée au nouvel utilisateur. La récompense peut varier et le programme peut être modifié ou retiré.",
+    "faq": [
+      {
+        "q": "Dans quel délai le bonus est-il crédité ?",
+        "a": "Le crédit de 10 $ en Bitcoin apparaît généralement sous quelques jours ouvrés après validation du premier achat éligible."
+      },
+      {
+        "q": "Le bonus est-il en dollars américains ?",
+        "a": "Oui, le bonus est libellé en USD et converti en Bitcoin au cours du marché au moment du crédit."
+      }
+    ],
+    "logo": "coinbase.svg",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "20 € offerts en Bitcoin",
+    "boost": false,
+    "sourceUrl": "https://help.coinbase.com/fr/coinbase/getting-started/getting-started-with-coinbase/new-customer-incentive"
+  },
+  {
+    "id": 7,
+    "name": "Binance",
+    "cat": "crypto",
+    "lk": "binance",
+    "susp": false,
+    "reward": "10% de réduction sur les frais",
+    "bn": 0,
+    "code": "451859119",
+    "link": "https://accounts.binance.com/register?ref=451859119",
+    "about": "Binance est l'une des plateformes d'échange crypto les plus utilisées au monde. Le code de parrainage offre une réduction permanente de 10% sur tous les frais de transaction.",
+    "steps": [
+      "Saisissez le code 451859119 lors de l'inscription",
+      "Créez et vérifiez votre compte",
+      "La réduction s'applique automatiquement sur chaque transaction"
+    ],
+    "advs": [
+      "Réduction permanente de 10% sur les frais dès l'inscription",
+      "Large sélection d'actifs disponibles",
+      "Staking et services financiers intégrés",
+      "Enregistré auprès de l'AMF en France"
+    ],
+    "cond": "La réduction de 10% est permanente et s'applique sur l'ensemble des transactions dès lors que le code a été saisi lors de l'inscription.",
+    "faq": [
+      {
+        "q": "Binance est-il disponible pour les résidents français ?",
+        "a": "Oui. Binance est enregistré en tant que Prestataire de Services sur Actifs Numériques (PSAN) auprès de l'AMF, ce qui lui permet d'opérer légalement en France."
+      },
+      {
+        "q": "La réduction de 10% s'applique-t-elle indéfiniment ?",
+        "a": "Oui, tant que le code a été utilisé à l'inscription, la réduction est permanente et s'applique à chaque transaction sans limitation dans le temps."
+      }
+    ],
+    "logo": "binance.svg",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "10% de réduction sur les frais",
+    "boost": false
+  },
+  {
+    "id": 8,
+    "name": "Kraken",
+    "cat": "crypto",
+    "lk": "kraken",
+    "susp": false,
+    "reward": "20 € en Bitcoin selon l’offre",
+    "bn": 20,
+    "code": "4hpz4gdy",
+    "link": "https://proinvite.kraken.com/9f1e/lqbuov8u",
+    "about": "Fondé en 2011, Kraken est l'un des exchanges crypto les plus anciens, reconnu pour sa conformité réglementaire stricte et la diversité de ses services.",
+    "steps": [
+      "Utilisez le lien de parrainage pour vous inscrire",
+      "Créez et vérifiez votre compte",
+      "Déposez la monnaie fiduciaire demandée dans l'application",
+      "Effectuez le volume de trading indiqué sous 30 jours"
+    ],
+    "advs": [
+      "Plus de 12 ans d'existence et de sécurité éprouvée",
+      "Disponible dans 190+ pays",
+      "Services spot, staking et futures disponibles",
+      "Conformité réglementaire stricte"
+    ],
+    "cond": "Kraken indique généralement un bonus équivalent à 20 € en Bitcoin pour la France, après dépôt et volume de trading réalisés sous 30 jours. Les seuils exacts restent affichés dans l'application et le versement peut prendre jusqu'à 21 jours.",
+    "faq": [
+      {
+        "q": "Kraken est-il régulé en France ?",
+        "a": "Oui. Kraken est enregistré en tant que PSAN auprès de l'AMF, ce qui lui permet d'opérer légalement en France."
+      },
+      {
+        "q": "Les frais de retrait sont-ils élevés ?",
+        "a": "Les frais varient selon la cryptomonnaie concernée. Ils sont consultables dans la grille tarifaire de Kraken avant chaque retrait."
+      }
+    ],
+    "logo": "kraken.svg",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "50 € offerts en Bitcoin",
+    "boost": false,
+    "sourceUrl": "https://support.kraken.com/fr/articles/kraken-app-referral-program"
+  },
+  {
+    "id": 9,
+    "name": "Bybit",
+    "cat": "crypto",
+    "lk": "bybit",
+    "susp": false,
+    "reward": "10% de réduction sur les frais",
+    "bn": 0,
+    "code": "YQ6B3O2",
+    "link": "https://www.bybit.eu/invite?ref=YQ6B3O2",
+    "about": "Bybit EU est spécialisé dans le trading de dérivés crypto et propose une interface avancée adaptée aux traders actifs.",
+    "steps": [
+      "Saisissez le code YQ6B3O2 à l'inscription",
+      "Créez votre compte sur Bybit EU",
+      "La réduction s'applique automatiquement"
+    ],
+    "advs": [
+      "Plateforme spécialisée dans le trading de futures",
+      "Interface professionnelle avec outils avancés",
+      "Disponible pour les résidents de l'Union Européenne"
+    ],
+    "cond": "La réduction de 10% est permanente et s'applique dès lors que le code a été renseigné lors de l'inscription.",
+    "faq": [
+      {
+        "q": "Bybit EU est-il disponible pour les résidents français ?",
+        "a": "Oui. Bybit EU est la version réglementée de Bybit, accessible à l'ensemble des résidents de l'Union Européenne, dont la France."
+      },
+      {
+        "q": "Y a-t-il des options de staking sur Bybit ?",
+        "a": "Oui. Bybit propose des solutions de staking sur plusieurs cryptomonnaies, avec des conditions consultables directement dans l'application."
+      }
+    ],
+    "logo": "bybit.svg",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "10% de réduction sur les frais",
+    "boost": false
+  },
+  {
+    "id": 10,
+    "name": "SwissBorg",
+    "cat": "crypto",
+    "lk": "swissborg",
+    "susp": false,
+    "reward": "Jusqu'à 50 € offerts en Bitcoin",
+    "bn": 50,
+    "code": "adrienHVRYZMOZ",
+    "link": "https://swissborg.com/fr/r/adrienHVRYZMOZ",
+    "about": "SwissBorg propose un rendement optimisé automatiquement sur les cryptomonnaies, disponible dans plus de 90 pays avec une interface en français.",
+    "steps": [
+      "Saisissez le code adrienHVRYZMOZ à l'inscription",
+      "Téléchargez l'application SwissBorg",
+      "Complétez la vérification d'identité",
+      "Déposez puis réalisez au moins 100 € d'échanges si l'application le demande",
+      "Choisissez la récompense proposée après validation"
+    ],
+    "advs": [
+      "Optimisation automatique du rendement selon les protocoles disponibles",
+      "Disponible dans 90+ pays avec interface francophone",
+      "Réglementé en Suisse et dans plusieurs pays européens"
+    ],
+    "cond": "Le filleul doit être nouveau, compléter le KYC et réussir le défi affiché dans l'application. La campagne actuelle peut demander un dépôt puis au moins 100 € d'échanges. La récompense prend la forme d'un coupon fixe ou d'un ticket allant jusqu'à 50 € en Bitcoin.",
+    "faq": [
+      {
+        "q": "SwissBorg est-il régulé ?",
+        "a": "Oui. SwissBorg est régulé en Suisse et opère sous licence dans plusieurs pays européens, dont la France via le statut PSAN."
+      },
+      {
+        "q": "Comment fonctionne l'optimisation du rendement ?",
+        "a": "L'application analyse automatiquement plusieurs protocoles de rendement disponibles et alloue vos fonds vers les options les plus performantes, sans action requise de votre part."
+      }
+    ],
+    "logo": "swissborg.svg",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "Jusqu'à 50 € offerts en Bitcoin",
+    "boost": false,
+    "sourceUrl": "https://help.swissborg.com/hc/fr-fr/articles/360010649897-Programme-de-parrainage-SwissBorg"
+  },
+  {
+    "id": 11,
+    "name": "Bitstack",
+    "cat": "crypto",
+    "lk": "bitstack",
+    "susp": false,
+    "reward": "5 € offerts en Bitcoin",
+    "bn": 5,
+    "code": "2ggoINn50hMn0zYayaTS2IxyLEt",
+    "link": "https://bitstack-app.com/referral/2ggoINn50hMn0zYayaTS2IxyLEt",
+    "about": "Bitstack arrondit automatiquement vos achats à l'euro supérieur et investit la différence en Bitcoin, permettant d'accumuler progressivement sans effort.",
+    "steps": [
+      "Cliquez sur le lien de parrainage",
+      "Créez votre compte Bitstack",
+      "Complétez la vérification d'identité",
+      "Épargnez au moins 100 € en Bitcoin sous 30 jours",
+      "Activez un plan d'épargne par arrondis ou achat récurrent",
+      "Recevez 5 € en Bitcoin après validation"
+    ],
+    "advs": [
+      "Accumulation passive de Bitcoin sans intervention",
+      "Régulé en tant que PSAN en France",
+      "Possibilité de retrait vers un wallet personnel"
+    ],
+    "cond": "Les conditions publiées en avril 2026 exigent une identité vérifiée, 100 € cumulés d'achats de Bitcoin et un plan d'épargne actif dans les 30 jours. Le filleul reçoit alors 5 € en Bitcoin, généralement crédités sous sept jours.",
+    "faq": [
+      {
+        "q": "Comment fonctionne l'arrondissement automatique ?",
+        "a": "Lors de chaque achat par carte, Bitstack arrondit le montant à l'euro supérieur et investit la différence en Bitcoin. Par exemple, un achat de 3,60 € génère un investissement de 0,40 € en Bitcoin."
+      },
+      {
+        "q": "Est-il possible de retirer ses Bitcoin vers un wallet externe ?",
+        "a": "Oui. Bitstack permet le retrait de vos Bitcoin vers un wallet personnel, contrairement à certaines applications d'épargne crypto."
+      }
+    ],
+    "logo": "bitstack.svg",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "5 € offerts en Bitcoin",
+    "boost": false,
+    "sourceUrl": "https://www.bitstack-app.com/terms-conditions/conditions-de-parrainage"
+  },
+  {
+    "id": 12,
+    "name": "Deblock",
+    "cat": "crypto",
+    "lk": "deblock",
+    "susp": false,
+    "reward": "Récompense selon la campagne",
+    "bn": 50,
+    "code": "a-tfu376",
+    "link": "https://deblock.com/a-tfu376",
+    "about": "Deblock combine un compte courant avec IBAN français et un wallet crypto dans une seule application, permettant de gérer finances quotidiennes et actifs numériques depuis une interface unifiée.",
+    "steps": [
+      "Saisissez le code a-tfu376 à l'inscription",
+      "Créez et vérifiez votre compte",
+      "Achetez pour 20 € minimum de cryptomonnaies",
+      "Le bonus de 50 € est crédité automatiquement"
+    ],
+    "advs": [
+      "IBAN français inclus pour virements et prélèvements",
+      "Gestion compte courant et crypto dans une seule app",
+      "Carte Visa disponible pour les dépenses quotidiennes"
+    ],
+    "cond": "Les campagnes Deblock peuvent proposer une récompense fixe ou variable. Le montant et les actions requises doivent être confirmés dans les conditions de la campagne active au moment de l’inscription.",
+    "faq": [
+      {
+        "q": "Deblock est-il régulé en France ?",
+        "a": "Oui. Deblock est agréé en France en tant qu'établissement de monnaie électronique et PSAN, soumis au contrôle de l'ACPR."
+      },
+      {
+        "q": "Puis-je recevoir mon salaire sur mon compte Deblock ?",
+        "a": "Oui. L'IBAN français associé au compte Deblock peut être utilisé pour la domiciliation de salaire ou tout autre virement bancaire habituel."
+      }
+    ],
+    "logo": "deblock.png",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "50 € en crypto",
+    "boost": false,
+    "sourceUrl": "https://cdn1.deblock.com/terms/referrals/FR/20260201-referrals-terms-FR.pdf"
+  },
+  {
+    "id": 13,
+    "name": "Gemini",
+    "cat": "crypto",
+    "lk": "gemini",
+    "susp": false,
+    "reward": "20 € offerts en Bitcoin",
+    "bn": 0,
+    "code": "wd8yn943e",
+    "link": "https://exchange.gemini.com/register?referral=wd8yn943e&type=referral",
+    "about": "Fondée par les frères Winklevoss, Gemini est reconnue pour sa rigueur en matière de conformité réglementaire et la sécurité de ses actifs.",
+    "steps": [
+      "Saisissez le code wd8yn943e à l'inscription",
+      "Créez et vérifiez votre compte",
+      "Effectuez un premier achat éligible",
+      "Le bonus est attribué selon l'offre en cours"
+    ],
+    "advs": [
+      "Conformité réglementaire parmi les plus strictes du secteur",
+      "Actifs détenus dans des comptes ségrégués",
+      "Interface claire adaptée à différents profils d'investisseurs"
+    ],
+    "cond": "Le montant du bonus dépend de l'offre Gemini en vigueur. Vérifiez les conditions dans l'application lors de votre inscription.",
+    "faq": [
+      {
+        "q": "Gemini est-il disponible pour les résidents français ?",
+        "a": "Oui. Gemini est accessible en France et opère dans le respect des réglementations européennes applicables aux plateformes d'actifs numériques."
+      },
+      {
+        "q": "Les fonds des utilisateurs sont-ils protégés ?",
+        "a": "Oui. Gemini conserve les actifs dans des comptes ségrégués et dispose d'une couverture d'assurance sur les fonds détenus en garde."
+      }
+    ],
+    "logo": "gemini.svg",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "20 € offerts en Bitcoin",
+    "boost": false
+  },
+  {
+    "id": 14,
+    "name": "Ledger",
+    "cat": "crypto",
+    "lk": "ledger",
+    "susp": false,
+    "reward": "20 € offerts en Bitcoin",
+    "bn": 20,
+    "code": "20DA401DG841C",
+    "link": "https://shop.ledger.com/fr/pages/referral-program?referral_code=20DA401DG841C",
+    "about": "Ledger fabrique des portefeuilles matériels qui stockent vos clés privées hors ligne, protégeant vos cryptomonnaies contre les piratages et accès distants.",
+    "steps": [
+      "Rendez-vous sur shop.ledger.com et saisissez le code 20DA401DG841C",
+      "Achetez votre appareil Ledger",
+      "Configurez-le en suivant le guide officiel fourni",
+      "Recevez 20 $ en Bitcoin sur votre compte Ledger Live"
+    ],
+    "advs": [
+      "Clés privées stockées hors ligne, inaccessibles à distance",
+      "Compatible avec 5500+ cryptomonnaies",
+      "Fabriqué en France par une entreprise française"
+    ],
+    "cond": "L'achat d'un appareil Ledger sur le site officiel via le code de parrainage est requis pour bénéficier du bonus.",
+    "faq": [
+      {
+        "q": "Quel modèle Ledger choisir selon ses besoins ?",
+        "a": "Le Ledger Nano X est recommandé pour sa connectivité Bluetooth et sa grande capacité. Le Nano S Plus est une alternative plus économique sans Bluetooth, adaptée aux utilisateurs qui gèrent moins d'actifs."
+      },
+      {
+        "q": "Les clés privées quittent-elles l'appareil lors d'une transaction ?",
+        "a": "Non. Les clés privées ne quittent jamais la puce sécurisée de l'appareil. Seule la signature de la transaction se fait à l'intérieur du dispositif."
+      }
+    ],
+    "logo": "ledger.svg",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "20 € offerts en Bitcoin",
+    "boost": false
+  },
+  {
+    "id": 15,
+    "name": "Betclic",
+    "cat": "paris",
+    "lk": "betclic",
+    "susp": false,
+    "reward": "100 € remboursés + 30 € de bonus",
+    "bn": 130,
+    "code": "AD89AW2M",
+    "boost": false,
+    "link": "https://go.onelink.me/2887093520/6c3132b8?af_sub5=AD89AW2M",
+    "about": "Betclic est un opérateur de paris sportifs agréé par l'Autorité Nationale des Jeux (ANJ) en France, proposant une couverture étendue des compétitions sportives mondiales.",
+    "steps": [
+      "Saisissez le code AD89AW2M lors de l'inscription",
+      "Complétez la validation de votre identité",
+      "Effectuez un premier dépôt",
+      "Misez au moins 10 € sur un événement sportif",
+      "Le bonus est crédité selon les conditions en vigueur"
+    ],
+    "advs": [
+      "Agréé ANJ, opérateur légalement autorisé en France",
+      "Couverture étendue des compétitions sportives",
+      "Application mobile disponible sur iOS et Android"
+    ],
+    "cond": "Offre réservée aux nouveaux clients de 18 ans et plus. Un dépôt et une mise minimale de 10 € sont requis. Le bonus est soumis à des conditions de mise avant tout retrait.",
+    "faq": [
+      {
+        "q": "Dans quel délai le bonus est-il versé après inscription ?",
+        "a": "Le bonus est généralement crédité après validation complète de votre identité, réalisation du dépôt et engagement de la première mise d'au moins 10 €."
+      },
+      {
+        "q": "Le bonus peut-il être retiré immédiatement ?",
+        "a": "Non. Comme sur l'ensemble des plateformes de paris agréées, le bonus est soumis à des conditions de mise qui doivent être remplies avant tout retrait. Consultez le règlement complet sur betclic.fr."
+      }
+    ],
+    "logo": "betclic.png",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "100 € remboursés + 30 € de bonus",
+    "ageRestricted": true
+  },
+  {
+    "id": 16,
+    "name": "Unibet",
+    "cat": "paris",
+    "lk": "unibet",
+    "susp": false,
+    "reward": "100 € remboursés + 30 € de bonus",
+    "bn": 130,
+    "code": "GAO92",
+    "boost": false,
+    "link": "https://www.unibet.fr/myaccount/register.html?promo=GAO92",
+    "about": "Unibet est un opérateur de paris sportifs agréé ANJ, proposant plus de 30 disciplines sportives avec des options de paris en direct et de diffusion live.",
+    "steps": [
+      "Saisissez le code GAO92 lors de l'inscription",
+      "Complétez la vérification d'identité",
+      "Effectuez votre premier dépôt",
+      "Misez au moins 10 €",
+      "Le bonus est attribué selon les conditions en vigueur"
+    ],
+    "advs": [
+      "Agréé ANJ, opérateur légal en France",
+      "Plus de 30 disciplines sportives couvertes",
+      "Diffusion live de certains événements"
+    ],
+    "cond": "Offre réservée aux nouveaux clients de 18 ans et plus. Un dépôt et une mise minimale de 10 € sont requis. Les conditions de mise s'appliquent avant tout retrait.",
+    "faq": [
+      {
+        "q": "Unibet est-il légalement autorisé à opérer en France ?",
+        "a": "Oui. Unibet est titulaire d'un agrément délivré par l'Autorité Nationale des Jeux (ANJ), ce qui l'autorise à proposer ses services aux résidents français."
+      },
+      {
+        "q": "Quelles disciplines sportives sont disponibles ?",
+        "a": "Unibet couvre un large spectre : football, tennis, basketball, rugby, Formule 1, MMA, et plus de 25 autres sports, avec des marchés de paris en direct sur les principales compétitions."
+      }
+    ],
+    "logo": "unibet.png",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "100 € remboursés + 30 € de bonus",
+    "ageRestricted": true
+  },
+  {
+    "id": 17,
+    "name": "Winamax",
+    "cat": "paris",
+    "lk": "winamax",
+    "susp": false,
+    "reward": "100 € remboursés + 20 € de bonus",
+    "bn": 120,
+    "code": "AD8RAY",
+    "link": null,
+    "about": "Winamax est un opérateur français de paris sportifs et de poker en ligne, agréé ANJ, reconnu pour la qualité de son interface et de sa couverture des compétitions.",
+    "steps": [
+      "Rendez-vous sur winamax.fr et saisissez le code AD8RAY",
+      "Complétez la vérification de votre identité",
+      "Effectuez un premier dépôt",
+      "Misez au moins 10 €",
+      "Le bonus est crédité selon les conditions en vigueur"
+    ],
+    "advs": [
+      "Opérateur français agréé ANJ",
+      "Leader du poker en ligne en France",
+      "Interface soignée disponible sur mobile et desktop"
+    ],
+    "cond": "Le code AD8RAY doit être saisi directement sur winamax.fr. Offre réservée aux nouveaux clients de 18 ans et plus. Conditions de mise applicables.",
+    "faq": [
+      {
+        "q": "Winamax est-il titulaire d'un agrément ANJ ?",
+        "a": "Oui. Winamax est l'un des opérateurs historiquement agréés par l'Autorité Nationale des Jeux pour proposer des paris sportifs et du poker en ligne en France."
+      },
+      {
+        "q": "Winamax propose-t-il des tournois de poker avec de grands prix ?",
+        "a": "Oui. Winamax organise notamment le SISMIQUE, l'un des plus grands tournois de poker en ligne français, avec des prize pools pouvant dépasser plusieurs millions d'euros."
+      }
+    ],
+    "logo": "winamax.png",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "100 € remboursés + 20 € de bonus",
+    "boost": false,
+    "ageRestricted": true
+  },
+  {
+    "id": 18,
+    "name": "ParionsSport FDJ",
+    "cat": "paris",
+    "lk": "parionssport",
+    "susp": false,
+    "reward": "100 € remboursés + 40 € de bonus",
+    "bn": 120,
+    "code": "03356181D410779A",
+    "link": "https://www.enligne.parionssport.fdj.fr/inscription/?campaign=130126&parrain=03356181D410779A",
+    "about": "ParionsSport est la plateforme de paris sportifs en ligne de la Française des Jeux, opérateur historique coté en bourse et agréé ANJ.",
+    "steps": [
+      "Saisissez le code de parrainage lors de l'inscription",
+      "Complétez la vérification de votre identité",
+      "Effectuez un premier dépôt",
+      "Misez au moins 10 €",
+      "Le bonus est crédité selon les conditions en vigueur"
+    ],
+    "advs": [
+      "Filiale de la Française des Jeux, opérateur historique",
+      "Cotée en bourse, transparence financière publique",
+      "Agréé ANJ"
+    ],
+    "cond": "Offre réservée aux nouveaux clients de 18 ans et plus. Un dépôt et une mise minimale de 10 € sont requis. Les crédits bonus sont soumis à conditions de mise.",
+    "faq": [
+      {
+        "q": "ParionsSport FDJ est-il un opérateur fiable ?",
+        "a": "Oui. La Française des Jeux est un opérateur de jeux d'argent agréé depuis plusieurs décennies, coté en bourse depuis 2019 et soumis aux contrôles de l'ANJ."
+      },
+      {
+        "q": "Quelle est la différence entre les crédits bonus et les fonds réels ?",
+        "a": "Les crédits bonus sont utilisables pour miser mais ne sont pas directement retirables. Les gains générés par des paris réalisés avec des crédits deviennent retirables une fois les conditions de mise satisfaites."
+      }
+    ],
+    "logo": "parions-sport.png",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "100 € remboursés + 40 € de bonus",
+    "boost": false,
+    "ageRestricted": true
+  },
+  {
+    "id": 19,
+    "name": "Heetch",
+    "cat": "voyage",
+    "lk": "heetch",
+    "susp": false,
+    "reward": "5 € offerts sur la 1ère course",
+    "bn": 5,
+    "code": "ADRIEN21987265",
+    "link": null,
+    "about": "Heetch est un service de VTC disponible dans plusieurs grandes villes françaises ainsi qu'en Belgique, avec une application simple et des tarifs compétitifs.",
+    "steps": [
+      "Téléchargez l'application Heetch",
+      "Saisissez le code ADRIEN21987265 dans la section promotions",
+      "Réservez votre première course",
+      "La réduction de 5 € est déduite automatiquement"
+    ],
+    "advs": [
+      "Disponible dans les principales agglomérations françaises et en Belgique",
+      "Interface épurée et réservation rapide"
+    ],
+    "cond": "La réduction de 5 € s'applique sur la première course uniquement, après saisie du code dans l'application.",
+    "faq": [
+      {
+        "q": "Dans quelles villes Heetch est-il disponible ?",
+        "a": "Heetch couvre Paris et sa région, ainsi que plusieurs grandes villes françaises (Lyon, Marseille, Bordeaux, Lille) et la Belgique. La couverture géographique exacte est consultable dans l'application."
+      },
+      {
+        "q": "Le code a-t-il une date de validité ?",
+        "a": "Les codes promotionnels Heetch ont généralement une durée de validité limitée. Nous vous recommandons de vérifier les conditions dans la section promotions de l'application avant utilisation."
+      }
+    ],
+    "logo": "heetch.png",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "5 € offerts sur la 1ère course",
+    "boost": false
+  },
+  {
+    "id": 20,
+    "name": "Omio",
+    "cat": "voyage",
+    "lk": "omio",
+    "susp": false,
+    "reward": "10 € offerts sur la 1ère réservation",
+    "bn": 10,
+    "code": "adrieb6d4e1f",
+    "link": "https://go-refer.omio.com/jU1MJy",
+    "about": "Omio est une plateforme de réservation de transports comparant et vendant des billets de train, bus et avion dans plus de 40 pays européens.",
+    "steps": [
+      "Cliquez sur le lien ou saisissez le code adrieb6d4e1f",
+      "Créez votre compte Omio",
+      "Effectuez votre première réservation",
+      "La réduction de 10 € est appliquée automatiquement"
+    ],
+    "advs": [
+      "Comparaison train, bus et avion sur une seule plateforme",
+      "Disponible dans plus de 40 pays en Europe",
+      "Billets accessibles directement sur mobile"
+    ],
+    "cond": "La réduction de 10 € s'applique uniquement sur la première réservation effectuée via Omio.",
+    "faq": [
+      {
+        "q": "Omio inclut-il les trains SNCF parmi ses résultats ?",
+        "a": "Oui. Omio intègre les offres SNCF ainsi que d'autres opérateurs ferroviaires et routiers comme Flixbus, Blablacar Bus, et plusieurs compagnies aériennes low-cost."
+      },
+      {
+        "q": "Les billets peuvent-ils être modifiés ou remboursés ?",
+        "a": "Les conditions de modification et de remboursement dépendent du transporteur sélectionné et du tarif choisi. Elles sont indiquées clairement avant validation de la réservation."
+      }
+    ],
+    "logo": "omio.svg",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "10 € offerts sur la 1ère réservation",
+    "boost": false
+  },
+  {
+    "id": 21,
+    "name": "Airbnb",
+    "cat": "voyage",
+    "lk": "airbnb",
+    "susp": false,
+    "reward": "Réduction sur la 1ère réservation",
+    "bn": 30,
+    "code": "adrienb12398",
+    "link": "https://www.airbnb.fr/r/adrienb12398",
+    "about": "Airbnb est une plateforme de location de logements entre particuliers présente dans plus de 190 pays, avec une garantie de protection AirCover incluse sur chaque réservation.",
+    "steps": [
+      "Créez votre compte via le lien de parrainage",
+      "Effectuez votre première réservation",
+      "La réduction est appliquée automatiquement au paiement"
+    ],
+    "advs": [
+      "Des millions de logements disponibles dans 190+ pays",
+      "Garantie AirCover couvrant les annulations de dernière minute",
+      "Large choix : studios, villas, cabanes, bateaux, etc."
+    ],
+    "cond": "La réduction s'applique sur la première réservation effectuée via le lien de parrainage. Le montant exact peut varier selon les offres promotionnelles Airbnb en cours.",
+    "faq": [
+      {
+        "q": "Le montant de la réduction est-il fixe ?",
+        "a": "Non. Le montant varie selon les promotions en cours chez Airbnb. Il est affiché lors de la réservation, avant validation du paiement."
+      },
+      {
+        "q": "En quoi consiste la garantie AirCover ?",
+        "a": "AirCover est la protection intégrée à chaque réservation Airbnb. Elle couvre notamment les annulations de dernière minute par l'hôte, les logements non conformes à l'annonce, et les problèmes de sécurité constatés à l'arrivée."
+      }
+    ],
+    "logo": "airbnb.svg",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "Réduction sur la 1ère réservation",
+    "boost": false
+  },
+  {
+    "id": 22,
+    "name": "TotalEnergies",
+    "cat": "energie",
+    "lk": "totalenergies",
+    "susp": false,
+    "reward": "20 € offerts sur la 1ère facture",
+    "bn": 20,
+    "code": "114052844",
+    "link": "https://maconso.page.link/gYvy",
+    "about": "TotalEnergies propose des offres d'électricité et de gaz naturel pour les particuliers. Le changement de fournisseur est entièrement gratuit et ne nécessite aucune intervention technique.",
+    "steps": [
+      "Cliquez sur le lien ou saisissez le code 114052844",
+      "Obtenez un devis personnalisé en ligne",
+      "Souscrivez à l'offre choisie",
+      "Le crédit de 20 € est appliqué sur votre première facture"
+    ],
+    "advs": [
+      "Changement de fournisseur sans coupure ni intervention",
+      "Offres incluant une part d'énergie renouvelable",
+      "Service client basé en France"
+    ],
+    "cond": "Le crédit de 20 € est appliqué sur la première facture émise après activation du contrat, généralement dans les 2 à 3 mois suivant la souscription.",
+    "faq": [
+      {
+        "q": "Y a-t-il une coupure lors du changement de fournisseur ?",
+        "a": "Non. Le changement de fournisseur d'électricité ou de gaz est totalement transparent. Il est géré administrativement entre les fournisseurs et les gestionnaires de réseau, sans aucune intervention à votre domicile."
+      },
+      {
+        "q": "Dans quel délai le crédit de 20 € apparaît-il sur ma facture ?",
+        "a": "Le crédit est généralement appliqué sur la première facture émise après l'activation du contrat, soit environ 2 à 3 mois après la souscription."
+      }
+    ],
+    "logo": "totalenergies.svg",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "20 € offerts sur la 1ère facture",
+    "boost": false
+  },
+  {
+    "id": 23,
+    "name": "iGraal",
+    "cat": "cashback",
+    "lk": "igraal",
+    "susp": false,
+    "reward": "5 € offerts à l'inscription",
+    "bn": 5,
+    "code": "AG_608d8f9aded43",
+    "link": "https://fr.igraal.com/appshare?pid=invitation&c=sponsorship&godfather=AG_608d8f9aded43",
+    "about": "iGraal est une plateforme de cashback permettant de récupérer un pourcentage de ses achats en ligne chez plus de 2000 boutiques partenaires.",
+    "steps": [
+      "Créez votre compte via le lien de parrainage",
+      "Installez l'extension navigateur iGraal",
+      "Effectuez un premier achat via la plateforme",
+      "Recevez 5 € crédités sur votre compte"
+    ],
+    "advs": [
+      "2000+ boutiques partenaires référencées",
+      "Extension navigateur pour activation automatique",
+      "Retrait par virement bancaire ou chèque"
+    ],
+    "cond": "Le bonus de 5 € est crédité après réalisation du premier achat qualifié via iGraal.",
+    "faq": [
+      {
+        "q": "Comment fonctionne le principe du cashback ?",
+        "a": "Lorsque vous effectuez un achat chez une boutique partenaire via iGraal, cette boutique reverse une commission à la plateforme. iGraal vous rétrocède une partie de cette commission sous forme de cashback crédité sur votre compte."
+      },
+      {
+        "q": "Quel est le délai de disponibilité du cashback pour le retrait ?",
+        "a": "Le délai varie entre 30 et 90 jours selon les marchands, correspondant à leur délai de retour et d'annulation possible. Le cashback devient disponible une fois ce délai passé."
+      }
+    ],
+    "logo": "igraal.png",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "5 € offerts à l'inscription",
+    "boost": false
+  },
+  {
+    "id": 24,
+    "name": "Poulpeo",
+    "cat": "cashback",
+    "lk": "poulpeo",
+    "susp": false,
+    "reward": "5 € offerts à l'inscription",
+    "bn": 5,
+    "code": "4KD2ab",
+    "link": "https://www.poulpeo.com/p/4KD2ab",
+    "about": "Poulpeo est une plateforme de cashback et de codes promo référençant plus de 2000 boutiques partenaires, avec une extension navigateur facilitant l'activation automatique.",
+    "steps": [
+      "Saisissez le code 4KD2ab lors de l'inscription",
+      "Effectuez vos achats habituels via les boutiques partenaires Poulpeo",
+      "Accumulez du cashback sur chaque achat éligible"
+    ],
+    "advs": [
+      "2000+ boutiques partenaires",
+      "Codes promo exclusifs disponibles",
+      "Extension navigateur pour activation automatique"
+    ],
+    "cond": "Le bonus de 5 € est crédité après réalisation du premier achat éligible via Poulpeo.",
+    "faq": [
+      {
+        "q": "L'inscription sur Poulpeo est-elle gratuite ?",
+        "a": "Oui. L'inscription et l'utilisation de Poulpeo sont entièrement gratuites. La plateforme est rémunérée par les marchands partenaires."
+      },
+      {
+        "q": "Comment retirer son cashback ?",
+        "a": "Le cashback accumulé peut être retiré par virement bancaire ou par chèque, une fois le seuil minimum de retrait atteint."
+      }
+    ],
+    "logo": "poulpeo.png",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "5 € offerts à l'inscription",
+    "boost": false
+  },
+  {
+    "id": 25,
+    "name": "eBuyClub",
+    "cat": "cashback",
+    "lk": "ebuyclub",
+    "susp": false,
+    "reward": "5 € offerts à l'inscription",
+    "bn": 5,
+    "code": "adrien891000",
+    "link": "https://www.ebuyclub.com/?parrain=adrien891000",
+    "about": "eBuyClub propose du cashback sur les achats en ligne et en magasin avec plus de 1800 partenaires, grâce à une association de carte bancaire pour le cashback physique.",
+    "steps": [
+      "Saisissez le code adrien891000 lors de l'inscription",
+      "Créez votre compte",
+      "Associez votre carte bancaire pour activer le cashback en magasin",
+      "Effectuez vos achats éligibles",
+      "Recevez 5 € après votre premier achat qualifié"
+    ],
+    "advs": [
+      "Cashback en ligne et en magasin physique",
+      "Plus de 1800 partenaires référencés",
+      "Activation automatique en magasin via la carte associée"
+    ],
+    "cond": "Le bonus de 5 € est crédité après réalisation du premier achat éligible via eBuyClub.",
+    "faq": [
+      {
+        "q": "Comment fonctionne le cashback en magasin physique ?",
+        "a": "En associant votre carte bancaire à votre compte eBuyClub, chaque achat effectué chez un commerçant partenaire physique est automatiquement détecté et le cashback crédité sans action supplémentaire de votre part."
+      },
+      {
+        "q": "Dans quel délai le cashback est-il crédité après un achat ?",
+        "a": "Le délai varie entre 30 et 60 jours selon le marchand, correspondant à leur politique de retour. Le cashback est crédité une fois ce délai de sécurité écoulé."
+      }
+    ],
+    "logo": "ebuyclub.png",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "5 € offerts à l'inscription",
+    "boost": false
+  },
+  {
+    "id": 26,
+    "name": "Joko",
+    "cat": "cashback",
+    "lk": "joko",
+    "susp": false,
+    "reward": "5 € offerts à l'inscription",
+    "bn": 5,
+    "code": "stxzzb",
+    "link": "https://hellojoko.app.link/tyX38HoTyP",
+    "about": "Joko fonctionne de manière entièrement automatique : connectez votre carte bancaire et le cashback s'active sans action supplémentaire lors de vos achats chez les partenaires.",
+    "steps": [
+      "Saisissez le code stxzzb lors de l'inscription",
+      "Téléchargez l'application Joko",
+      "Connectez votre carte bancaire",
+      "Le cashback est activé automatiquement à chaque achat éligible"
+    ],
+    "advs": [
+      "Fonctionnement 100% automatique, sans extension ni action requise",
+      "Connexion en lecture seule, aucun virement possible",
+      "Compatible avec la grande majorité des banques françaises"
+    ],
+    "cond": "Le bonus de 5 € est crédité après connexion de la carte bancaire et réalisation du premier achat qualifié.",
+    "faq": [
+      {
+        "q": "La connexion bancaire est-elle sécurisée ?",
+        "a": "Oui. Joko utilise l'accès DSP2 en lecture seule, conforme à la réglementation européenne sur les services de paiement. Aucune action de paiement ne peut être initiée depuis l'application."
+      },
+      {
+        "q": "Joko est-il compatible avec toutes les banques françaises ?",
+        "a": "Joko est compatible avec la grande majorité des banques françaises traditionnelles et en ligne. La liste complète des banques compatibles est consultable dans l'application."
+      }
+    ],
+    "logo": "joko.png",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "5 € offerts à l'inscription",
+    "boost": false
+  },
+  {
+    "id": 27,
+    "name": "Widilo",
+    "cat": "cashback",
+    "lk": "widilo",
+    "susp": false,
+    "reward": "5 € offerts à l'inscription",
+    "bn": 10,
+    "code": "NGA684",
+    "link": "https://www.widilo.fr/i/NGA684",
+    "about": "Widilo notifie via son extension navigateur dès que vous visitez un site partenaire, permettant d'activer le cashback sans oublier de passer par la plateforme.",
+    "steps": [
+      "Saisissez le code NGA684 lors de l'inscription",
+      "Créez votre compte Widilo",
+      "Installez l'extension navigateur",
+      "Naviguez normalement, l'extension vous alertera sur les sites partenaires"
+    ],
+    "advs": [
+      "2500+ boutiques partenaires référencées",
+      "Alertes automatiques à la visite d'un site partenaire",
+      "Compatible Chrome, Firefox et Edge"
+    ],
+    "cond": "Le bonus de bienvenue est variable selon l'offre promotionnelle Widilo en cours au moment de l'inscription.",
+    "faq": [
+      {
+        "q": "Quelles données l'extension Widilo collecte-t-elle ?",
+        "a": "L'extension se limite à la détection des sites partenaires pour déclencher les alertes cashback. Elle ne collecte pas vos données de navigation personnelles ni vos informations bancaires."
+      },
+      {
+        "q": "Comment retirer son cashback ?",
+        "a": "Le cashback accumulé peut être retiré par virement bancaire ou via PayPal, sous réserve d'atteindre le seuil minimum de retrait défini par la plateforme."
+      }
+    ],
+    "logo": "widilo.png",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "5 € offerts à l'inscription",
+    "boost": false
+  },
+  {
+    "id": 28,
+    "name": "Acheel",
+    "cat": "cashback",
+    "lk": "acheel",
+    "susp": false,
+    "reward": "1 mois offert",
+    "bn": 0,
+    "code": "ADBE5645",
+    "link": "https://www.acheel.com/?discountCode=ADBE5645",
+    "about": "Acheel est une mutuelle santé 100% digitale, sans papier, avec souscription et gestion intégralement en ligne.",
+    "steps": [
+      "Accédez au site via le lien avec le code ADBE5645",
+      "Choisissez la formule adaptée à votre situation",
+      "Souscrivez en ligne en quelques minutes",
+      "Le premier mois est offert sur votre contrat"
+    ],
+    "advs": [
+      "Souscription et gestion 100% en ligne, sans papier",
+      "Remboursements traités rapidement",
+      "Résiliation possible sans frais avec préavis d'un mois"
+    ],
+    "cond": "Le premier mois est offert sur toute nouvelle souscription via le lien avec le code ADBE5645.",
+    "faq": [
+      {
+        "q": "Dans quel délai les remboursements sont-ils effectués ?",
+        "a": "Acheel traite généralement les remboursements de soins dans un délai de 24 à 48 heures après réception des justificatifs, selon les formules souscrites."
+      },
+      {
+        "q": "Comment résilier un contrat Acheel ?",
+        "a": "La résiliation est possible à tout moment, sans frais, avec un préavis d'un mois. Elle s'effectue directement depuis l'espace client en ligne."
+      }
+    ],
+    "logo": "acheel.png",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "1 mois offert",
+    "boost": false
+  },
+  {
+    "id": 29,
+    "name": "L'Olivier Assurance",
+    "cat": "cashback",
+    "lk": "lolivier",
+    "susp": false,
+    "reward": "50 € offerts sur votre contrat",
+    "bn": 50,
+    "code": "LOA-GVSN35",
+    "link": "https://www.olivierassurance.fr/?parrain=LOA-GVSN35",
+    "about": "L'Olivier est un assureur auto et moto 100% en ligne, sans réseau d'agences physiques, permettant de gérer son contrat intégralement depuis son espace client.",
+    "steps": [
+      "Saisissez le code LOA-GVSN35 lors de la souscription",
+      "Obtenez un devis en ligne",
+      "Souscrivez au contrat choisi",
+      "Le crédit de 50 € est déduit de votre premier paiement"
+    ],
+    "advs": [
+      "Gestion intégrale du contrat depuis l'espace client en ligne",
+      "Devis rapide sans engagement"
+    ],
+    "cond": "Le crédit de 50 € est déduit sur le premier paiement du contrat souscrit via le code LOA-GVSN35. Numéro de parrain : 5950467715.",
+    "faq": [
+      {
+        "q": "L'Olivier Assurance est-il un assureur reconnu et régulé ?",
+        "a": "Oui. L'Olivier Assurance est un assureur agréé, soumis au contrôle de l'ACPR (Autorité de Contrôle Prudentiel et de Résolution), l'organisme de supervision des assureurs en France."
+      },
+      {
+        "q": "Le crédit de 50 € est-il appliqué immédiatement ?",
+        "a": "Oui. Le crédit est déduit directement du premier paiement de votre contrat, réduisant ainsi le montant à régler lors de la première échéance."
+      }
+    ],
+    "logo": "lolivierassurance.svg",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "50 € offerts sur votre contrat",
+    "boost": false
+  },
+  {
+    "id": 30,
+    "name": "Finary",
+    "cat": "autres",
+    "lk": "finary",
+    "susp": false,
+    "reward": "1 mois Premium offert",
+    "bn": 0,
+    "code": "KEDEA4",
+    "link": "https://finary.com/referral/KEDEA4",
+    "about": "Finary permet de suivre l'ensemble de son patrimoine en temps réel depuis une interface unifiée : comptes bancaires, investissements, cryptomonnaies, immobilier.",
+    "steps": [
+      "Saisissez le code KEDEA4 lors de l'inscription",
+      "Créez votre compte Finary",
+      "Connectez vos comptes et institutions financières",
+      "Profitez d'un mois d'accès Premium offert"
+    ],
+    "advs": [
+      "Vue consolidée de l'ensemble du patrimoine en temps réel",
+      "100+ institutions financières connectables",
+      "Connexion en lecture seule, sécurisée via DSP2"
+    ],
+    "cond": "Un mois d'accès Premium est offert après inscription via le code KEDEA4.",
+    "faq": [
+      {
+        "q": "La connexion aux comptes bancaires est-elle sécurisée ?",
+        "a": "Oui. Finary utilise la connexion DSP2 en lecture seule, conformément à la réglementation européenne sur les services de paiement. Aucune transaction ne peut être initiée depuis la plateforme."
+      },
+      {
+        "q": "Finary propose-t-il une version gratuite après la période Premium ?",
+        "a": "Oui. Une version gratuite est disponible avec les fonctionnalités essentielles de suivi patrimonial. La version Premium ajoute des analyses avancées et des tableaux de bord détaillés."
+      }
+    ],
+    "logo": "finary.png",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "1 mois Premium offert",
+    "boost": false
+  },
+  {
+    "id": 31,
+    "name": "Grass",
+    "cat": "autres",
+    "lk": "grass",
+    "susp": false,
+    "reward": "5 000 points offerts",
+    "bn": 0,
+    "code": "nbC1S8fqqdhJ5LA",
+    "link": "https://app.grass.io/register/?referralCode=nbC1S8fqqdhJ5LA",
+    "about": "Grass attribue des points convertibles en tokens GRASS en échange du partage de votre bande passante internet inutilisée, fonctionnant en arrière-plan via une extension.",
+    "steps": [
+      "Saisissez le code nbC1S8fqqdhJ5LA lors de l'inscription",
+      "Créez votre compte Grass",
+      "Installez l'extension navigateur",
+      "Les points s'accumulent automatiquement en arrière-plan"
+    ],
+    "advs": [
+      "Revenu passif sans action requise après installation",
+      "5000 points crédités à l'inscription",
+      "Points convertibles en tokens GRASS sur les exchanges compatibles"
+    ],
+    "cond": "Les 5000 points de bienvenue sont crédités après inscription et installation de l'extension. La valeur des tokens GRASS est déterminée par le marché et peut varier significativement.",
+    "faq": [
+      {
+        "q": "Le partage de bande passante est-il sécurisé ?",
+        "a": "Grass partage uniquement la bande passante inutilisée de votre connexion internet. Vos données personnelles, fichiers et historique de navigation ne sont pas accessibles ou transmis."
+      },
+      {
+        "q": "Quelle est la valeur des tokens GRASS ?",
+        "a": "La valeur est déterminée par le marché des cryptomonnaies et fluctue selon l'offre et la demande. Vous pouvez consulter le cours en temps réel sur les exchanges qui listent le token GRASS."
+      }
+    ],
+    "logo": "grass.png",
+    "reviewStatus": "check",
+    "reviewedAt": "11 août 2026",
+    "legacyReward": "5 000 points offerts",
+    "boost": false
+  },
+  {
+    "id": 32,
+    "name": "FDJ",
+    "cat": "paris",
+    "lk": "fdj-francaise-des-jeux",
+    "susp": false,
+    "reward": "1.\tCrée un compte FDJ via le lien ci-dessus",
+    "bn": 0,
+    "code": null,
+    "link": "https://www.fdj.fr/inscription/fdj?campaign=codeparrain&parrain=D169E-65BB3-4BEED",
+    "about": "FDJ — donnees consolidees depuis captures authentifiees/publiques existantes.",
+    "steps": [
+      "Ouvrez le lien ou saisissez le code de parrainage",
+      "Suivez les conditions affichees sur la plateforme"
+    ],
+    "advs": [],
+    "cond": "Conditions selon l'offre officielle en vigueur.",
+    "faq": [],
+    "logo": "fdjfrancaisedesjeux.png",
+    "reviewStatus": "check",
+    "reviewedAt": "12 aout 2026",
+    "legacyReward": "1.\tCrée un compte FDJ via le lien ci-dessus",
+    "boost": false,
+    "source": "promoted_from_orphan_captures"
+  },
+  {
+    "id": 33,
+    "name": "NRJ Mobile",
+    "cat": "telecom",
+    "lk": "nrj-mobile",
+    "susp": false,
+    "reward": "10 € pour vous + 10 € pour votre filleul après 2 mois d’abonnement validés",
+    "bn": 0,
+    "code": null,
+    "link": "https://aklam.io/1yzORChP",
+    "about": "NRJ Mobile — donnees consolidees depuis captures authentifiees/publiques existantes.",
+    "steps": [
+      "Ouvrez le lien ou saisissez le code de parrainage",
+      "Suivez les conditions affichees sur la plateforme"
+    ],
+    "advs": [],
+    "cond": "Conditions selon l'offre officielle en vigueur.",
+    "faq": [],
+    "logo": "nrjmobile.png",
+    "reviewStatus": "check",
+    "reviewedAt": "12 aout 2026",
+    "legacyReward": "10 € pour vous + 10 € pour votre filleul après 2 mois d’abonnement validés",
+    "boost": false,
+    "source": "promoted_from_orphan_captures"
+  },
+  {
+    "id": 34,
+    "name": "OKX",
+    "cat": "crypto",
+    "lk": "okx",
+    "susp": false,
+    "reward": "250 € offerts en Bitcoin ⚡",
+    "bn": 0,
+    "code": "28947271",
+    "link": "https://my.okx.com/fr-fr/join/28947271",
+    "about": "OKX — donnees consolidees depuis captures authentifiees/publiques existantes.",
+    "steps": [
+      "Ouvrez le lien ou saisissez le code de parrainage",
+      "Suivez les conditions affichees sur la plateforme"
+    ],
+    "advs": [],
+    "cond": "Conditions selon l'offre officielle en vigueur.",
+    "faq": [],
+    "logo": "okx.png",
+    "reviewStatus": "check",
+    "reviewedAt": "12 aout 2026",
+    "legacyReward": "250 € offerts en Bitcoin ⚡",
+    "boost": false,
+    "source": "promoted_from_orphan_captures"
+  },
+  {
+    "id": 35,
+    "name": "Plum",
+    "cat": "finance",
+    "lk": "plum",
+    "susp": false,
+    "reward": "10 € offerts après inscription et premier dépôt",
+    "bn": 0,
+    "code": "Kt8HyIuJ7V",
+    "link": "https://withplum.com/referral?referralCode=Kt8HyIuJ7V",
+    "about": "Plum — donnees consolidees depuis captures authentifiees/publiques existantes.",
+    "steps": [
+      "Ouvrez le lien ou saisissez le code de parrainage",
+      "Suivez les conditions affichees sur la plateforme"
+    ],
+    "advs": [],
+    "cond": "Conditions selon l'offre officielle en vigueur.",
+    "faq": [],
+    "logo": "plum.png",
+    "reviewStatus": "check",
+    "reviewedAt": "12 aout 2026",
+    "legacyReward": "10 € offerts après inscription et premier dépôt",
+    "boost": false,
+    "source": "promoted_from_orphan_captures"
+  },
+  {
+    "id": 36,
+    "name": "Vinted",
+    "cat": "shopping",
+    "lk": "vinted",
+    "susp": false,
+    "reward": "inscription via mon lien de parrainage ✅",
+    "bn": 0,
+    "code": "weeew89",
+    "link": "https://www.vinted.fr/invite/weeew89",
+    "about": "Vinted — donnees consolidees depuis captures authentifiees/publiques existantes.",
+    "steps": [
+      "Ouvrez le lien ou saisissez le code de parrainage",
+      "Suivez les conditions affichees sur la plateforme"
+    ],
+    "advs": [],
+    "cond": "Conditions selon l'offre officielle en vigueur.",
+    "faq": [],
+    "logo": "vinted.png",
+    "reviewStatus": "check",
+    "reviewedAt": "12 aout 2026",
+    "legacyReward": "inscription via mon lien de parrainage ✅",
+    "boost": false,
+    "source": "promoted_from_orphan_captures"
+  },
+  {
+    "id": 37,
+    "name": "Whatnot",
+    "cat": "shopping",
+    "lk": "whatnot",
+    "susp": false,
+    "reward": "tu reçois le même montant en crédit quand ton ami passe sa première commande",
+    "bn": 0,
+    "code": null,
+    "link": "https://www.whatnot.com/invite/user_48570",
+    "about": "Whatnot — donnees consolidees depuis captures authentifiees/publiques existantes.",
+    "steps": [
+      "Ouvrez le lien ou saisissez le code de parrainage",
+      "Suivez les conditions affichees sur la plateforme"
+    ],
+    "advs": [],
+    "cond": "Conditions selon l'offre officielle en vigueur.",
+    "faq": [],
+    "logo": "whatnot.png",
+    "reviewStatus": "check",
+    "reviewedAt": "12 aout 2026",
+    "legacyReward": "tu reçois le même montant en crédit quand ton ami passe sa première commande",
+    "boost": false,
+    "source": "promoted_from_orphan_captures"
+  }
+]
