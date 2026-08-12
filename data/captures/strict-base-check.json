@@ -1,0 +1,61 @@
+{
+  "check": "STRICT_BASE_COMPLETENESS",
+  "phase": "BASE",
+  "live_writes": false,
+  "platforms": {
+    "super-parrain": {
+      "mapped": 35,
+      "expected": 35,
+      "status": "COMPLETE",
+      "note": "All known account announcements mapped; canary deferred"
+    },
+    "parrainage-co": {
+      "active": 26,
+      "stale": 1,
+      "stale_programs": ["paypal"],
+      "auth_account_offers": 26,
+      "status": "COMPLETE",
+      "note": "Auth inventory 26 active; PayPal NOT_PRESENT_ON_ACCOUNT / STALE classified"
+    },
+    "code-parrainage": {
+      "mapped": 24,
+      "full": 24,
+      "partial": 0,
+      "status": "COMPLETE",
+      "note": "Auth moncompte edit pages; iGraal full_edit restored"
+    },
+    "1parrainage": {
+      "list_blocks": 41,
+      "captured_mapped": 36,
+      "unmapped_no_offers": ["bitget", "ubereats"],
+      "status": "COMPLETE_WITH_EXPLICIT_NCD",
+      "note": "Public list inventory 41 blocks → 36 mapped to offers.json; Bitget+UberEats needs_canonical_data (no invent). Auth login form not found in Actions → public list is full inventory source."
+    },
+    "referralcodes": {
+      "mapped": 9,
+      "status": "COMPLETE_FOR_METHOD",
+      "write_mode": "MANUAL_WRITE",
+      "note": "Inventory of existing platform mappings; official Agent Import preferred for future updates"
+    },
+    "referralcode-tv": {
+      "mapped": 10,
+      "status": "COMPLETE_FOR_METHOD",
+      "write_mode": "MANUAL_WRITE",
+      "note": "10 author/account listings captured; MANUAL_WRITE until risk review"
+    },
+    "referraldrop": {
+      "mapped": 8,
+      "status": "COMPLETE_PUBLIC",
+      "auth": "AUTH_BLOCKED_GOOGLE",
+      "note": "All currently visible public profile drops mapped"
+    }
+  },
+  "missing_source": 0,
+  "unexplained_partial": 0,
+  "explicit_blockers": [
+    "1parrainage: bitget, ubereats → needs_canonical_data (not in offers.json)",
+    "parrainage-co: paypal → STALE / NOT_PRESENT_ON_ACCOUNT",
+    "referraldrop: AUTH_BLOCKED_GOOGLE",
+    "referralcodes + referralcode-tv: MANUAL_WRITE"
+  ]
+}

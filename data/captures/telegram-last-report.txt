@@ -3,7 +3,7 @@ code: '4hpz4gdy' -> 'ABC123TEST'
 offers.json ecrit: non (simulation)
 
 Programme kraken:
-  - 1parrainage: in_sync
+  - 1parrainage: pending_update (personal_code, personal_link, referee_reward)
   - code-parrainage: pending_update (personal_code, personal_link, referee_reward)
   - parrainage-co: pending_update (personal_code, personal_link, referee_reward)
   - referralcodes: pending_update (referee_reward)
@@ -14,7 +14,7 @@ Aucune publication reelle effectuee.
 Phase BASE: writers live desactives.
 
 {
-  "at": "2026-08-12T18:43:23.446628+00:00",
+  "at": "2026-08-12T19:02:06.558108+00:00",
   "message": "Kraken code ABC123TEST",
   "parsed": {
     "program": "kraken",

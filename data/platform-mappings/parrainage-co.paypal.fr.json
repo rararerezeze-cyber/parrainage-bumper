@@ -3,9 +3,10 @@
   "program": "paypal",
   "language": "fr",
   "sync_mode": "REVIEW",
-  "template_status": "missing_source",
+  "template_status": "manual_review_required",
   "golden_file": "paypal.fr.golden.txt",
   "mutable_fields": [],
+
   "markers": {
     "personal_code": "{{PERSONAL_CODE}}",
     "personal_link": "{{PERSONAL_LINK}}",

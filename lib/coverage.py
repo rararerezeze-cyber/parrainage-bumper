@@ -35,21 +35,37 @@ def mapping_quality(mapping_path: Path) -> str:
         return "unknown"
     status = str(data.get("status") or "").upper()
     q = (data.get("quality") or "").lower()
+    # Explicit exception classes first (never silent missing_source for classified cases)
     if status in {
         "NOT_PRESENT_ON_ACCOUNT",
         "STALE_MAPPING",
         "NOT_ON_ACCOUNT",
         "NOT_ON_PUBLIC_PROFILE",
+    } or q in {"stale_mapping", "not_on_account"}:
+        return "stale_mapping"
+    if status in {"AUTH_BLOCKED", "AUTH_BLOCKED_GOOGLE"} or "auth_blocked" in q:
+        return "auth_blocked"
+    if status in {"MANUAL_WRITE", "UNSUPPORTED"} or q in {"manual_write", "unsupported"}:
+        return "manual_write"
+    if data.get("write_eligible") is False and ("stale" in q or "not_present" in q):
+        return "stale_mapping"
+    if q in {
+        "full_edit",
+        "auth_edit_refetch",
+        "public_refetch",
+        "from_orphan_promoted",
+        "auth_orphan_promoted",
+        "native_list_or_auth",
+        "cleaned_body",
     }:
-        return "stale_mapping"
-    if data.get("write_eligible") is False and "stale" in q:
-        return "stale_mapping"
-    if q in {"full_edit", "auth_edit_refetch", "public_refetch", "from_orphan_promoted", "auth_orphan_promoted"}:
         return "captured"
     if "truncat" in q or "partial" in q or "list_preview" in q or "capture_partial" in q:
         return "capture_partial"
     if data.get("template_status") == "missing_source":
+        # Unclassified missing source only
         return "missing_source"
+    if data.get("template_status") == "manual_review_required":
+        return "manual_write"
     if data.get("sync_mode") in {"manual_review_required", "MANUAL"}:
         return "manual_write"
     return "captured"

@@ -1,1 +1,14 @@
-Offre Parrainage Coinbase – {{REFEREE_REWARD}}ecevez 20 € en Bitcoin dès l’achat d’au moins 20 € en cryptomonnaies, après inscription via le lien de parrainage. Code de parrainage : {{PERSONAL_CODE}} Lien de parrainage : ... Lire la suite
+Offre Parrainage Coinbase – 20 € en Bitcoin offerts
+
+Bonus : {{REFEREE_REWARD}}
+Recevez 20 € en Bitcoin dès l’achat d’au moins 20 € en cryptomonnaies, après inscription via le lien de parrainage.
+
+Code de parrainage :
+{{PERSONAL_CODE}}
+
+Lien de parrainage :
+...
+
+J’en profite
+
+<img loading="lazy" class="img-responsive" width="115" border="0" height="38" src='/uploads/leslogos/paypal.jpg'

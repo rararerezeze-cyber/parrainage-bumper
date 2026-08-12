@@ -1,0 +1,397 @@
+{
+  "platform": "1parrainage",
+  "list_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php",
+  "blocks_found": 41,
+  "items": [
+    {
+      "program": "whatnot",
+      "brand": "coupon promotionnel whatnot",
+      "chars": 353,
+      "offer_id": "101206",
+      "mutable": [
+        "referee_reward"
+      ]
+    },
+    {
+      "program": "boursobank",
+      "brand": "coupon promotionnel Boursorama Banque",
+      "chars": 408,
+      "offer_id": "79",
+      "mutable": []
+    },
+    {
+      "program": "plum",
+      "brand": "coupon promotionnel plum",
+      "chars": 371,
+      "offer_id": "101381",
+      "mutable": [
+        "personal_link",
+        "referee_reward"
+      ]
+    },
+    {
+      "program": "winamax",
+      "brand": "coupon promotionnel Winamax",
+      "chars": 332,
+      "offer_id": "400",
+      "mutable": [
+        "referee_reward"
+      ]
+    },
+    {
+      "program": "unibet",
+      "brand": "coupon promotionnel Unibet Sport",
+      "chars": 313,
+      "offer_id": "217",
+      "mutable": [
+        "referee_reward"
+      ]
+    },
+    {
+      "program": "acheel",
+      "brand": "coupon promotionnel acheel",
+      "chars": 373,
+      "offer_id": "101006",
+      "mutable": [
+        "personal_code",
+        "referee_reward"
+      ]
+    },
+    {
+      "program": "nrj-mobile",
+      "brand": "coupon promotionnel NRJ Mobile",
+      "chars": 366,
+      "offer_id": "9",
+      "mutable": [
+        "referee_reward"
+      ]
+    },
+    {
+      "program": "revolut",
+      "brand": "coupon promotionnel Revolut",
+      "chars": 390,
+      "offer_id": "1021",
+      "mutable": [
+        "referee_reward"
+      ]
+    },
+    {
+      "program": "traderepublic",
+      "brand": "coupon promotionnel Trade Republic",
+      "chars": 367,
+      "offer_id": "100428",
+      "mutable": [
+        "personal_code",
+        "personal_link"
+      ]
+    },
+    {
+      "program": "okx",
+      "brand": "coupon promotionnel OKX",
+      "chars": 210,
+      "offer_id": "100373",
+      "mutable": [
+        "personal_code"
+      ]
+    },
+    {
+      "program": "totalenergies",
+      "brand": "coupon promotionnel Totalenergies",
+      "chars": 214,
+      "offer_id": "31",
+      "mutable": []
+    },
+    {
+      "program": "kraken",
+      "brand": "coupon promotionnel Kraken",
+      "chars": 365,
+      "offer_id": "100408",
+      "mutable": [
+        "personal_code",
+        "personal_link",
+        "referee_reward"
+      ]
+    },
+    {
+      "program": "igraal",
+      "brand": "coupon promotionnel Igraal",
+      "chars": 398,
+      "offer_id": "84",
+      "mutable": [
+        "personal_link",
+        "referee_reward"
+      ]
+    },
+    {
+      "program": "swissborg",
+      "brand": "coupon promotionnel SwissBorg",
+      "chars": 352,
+      "offer_id": "100172",
+      "mutable": [
+        "referee_reward"
+      ]
+    },
+    {
+      "program": "robinhood",
+      "brand": "coupon promotionnel Robinhood",
+      "chars": 387,
+      "offer_id": "100066",
+      "mutable": [
+        "referee_reward"
+      ]
+    },
+    {
+      "program": "gemini",
+      "brand": "coupon promotionnel Gemini",
+      "chars": 392,
+      "offer_id": "100548",
+      "mutable": [
+        "referee_reward"
+      ]
+    },
+    {
+      "program": "omio",
+      "brand": "coupon promotionnel Omio",
+      "chars": 377,
+      "offer_id": "1948",
+      "mutable": [
+        "personal_code",
+        "referee_reward"
+      ]
+    },
+    {
+      "program": "deblock",
+      "brand": "coupon promotionnel deblock",
+      "chars": 347,
+      "offer_id": "101211",
+      "mutable": [
+        "referee_reward"
+      ]
+    },
+    {
+      "program": "fdj-francaise-des-jeux",
+      "brand": "coupon promotionnel francaise des jeux FDJ",
+      "chars": 370,
+      "offer_id": "68",
+      "mutable": []
+    },
+    {
+      "program": "bybit",
+      "brand": "coupon promotionnel Bybit",
+      "chars": 393,
+      "offer_id": "100415",
+      "mutable": [
+        "personal_code",
+        "personal_link"
+      ]
+    },
+    {
+      "program": "ledger",
+      "brand": "coupon promotionnel Ledger Wallet",
+      "chars": 388,
+      "offer_id": "1337",
+      "mutable": [
+        "referee_reward"
+      ]
+    },
+    {
+      "program": "heetch",
+      "brand": "coupon promotionnel Heetch",
+      "chars": 364,
+      "offer_id": "765",
+      "mutable": [
+        "personal_code",
+        "referee_reward"
+      ]
+    },
+    {
+      "program": "bitstack",
+      "brand": "coupon promotionnel Bitstack",
+      "chars": 386,
+      "offer_id": "100956",
+      "mutable": [
+        "personal_link",
+        "referee_reward"
+      ]
+    },
+    {
+      "program": "parionssport",
+      "brand": "coupon promotionnel Parions Sport",
+      "chars": 414,
+      "offer_id": "750",
+      "mutable": [
+        "personal_link",
+        "referee_reward"
+      ]
+    },
+    {
+      "program": "finary",
+      "brand": "coupon promotionnel Finary",
+      "chars": 401,
+      "offer_id": "100577",
+      "mutable": [
+        "referee_reward"
+      ]
+    },
+    {
+      "program": "airbnb",
+      "brand": "coupon promotionnel AirBnB Hote",
+      "chars": 362,
+      "offer_id": "1487",
+      "mutable": [
+        "personal_link"
+      ]
+    },
+    {
+      "program": "widilo",
+      "brand": "coupon promotionnel Widilo",
+      "chars": 352,
+      "offer_id": "100051",
+      "mutable": [
+        "personal_link",
+        "referee_reward"
+      ]
+    },
+    {
+      "program": "binance",
+      "brand": "coupon promotionnel Binance",
+      "chars": 156,
+      "offer_id": "1082",
+      "mutable": []
+    },
+    {
+      "program": "coinbase",
+      "brand": "coupon promotionnel Coinbase",
+      "chars": 372,
+      "offer_id": "862",
+      "mutable": [
+        "personal_code",
+        "referee_reward"
+      ]
+    },
+    {
+      "program": "paypal",
+      "brand": "coupon promotionnel Paypal",
+      "chars": 381,
+      "offer_id": "100019",
+      "mutable": [
+        "referee_reward"
+      ]
+    },
+    {
+      "program": "ebuyclub",
+      "brand": "coupon promotionnel Ebuyclub",
+      "chars": 373,
+      "offer_id": "85",
+      "mutable": [
+        "personal_link",
+        "referee_reward"
+      ]
+    },
+    {
+      "program": "joko",
+      "brand": "coupon promotionnel Joko",
+      "chars": 352,
+      "offer_id": "1703",
+      "mutable": [
+        "personal_code",
+        "referee_reward"
+      ]
+    },
+    {
+      "program": "poulpeo",
+      "brand": "coupon promotionnel poulpeo",
+      "chars": 375,
+      "offer_id": "501",
+      "mutable": [
+        "personal_code",
+        "referee_reward"
+      ]
+    },
+    {
+      "program": "vinted",
+      "brand": "coupon promotionnel Vinted",
+      "chars": 398,
+      "offer_id": "910",
+      "mutable": [
+        "personal_code",
+        "personal_link",
+        "referee_reward"
+      ]
+    },
+    {
+      "program": "betclic",
+      "brand": "coupon promotionnel Betclic",
+      "chars": 360,
+      "offer_id": "205",
+      "mutable": [
+        "referee_reward"
+      ]
+    },
+    {
+      "program": "lolivier",
+      "brand": "coupon promotionnel L olivier assurance",
+      "chars": 377,
+      "offer_id": "988",
+      "mutable": [
+        "referee_reward"
+      ]
+    }
+  ],
+  "errors": [],
+  "unmapped": [
+    {
+      "brand": "coupon promotionnel Bitget",
+      "offer_id": "100873"
+    },
+    {
+      "brand": "coupon promotionnel Uber eats",
+      "slug_guess": "ubereats",
+      "reason": "not_in_offers"
+    }
+  ],
+  "duplicates": [
+    "boursobank",
+    "airbnb",
+    "lolivier"
+  ],
+  "captured": 36,
+  "programs": [
+    "acheel",
+    "airbnb",
+    "betclic",
+    "binance",
+    "bitstack",
+    "boursobank",
+    "bybit",
+    "coinbase",
+    "deblock",
+    "ebuyclub",
+    "fdj-francaise-des-jeux",
+    "finary",
+    "gemini",
+    "heetch",
+    "igraal",
+    "joko",
+    "kraken",
+    "ledger",
+    "lolivier",
+    "nrj-mobile",
+    "okx",
+    "omio",
+    "parionssport",
+    "paypal",
+    "plum",
+    "poulpeo",
+    "revolut",
+    "robinhood",
+    "swissborg",
+    "totalenergies",
+    "traderepublic",
+    "unibet",
+    "vinted",
+    "whatnot",
+    "widilo",
+    "winamax"
+  ]
+}

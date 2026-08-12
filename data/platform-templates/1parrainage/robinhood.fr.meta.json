@@ -5,19 +5,18 @@
   "status": "ready",
   "role": "platform_target_historical_text_only",
   "not_business_source_of_truth": true,
-  "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php",
+  "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100066",
   "mutable_fields": [
     "referee_reward"
   ],
   "platform_values": {
-    "referee_reward": "50 € en crypto offerts Bonus : 50 € de crypto"
+    "referee_reward": "50 € de crypto offerts au filleul"
   },
   "confidences": {
     "referee_reward": "medium"
   },
   "notes": [
     "lien offers.json non trouve dans le texte",
-    "bonus extrait du texte plateforme (confiance moyenne)",
-    "native_platform_style_only"
+    "bonus extrait du texte plateforme (confiance moyenne)"
   ]
 }

@@ -1,1 +1,10 @@
-Code parrainage L'Olivier assurance promo 100% valide
+Offre Parrainage Olivier Assurance – Jusqu’à {{REFEREE_REWARD}}
+
+Bonus : Bénéficiez d’une prime de bienvenue en souscrivant via Olivier Assurance, spécialiste français en assurance auto, habitation, santé et prévoyance.
+
+Lien de p
+...
+
+J’en profite
+
+<img loading="lazy" class="img-responsive" width="115" border="0" height="38" src='/uploads/leslogos/lolivierassurancehabitation.jpg'

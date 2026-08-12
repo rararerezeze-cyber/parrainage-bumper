@@ -23,25 +23,26 @@
     "referee_reward": "reward",
     "conditions": "cond"
   },
-  "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php",
+  "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100408",
   "edit_url": null,
   "platform_values": {
     "personal_code": "cpbrgddy",
     "personal_link": "https://invite.kraken.com/JDNW/4jdp7sea",
-    "referee_reward": "200 € offerts Bonus : 200 € en cryptomonnaies"
+    "referee_reward": "200 € en cryptomonnaies"
   },
   "confidences": {
     "personal_code": "medium",
     "personal_link": "medium",
     "referee_reward": "medium"
   },
-  "notes": "code plateforme 'cpbrgddy' != offers.json '4hpz4gdy'; lien plateforme != offers.json; bonus extrait du texte plateforme (confiance moyenne); native_platform_style_only; no emoji re-injection",
+  "notes": "code plateforme 'cpbrgddy' != offers.json '4hpz4gdy'; lien plateforme != offers.json; bonus extrait du texte plateforme (confiance moyenne); native style only — no emoji reinjection; list_brand=coupon promotionnel Kraken",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",
     "referee_reward": "offers_json_then_official",
     "announcement_text": "platform_target_only"
   },
-  "quality": "native_list_or_auth",
-  "style_policy": "native_platform_style_only"
+  "quality": "native_list_full_inventory",
+  "style_policy": "native_platform_style_only",
+  "platform_offer_id": "100408"
 }

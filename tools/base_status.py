@@ -124,8 +124,11 @@ def _platform_base_status(pid: str, q: dict, writer: dict) -> str:
             return "BASE_READY"
         return "IN_PROGRESS"
     if pid == "1parrainage":
-        if q["mapped"] >= 7 and writer["ok"]:
+        # Strict: inventory should cover almost all list offers (~36 mapped + explicit NCD)
+        if q["mapped"] >= 30 and writer["ok"] and q["partial"] == 0:
             return "BASE_READY"
+        if q["mapped"] >= 7 and writer["ok"]:
+            return "IN_PROGRESS"  # incomplete inventory vs list
         return "IN_PROGRESS"
     if pid == "referralcodes":
         return "BASE_READY / MANUAL_WRITE" if q["mapped"] >= 5 and writer["ok"] else "IN_PROGRESS"
@@ -239,6 +242,19 @@ def main() -> int:
     if not write_blocked_reason("parrainage-co", "paypal"):
         blockers.append("paypal_should_be_write_blocked")
 
+    # Strict completeness: no silent missing_source, no unexplained partial
+    for ref in list_mapping_refs():
+        qname = mapping_quality(ref.path)
+        if qname == "missing_source":
+            blockers.append(f"missing_source:{ref.platform}/{ref.program}")
+        if qname == "capture_partial":
+            blockers.append(f"unexplained_partial:{ref.platform}/{ref.program}")
+
+    # 1Parrainage inventory completeness vs known list size
+    one_mapped = sum(1 for r in list_mapping_refs() if r.platform == "1parrainage")
+    if one_mapped < 30:
+        blockers.append(f"1parrainage_inventory_incomplete:{one_mapped}<30")
+
     base_ready_all = (
         all(str(p["status"]).startswith("BASE_READY") for p in platforms)
         and dry.get("ok")
@@ -247,6 +263,9 @@ def main() -> int:
         and not live_writes_enabled()
         and not live_canary_allowed()
         and bool(write_blocked_reason("parrainage-co", "paypal"))
+        and one_mapped >= 30
+        and not any(b.startswith("missing_source:") for b in blockers)
+        and not any(b.startswith("unexplained_partial:") for b in blockers)
     )
 
     report = {

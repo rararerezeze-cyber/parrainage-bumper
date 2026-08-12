@@ -3,7 +3,7 @@
   "live_writes_enabled": false,
   "live_canary_allowed": false,
   "programs": 38,
-  "mapped_pairs": 120,
+  "mapped_pairs": 149,
   "platforms": [
     {
       "platform": "super-parrain",
@@ -74,23 +74,23 @@
     {
       "platform": "1parrainage",
       "status": "BASE_READY",
-      "mapped": 7,
-      "full": 7,
+      "mapped": 36,
+      "full": 36,
       "partial": 0,
       "stale": 0,
       "write": "WRITE_PREPARED",
       "writer_ok": true,
-      "note": "sample=deblock structure=True"
+      "note": "sample=acheel structure=True"
     }
   ],
   "global_dry_run": {
     "ok": true,
-    "rows": 120,
+    "rows": 150,
     "hard_errors": 0,
     "statuses": {
-      "in_sync": 32,
-      "missing_source": 1,
-      "pending_update": 87
+      "in_sync": 38,
+      "needs_canonical_data": 1,
+      "pending_update": 111
     }
   },
   "telegram_dry_run": {
@@ -101,12 +101,12 @@
   "tests": {
     "ok": true,
     "returncode": 0,
-    "tail": ".................................                                        [100%]\n33 passed in 0.42s"
+    "tail": ".................................                                        [100%]\n33 passed in 0.41s"
   },
   "blockers": [],
   "base_ready_all": true,
   "coverage": {
     "programs_in_offers": 38,
-    "mapped_pairs": 120
+    "mapped_pairs": 149
   }
 }

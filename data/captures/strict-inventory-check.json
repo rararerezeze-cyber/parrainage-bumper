@@ -1,0 +1,338 @@
+{
+  "qualities_by_platform": {
+    "1parrainage": {
+      "captured": 7,
+      "__total": 7
+    },
+    "code-parrainage": {
+      "captured": 24,
+      "__total": 24
+    },
+    "parrainage-co": {
+      "captured": 26,
+      "__total": 27,
+      "stale_mapping": 1,
+      "status:NOT_PRESENT_ON_ACCOUNT": 1
+    },
+    "referralcode-tv": {
+      "captured": 10,
+      "__total": 10
+    },
+    "referralcodes": {
+      "manual_write": 9,
+      "__total": 9
+    },
+    "referraldrop": {
+      "manual_write": 8,
+      "__total": 8
+    },
+    "super-parrain": {
+      "captured": 35,
+      "__total": 35
+    }
+  },
+  "missing_source": [],
+  "unexplained_partial": [],
+  "super_parrain": {
+    "platform": "super-parrain",
+    "mappings": 35,
+    "expected_min": 35
+  },
+  "parrainage_co": {
+    "present_active": 26,
+    "stale": 1,
+    "stale_programs": [
+      "paypal"
+    ],
+    "total_files": 27,
+    "auth_account_offers_known": 26,
+    "note": "auth inventory previously 26 active offers; PayPal not on account"
+  },
+  "code_parrainage": {
+    "mappings": 24,
+    "expected": 24
+  },
+  "referralcode_tv": {
+    "mappings": 10
+  },
+  "referralcodes": {
+    "mappings": 9
+  },
+  "referraldrop": {
+    "mappings": 8
+  },
+  "1parrainage": {
+    "list_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php",
+    "offer_ids_found": 41,
+    "offer_ids": [
+      "101206",
+      "79",
+      "95",
+      "101381",
+      "400",
+      "217",
+      "101006",
+      "9",
+      "1021",
+      "100428",
+      "100373",
+      "31",
+      "100408",
+      "84",
+      "100172",
+      "100066",
+      "100548",
+      "1948",
+      "101211",
+      "68",
+      "100415",
+      "1337",
+      "765",
+      "100956",
+      "750",
+      "100577",
+      "1487",
+      "256",
+      "100051",
+      "100873",
+      "1082",
+      "862",
+      "100019",
+      "85",
+      "1703",
+      "501",
+      "775",
+      "910",
+      "205",
+      "988",
+      "100960"
+    ],
+    "brand_alts_found": 49,
+    "brands": [
+      "Promo Engie",
+      "promo du moment",
+      "promo 1parrainage",
+      "Accès au Blog 1parrainage",
+      "Se connecter",
+      "coupon promotionnel whatnot",
+      "coupon promotionnel Boursorama Banque",
+      "coupon promotionnel Boursobank",
+      "coupon promotionnel plum",
+      "coupon promotionnel Winamax",
+      "coupon promotionnel Unibet Sport",
+      "coupon promotionnel acheel",
+      "coupon promotionnel NRJ Mobile",
+      "coupon promotionnel Revolut",
+      "coupon promotionnel Trade Republic",
+      "coupon promotionnel OKX",
+      "coupon promotionnel Totalenergies",
+      "coupon promotionnel Kraken",
+      "coupon promotionnel Igraal",
+      "coupon promotionnel SwissBorg",
+      "coupon promotionnel Robinhood",
+      "coupon promotionnel Gemini",
+      "coupon promotionnel Omio",
+      "coupon promotionnel deblock",
+      "coupon promotionnel francaise des jeux FDJ",
+      "coupon promotionnel Bybit",
+      "coupon promotionnel Ledger Wallet",
+      "coupon promotionnel Heetch",
+      "coupon promotionnel Bitstack",
+      "coupon promotionnel Parions Sport",
+      "coupon promotionnel Finary",
+      "coupon promotionnel AirBnB Hote",
+      "coupon promotionnel AirBnB",
+      "coupon promotionnel Widilo",
+      "coupon promotionnel Bitget",
+      "coupon promotionnel Binance",
+      "coupon promotionnel Coinbase",
+      "coupon promotionnel Paypal",
+      "coupon promotionnel Ebuyclub",
+      "coupon promotionnel Joko",
+      "coupon promotionnel poulpeo",
+      "coupon promotionnel Uber eats",
+      "coupon promotionnel Vinted",
+      "coupon promotionnel Betclic",
+      "coupon promotionnel L olivier assurance",
+      "coupon promotionnel l Olivier Assurance Habitation",
+      "reduc",
+      "mentions légales",
+      "CGV"
+    ],
+    "matched_to_offers": [
+      {
+        "brand": "coupon promotionnel whatnot",
+        "program": "whatnot"
+      },
+      {
+        "brand": "coupon promotionnel Boursobank",
+        "program": "boursobank"
+      },
+      {
+        "brand": "coupon promotionnel plum",
+        "program": "plum"
+      },
+      {
+        "brand": "coupon promotionnel Winamax",
+        "program": "winamax"
+      },
+      {
+        "brand": "coupon promotionnel Unibet Sport",
+        "program": "unibet"
+      },
+      {
+        "brand": "coupon promotionnel acheel",
+        "program": "acheel"
+      },
+      {
+        "brand": "coupon promotionnel NRJ Mobile",
+        "program": "nrj-mobile"
+      },
+      {
+        "brand": "coupon promotionnel Revolut",
+        "program": "revolut"
+      },
+      {
+        "brand": "coupon promotionnel Trade Republic",
+        "program": "traderepublic"
+      },
+      {
+        "brand": "coupon promotionnel OKX",
+        "program": "okx"
+      },
+      {
+        "brand": "coupon promotionnel Totalenergies",
+        "program": "totalenergies"
+      },
+      {
+        "brand": "coupon promotionnel Kraken",
+        "program": "kraken"
+      },
+      {
+        "brand": "coupon promotionnel Igraal",
+        "program": "igraal"
+      },
+      {
+        "brand": "coupon promotionnel SwissBorg",
+        "program": "swissborg"
+      },
+      {
+        "brand": "coupon promotionnel Robinhood",
+        "program": "robinhood"
+      },
+      {
+        "brand": "coupon promotionnel Gemini",
+        "program": "gemini"
+      },
+      {
+        "brand": "coupon promotionnel Omio",
+        "program": "omio"
+      },
+      {
+        "brand": "coupon promotionnel deblock",
+        "program": "deblock"
+      },
+      {
+        "brand": "coupon promotionnel francaise des jeux FDJ",
+        "program": "fdj-francaise-des-jeux"
+      },
+      {
+        "brand": "coupon promotionnel Bybit",
+        "program": "bybit"
+      },
+      {
+        "brand": "coupon promotionnel Ledger Wallet",
+        "program": "ledger"
+      },
+      {
+        "brand": "coupon promotionnel Heetch",
+        "program": "heetch"
+      },
+      {
+        "brand": "coupon promotionnel Bitstack",
+        "program": "bitstack"
+      },
+      {
+        "brand": "coupon promotionnel Finary",
+        "program": "finary"
+      },
+      {
+        "brand": "coupon promotionnel AirBnB Hote",
+        "program": "airbnb"
+      },
+      {
+        "brand": "coupon promotionnel AirBnB",
+        "program": "airbnb"
+      },
+      {
+        "brand": "coupon promotionnel Widilo",
+        "program": "widilo"
+      },
+      {
+        "brand": "coupon promotionnel Binance",
+        "program": "binance"
+      },
+      {
+        "brand": "coupon promotionnel Coinbase",
+        "program": "coinbase"
+      },
+      {
+        "brand": "coupon promotionnel Paypal",
+        "program": "paypal"
+      },
+      {
+        "brand": "coupon promotionnel Ebuyclub",
+        "program": "ebuyclub"
+      },
+      {
+        "brand": "coupon promotionnel Joko",
+        "program": "joko"
+      },
+      {
+        "brand": "coupon promotionnel poulpeo",
+        "program": "poulpeo"
+      },
+      {
+        "brand": "coupon promotionnel Vinted",
+        "program": "vinted"
+      },
+      {
+        "brand": "coupon promotionnel Betclic",
+        "program": "betclic"
+      },
+      {
+        "brand": "coupon promotionnel L olivier assurance",
+        "program": "lolivier"
+      },
+      {
+        "brand": "coupon promotionnel l Olivier Assurance Habitation",
+        "program": "lolivier"
+      }
+    ],
+    "unmatched_brands": [
+      "Promo Engie",
+      "promo du moment",
+      "promo 1parrainage",
+      "Accès au Blog 1parrainage",
+      "Se connecter",
+      "coupon promotionnel Boursorama Banque",
+      "coupon promotionnel Parions Sport",
+      "coupon promotionnel Bitget",
+      "coupon promotionnel Uber eats",
+      "reduc",
+      "mentions légales",
+      "CGV"
+    ],
+    "mappings_present": [
+      "deblock",
+      "fdj-francaise-des-jeux",
+      "kraken",
+      "lolivier",
+      "okx",
+      "paypal",
+      "unibet"
+    ],
+    "mappings_count": 7,
+    "coverage_of_ids": "7/41"
+  }
+}

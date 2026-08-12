@@ -5,22 +5,12 @@
   "status": "ready",
   "role": "platform_target_historical_text_only",
   "not_business_source_of_truth": true,
-  "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php",
-  "mutable_fields": [
-    "personal_code",
-    "personal_link"
-  ],
-  "platform_values": {
-    "personal_code": "114052844",
-    "personal_link": "https://redir-totalenergies.web.app/je-parraine?_bp=114052844"
-  },
-  "confidences": {
-    "personal_code": "high",
-    "personal_link": "medium"
-  },
+  "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=31",
+  "mutable_fields": [],
+  "platform_values": {},
+  "confidences": {},
   "notes": [
-    "lien plateforme != offers.json",
-    "bonus non marque (ambigu / non trouve) — texte laisse fixe",
-    "native_platform_style_only"
+    "lien offers.json non trouve dans le texte",
+    "bonus non marque (ambigu / non trouve) — texte laisse fixe"
   ]
 }

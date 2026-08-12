@@ -21,7 +21,7 @@
     "referee_reward": "reward",
     "conditions": "cond"
   },
-  "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php",
+  "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100577",
   "edit_url": null,
   "platform_values": {
     "referee_reward": "1 mois Premium offert"
@@ -29,13 +29,14 @@
   "confidences": {
     "referee_reward": "high"
   },
-  "notes": "lien offers.json non trouve dans le texte; native_platform_style_only; no emoji re-injection",
+  "notes": "lien offers.json non trouve dans le texte; native style only — no emoji reinjection; list_brand=coupon promotionnel Finary",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",
     "referee_reward": "offers_json_then_official",
     "announcement_text": "platform_target_only"
   },
-  "quality": "native_list_or_auth",
-  "style_policy": "native_platform_style_only"
+  "quality": "native_list_full_inventory",
+  "style_policy": "native_platform_style_only",
+  "platform_offer_id": "100577"
 }

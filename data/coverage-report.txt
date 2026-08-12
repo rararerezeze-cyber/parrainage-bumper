@@ -1,9 +1,9 @@
 === AUTOFRESH COVERAGE REPORT ===
 Programs in offers.json: 38
-Orphan programs (needs_canonical_data): 0
-Programs total known: 38
+Orphan programs (needs_canonical_data): 2
+Programs total known: 40
 Platforms: 7
-Mapped pairs (program x platform): 117
+Mapped pairs (program x platform): 149
 Platforms usable (READ): 6
 Writers functional: 1
 
@@ -13,12 +13,13 @@ Per platform:
   code-parrainage    READ=READ_OK            WRITE=CAPTURE_PARTIAL        mapped= 24 full=24 partial=0
   referralcode-tv    READ=READ_OK            WRITE=MANUAL_WRITE           mapped= 10 full=10 partial=0
   referralcodes      READ=READ_OK            WRITE=MANUAL_WRITE           mapped=  9 full=0 partial=0
-  referraldrop       READ=READ_PUBLIC_ONLY   WRITE=AUTH_BLOCKED           mapped=  5 full=0 partial=0
-  1parrainage        READ=READ_OK            WRITE=WRITE_TODO             mapped=  7 full=7 partial=0
+  referraldrop       READ=READ_PUBLIC_ONLY   WRITE=AUTH_BLOCKED           mapped=  8 full=0 partial=0
+  1parrainage        READ=READ_OK            WRITE=WRITE_TODO             mapped= 36 full=36 partial=0
 
 Cell status counts:
-  auth_blocked: 33
-  captured: 102
-  manual_write: 14
-  missing_on_platform: 116
+  auth_blocked: 32
+  captured: 131
+  manual_write: 17
+  missing_on_platform: 97
+  needs_canonical_data: 2
   stale_mapping: 1

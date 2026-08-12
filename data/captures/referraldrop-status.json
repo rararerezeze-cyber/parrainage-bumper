@@ -13,13 +13,13 @@
     {
       "program": "airbnb",
       "announcement_url": "https://referraldrop.com/en/drop/airbnb",
-      "quality": "lien plateforme != offers.json; bonus non marque (ambigu / non trouve) — texte laisse fixe; public capture only; AUTH_BLOCKED_GOOGLE; public capture only; AUTH_BLOCKED_GOOGLE",
+      "quality": "lien offers.json non trouve dans le texte; bonus non marque (ambigu / non trouve) — texte laisse fixe; public capture only; AUTH_BLOCKED_GOOGLE; public capture only; AUTH_BLOCKED_GOOGLE",
       "action": "MANUAL_WRITE_ONLY"
     },
     {
       "program": "bybit",
       "announcement_url": "https://referraldrop.com/en/drop/bybit",
-      "quality": "lien plateforme != offers.json; bonus non marque (ambigu / non trouve) — texte laisse fixe; public capture only; AUTH_BLOCKED_GOOGLE; public capture only; AUTH_BLOCKED_GOOGLE",
+      "quality": "bonus non marque (ambigu / non trouve) — texte laisse fixe; public capture only; AUTH_BLOCKED_GOOGLE; public capture only; AUTH_BLOCKED_GOOGLE",
       "action": "MANUAL_WRITE_ONLY"
     },
     {
@@ -35,8 +35,26 @@
       "action": "MANUAL_WRITE_ONLY"
     },
     {
+      "program": "okx",
+      "announcement_url": "https://referraldrop.com/en/drop/okx",
+      "quality": "lien plateforme != offers.json; bonus non marque (ambigu / non trouve) — texte laisse fixe; public capture only; AUTH_BLOCKED_GOOGLE; public capture only; AUTH_BLOCKED_GOOGLE",
+      "action": "MANUAL_WRITE_ONLY"
+    },
+    {
       "program": "robinhood",
       "announcement_url": "https://referraldrop.com/en/drop/robinhood",
+      "quality": "lien plateforme != offers.json; bonus non marque (ambigu / non trouve) — texte laisse fixe; public capture only; AUTH_BLOCKED_GOOGLE; public capture only; AUTH_BLOCKED_GOOGLE",
+      "action": "MANUAL_WRITE_ONLY"
+    },
+    {
+      "program": "vinted",
+      "announcement_url": "https://referraldrop.com/en/drop/vinted",
+      "quality": "lien plateforme != offers.json; bonus non marque (ambigu / non trouve) — texte laisse fixe; public capture only; AUTH_BLOCKED_GOOGLE; public capture only; AUTH_BLOCKED_GOOGLE",
+      "action": "MANUAL_WRITE_ONLY"
+    },
+    {
+      "program": "whatnot",
+      "announcement_url": "https://referraldrop.com/en/drop/whatnot",
       "quality": "lien plateforme != offers.json; bonus non marque (ambigu / non trouve) — texte laisse fixe; public capture only; AUTH_BLOCKED_GOOGLE; public capture only; AUTH_BLOCKED_GOOGLE",
       "action": "MANUAL_WRITE_ONLY"
     }

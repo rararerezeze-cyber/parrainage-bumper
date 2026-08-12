@@ -1,1 +1,13 @@
-Offre de parrainage Whatnot – Jusqu'à {{REFEREE_REWARD}}e des avantages en parrainant tes amis. Comment ça marche : Parraine un ami et il reçoit un crédit aléatoire entre 25 € et 200 €. ... Lire la suite
+Offre de parrainage Whatnot – Jusqu'à {{REFEREE_REWARD}}
+
+Gagne des récompenses et débloque des avantages en parrainant tes amis.
+
+Comment ça marche :
+
+Parraine un ami et il reçoit un crédit aléatoire entre 25 € et 200 €.
+
+...
+
+J’en profite
+
+<img loading="lazy" class="img-responsive" width="115" border="0" height="38" src='/uploads/leslogos/boursobank.jpg'
