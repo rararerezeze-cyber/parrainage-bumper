@@ -1,8 +1,30 @@
 {
   "version": 1,
-  "updated_at": "2026-08-12T23:39:50.927290+00:00",
+  "updated_at": "2026-08-12T23:52:07.348302+00:00",
   "note": "Operator overrides (Telegram). Precedence: PLATFORM_OPERATOR > GLOBAL_OPERATOR > ACCEPTED_MONITOR > CANONICAL. Monitor observations must never overwrite these.",
   "overrides": [
+    {
+      "program": "kraken",
+      "field": "personal_code",
+      "value": "cpbrgddy",
+      "platform": null,
+      "source": "GLOBAL_OPERATOR_OVERRIDE",
+      "created_at": "2026-08-12T23:52:07.312575+00:00",
+      "updated_at": "2026-08-12T23:52:07.312575+00:00",
+      "message": "OPERATOR_VALIDATED current live Kraken/Super-Parrain values. Catalog 4hpz4gdy / proinvite / 20EUR BTC must never publish.",
+      "id": "global:kraken:personal_code"
+    },
+    {
+      "program": "kraken",
+      "field": "personal_link",
+      "value": "https://invite.kraken.com/JDNW/s5qudqe4",
+      "platform": null,
+      "source": "GLOBAL_OPERATOR_OVERRIDE",
+      "created_at": "2026-08-12T23:52:07.329653+00:00",
+      "updated_at": "2026-08-12T23:52:07.329653+00:00",
+      "message": "OPERATOR_VALIDATED current live Kraken/Super-Parrain values. Catalog 4hpz4gdy / proinvite / 20EUR BTC must never publish.",
+      "id": "global:kraken:personal_link"
+    },
     {
       "program": "kraken",
       "field": "referee_reward",
@@ -10,8 +32,8 @@
       "platform": null,
       "source": "GLOBAL_OPERATOR_OVERRIDE",
       "created_at": "2026-08-12T23:39:50.927290+00:00",
-      "updated_at": "2026-08-12T23:39:50.927290+00:00",
-      "message": "Operator-validated Super-Parrain public offer: jusqu a 200 EUR filleul. Monitor 20 EUR BTC is observation only — no authority.",
+      "updated_at": "2026-08-12T23:52:07.348302+00:00",
+      "message": "OPERATOR_VALIDATED current live Kraken/Super-Parrain values. Catalog 4hpz4gdy / proinvite / 20EUR BTC must never publish.",
       "id": "global:kraken:referee_reward"
     }
   ]

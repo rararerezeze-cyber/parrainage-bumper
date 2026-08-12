@@ -274,8 +274,13 @@ def test_super_parrain_canary_keeps_200_reward():
     assert "referee_reward" not in (plan.changed_fields or {})
     assert plan.variables.get("referee_reward") == "200 € en cryptomonnaies"
     assert "20 €" not in plan.rendered
+    assert "4hpz4gdy" not in plan.rendered
+    assert "proinvite.kraken.com" not in plan.rendered
+    assert plan.variables.get("personal_code") == "cpbrgddy"
+    assert plan.variables.get("personal_link") == "https://invite.kraken.com/JDNW/s5qudqe4"
     assert "Jusqu’à 200 € offerts" in plan.rendered or "Jusqu'à 200 € offerts" in plan.rendered
     assert "200 € en cryptomonnaies" in plan.rendered
+    assert not plan.changed_fields
 
 
 def test_no_business_change_skips_commit_flag(tmp_path, monkeypatch):

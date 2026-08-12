@@ -23,8 +23,8 @@
       "source_class": "VERIFIED_OFFICIAL",
       "offer_kind": "PUBLIC_CAMPAIGN",
       "field_sources": {
-        "personal_code": "TELEGRAM_OPERATOR",
-        "personal_link": "TELEGRAM_OPERATOR",
+        "personal_code": "OPERATOR_VALIDATED",
+        "personal_link": "OPERATOR_VALIDATED",
         "referee_reward": "OPERATOR_VALIDATED",
         "referrer_reward": "OFFICIAL_PUBLIC_MONITOR",
         "conditions": "OFFICIAL_PUBLIC_MONITOR",

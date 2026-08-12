@@ -108,6 +108,38 @@ def main() -> int:
         )
         return 3
 
+    if not plan.changed_fields:
+        print(
+            "NO_SAFE_DIFF: operator-validated values already match the published announcement. "
+            "No fake edit. last_super_run untouched. WRITE_VERIFIED requires a real targeted save."
+        )
+        path = OUT_DIR / f"write-{plan.platform}-{plan.program}.json"
+        OUT_DIR.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            json.dumps(
+                {
+                    "at": datetime.now(timezone.utc).isoformat(),
+                    "execute": True,
+                    "ok": True,
+                    "result": "NO_SAFE_DIFF",
+                    "post_match": None,
+                    "write_status": "CANARY_READY",
+                    "changed_fields": {},
+                    "note": (
+                        "Published Super-Parrain text already equals OPERATOR_VALIDATED "
+                        "cpbrgddy / invite.kraken.com/JDNW/s5qudqe4 / 200 € en cryptomonnaies. "
+                        "A no-op does not satisfy targeted_edit/submit/reread. "
+                        "Do not invent a dummy field change."
+                    ),
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        return 0
+
     print("\n=== EXECUTE REAL WRITE ===")
     result = asyncio.run(execute_write(plan, dry_run=False))
     path = OUT_DIR / f"write-{plan.platform}-{plan.program}.json"

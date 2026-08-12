@@ -37,8 +37,8 @@
   },
   "notes": "code plateforme 'cpbrgddy' vs offers.json '4hpz4gdy' (candidat identité, non auto-validé); lien plateforme vs proinvite (candidat); referee_reward opérateur-validé 200 € — monitor 20 € BTC observation only",
   "source_of_truth": {
-    "personal_code": "offers_json_then_operator",
-    "personal_link": "offers_json_then_operator",
+    "personal_code": "operator_validated",
+    "personal_link": "operator_validated",
     "referee_reward": "operator_validated_then_platform_golden",
     "announcement_text": "platform_target_only"
   }
