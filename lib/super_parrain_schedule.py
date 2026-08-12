@@ -161,75 +161,76 @@ def super_parrain_runtime_mode() -> str:
 
 
 def decide_super_parrain_action() -> dict[str, Any]:
-    """Decide l'action du cron historique Super-Parrain.
+    """Decide l'action du cron *historique* bump_super_parrain.yml.
 
-    - wait: hors creneau 24h
-    - canary_exclusive: creneau ouvert mais canary Kraken pas encore WRITE_VERIFIED
-      → aucun bump/save bumper; créneau réservé au content canary
-    - cycle: WRITE_VERIFIED + creneau → PRE-CHECK + bump normal
+    Shared gate with activation_canary.yml (concurrency ``parrainage-bumper-super``):
 
-    Race-safe with activation_canary.yml via shared concurrency group
-    `parrainage-bumper-super`.
+    - CANARY_PENDING (not WRITE_VERIFIED):
+        → action ``skip`` always for the historical bumper
+        → never bump / never save / never consume last_super_run
+        → activation_canary.yml is the *only* workflow allowed to save
+    - wait: hors créneau 24h (also skip_bump)
+    - cycle: WRITE_VERIFIED + créneau ouvert → PRE-CHECK + bumper normal
+
+    Does not delete the bumper — only suspends its saves until canary succeeds.
     """
     eligible, nxt, hours = is_eligible()
     pending = list_pending_super_parrain()
     mode = super_parrain_runtime_mode()
     canary_pending = mode == "CANARY_PENDING"
+    base = {
+        "runtime_mode": mode,
+        "canary_pending": canary_pending,
+        "next_eligible_at": nxt.isoformat(),
+        "hours_remaining": round(hours, 2) if not eligible else 0.0,
+        "pending_count": len(pending),
+        "pending_programs": [p.get("program") for p in pending],
+        "activation_canary_owns_save": canary_pending,
+    }
 
-    if not eligible:
+    # Hard gate: historical bumper is suspended until WRITE_VERIFIED
+    if canary_pending:
         return {
-            "action": "wait",
+            **base,
+            "action": "skip",
             "reason": (
-                "canary_pending_cooldown"
-                if canary_pending
-                else "cooldown_24h_historical_slot"
+                "CANARY_PENDING_historical_bump_suspended"
+                if eligible
+                else "canary_pending_cooldown"
             ),
-            "runtime_mode": mode,
-            "canary_pending": canary_pending,
-            "next_eligible_at": nxt.isoformat(),
-            "hours_remaining": round(hours, 2),
-            "pending_count": len(pending),
             "skip_bump": True,
             "run_precheck": False,
             "run_bump": False,
             "run_canary": False,
+            "eligible_now": eligible,
+            "note": (
+                "bump_super_parrain.yml SKIP while CANARY_PENDING. "
+                "Only activation_canary.yml may live-save (Kraken content canary). "
+                "After post_match=true → WRITE_VERIFIED → NORMAL_BUMP re-enabled."
+            ),
         }
 
-    # Slot open — canary owns it until WRITE_VERIFIED
-    if canary_pending:
+    if not eligible:
         return {
-            "action": "canary_exclusive",
-            "reason": "CANARY_PENDING_exclusive_slot_no_bump",
-            "runtime_mode": mode,
-            "canary_pending": True,
-            "next_eligible_at": nxt.isoformat(),
-            "hours_remaining": 0,
-            "pending_count": len(pending),
+            **base,
+            "action": "wait",
+            "reason": "cooldown_24h_historical_slot",
             "skip_bump": True,
             "run_precheck": False,
             "run_bump": False,
-            "run_canary": True,
-            "canary_program": "kraken",
-            "note": (
-                "Bumper Super-Parrain blocked until content canary post_match=true "
-                "→ WRITE_VERIFIED. Do not consume 24h cooldown with bump-only."
-            ),
-            "pending_programs": [p.get("program") for p in pending],
+            "run_canary": False,
+            "eligible_now": False,
         }
 
     return {
+        **base,
         "action": "cycle",
         "reason": "slot_reached_write_verified_precheck_then_bump",
-        "runtime_mode": mode,
-        "canary_pending": False,
-        "next_eligible_at": nxt.isoformat(),
-        "hours_remaining": 0,
-        "pending_count": len(pending),
         "skip_bump": False,
         "run_precheck": True,
         "run_bump": True,
         "run_canary": False,
-        "pending_programs": [p.get("program") for p in pending],
+        "eligible_now": True,
     }
 
 

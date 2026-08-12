@@ -157,17 +157,22 @@ def main() -> int:
         return 0
 
     # CANARY_PENDING: never run historical bumper / never touch last_super_run
-    if decision.get("skip_bump") or decision.get("action") == "canary_exclusive":
+    if (
+        decision.get("skip_bump")
+        or decision.get("action") in ("skip", "canary_exclusive", "wait")
+        or decision.get("canary_pending")
+    ):
         report["summary"] = {
             "PRE_CHECK": "SKIP",
-            "UPDATE_IF_NEEDED": "DEFER_TO_CONTROLLED_WRITE",
+            "UPDATE_IF_NEEDED": "DEFER_TO_ACTIVATION_CANARY",
             "POST_VERIFY": "SKIP",
             "BUMP_CYCLE_24H": "BLOCKED_CANARY_PENDING",
             "server_actions": 0,
-            "reason": decision.get("reason") or "CANARY_PENDING_exclusive_slot_no_bump",
+            "reason": decision.get("reason")
+            or "CANARY_PENDING_historical_bump_suspended",
             "hint": (
-                "Use tools/controlled_write_super_parrain.py --program kraken "
-                "--execute --force when slot is open (canary owns the 24h window)."
+                "activation_canary.yml is the sole live-save owner while "
+                "CANARY_PENDING. Historical bumper saves are suspended."
             ),
         }
         path = save_cycle_report(report)

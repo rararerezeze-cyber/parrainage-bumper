@@ -10,7 +10,7 @@
       "status": "CANARY_READY",
       "canary_program": "kraken",
       "runtime_mode": "CANARY_PENDING",
-      "notes": "CANARY_PENDING: historical bumper blocked — exclusive content canary on next 24h slot. Not WRITE_VERIFIED until real auth edit + submit + reread + post_match."
+      "notes": "CANARY_PENDING: bump_super_parrain.yml SKIP (no last_super_run). activation_canary.yml sole live-save owner until post_match=true → WRITE_VERIFIED → NORMAL_BUMP."
     },
     "parrainage-co": {
       "status": "WRITE_PREPARED",

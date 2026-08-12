@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Decide Super-Parrain cron action: wait | canary_exclusive | cycle.
+"""Decide Super-Parrain *historical bumper* action: skip | wait | cycle.
 
-CANARY_PENDING (not WRITE_VERIFIED): never bump; exclusive canary on next slot.
+CANARY_PENDING (not WRITE_VERIFIED): always skip — no bump/save.
+activation_canary.yml is the sole live-save owner until post_match=true.
 After WRITE_VERIFIED: cycle = PRE-CHECK + historical bumper.
 """
 from __future__ import annotations
@@ -58,9 +59,12 @@ def main() -> int:
         print(f"run_bump={decision.get('run_bump')}")
         print(f"run_canary={decision.get('run_canary')}")
         print(f"skip_bump={decision.get('skip_bump')}")
+        print(
+            f"activation_canary_owns_save={decision.get('activation_canary_owns_save')}"
+        )
 
-    # 0=actionable slot (cycle or canary_exclusive), 20=wait (cooldown)
-    return 20 if decision["action"] == "wait" else 0
+    # 0=historical cycle allowed, 20=skip/wait (no historical save)
+    return 0 if decision["action"] == "cycle" else 20
 
 
 if __name__ == "__main__":

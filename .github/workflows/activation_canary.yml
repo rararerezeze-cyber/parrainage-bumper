@@ -1,5 +1,8 @@
 name: Activation canary (platform writers)
 # Sequential canaries with real credentials from GH secrets.
+# Shared CANARY_PENDING gate with bump_super_parrain.yml:
+#   While super-parrain != WRITE_VERIFIED, THIS workflow is the only one
+#   allowed to live-save on Super-Parrain (historical bumper always SKIP).
 # Never bypasses Super-Parrain 24h cooldown.
 # --force on controlled_write = operator intent confirmation only.
 on:
@@ -27,8 +30,10 @@ on:
         required: true
         default: "false"
   schedule:
-    # Retry Super-Parrain canary near historical eligibility window (05:40 UTC)
-    - cron: "40 5 * * *"
+    # First eligible Super-Parrain window (~05:37 UTC) — sole saver while CANARY_PENDING
+    - cron: "37 5 * * *"
+    # Retry a few minutes later if first attempt raced or auth flaked
+    - cron: "45 5 * * *"
 permissions:
   contents: write
 concurrency:
@@ -98,11 +103,51 @@ jobs:
 
           if [ "$P" = "super-parrain" ]; then
             python - <<'PY'
-          from lib.super_parrain_schedule import is_eligible
+          import json
+          from pathlib import Path
+          from lib.super_parrain_schedule import (
+              is_eligible,
+              is_super_parrain_canary_pending,
+              super_parrain_runtime_mode,
+              decide_super_parrain_action,
+          )
+          from lib.write_status import is_write_verified
           e, nxt, h = is_eligible()
+          pending = is_super_parrain_canary_pending()
+          mode = super_parrain_runtime_mode()
+          hist = decide_super_parrain_action()
           print(f"eligible={e} hours_remaining={h:.2f} next={nxt.isoformat()}")
+          print(f"runtime_mode={mode} canary_pending={pending} write_verified={is_write_verified('super-parrain')}")
+          print(f"historical_bumper_action={hist.get('action')} run_bump={hist.get('run_bump')}")
+          # Proof: while canary pending, historical decide must never authorize bump
+          if pending:
+              assert hist.get("run_bump") is False, hist
+              assert hist.get("action") == "skip", hist
+              assert hist.get("activation_canary_owns_save") is True, hist
           open("/tmp/eligible","w").write("1" if e else "0")
           open("/tmp/next","w").write(nxt.isoformat())
+          open("/tmp/canary_pending","w").write("1" if pending else "0")
+          open("/tmp/runtime_mode","w").write(mode)
+          Path("data/captures").mkdir(parents=True, exist_ok=True)
+          Path("data/captures/activation-canary-gate.json").write_text(
+              json.dumps({
+                  "workflow": "activation_canary",
+                  "runtime_mode": mode,
+                  "canary_pending": pending,
+                  "write_verified": is_write_verified("super-parrain"),
+                  "eligible": e,
+                  "next_eligible_at": nxt.isoformat(),
+                  "hours_remaining": round(h, 2),
+                  "historical_bumper": {
+                      "action": hist.get("action"),
+                      "run_bump": hist.get("run_bump"),
+                      "skip_bump": hist.get("skip_bump"),
+                      "activation_canary_owns_save": hist.get("activation_canary_owns_save"),
+                  },
+                  "sole_saver_while_pending": True,
+              }, indent=2) + "\n",
+              encoding="utf-8",
+          )
           PY
             # dry plan always (real values from offers/operator)
             python tools/controlled_write_super_parrain.py --program "$PROG" || true
@@ -115,15 +160,17 @@ jobs:
               python - <<'PY'
           import json
           from pathlib import Path
-          from lib.super_parrain_schedule import is_eligible
+          from lib.super_parrain_schedule import is_eligible, super_parrain_runtime_mode
           e,nxt,h=is_eligible()
           Path("data/captures/activation-canary-result.json").write_text(json.dumps({
             "platform":"super-parrain","result":"WAIT","reason":"cooldown_24h",
+            "runtime_mode": super_parrain_runtime_mode(),
             "next_eligible_at": nxt.isoformat(),"hours_remaining": round(h,2)
           },indent=2)+"\n",encoding="utf-8")
           PY
               exit 0
             fi
+            # Sole live-save owner while CANARY_PENDING (or first verified write).
             # --force = operator intent only, does NOT bypass cooldown (checked above)
             set +e
             python tools/controlled_write_super_parrain.py --program "$PROG" --execute --force
@@ -131,6 +178,40 @@ jobs:
             set -e
             echo "canary_exit=$RC"
             python tools/e2e_status.py || true
+            python - <<'PY'
+          import json
+          from pathlib import Path
+          from lib.write_status import is_write_verified, get_platform_status
+          from lib.super_parrain_schedule import super_parrain_runtime_mode, decide_super_parrain_action
+          verified = is_write_verified("super-parrain")
+          mode = super_parrain_runtime_mode()
+          hist = decide_super_parrain_action()
+          meta = get_platform_status("super-parrain") if "get_platform_status" in dir() else {}
+          try:
+              from lib.write_status import load_write_status
+              meta = (load_write_status().get("platforms") or {}).get("super-parrain") or {}
+          except Exception:
+              meta = {}
+          out = {
+              "platform": "super-parrain",
+              "result": "WRITE_VERIFIED" if verified else "CANARY_ATTEMPTED",
+              "runtime_mode": mode,
+              "canary_pending": mode == "CANARY_PENDING",
+              "post_match": (meta.get("evidence") or {}).get("post_match"),
+              "historical_bumper_after": {
+                  "action": hist.get("action"),
+                  "run_bump": hist.get("run_bump"),
+                  "runtime_mode": hist.get("runtime_mode"),
+              },
+          }
+          Path("data/captures/activation-canary-result.json").write_text(
+              json.dumps(out, indent=2) + "\n", encoding="utf-8"
+          )
+          print(json.dumps(out, indent=2, ensure_ascii=False))
+          if verified:
+              assert mode == "NORMAL_BUMP", mode
+              print("CANARY_PENDING=false — historical bumper re-enabled (NORMAL_BUMP)")
+          PY
             exit 0
           fi
 
