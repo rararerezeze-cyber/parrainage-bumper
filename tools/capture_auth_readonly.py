@@ -1,8 +1,16 @@
 #!/usr/bin/env python3
-"""Capture authentifiee READ-ONLY des annonces (parrainage.co, code-parrainage, referralcode.tv).
+"""Capture authentifiee READ-ONLY (compte / pages edition).
 
-Reutilise la config env de bumper.py. Aucun bump/boost/enregistrer.
-Ne loggue jamais credentials/cookies/tokens.
+Modele session (anti-ban) — voir lib/auth_policy.py :
+  1 login par plateforme et par cycle
+  → meme contexte navigateur pour toutes les annonces
+  → inventaire / edit sequentiel
+  → fin session
+  jamais storage-state/cookies dans repo ou artifacts
+  jamais credentials dans logs
+
+Source principale = pages authentifiees (pas le profil public).
+Aucun boost/save/enregistrer.
 """
 from __future__ import annotations
 
@@ -18,6 +26,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+from lib.auth_policy import (
+    AuthFailureKind,
+    classify_auth_failure,
+    policy_snapshot,
+    should_stop_platform,
+)
 from lib.offers import OffersRepository
 from lib.template_builder import build_from_text, detect_platform_values, write_build_result
 
@@ -26,6 +40,7 @@ sys.path.insert(0, str(ROOT))
 import bumper as bumper_mod  # noqa: E402
 
 REPORT_DIR = ROOT / "data" / "captures"
+
 
 
 def _has_creds(site: str) -> bool:
@@ -254,14 +269,22 @@ async def capture_parrainage_co(browser, offers: OffersRepository) -> dict:
             )
         await page.goto(f"{cfg['url']}/account/offers", wait_until="domcontentloaded", timeout=60000)
         await bumper_mod.human_sleep(2, 3)
+        # --- AUTH UNE FOIS (meme page/context pour toutes les annonces ci-dessous) ---
         if "/login" in page.url or "connexion" in (page.url or "").lower():
             if not email or not password:
                 raise RuntimeError("session requise (cookie/login manquant)")
             await page.goto(f"{cfg['url']}/account/login", wait_until="domcontentloaded", timeout=60000)
             await bumper_mod.human_sleep(1, 2)
+            # Detect challenge before password spray
+            body_probe = (await page.inner_text("body")).lower()[:2000]
+            kind = classify_auth_failure(body_probe)
+            if kind == AuthFailureKind.CAPTCHA_OR_ANTIBOT:
+                raise RuntimeError(f"captcha_or_antibot_challenge on login page")
             ok = await bumper_mod.smart_login_parrainage(page, email, password)
             if not ok:
-                raise RuntimeError("login echoue")
+                body_after = (await page.inner_text("body")).lower()[:2000]
+                kind = classify_auth_failure(body_after + " login echoue")
+                raise RuntimeError(f"{kind.value}: login non abouti")
             report["login"] = "password"
             await page.goto(f"{cfg['url']}/account/offers", wait_until="domcontentloaded", timeout=60000)
             await bumper_mod.human_sleep(2, 3)
@@ -269,7 +292,8 @@ async def capture_parrainage_co(browser, offers: OffersRepository) -> dict:
             report["login"] = "cookie_or_session"
 
         if "/login" in page.url:
-            raise RuntimeError("toujours sur /login apres auth")
+            raise RuntimeError(f"{AuthFailureKind.EXPIRED_SESSION.value}: toujours sur /login apres auth")
+        report["session_model"] = "single_login_then_sequential_edits"
 
         body_text = await page.inner_text("body")
         REPORT_DIR.mkdir(parents=True, exist_ok=True)
@@ -811,8 +835,14 @@ async def capture_referralcode_tv(browser, offers: OffersRepository) -> dict:
 
 
 async def amain(sites: list[str]) -> dict:
+    """Un browser process ; 1 context/session par plateforme ; 0 storage-state disque."""
     offers = OffersRepository()
-    summary = {"sites": {}, "missing_credentials": []}
+    summary: dict = {
+        "sites": {},
+        "missing_credentials": [],
+        "auth_policy": policy_snapshot(),
+        "stopped_platforms": [],
+    }
     from playwright.async_api import async_playwright
 
     async with async_playwright() as pw:
@@ -826,19 +856,63 @@ async def amain(sites: list[str]) -> dict:
             ],
         )
         try:
+            # Une plateforme a la fois, sequentiel — jamais parallele multi-login
             if "parrainage" in sites:
                 if _has_creds("parrainage"):
-                    summary["sites"]["parrainage-co"] = await capture_parrainage_co(browser, offers)
+                    try:
+                        summary["sites"]["parrainage-co"] = await capture_parrainage_co(
+                            browser, offers
+                        )
+                    except Exception as exc:  # noqa: BLE001
+                        kind = classify_auth_failure(str(exc))
+                        summary["sites"]["parrainage-co"] = {
+                            "platform": "parrainage-co",
+                            "items": [],
+                            "errors": [{"error": str(exc), "kind": kind.value}],
+                            "login": "failed",
+                        }
+                        if should_stop_platform(kind):
+                            summary["stopped_platforms"].append(
+                                {"platform": "parrainage-co", "kind": kind.value}
+                            )
                 else:
                     summary["missing_credentials"].append("parrainage-co")
             if "code" in sites:
                 if _has_creds("code"):
-                    summary["sites"]["code-parrainage"] = await capture_code_parrainage(browser, offers)
+                    try:
+                        summary["sites"]["code-parrainage"] = await capture_code_parrainage(
+                            browser, offers
+                        )
+                    except Exception as exc:  # noqa: BLE001
+                        kind = classify_auth_failure(str(exc))
+                        summary["sites"]["code-parrainage"] = {
+                            "platform": "code-parrainage",
+                            "items": [],
+                            "errors": [{"error": str(exc), "kind": kind.value}],
+                        }
+                        if should_stop_platform(kind):
+                            summary["stopped_platforms"].append(
+                                {"platform": "code-parrainage", "kind": kind.value}
+                            )
                 else:
                     summary["missing_credentials"].append("code-parrainage")
             if "referralcode" in sites:
                 if _has_creds("referralcode"):
-                    summary["sites"]["referralcode-tv"] = await capture_referralcode_tv(browser, offers)
+                    try:
+                        summary["sites"]["referralcode-tv"] = await capture_referralcode_tv(
+                            browser, offers
+                        )
+                    except Exception as exc:  # noqa: BLE001
+                        kind = classify_auth_failure(str(exc))
+                        summary["sites"]["referralcode-tv"] = {
+                            "platform": "referralcode-tv",
+                            "items": [],
+                            "errors": [{"error": str(exc), "kind": kind.value}],
+                        }
+                        if should_stop_platform(kind):
+                            summary["stopped_platforms"].append(
+                                {"platform": "referralcode-tv", "kind": kind.value}
+                            )
                 else:
                     summary["missing_credentials"].append("referralcode-tv")
         finally:
@@ -856,6 +930,7 @@ def main() -> int:
     args = parser.parse_args()
     sites = [s.strip() for s in args.sites.split(",") if s.strip()]
     print("READ-ONLY capture — no boost/save/actualiser")
+    print("auth policy: 1 login/platform/cycle, no storage-state, no aggressive retries")
     print("sites:", ",".join(sites))
     # Never print secret values — only presence
     for label, ok in [

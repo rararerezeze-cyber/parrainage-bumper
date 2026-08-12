@@ -44,7 +44,7 @@
       "public_capture": true,
       "auth_capture": true,
       "prefer_official_import": true,
-      "notes": "DISTINCT de referralcode.tv — secrets REFERRALCODES_* (avec S). Priorite Agent Import."
+      "notes": "DISTINCT de referralcode.tv — secrets REFERRALCODES_* (avec S). Priorite Agent Import/API/JSON/CSV officiel avant Playwright login."
     },
     "referraldrop": {
       "domain": "referraldrop.com",

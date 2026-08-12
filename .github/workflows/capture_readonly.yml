@@ -55,12 +55,23 @@ jobs:
               print(f"{k}: {'yes' if v else 'no'} len={len(v)}")
           PY
           python tools/capture_auth_readonly.py --sites "$SITES"
+      - name: Guard — no auth storage-state in workspace
+        if: always()
+        run: |
+          # Never persist browser auth state (anti-leak + policy)
+          if find . -type f \( -name 'storage-state*.json' -o -name '*cookies*.json' -o -path '*/.auth/*' \) 2>/dev/null | grep -q .; then
+            echo "FORBIDDEN: auth storage-state/cookies found — refusing upload"
+            find . -type f \( -name 'storage-state*.json' -o -name '*cookies*.json' -o -path '*/.auth/*' \) -print
+            exit 1
+          fi
+          echo "OK: no storage-state artifacts"
       - name: Upload capture artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: capture-readonly
           retention-days: 7
+          # Explicit: no storage-state, no cookies, no .auth
           path: |
             data/captures/
             data/platform-mappings/
