@@ -11,5 +11,6 @@
   },
   "note": "STRICT: Telegram live writes only for write_verified[]. Super-Parrain=CANARY_READY until real post-verify canary. enabled_platforms used for canary tools only, not Telegram bulk. Monitor=OBSERVATION_ONLY.",
   "live_canary_waiter": "ENABLED_FOR_SUPER_PARRAIN_ONLY",
-  "updated_at": "2026-08-13"
+  "updated_at": "2026-08-12T20:41:00+00:00",
+  "updated_at_note": "Metadata only — not used for cooldown (see last_super_run.txt)."
 }

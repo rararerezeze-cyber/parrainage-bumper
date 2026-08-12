@@ -1,0 +1,72 @@
+name: Deploy Telegram Worker (Cloudflare)
+# Automated path so activation does not depend on a local PC.
+# Requires repo secrets: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID
+# Plus worker secrets (set once via wrangler or API): TELEGRAM_*, GITHUB_*
+on:
+  workflow_dispatch:
+    inputs:
+      set_webhook:
+        description: "Also set Telegram webhook after deploy"
+        required: false
+        default: "false"
+permissions:
+  contents: read
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Check Cloudflare secrets
+        id: check
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "missing=1" >> "$GITHUB_OUTPUT"
+            echo "CLOUDFLARE_API_TOKEN and/or CLOUDFLARE_ACCOUNT_ID missing — cannot deploy Worker."
+            echo "Add them as GitHub Actions secrets, then re-run this workflow."
+            exit 0
+          fi
+          echo "missing=0" >> "$GITHUB_OUTPUT"
+      - name: Install wrangler
+        if: steps.check.outputs.missing == '0'
+        run: npm install -g wrangler
+      - name: Deploy worker
+        if: steps.check.outputs.missing == '0'
+        working-directory: telegram-worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          wrangler deploy
+          echo "Deployed. Ensure worker secrets are set:"
+          echo "  TELEGRAM_BOT_TOKEN, TELEGRAM_ALLOWED_USER_ID,"
+          echo "  GITHUB_TOKEN (actions:write), GITHUB_REPO, GITHUB_REF"
+      - name: Optional setWebhook
+        if: steps.check.outputs.missing == '0' && github.event.inputs.set_webhook == 'true'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          WORKER_URL: ${{ secrets.TELEGRAM_WORKER_URL }}
+        run: |
+          if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$WORKER_URL" ]; then
+            echo "Need TELEGRAM_BOT_TOKEN + TELEGRAM_WORKER_URL secrets for setWebhook"
+            exit 0
+          fi
+          curl -sS "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/setWebhook" \
+            -d "url=${WORKER_URL}/telegram" | tee /tmp/webhook.json
+          curl -sS "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getWebhookInfo" | tee /tmp/webhook-info.json
+      - name: Upload deploy notes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: telegram-worker-deploy
+          path: |
+            telegram-worker/**
+            /tmp/webhook.json
+            /tmp/webhook-info.json
+          if-no-files-found: ignore

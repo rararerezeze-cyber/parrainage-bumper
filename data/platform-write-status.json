@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-08-12T20:41:25.281847+00:00",
+  "updated_at": "2026-08-12T20:45:22.485886+00:00",
   "note": "Strict write readiness. WRITE_VERIFIED requires full post-verify evidence. Telegram live writes only for WRITE_VERIFIED platforms.",
   "write_verified_count": 0,
   "write_verified_ratio": "0/7",
