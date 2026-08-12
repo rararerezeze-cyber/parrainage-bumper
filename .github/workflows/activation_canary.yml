@@ -1,0 +1,197 @@
+name: Activation canary (platform writers)
+# Sequential canaries with real credentials from GH secrets.
+# Never bypasses Super-Parrain 24h cooldown.
+# --force on controlled_write = operator intent confirmation only.
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: "Platform to canary"
+        required: true
+        default: "super-parrain"
+        type: choice
+        options:
+          - super-parrain
+          - parrainage-co
+          - code-parrainage
+          - 1parrainage
+          - referralcodes
+          - referralcode-tv
+          - status-only
+      program:
+        description: "Canary program"
+        required: true
+        default: "kraken"
+      execute:
+        description: "Execute live write if eligible (true/false)"
+        required: true
+        default: "false"
+  schedule:
+    # Retry Super-Parrain canary near historical eligibility window (05:40 UTC)
+    - cron: "40 5 * * *"
+permissions:
+  contents: write
+concurrency:
+  group: autofresh-activation-canary
+  cancel-in-progress: false
+jobs:
+  canary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+      - name: Resolve platform
+        id: plat
+        run: |
+          P="${{ github.event.inputs.platform }}"
+          E="${{ github.event.inputs.execute }}"
+          PROG="${{ github.event.inputs.program }}"
+          if [ -z "$P" ]; then P="super-parrain"; fi
+          if [ -z "$E" ]; then E="true"; fi
+          if [ -z "$PROG" ]; then PROG="kraken"; fi
+          # scheduled runs: only super-parrain when eligible
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            P="super-parrain"
+            E="true"
+            PROG="kraken"
+          fi
+          echo "platform=$P" >> "$GITHUB_OUTPUT"
+          echo "execute=$E" >> "$GITHUB_OUTPUT"
+          echo "program=$PROG" >> "$GITHUB_OUTPUT"
+      - name: Eligibility + plan (never force cooldown)
+        env:
+          SUPER_PARRAIN_EMAIL: ${{ secrets.SUPER_PARRAIN_EMAIL }}
+          SUPER_PARRAIN_PASSWORD: ${{ secrets.SUPER_PARRAIN_PASSWORD }}
+          PARRAINAGE_CO_EMAIL: ${{ secrets.PARRAINAGE_CO_EMAIL }}
+          PARRAINAGE_CO_PASSWORD: ${{ secrets.PARRAINAGE_CO_PASSWORD }}
+          PARRAINAGE_CO_RM_COOKIE: ${{ secrets.PARRAINAGE_CO_RM_COOKIE }}
+          CODE_PARRAINAGE_EMAIL: ${{ secrets.CODE_PARRAINAGE_EMAIL }}
+          CODE_PARRAINAGE_PASSWORD: ${{ secrets.CODE_PARRAINAGE_PASSWORD }}
+          ONEPARRAINAGE_EMAIL: ${{ secrets.ONEPARRAINAGE_EMAIL }}
+          ONEPARRAINAGE_PASSWORD: ${{ secrets.ONEPARRAINAGE_PASSWORD }}
+          REFERRALCODES_EMAIL: ${{ secrets.REFERRALCODES_EMAIL }}
+          REFERRALCODES_PASSWORD: ${{ secrets.REFERRALCODES_PASSWORD }}
+          REFERRALCODE_EMAIL: ${{ secrets.REFERRALCODE_EMAIL }}
+          REFERRALCODE_PASSWORD: ${{ secrets.REFERRALCODE_PASSWORD }}
+        run: |
+          set -e
+          python tools/e2e_status.py || true
+          P="${{ steps.plat.outputs.platform }}"
+          PROG="${{ steps.plat.outputs.program }}"
+          EXEC="${{ steps.plat.outputs.execute }}"
+          echo "platform=$P program=$PROG execute=$EXEC"
+
+          if [ "$P" = "status-only" ]; then
+            python tools/e2e_status.py
+            exit 0
+          fi
+
+          if [ "$P" = "super-parrain" ]; then
+            python - <<'PY'
+          from lib.super_parrain_schedule import is_eligible
+          e, nxt, h = is_eligible()
+          print(f"eligible={e} hours_remaining={h:.2f} next={nxt.isoformat()}")
+          open("/tmp/eligible","w").write("1" if e else "0")
+          open("/tmp/next","w").write(nxt.isoformat())
+          PY
+            # dry plan always (real values from offers/operator)
+            python tools/controlled_write_super_parrain.py --program "$PROG" || true
+            if [ "$EXEC" != "true" ]; then
+              echo "execute=false — plan only"
+              exit 0
+            fi
+            if [ "$(cat /tmp/eligible)" != "1" ]; then
+              echo "WAIT: Super-Parrain cooldown until $(cat /tmp/next) — not forcing"
+              python - <<'PY'
+          import json
+          from pathlib import Path
+          from lib.super_parrain_schedule import is_eligible
+          e,nxt,h=is_eligible()
+          Path("data/captures/activation-canary-result.json").write_text(json.dumps({
+            "platform":"super-parrain","result":"WAIT","reason":"cooldown_24h",
+            "next_eligible_at": nxt.isoformat(),"hours_remaining": round(h,2)
+          },indent=2)+"\n",encoding="utf-8")
+          PY
+              exit 0
+            fi
+            # --force = operator intent only, does NOT bypass cooldown (checked above)
+            set +e
+            python tools/controlled_write_super_parrain.py --program "$PROG" --execute --force
+            RC=$?
+            set -e
+            echo "canary_exit=$RC"
+            python tools/e2e_status.py || true
+            exit 0
+          fi
+
+          if [ "$P" = "referralcodes" ]; then
+            python -c "from platforms.referralcodes.writer import dry_run_report; import json; print(json.dumps(dry_run_report('$PROG'),indent=2,ensure_ascii=False))"
+            echo "ReferralCodes live canary requires validated Agent Import schema — dry-run only until schema probe lands."
+            exit 0
+          fi
+
+          if [ "$P" = "referralcode-tv" ]; then
+            python -c "from platforms.referralcode_tv.writer import dry_run_report; import json; print(json.dumps(dry_run_report('$PROG'),indent=2,ensure_ascii=False))"
+            echo "ReferralCode.tv: plan only until authenticated edit_url resolution is proven."
+            exit 0
+          fi
+
+          # Generic: dry-run controlled writers if module exists
+          python - <<PY
+          import json, importlib
+          from pathlib import Path
+          p = "${{ steps.plat.outputs.platform }}"
+          prog = "${{ steps.plat.outputs.program }}"
+          mods = {
+            "parrainage-co": "platforms.parrainage_co.writer",
+            "code-parrainage": "platforms.code_parrainage.writer",
+            "1parrainage": "platforms.oneparrainage.writer",
+          }
+          m = mods.get(p)
+          out = {"platform": p, "program": prog, "execute": False}
+          if not m:
+            out["error"] = "no_writer_module"
+          else:
+            try:
+              mod = importlib.import_module(m)
+              plan = mod.build_write_plan(p, prog, "fr")
+              out["changed_fields"] = getattr(plan, "changed_fields", None)
+              out["structure_preserved"] = getattr(plan, "structure_preserved", None)
+              out["result"] = "PLAN_READY"
+            except Exception as e:
+              out["error"] = str(e)
+              out["result"] = "PLAN_ERROR"
+          Path("data/captures/activation-canary-result.json").write_text(
+            json.dumps(out, ensure_ascii=False, indent=2)+"\n", encoding="utf-8"
+          )
+          print(json.dumps(out, ensure_ascii=False, indent=2))
+          PY
+      - name: Upload canary artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: activation-canary-${{ steps.plat.outputs.platform }}
+          path: |
+            data/captures/
+            data/platform-write-status.json
+            data/autofresh-phase.json
+            last_super_run.txt
+          if-no-files-found: ignore
+      - name: Commit status if verified
+        if: success()
+        run: |
+          git config user.name "autofresh-bot"
+          git config user.email "autofresh-bot@users.noreply.github.com"
+          git add data/platform-write-status.json data/autofresh-phase.json data/captures data/platform-mappings data/platform-templates last_super_run.txt data/pending_writes.json 2>/dev/null || true
+          if git diff --cached --quiet; then echo "no commit"; else
+            git commit -m "chore(activation): canary result ${{ steps.plat.outputs.platform }}"
+            git pull --rebase origin "${{ github.ref_name }}" || true
+            git push || true
+          fi

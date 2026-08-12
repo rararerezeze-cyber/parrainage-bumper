@@ -1,0 +1,77 @@
+name: Monitor public offers (observation only)
+# PC éteint: scrape sources officielles, compare métier vs offers.json.
+# Ne modifie JAMAIS offers.json ni les annonces plateforme.
+# Commit uniquement si business/status/failure change (pas detected_at seul).
+on:
+  schedule:
+    # 1×/jour (08:17 UTC) — observation-only; workflow_dispatch pour runs manuels
+    - cron: "17 8 * * *"
+  workflow_dispatch:
+concurrency:
+  group: autofresh-monitor-offers
+  cancel-in-progress: false
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Dependencies
+        run: |
+          pip install -r requirements.txt
+      - name: Rebuild registry + coverage
+        env:
+          AUTOFRESH_PHASE: "VALIDATION_LIVE"
+          AUTOFRESH_LIVE_WRITES: "0"
+        run: |
+          python tools/build_offer_sources.py
+          python monitor.py --coverage
+          python monitor.py --priority
+      - name: Run monitor (observation only)
+        env:
+          AUTOFRESH_PHASE: "VALIDATION_LIVE"
+          AUTOFRESH_LIVE_WRITES: "0"
+        run: |
+          set +e
+          python monitor.py --all
+          RC=$?
+          set -e
+          echo "monitor_exit=$RC"
+          python monitor.py --production-report || true
+          # never fail hard on single source 403 — report is enough
+          exit 0
+      - name: Upload report (always — history can live in artifacts)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: monitor-offers-report
+          retention-days: 30
+          path: |
+            data/captures/monitor-last-report.json
+            data/captures/offer-sources-verify.json
+            data/monitor/
+            data/offer-sources.json
+          if-no-files-found: ignore
+      - name: Commit only on business/status change
+        if: success()
+        run: |
+          git config user.name "autofresh-bot"
+          git config user.email "autofresh-bot@users.noreply.github.com"
+          # should_commit is computed by save_run_report (compares to previous report)
+          if python monitor.py --should-commit; then
+            echo "Business/status change detected — committing light state"
+            git add data/monitor/last-observations.json data/monitor/history.jsonl data/offer-sources.json data/captures/monitor-last-report.json 2>/dev/null || true
+            if git diff --staged --quiet; then
+              echo "no staged file changes"
+            else
+              git commit -m "chore(monitor): business/status observation update"
+              git pull --rebase origin "${{ github.ref_name }}" || true
+              git push || true
+            fi
+          else
+            echo "No business/status change — skip git commit (report stays in artifacts)"
+            # still refresh last-observations locally in workspace but do not push noise
+          fi

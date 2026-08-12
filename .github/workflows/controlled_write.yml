@@ -1,0 +1,66 @@
+name: Controlled write (Super-Parrain)
+# Developpe et versionne sur la branche Autofresh uniquement.
+# Ne pas merger dans main tant que le write n'est pas valide.
+on:
+  workflow_dispatch:
+    inputs:
+      program:
+        description: "Programme (ex. kraken)"
+        required: true
+        default: "kraken"
+      execute:
+        description: "true = publication reelle; false = plan/diff only"
+        required: true
+        default: "false"
+permissions:
+  contents: write
+concurrency:
+  group: autofresh-controlled-write
+  cancel-in-progress: false
+jobs:
+  write:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+      - name: Plan / Write Super-Parrain
+        env:
+          SUPER_PARRAIN_EMAIL: ${{ secrets.SUPER_PARRAIN_EMAIL }}
+          SUPER_PARRAIN_PASSWORD: ${{ secrets.SUPER_PARRAIN_PASSWORD }}
+        run: |
+          if [ "${{ github.event.inputs.execute }}" = "true" ]; then
+            python tools/controlled_write_super_parrain.py --program "${{ github.event.inputs.program }}" --execute --force
+          else
+            python tools/controlled_write_super_parrain.py --program "${{ github.event.inputs.program }}"
+          fi
+      - name: Upload write artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: controlled-write
+          retention-days: 7
+          path: |
+            data/captures/write-*.json
+            debug_super_write_*.png
+            data/platform-mappings/
+            data/platform-templates/super-parrain/
+          if-no-files-found: ignore
+      - name: Commit post-write golden if success
+        if: success() && github.event.inputs.execute == 'true'
+        run: |
+          git config user.name "autofresh-bot"
+          git config user.email "autofresh-bot@users.noreply.github.com"
+          git add data/captures/write-*.json data/platform-mappings data/platform-templates/super-parrain || true
+          if git diff --cached --quiet; then
+            echo "No files to commit"
+          else
+            git commit -m "chore(write): Super-Parrain controlled write result for ${{ github.event.inputs.program }}"
+            git push
+          fi
