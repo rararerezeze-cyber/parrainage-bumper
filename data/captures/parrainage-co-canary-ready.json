@@ -1,0 +1,78 @@
+{
+  "platform": "parrainage-co",
+  "mode": "CANARY_READY_ASSESSMENT",
+  "public_structure_ok": [
+    "acheel",
+    "betclic",
+    "bitstack",
+    "boursobank",
+    "bybit",
+    "coinbase",
+    "ebuyclub",
+    "gemini",
+    "igraal",
+    "joko",
+    "kraken",
+    "ledger",
+    "poulpeo",
+    "revolut",
+    "robinhood",
+    "swissborg",
+    "totalenergies",
+    "traderepublic",
+    "unibet",
+    "widilo",
+    "winamax"
+  ],
+  "public_structure_ok_count": 21,
+  "missing_source": [
+    "paypal"
+  ],
+  "structure_fail": [],
+  "needs_canonical_parrainage_co": [
+    "vinted",
+    "nrj-mobile",
+    "okx",
+    "plum",
+    "whatnot",
+    "paypal"
+  ],
+  "kraken_canary": {
+    "announcement_url": "https://parrainage.co/offers/113735",
+    "structure_preserved": true,
+    "changed_fields": {
+      "personal_code": {
+        "old": "cpbrgddy",
+        "new": "4hpz4gdy"
+      },
+      "personal_link": {
+        "old": "https://invite.kraken.com/JDNW/s5qudqe4",
+        "new": "https://proinvite.kraken.com/9f1e/lqbuov8u"
+      },
+      "referee_reward": {
+        "old": "200 € en cryptomonnaies",
+        "new": "20 € en Bitcoin selon l’offre"
+      }
+    },
+    "writer_dry_run": "ready",
+    "live_write": false
+  },
+  "boursobank": {
+    "code_in_offers": null,
+    "code_in_platform_immutable": "ADBE5645",
+    "link_mutable_platform_vs_offers": true,
+    "note": "code offers null — code platform left immutable; no invented code"
+  },
+  "winamax": {
+    "code_mutable": "AD8RAY",
+    "link_in_offers": null,
+    "link_in_golden_immutable": "https://www.winamax.fr/parrain?code=AD8RAY",
+    "note": "link offers null — left immutable in golden"
+  },
+  "paypal": {
+    "status": "NOT_ON_PUBLIC_PROFILE",
+    "announcement_url": null,
+    "note": "cleared bad iGraal URL; needs auth/operator"
+  },
+  "status": "CANARY_READY"
+}

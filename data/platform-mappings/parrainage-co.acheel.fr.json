@@ -32,11 +32,12 @@
     "personal_code": "high",
     "referee_reward": "high"
   },
-  "notes": "lien offers.json non trouve dans le texte; public profile; public profile",
+  "notes": "lien offers.json non trouve dans le texte; site_code_widget=ADBE5645",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",
     "referee_reward": "offers_json_then_official",
     "announcement_text": "platform_target_only"
-  }
+  },
+  "quality": "public_refetch"
 }

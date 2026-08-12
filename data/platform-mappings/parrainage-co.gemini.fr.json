@@ -35,11 +35,12 @@
     "personal_link": "medium",
     "referee_reward": "medium"
   },
-  "notes": "lien plateforme != offers.json; bonus extrait du texte plateforme (confiance moyenne); public profile; public profile",
+  "notes": "lien plateforme != offers.json; bonus extrait du texte plateforme (confiance moyenne); site_code_widget=wd8yn943e",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",
     "referee_reward": "offers_json_then_official",
     "announcement_text": "platform_target_only"
-  }
+  },
+  "quality": "public_refetch"
 }

@@ -32,12 +32,12 @@
     "personal_link": "high",
     "referee_reward": "medium"
   },
-  "notes": "bonus extrait du texte plateforme (confiance moyenne)",
+  "notes": "bonus extrait du texte plateforme (confiance moyenne); site_code_widget=adrienb-999a02",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",
     "referee_reward": "offers_json_then_official",
     "announcement_text": "platform_target_only"
   },
-  "quality": "cleaned_body"
+  "quality": "public_refetch"
 }

@@ -1,9 +1,1 @@
-⚡️ Offre Parrainage iGraal – 15 € offerts ⚡
-
-⚡ Bonus : {{REFEREE_REWARD}}
-
-⸻
-
-⭐️ Lien de parrainage :
-
-➡️ {{PERSONAL_LINK}}
+[PLACEHOLDER — PayPal non present sur le profil public parrainage.co/user/adrien89]\nAncienne URL mapping etait incorrecte (edit iGraal 75178).\nRecapture requise depuis le compte authentifie ou URL fournie par operateur.\n

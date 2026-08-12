@@ -1,7 +1,7 @@
 {
   "version": 1,
   "source_profile": "https://www.super-parrain.com/users/adrien-b-8",
-  "count": 6,
+  "count": 12,
   "items": [
     {
       "name": "Vinted",
@@ -135,6 +135,133 @@
       },
       "notes": [
         "bonus extrait du texte plateforme (confiance moyenne)"
+      ]
+    },
+    {
+      "name": "Vinted",
+      "program_key": "vinted",
+      "url": "https://parrainage.co/offers/118536",
+      "platform": "parrainage-co",
+      "language": "fr",
+      "status": "needs_canonical_data",
+      "reason": "aucune entree canonique dans offers.json (pas de creation auto)",
+      "golden_file": "data/orphans/parrainage-co/vinted.fr.golden.txt",
+      "golden_text": "⚡️ Offre Parrainage Vinted – Inscription rapide & achats/ventes sécurisés ⚡️\n\n⚡ Bonus : inscription via mon lien de parrainage ✅\n\n⸻\n\n➡️ Code parrainage : weeew89\n\n➡️ Lien de parrainage :\n\nhttps://www.vinted.fr/invite/weeew89\n\n⸻\n\n✅ Comment profiter de l’offre & de Vinted :\n\n1. Inscrivez-vous sur Vinted via mon lien de parrainage\n\n2. Créez votre profil en quelques minutes\n\n3. Commencez à :\n\n• Mettre en vente vos vêtements, chaussures, accessoires, déco, etc.\n\n• Ou acheter des articles jusqu’à -70% du prix neuf\n\n⸻\n\nℹ️ À savoir :\n\n• Vinted ne prend aucune commission sur vos ventes (vous touchez le montant fixé, hors frais d’envoi)\n\n• Paiements sécurisés & protection acheteur intégrée\n\n• Idéal pour faire du tri, gagner de l’argent et consommer plus responsable\n\n⸻\n\n⭐️ Besoin d’aide pour bien vendre (prix, photos, description) ou optimiser tes achats ?\n\nDM-moi — je peux t’accompagner pas à pas\n\n Contacter ce membre\n\nPour votre sécurité, privilégiez la\nmessagerie interne\n du site pour échanger avec un parrain. Les liens figurant dans les annonces sont publiés sous la seule responsabilité de leurs auteurs.\n\nRestez également vigilant face aux promesses de reversement de prime trop généreuses : fiez-vous uniquement aux avantages officiels du programme de parrainage pour éviter toute déception.\n\nParrainage\n.co\n\nLe site de parrainage de reference en France. Trouvez un",
+      "detected_values": {
+        "personal_link": "https://www.vinted.fr/invite/weeew89",
+        "referee_reward": "inscription via mon lien de parrainage ✅",
+        "personal_code": "weeew89"
+      },
+      "confidences": {
+        "personal_link": "high",
+        "referee_reward": "medium",
+        "personal_code": "high"
+      },
+      "notes": [
+        "bonus extrait du texte plateforme (confiance moyenne)",
+        "code extrait du widget site Code parrainage"
+      ]
+    },
+    {
+      "name": "NRJ Mobile",
+      "program_key": "nrj-mobile",
+      "url": "https://parrainage.co/offers/125100",
+      "platform": "parrainage-co",
+      "language": "fr",
+      "status": "needs_canonical_data",
+      "reason": "aucune entree canonique dans offers.json (pas de creation auto)",
+      "golden_file": "data/orphans/parrainage-co/nrj-mobile.fr.golden.txt",
+      "golden_text": "⭐️ Offre Parrainage NRJ Mobile – 10 € offerts chacun ⭐️\n\n⚡ Bonus : 10 € pour vous + 10 € pour votre filleul après 2 mois d’abonnement validés ⚡\n\nProfitez d’un forfait NRJ Mobile avantageux tout en recevant une récompense grâce au parrainage.\n\n⭐️ Lien de parrainage :\n\n➡️ https://aklam.io/1yzORChP\n\n⸻\n\n✅ Comment profiter de l’offre :\n\n1. Cliquez sur le lien de parrainage ci-dessus\n\n2. Inscrivez-vous avec votre adresse e-mail\n\n3. Souscrivez à un forfait NRJ Mobile\n\n4. Restez abonné pendant au moins 2 mois (2 factures complètes réglées)\n\n5. Vous recevrez tous les deux 10 € une fois les conditions validées\n\n⸻\n\n⭐️ À savoir :\n\n• Offre réservée aux nouveaux clients NRJ Mobile\n\n• La récompense est validée après paiement de 2 factures complètes\n\n• La validation peut prendre jusqu’à 60 jours\n\n• Vous recevrez un e-mail de confirmation une fois la récompense disponible\n\n⸻\n\n⭐️ Besoin d’aide ou d’un suivi personnalisé ?\n\nDM-moi — je vous accompagne étape par étape\n\n↪️ https://discord.gg/dDEMb6\n\n Contacter ce membre\n\nPour votre sécurité, privilégiez la\nmessagerie interne\n du site pour échanger avec un parrain. Les liens figurant dans les annonces sont publiés sous la seule responsabilité de leurs auteurs.\n\nRestez également vigilant face aux promesses de reversement de prime trop généreuses : fiez-vous uniquement aux avantages officiels du programme de parrainage pour éviter toute déception.\n\nParrainage\n.co\n\nLe site de parrainage de reference en France. Trouvez un",
+      "detected_values": {
+        "personal_link": "https://aklam.io/1yzORChP",
+        "referee_reward": "10 € pour vous + 10 € pour votre filleul après 2 mois d’abonnement validés",
+        "personal_code": "1yzORChP"
+      },
+      "confidences": {
+        "personal_link": "high",
+        "referee_reward": "medium",
+        "personal_code": "high"
+      },
+      "notes": [
+        "bonus extrait du texte plateforme (confiance moyenne)",
+        "code extrait du widget site Code parrainage"
+      ]
+    },
+    {
+      "name": "Okx (ex OKEx)",
+      "program_key": "okx",
+      "url": "https://parrainage.co/offers/123892",
+      "platform": "parrainage-co",
+      "language": "fr",
+      "status": "needs_canonical_data",
+      "reason": "aucune entree canonique dans offers.json (pas de creation auto)",
+      "golden_file": "data/orphans/parrainage-co/okx.fr.golden.txt",
+      "golden_text": "⚡ OKX – Jusqu’à 250 € offerts en Bitcoin ⚡\n\n✅ Profitez de récompenses en BTC en vous inscrivant via mon lien de parrainage :\n\n⭐️ Lien de parrainage :\n\n➡️ https://my.okx.com/fr-fr/join/28947271\n\n⭐️ Code parrain : 28947271 (normalement pré-rempli)\n\n⸻\n\n✅ Avantages pour vous :\n\n• Jusqu’à 250 € offerts en Bitcoin\n\n• Bonus accessibles via dépôt et achat de cryptomonnaies\n\n• Plateforme crypto complète (trading, Earn, futures, etc.)\n\n⸻\n\n⭐️ Conditions à remplir :\n\n⭐️ 25 € en BTC :\n\n• Déposer au moins 200 € (cash ou crypto)\n\n• Acheter au moins 200 € en cryptomonnaies\n\n⭐️ 225 € en BTC :\n\n• Déposer au moins 1 000 € (cash ou crypto)\n\n• Acheter au moins 1 000 € en cryptomonnaies\n\n⸻\n\n⭐️ À savoir :\n\n• Offre limitée dans le temps (environ 13 jours restants)\n\n• Récompenses en Bitcoin après validation des conditions\n\n• Offre réservée aux nouveaux utilisateurs\n\n⸻\n\n⭐️ Je suis disponible pour vous guider à chaque étape (inscription, vérification, dépôt, achat…)\n\n⭐️ Besoin d’aide ou d’un suivi personnalisé ? Envoie-moi un message privé, je réponds rapidement\n\n↪️ https://discord.gg/dDEMb6jEbn ↩️\n\n Contacter ce membre\n\nPour votre sécurité, privilégiez la\nmessagerie interne\n du site pour échanger avec un parrain. Les liens figurant dans les annonces sont publiés sous la seule responsabilité de leurs auteurs.\n\nRestez également vigilant face aux promesses de reversement de prime trop généreuses : fiez-vous uniquement aux avantages officiels du programme de parrainage pour éviter toute déception.\n\nParrainage\n.co\n\nLe site de parrainage de reference en France. Trouvez un",
+      "detected_values": {
+        "personal_code": "28947271",
+        "personal_link": "https://my.okx.com/fr-fr/join/28947271"
+      },
+      "confidences": {
+        "personal_code": "high",
+        "personal_link": "high"
+      },
+      "notes": [
+        "bonus non marque (ambigu / non trouve) — texte laisse fixe"
+      ]
+    },
+    {
+      "name": "Plum",
+      "program_key": "plum",
+      "url": "https://parrainage.co/offers/122884",
+      "platform": "parrainage-co",
+      "language": "fr",
+      "status": "needs_canonical_data",
+      "reason": "aucune entree canonique dans offers.json (pas de creation auto)",
+      "golden_file": "data/orphans/parrainage-co/plum.fr.golden.txt",
+      "golden_text": "⭐ Offre Parrainage Plum – 10 € offerts\n\n⚡ Bonus : 10 € offerts après inscription et premier dépôt\n\nPlum est une application d’épargne intelligente qui automatise vos économies et vos investissements.\n\n⭐️ Lien de parrainage :\n\nhttps://withplum.com/referral?referralCode=Kt8HyIuJ7V\n\n⭐️ Code parrain : Kt8HyIuJ7V\n\n✅ Étapes pour obtenir le bonus :\n\n1. Inscrivez-vous gratuitement sur Plum via le lien de parrainage\n\n2. Configurez une règle d’épargne intelligente (ex : arrondis automatiques)\n\n3. Effectuez un premier dépôt sur un compte Plum Intérêts ou un compte d’investissement\n\n4. Une fois les étapes validées, la prime de 10 € est automatiquement créditée\n\nℹ️ À savoir :\n\n• Offre valable jusqu’au 14 mai\n\n• Offre réservée aux nouveaux utilisateurs\n\n• Le dépôt doit être réalisé via une fonctionnalité d’épargne Plum\n\n• Application idéale pour épargner automatiquement sans y penser\n\n⭐ Besoin d’aide ou d’un suivi personnalisé\n\nDM-moi — je vous guide étape par étape\n\n↪️ https://discord.gg/dDEMb6jEbn ↩️",
+      "detected_values": {
+        "personal_code": "Kt8HyIuJ7V",
+        "personal_link": "https://withplum.com/referral?referralCode=Kt8HyIuJ7V",
+        "referee_reward": "10 € offerts après inscription et premier dépôt"
+      },
+      "confidences": {
+        "personal_code": "high",
+        "personal_link": "high",
+        "referee_reward": "medium"
+      },
+      "notes": [
+        "bonus extrait du texte plateforme (confiance moyenne)"
+      ]
+    },
+    {
+      "name": "Whatnot",
+      "program_key": "whatnot",
+      "url": "https://parrainage.co/offers/125961",
+      "platform": "parrainage-co",
+      "language": "fr",
+      "status": "needs_canonical_data",
+      "reason": "aucune entree canonique dans offers.json (pas de creation auto)",
+      "golden_file": "data/orphans/parrainage-co/whatnot.fr.golden.txt",
+      "golden_text": "⭐️ Besoin d’aide pour trouver les meilleurs lives ou maximiser tes gains ?\n\nDM-moi — je t’aide à optimiser tes achats et parrainages\n\n Contacter ce membre\n\nPour votre sécurité, privilégiez la\nmessagerie interne\n du site pour échanger avec un parrain. Les liens figurant dans les annonces sont publiés sous la seule responsabilité de leurs auteurs.\n\nRestez également vigilant face aux promesses de reversement de prime trop généreuses : fiez-vous uniquement aux avantages officiels du programme de parrainage pour éviter toute déception.\n\nParrainage\n.co\n\nLe site de parrainage de reference en France. Trouvez un",
+      "detected_values": {},
+      "confidences": {},
+      "notes": [
+        "bonus non marque (ambigu / non trouve) — texte laisse fixe"
+      ]
+    },
+    {
+      "name": "PayPal",
+      "program_key": "paypal",
+      "url": null,
+      "platform": "parrainage-co",
+      "language": "fr",
+      "status": "needs_canonical_data",
+      "reason": "absent du profil public; URL annonce inconnue (mapping iGraal corrige/supprime)",
+      "golden_file": null,
+      "detected_values": {},
+      "confidences": {},
+      "notes": [
+        "offers.json has paypal link py.pl — platform announcement not found publicly"
       ]
     }
   ]
