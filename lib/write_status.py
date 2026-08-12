@@ -80,9 +80,8 @@ DEFAULT_STATUS: dict[str, dict[str, Any]] = {
         "status": STATUS_CANARY_READY,
         "canary_program": "kraken",
         "notes": (
-            "CANARY_READY: Agent Import schema v1.0 validated locally "
-            "(shop+discount+url|code). Payload via prepare_referralcodes_agent_import. "
-            "WRITE_VERIFIED after login → /profile/import/agent Validate+Commit + post_match."
+            "CANARY_READY: Agent Import schema v1.0 + login/Validate/Commit/reread path. "
+            "Kraken first. WRITE_VERIFIED after post_match. Sequential after 1Parrainage PASS."
         ),
         "prefer": "official_import",
         "import_ui": "https://referralcodes.com/profile/import/agent",

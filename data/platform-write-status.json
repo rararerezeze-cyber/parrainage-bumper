@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-08-12T22:53:31.954016+00:00",
+  "updated_at": "2026-08-12T23:16:31.909123+00:00",
   "note": "Strict write readiness. WRITE_VERIFIED requires full post-verify evidence. Telegram live writes only for WRITE_VERIFIED platforms.",
   "write_verified_count": 0,
   "write_verified_ratio": "0/7",
@@ -30,7 +30,7 @@
     "referralcodes": {
       "status": "CANARY_READY",
       "canary_program": "kraken",
-      "notes": "Agent Import schema validated + kraken payload ready",
+      "notes": "CANARY_READY: Agent Import schema v1.0 + login/Validate/Commit/reread path. Kraken first. WRITE_VERIFIED after post_match. Sequential after 1Parrainage PASS.",
       "prefer": "official_import",
       "import_ui": "https://referralcodes.com/profile/import/agent"
     },

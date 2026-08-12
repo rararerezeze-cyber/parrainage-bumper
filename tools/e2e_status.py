@@ -95,6 +95,16 @@ def main() -> int:
             report["MULTIPROGRAM_DRY_RUN_READY"] = "NO"
     else:
         report["MULTIPROGRAM_DRY_RUN_READY"] = "NO"
+    packs = ROOT / "data" / "captures" / "post-super-canary-packs.json"
+    if packs.exists():
+        try:
+            report["POST_SUPER_CANARIES_ARMED"] = json.loads(
+                packs.read_text(encoding="utf-8")
+            ).get("POST_SUPER_CANARIES_ARMED", "NO")
+        except Exception:
+            report["POST_SUPER_CANARIES_ARMED"] = "NO"
+    else:
+        report["POST_SUPER_CANARIES_ARMED"] = "NO"
 
     out = ROOT / "data" / "captures" / "e2e-status.json"
     out.parent.mkdir(parents=True, exist_ok=True)

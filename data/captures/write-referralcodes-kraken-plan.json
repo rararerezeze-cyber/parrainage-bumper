@@ -1,0 +1,27 @@
+{
+  "execute": false,
+  "ok": true,
+  "validation_ok": true,
+  "import_ui": "https://referralcodes.com/profile/import/agent",
+  "payload": {
+    "version": "1.0",
+    "items": [
+      {
+        "shop": "kraken",
+        "discount": "20 € en Bitcoin selon l’offre",
+        "url": "https://proinvite.kraken.com/9f1e/lqbuov8u",
+        "code": "4hpz4gdy",
+        "description": "Autofresh canary/import for kraken"
+      }
+    ]
+  },
+  "pipeline": [
+    "login_email_password",
+    "open_agent_import",
+    "paste_kraken_json",
+    "validate",
+    "commit",
+    "reread_public_profile"
+  ],
+  "live": false
+}

@@ -69,6 +69,14 @@ def main() -> int:
         print("--execute requiert --force", file=sys.stderr)
         return 2
 
+    from lib.canary_gate import guard_live_execute, record_live_failure, record_live_success
+
+    gate = guard_live_execute("parrainage-co")
+    if not gate.get("ok"):
+        print(f"REFUSED: {gate.get('error')}", file=sys.stderr)
+        print(json.dumps(gate, ensure_ascii=False, indent=2))
+        return 2
+
     print("\n=== EXECUTE REAL WRITE parrainage.co ===")
     result = asyncio.run(execute_write(plan, dry_run=False))
     path = OUT / f"write-parrainage-co-{args.program}.json"
@@ -129,9 +137,11 @@ def main() -> int:
             },
         }
         promo = mark_write_verified("parrainage-co", program=args.program, evidence=evidence)
+        record_live_success("parrainage-co")
         print(f"WRITE_VERIFIED parrainage-co registry={promo}")
         return 0 if promo.get("ok") else 1
 
+    record_live_failure("parrainage-co", result.error or "write_failed")
     try:
         from lib.write_status import mark_canary_failed
 

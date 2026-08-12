@@ -26,10 +26,10 @@ Resume point for the next Codex session. Reconstruct from this file + git + stat
 | Platform | Status | Telegram | Notes |
 |---|---|---|---|
 | super-parrain | CANARY_READY + CANARY_PENDING | CANARY_ONLY | Historical bumper SKIP. Canary scheduled ~05:37 UTC. `last_super_run.txt` = `2026-08-12T05:37:10.549152`. Next eligible `2026-08-13T05:37:10.549152+00:00`. |
-| parrainage-co | CANARY_READY | CANARY_ONLY | Login (RM cookie preferred) + edit + save + reread. Prefer `PARRAINAGE_CO_RM_COOKIE`. |
-| code-parrainage | CANARY_READY | CANARY_ONLY | Login + slider (historical) + edit + save + reread. |
-| 1parrainage | **CANARY_READY** | CANARY_ONLY | Pipeline implemented this session. Login is `/login` (not `connexion.php`). Kraken `offer_id=100408`. No live write. |
-| referralcodes | CANARY_READY | CANARY_ONLY | Official Agent Import schema validated. No browser CAPTCHA path. |
+| parrainage-co | CANARY_READY | CANARY_ONLY | **ARMED.** Login (RM cookie preferred) + edit `.../edit/113735` + save + reread. After Super PASS only. |
+| code-parrainage | CANARY_READY | CANARY_ONLY | **ARMED.** Login + slider + edit `/modif/84601` + save + reread. After parrainage-co PASS only. |
+| 1parrainage | CANARY_READY | CANARY_ONLY | **ARMED.** `/login` + offer_id `100408` + save + reread. After code-parrainage PASS only. |
+| referralcodes | CANARY_READY | CANARY_ONLY | **ARMED.** Agent Import JSON validated + login/Validate/Commit/reread path. After 1Parrainage PASS only. No Google/Facebook. |
 | referralcode-tv | WRITE_PREPARED | PLAN_ONLY | Public author: 12 listings / 10 mappings. **Authenticated edit URL not proven.** Boost `#cliccami` ≠ content edit. |
 | referraldrop | AUTH_BLOCKED_GOOGLE | AUTH_BLOCKED | Google Sign-In. No OAuth bypass. Stay blocked. |
 
@@ -37,13 +37,15 @@ Resume point for the next Codex session. Reconstruct from this file + git + stat
 - Super PASS: **false**
 - Hermes interface: READY + PRODUCTION_READY (lock + persist_confirmed + idempotency ledger + snapshot)
 - Monitor: OBSERVATION_ONLY + SHADOW engine ready (no auto-accept)
-- Orchestrator after Super: armed, waiting Super PASS (`sequence-after-super` → `SUPER_PENDING`)
+- Orchestrator: one-at-a-time, predecessor PASS required (`lib/canary_gate.py`)
+- `POST_SUPER_CANARIES_ARMED` = **YES** — after Super PASS only trigger, do not rebuild
 
 ### Goal flags
 
 | Flag | Value |
 |---|---|
 | ALL_NON_BLOCKED_PLATFORMS_CANARY_READY | **NO** (ReferralCode.tv still WRITE_PREPARED) |
+| POST_SUPER_CANARIES_ARMED | **YES** |
 | MULTIPROGRAM_DRY_RUN_READY | **YES** |
 | HERMES_PRODUCTION_READY | **YES** |
 | MONITOR_SHADOW_READY | **YES** |
@@ -61,9 +63,18 @@ Historical bumpers (content-unrelated bump):
   bump_super_parrain.yml  → CANARY_PENDING → SKIP
   bump_autres.yml         → code + parrainage.co (+ referralcode bump, not content edit)
 
-Content canaries:
-  activation_canary.yml   → sole Super-Parrain saver while CANARY_PENDING
-  controlled_write_*.py   → platform writers (execute only with --force)
+Content canaries (strict sequence, never parallel):
+  1. Super-Parrain     activation_canary.yml (05:37 UTC, owns cooldown)
+  2. parrainage-co     only if Super WRITE_VERIFIED
+  3. code-parrainage   only if parrainage-co WRITE_VERIFIED
+  4. 1parrainage       only if code-parrainage WRITE_VERIFIED
+  5. referralcodes     only if 1parrainage WRITE_VERIFIED
+  6. referralcode-tv   blocked until auth/edit proven (do not re-login this cycle)
+
+  python tools/activation_orchestrator.py next-executable
+  python tools/activation_orchestrator.py canary --platform <next>
+  # live requires AUTOFRESH_SEQUENCE_LIVE=1
+  # or: activation_canary.yml platform=… execute=true (same gate)
 
 Monitor:
   monitor.py --all        → observation only
@@ -123,6 +134,8 @@ Concurrency: Super canary + Super bumper share `parrainage-bumper-super`.
 - `lib/hermes_interface.py` — lock, persist_confirmed, ledger
 - `lib/operator_overrides.py` — atomic save + re-read
 - `lib/safety.py` — snapshot / rollback / audit / circuits
+- `lib/canary_gate.py` — sequential one-at-a-time predecessor PASS
+- `tools/controlled_write_referralcodes.py`
 - `lib/monitor/shadow.py` — SHADOW engine
 - `monitor.py --shadow`
 - `data/circuit-breakers.json`
@@ -164,13 +177,15 @@ Do this in order. Stop if any step is 403/429/CAPTCHA/auth/unexpected DOM.
 
 1. `git fetch && git checkout autofresh/phase2b-kraken-capture && git pull && git log -1 --oneline`
 2. Confirm Super still `CANARY_PENDING` and `last_super_run.txt` unchanged. If `now >= 2026-08-13T05:37:10Z`, inspect latest `activation_canary.yml` run artifacts (`data/captures/activation-canary-result.json`). Do **not** start a second Super live write if one is in flight or already attempted this window.
-3. If Super canary `post_match=true` → `WRITE_VERIFIED` / `NORMAL_BUMP` → run:
+3. If Super canary `post_match=true` → `WRITE_VERIFIED` / `NORMAL_BUMP` → fire **exactly one** next platform:
    ```
-   python tools/activation_orchestrator.py after-super
-   python tools/activation_orchestrator.py sequence-after-super
+   python tools/activation_orchestrator.py next-executable
+   # expect next=parrainage-co
+   AUTOFRESH_SEQUENCE_LIVE=1 python tools/activation_orchestrator.py canary --platform parrainage-co
+   # or workflow_dispatch activation_canary.yml platform=parrainage-co execute=true
    ```
-   Then canary **parrainage-co** then **code-parrainage** (one session each, `activation_canary.yml` execute=true).
-4. If Super still pending: **do not immediately re-probe RCTV** (last cycle already consumed). After a later window, one READ-ONLY `--auth` with timeout raised only if logs show a slow `/login` (not challenge). If `EDIT_URLS_FOUND`, wire `edit_url` into mappings and promote CANARY_READY. Else leave WRITE_PREPARED.
+   Wait for that PASS. Then the next (`code-parrainage`), never two at once. Packs already exist in `data/captures/canary-pack-*.json`. Do not rebuild writers.
+4. If Super still pending: **do not re-login RCTV** (timeout already used this cycle). Post-Super platforms are armed — nothing to configure.
 5. Optional READ-ONLY 1Parrainage edit URL proof (`sites=oneparrainage`) to store real `edit_url` for kraken `100408`. Not required for CANARY_READY; required before first live 1Parrainage canary.
 6. Do not auto-accept SHADOW decisions. Do not live-write 1Parrainage / RCTV / ReferralCodes tonight.
 
@@ -182,6 +197,8 @@ Do this in order. Stop if any step is 403/429/CAPTCHA/auth/unexpected DOM.
 - `data/captures/activation-orchestrator-status.json`
 - `data/captures/activation-sequence-after-super.json`
 - `data/captures/multiprogram-dry-run.json`
+- `data/captures/post-super-canary-packs.json`
+- `data/captures/canary-pack-parrainage-co.json` (and code-parrainage / 1parrainage / referralcodes)
 - `data/captures/monitor-shadow-report.json`
 - `data/circuit-breakers.json`
 - `last_super_run.txt`

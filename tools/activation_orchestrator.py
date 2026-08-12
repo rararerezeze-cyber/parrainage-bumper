@@ -29,13 +29,18 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+from lib.canary_gate import (  # noqa: E402
+    POST_SUPER_EXECUTABLE,
+    may_execute_canary,
+    next_executable,
+    predecessor,
+    write_all_packs,
+)
 from lib.write_status import (  # noqa: E402
-    STATUS_AUTH_BLOCKED,
     STATUS_CANARY_READY,
     STATUS_WRITE_PREPARED,
     STATUS_WRITE_VERIFIED,
     get_platform_status,
-    load_write_status,
     summary as write_summary,
 )
 
@@ -77,7 +82,7 @@ PREPARE_CMDS: dict[str, list[str]] = {
     ],
     "referralcodes": [
         sys.executable,
-        "tools/prepare_referralcodes_agent_import.py",
+        "tools/controlled_write_referralcodes.py",
         "--program",
         "kraken",
     ],
@@ -93,13 +98,18 @@ def queue_state() -> dict:
     rows = []
     for i, plat in enumerate(QUEUE, start=1):
         st = get_platform_status(plat)
+        pred = predecessor(plat)
+        gate = may_execute_canary(plat, for_super=False)
         rows.append(
             {
                 "order": i,
                 "platform": plat,
                 "status": st,
+                "predecessor": pred,
                 "done": st == STATUS_WRITE_VERIFIED,
-                "ready_for_canary": st in {STATUS_CANARY_READY, STATUS_WRITE_PREPARED},
+                "ready_for_canary": st == STATUS_CANARY_READY,
+                "may_execute_now": bool(gate.get("ok")),
+                "gate_error": None if gate.get("ok") else gate.get("error"),
             }
         )
     next_plat = None
@@ -118,11 +128,15 @@ def queue_state() -> dict:
         "skipped": SKIP,
         "gate": {
             "after_super_only_for_auto_sequence": True,
+            "one_at_a_time": True,
+            "predecessor_must_pass": True,
             "note": (
-                "Auto sequence of platforms 2+ should start only when "
-                "super-parrain is WRITE_VERIFIED (Super PASS)."
+                "Auto sequence of platforms 2+ starts only when super-parrain "
+                "is WRITE_VERIFIED. Each later platform waits for the previous "
+                "WRITE_VERIFIED. Never two sessions."
             ),
         },
+        "next_executable": next_executable(for_super=False).get("next"),
     }
 
 
@@ -195,24 +209,71 @@ def cmd_multiprogram_dry_run() -> int:
     return 0 if out.get("MULTIPROGRAM_DRY_RUN_READY") == "YES" else 1
 
 
-def cmd_sequence_after_super(*, execute: bool) -> int:
-    """Finalize sequential orchestration after Super PASS.
+def cmd_gate(platform: str) -> int:
+    gate = may_execute_canary(platform, for_super=False)
+    print(json.dumps(gate, ensure_ascii=False, indent=2))
+    return 0 if gate.get("ok") else 2
 
-    Tonight: dry-prepare remaining platforms only. Live execute is refused
-    unless Super is WRITE_VERIFIED *and* AUTOFRESH_SEQUENCE_LIVE=1.
-    Super-Parrain cooldown is never forced.
-    """
+
+def cmd_next_executable() -> int:
+    nxt = next_executable(for_super=False)
+    print(json.dumps(nxt, ensure_ascii=False, indent=2))
+    if nxt.get("next"):
+        print(f"NEXT_EXECUTABLE={nxt['next']}")
+        return 0
+    print("NONE")
+    return 1
+
+
+def cmd_canary(platform: str) -> int:
+    """Live-execute exactly one platform if predecessor PASSed. Never parallel."""
+    import os
+
+    gate = may_execute_canary(platform, for_super=False)
+    if not gate.get("ok"):
+        print(f"REFUSED: {gate.get('error')}", file=sys.stderr)
+        print(json.dumps(gate, ensure_ascii=False, indent=2))
+        return 2
+    nxt = next_executable(for_super=False).get("next")
+    if nxt != platform:
+        print(
+            f"REFUSED: not the next executable (next={nxt}, asked={platform})",
+            file=sys.stderr,
+        )
+        return 2
+    if os.environ.get("AUTOFRESH_SEQUENCE_LIVE") != "1":
+        print("REFUSED: canary execute requires AUTOFRESH_SEQUENCE_LIVE=1")
+        return 2
+    cmd = PREPARE_CMDS[platform] + ["--execute", "--force"]
+    print("RUN:", " ".join(cmd))
+    proc = subprocess.run(cmd, cwd=str(ROOT))
+    return proc.returncode
+
+
+def cmd_arm_packs() -> int:
+    payload = write_all_packs("kraken")
+    print(json.dumps(payload, ensure_ascii=False, indent=2))
+    print(f"POST_SUPER_CANARIES_ARMED={payload.get('POST_SUPER_CANARIES_ARMED')}")
+    return 0 if payload.get("POST_SUPER_CANARIES_ARMED") == "YES" else 1
+
+
+def cmd_sequence_after_super(*, execute: bool) -> int:
+    """After Super PASS: fire exactly ONE next platform (never the whole queue)."""
     st = queue_state()
     path = ROOT / "data" / "captures" / "activation-sequence-after-super.json"
+    nxt = next_executable(for_super=False)
     if not st["super_pass"]:
         payload = {
             "result": "SUPER_PENDING",
             "super_parrain": st["super_parrain"],
             "next": st["next"],
+            "next_executable": nxt.get("next"),
+            "one_at_a_time": True,
             "live": False,
+            "armed": list(POST_SUPER_EXECUTABLE),
             "note": (
-                "Auto sequence of platforms 2+ starts only after Super-Parrain "
-                "WRITE_VERIFIED. Keep CANARY_PENDING intact."
+                "Sequence armed. After Super WRITE_VERIFIED fire only "
+                "parrainage-co, then wait for its PASS, then the next."
             ),
         }
         path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
@@ -220,34 +281,25 @@ def cmd_sequence_after_super(*, execute: bool) -> int:
         print("sequence armed — waiting Super PASS")
         return 0
 
-    if execute:
-        import os
+    if not execute:
+        remaining = [r for r in st["queue"] if not r["done"] and r["platform"] != "super-parrain"]
+        payload = {
+            "result": "SUPER_PASS_READY",
+            "next_executable": nxt.get("next"),
+            "remaining": remaining,
+            "one_at_a_time": True,
+            "live": False,
+        }
+        path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0
 
-        if os.environ.get("AUTOFRESH_SEQUENCE_LIVE") != "1":
-            print("REFUSED: --execute requires AUTOFRESH_SEQUENCE_LIVE=1 after Super PASS")
-            return 2
-
-    remaining = [r for r in st["queue"] if not r["done"] and r["platform"] != "super-parrain"]
-    results = []
-    rc = 0
-    for r in remaining:
-        print(f"\n=== sequence prepare {r['platform']} ===")
-        code = cmd_prepare(r["platform"])
-        results.append({"platform": r["platform"], "prepare_rc": code, "live": False})
-        if code != 0:
-            rc = code
-            print(f"STOP sequence at {r['platform']} rc={code}")
-            break
-    payload = {
-        "result": "SUPER_PASS_SEQUENCE",
-        "remaining": remaining,
-        "prepare_results": results,
-        "live": False,
-        "execute_requested": execute,
-    }
-    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps(payload, ensure_ascii=False, indent=2))
-    return rc
+    target = nxt.get("next")
+    if not target:
+        print("NO_NEXT_EXECUTABLE")
+        return 0
+    print(f"ONE_AT_A_TIME next={target}")
+    return cmd_canary(target)
 
 
 def cmd_prepare_all_pending(*, require_super_pass: bool) -> int:
@@ -301,8 +353,17 @@ def main() -> int:
     seq.add_argument(
         "--execute",
         action="store_true",
-        help="Reserved. Live execute is refused unless Super PASS + explicit env.",
+        help="Fire ONLY the next executable platform (needs AUTOFRESH_SEQUENCE_LIVE=1).",
     )
+
+    gt = sub.add_parser("gate", help="May this platform execute a live canary now?")
+    gt.add_argument("--platform", required=True)
+
+    sub.add_parser("next-executable", help="Single next platform allowed to fire")
+    sub.add_parser("arm-packs", help="Write post-Super canary packs (no live write)")
+
+    cy = sub.add_parser("canary", help="Execute exactly one platform if it is next")
+    cy.add_argument("--platform", required=True)
 
     args = p.parse_args()
     if args.cmd == "status":
@@ -319,6 +380,14 @@ def main() -> int:
         return cmd_multiprogram_dry_run()
     if args.cmd == "sequence-after-super":
         return cmd_sequence_after_super(execute=args.execute)
+    if args.cmd == "gate":
+        return cmd_gate(args.platform)
+    if args.cmd == "next-executable":
+        return cmd_next_executable()
+    if args.cmd == "arm-packs":
+        return cmd_arm_packs()
+    if args.cmd == "canary":
+        return cmd_canary(args.platform)
     return 2
 
 

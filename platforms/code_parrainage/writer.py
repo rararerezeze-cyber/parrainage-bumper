@@ -21,6 +21,7 @@ from lib.http_fetch import fetch_text
 from lib.mapping_guards import write_blocked_reason
 from lib.offers import OffersRepository
 from lib.phase import content_write_allowed, phase_name
+from lib.safety import live_write_blocked_reason, maybe_trip_from_error
 from lib.renderer import MappingRepository, Renderer, TemplateRepository
 from lib.template_builder import extract_values_via_template
 
@@ -351,6 +352,9 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
             error=f"WRITE_BLOCKED: {blocked}",
             steps=["blocked"],
         )
+    circ = live_write_blocked_reason("code-parrainage")
+    if circ and not dry_run:
+        return WriteResult(ok=False, plan=plan, error=f"CIRCUIT_OPEN: {circ}", steps=["circuit"])
     if not plan.structure_preserved:
         return WriteResult(
             ok=False, plan=plan, error="structure_not_preserved", steps=steps
@@ -431,6 +435,7 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
             except Exception:
                 pass
         except Exception as exc:
+            maybe_trip_from_error(str(exc), platform="code-parrainage")
             return WriteResult(
                 ok=False, plan=plan, edit_url=edit_url, error=str(exc), steps=steps
             )

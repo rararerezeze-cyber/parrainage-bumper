@@ -1,0 +1,50 @@
+{
+  "platform": "referralcodes",
+  "program": "kraken",
+  "status": "CANARY_READY",
+  "predecessor": "1parrainage",
+  "successor": "referralcode-tv",
+  "secrets": [
+    "REFERRALCODES_EMAIL",
+    "REFERRALCODES_PASSWORD"
+  ],
+  "tool": "tools/controlled_write_referralcodes.py",
+  "cli_plan": "python tools/controlled_write_referralcodes.py --program kraken",
+  "cli_execute_after_gates": "python tools/controlled_write_referralcodes.py --program kraken --execute --force",
+  "workflow": "activation_canary.yml",
+  "pipeline": [
+    "login_email_password",
+    "open_agent_import",
+    "paste_kraken_json",
+    "validate",
+    "commit",
+    "reread_public_profile"
+  ],
+  "snapshot_on_execute": true,
+  "rollback": "lib.safety.rollback_snapshot after failed live",
+  "circuit_breakers": true,
+  "one_at_a_time": true,
+  "requires_super_pass": true,
+  "requires_predecessor_pass": true,
+  "checks": {
+    "status_canary_ready": true,
+    "controlled_write_tool": true,
+    "predecessor_defined": true,
+    "circuit_closed": true,
+    "kraken_plan_ok": true,
+    "structure_or_schema_ok": true,
+    "pipeline_documented": true
+  },
+  "plan": {
+    "structure_preserved": null,
+    "validation_ok": true,
+    "changed_fields": null,
+    "announcement_url": null,
+    "edit_url": "https://referralcodes.com/profile/import/agent",
+    "action": null,
+    "live": false
+  },
+  "EXECUTABLE_AFTER_SUPER_PASS": "YES",
+  "live": false,
+  "at": "2026-08-12T23:16:27.858210+00:00"
+}

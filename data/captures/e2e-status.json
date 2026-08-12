@@ -83,5 +83,6 @@
   ],
   "note": "Product path: Hermes calls tools/hermes_autofresh.py or workflow hermes_operator.yml. telegram-worker is optional/test only. WRITE_VERIFIED requires real authenticated canary + post-verify.",
   "ALL_NON_BLOCKED_PLATFORMS_CANARY_READY": "NO",
-  "MULTIPROGRAM_DRY_RUN_READY": "YES"
+  "MULTIPROGRAM_DRY_RUN_READY": "YES",
+  "POST_SUPER_CANARIES_ARMED": "YES"
 }

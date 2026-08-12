@@ -2,6 +2,14 @@
   "result": "SUPER_PENDING",
   "super_parrain": "CANARY_READY",
   "next": "super-parrain",
+  "next_executable": null,
+  "one_at_a_time": true,
   "live": false,
-  "note": "Auto sequence of platforms 2+ starts only after Super-Parrain WRITE_VERIFIED. Keep CANARY_PENDING intact."
+  "armed": [
+    "parrainage-co",
+    "code-parrainage",
+    "1parrainage",
+    "referralcodes"
+  ],
+  "note": "Sequence armed. After Super WRITE_VERIFIED fire only parrainage-co, then wait for its PASS, then the next."
 }

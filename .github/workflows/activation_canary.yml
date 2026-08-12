@@ -214,25 +214,40 @@ jobs:
             exit 0
           fi
 
-          if [ "$P" = "referralcodes" ]; then
-            python -c "from platforms.referralcodes.writer import dry_run_report; import json; print(json.dumps(dry_run_report('$PROG'),indent=2,ensure_ascii=False))"
-            echo "ReferralCodes live canary requires validated Agent Import schema — dry-run only until schema probe lands."
-            exit 0
-          fi
-
           if [ "$P" = "referralcode-tv" ]; then
             python -c "from platforms.referralcode_tv.writer import dry_run_report; import json; print(json.dumps(dry_run_report('$PROG'),indent=2,ensure_ascii=False))"
-            echo "ReferralCode.tv: plan only until authenticated edit_url resolution is proven."
+            echo "ReferralCode.tv: plan only — do not re-login after last 30s timeout."
             python tools/probe_referralcode_tv_edit.py --public || true
             exit 0
           fi
 
-          # Generic controlled writers (parrainage-co / code-parrainage / 1parrainage)
-          TOOLS_MAP=""
+          # Sequential gate: non-super live canary only after Super PASS + predecessor PASS
+          if [ "$EXEC" = "true" ] && [ "$P" != "super-parrain" ]; then
+            set +e
+            python tools/activation_orchestrator.py gate --platform "$P"
+            GATE=$?
+            set -e
+            if [ "$GATE" != "0" ]; then
+              echo "WAIT: sequential gate refused $P (need Super PASS + predecessor WRITE_VERIFIED)"
+              python - <<PY
+          import json
+          from pathlib import Path
+          from lib.canary_gate import may_execute_canary
+          g = may_execute_canary("$P")
+          Path("data/captures/activation-canary-result.json").write_text(
+              json.dumps({"platform":"$P","result":"WAIT","gate":g}, indent=2)+"\n",
+              encoding="utf-8",
+          )
+          PY
+              exit 0
+            fi
+          fi
+
           case "$P" in
             parrainage-co) TOOL="tools/controlled_write_parrainage_co.py" ;;
             code-parrainage) TOOL="tools/controlled_write_code_parrainage.py" ;;
             1parrainage) TOOL="tools/controlled_write_1parrainage.py" ;;
+            referralcodes) TOOL="tools/controlled_write_referralcodes.py" ;;
             *) TOOL="" ;;
           esac
           if [ -n "$TOOL" ] && [ -f "$TOOL" ]; then

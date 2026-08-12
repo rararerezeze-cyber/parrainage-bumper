@@ -55,6 +55,15 @@ SPECS = {
             "No Boost/Remonter. Stop on 403/429/CAPTCHA/auth/unexpected DOM."
         ),
     },
+    "referralcodes": {
+        "module": "platforms.referralcodes.writer",
+        "tool": "tools/controlled_write_referralcodes.py",
+        "secrets": ["REFERRALCODES_EMAIL", "REFERRALCODES_PASSWORD"],
+        "notes": (
+            "CANARY_READY: official Agent Import schema + login/Validate/Commit/reread. "
+            "Kraken first. No Google/Facebook. Not WRITE_VERIFIED until post_match."
+        ),
+    },
 }
 
 
@@ -67,10 +76,10 @@ def assess(platform: str, program: str = "kraken") -> dict:
     # Source must implement real login/save (not only stub message)
     src = Path(mod.__file__).read_text(encoding="utf-8")
     live_impl = (
-        "async def execute_write" in src
+        "def execute_write" in src
         and "live write not implemented" not in src
         and ("content_write_allowed" in src or "playwright" in src.lower())
-        and "_login" in src
+        and ("_login" in src or "_execute_live" in src)
         and "reread" in src.lower()
     )
     has_edit = bool(getattr(plan, "edit_url", None) or getattr(plan, "announcement_url", None))

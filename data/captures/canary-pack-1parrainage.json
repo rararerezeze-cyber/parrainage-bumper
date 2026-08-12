@@ -1,0 +1,62 @@
+{
+  "platform": "1parrainage",
+  "program": "kraken",
+  "status": "CANARY_READY",
+  "predecessor": "code-parrainage",
+  "successor": "referralcodes",
+  "secrets": [
+    "ONEPARRAINAGE_EMAIL",
+    "ONEPARRAINAGE_PASSWORD"
+  ],
+  "tool": "tools/controlled_write_1parrainage.py",
+  "cli_plan": "python tools/controlled_write_1parrainage.py --program kraken",
+  "cli_execute_after_gates": "python tools/controlled_write_1parrainage.py --program kraken --execute --force",
+  "workflow": "activation_canary.yml",
+  "pipeline": [
+    "login",
+    "edit",
+    "save",
+    "reread_account",
+    "reread_public"
+  ],
+  "snapshot_on_execute": true,
+  "rollback": "lib.safety.rollback_snapshot after failed live",
+  "circuit_breakers": true,
+  "one_at_a_time": true,
+  "requires_super_pass": true,
+  "requires_predecessor_pass": true,
+  "checks": {
+    "status_canary_ready": true,
+    "controlled_write_tool": true,
+    "predecessor_defined": true,
+    "circuit_closed": true,
+    "kraken_plan_ok": true,
+    "structure_or_schema_ok": true,
+    "pipeline_documented": true
+  },
+  "plan": {
+    "structure_preserved": true,
+    "validation_ok": null,
+    "changed_fields": {
+      "personal_code": {
+        "old": "cpbrgddy",
+        "new": "4hpz4gdy"
+      },
+      "personal_link": {
+        "old": "https://invite.kraken.com/JDNW/4jdp7sea",
+        "new": "https://proinvite.kraken.com/9f1e/lqbuov8u"
+      },
+      "referee_reward": {
+        "old": "200 € en cryptomonnaies",
+        "new": "20 € en Bitcoin selon l’offre"
+      }
+    },
+    "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100408",
+    "edit_url": null,
+    "action": "WOULD_UPDATE",
+    "live": false
+  },
+  "EXECUTABLE_AFTER_SUPER_PASS": "YES",
+  "live": false,
+  "at": "2026-08-12T23:16:27.806771+00:00"
+}
