@@ -4,12 +4,12 @@
   "orphan_programs": 0,
   "programs_total_known": 38,
   "platforms": 7,
-  "mapped_pairs": 115,
+  "mapped_pairs": 117,
   "platforms_usable_read": 6,
   "writers_functional": 1,
   "cell_status_counts": {
-    "captured": 99,
-    "missing_on_platform": 118,
+    "captured": 101,
+    "missing_on_platform": 116,
     "stale_mapping": 1,
     "capture_partial": 1,
     "manual_write": 14,
@@ -99,11 +99,11 @@
       "capability": "MANUAL",
       "read": "READ_OK",
       "write": "WRITE_TODO",
-      "mapped_count": 5,
-      "full_quality": 5,
+      "mapped_count": 7,
+      "full_quality": 7,
       "partial_quality": 0,
       "manual_quality": 0,
-      "inventory_quality": 5,
+      "inventory_quality": 7,
       "profile_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php",
       "auth_status": null
     }
@@ -152,8 +152,10 @@
   "mappings_by_platform": {
     "1parrainage": [
       "deblock",
+      "fdj-francaise-des-jeux",
       "kraken",
       "lolivier",
+      "okx",
       "paypal",
       "unibet"
     ],
