@@ -36,18 +36,19 @@ def phase_name() -> str:
 
 
 def live_writes_enabled(platform: str | None = None) -> bool:
-    """Live content writes allowed?
+    """Live content writes allowed for Telegram operator path?
 
+    Strict rule (END-TO-END phase):
+    - Only platforms marked WRITE_VERIFIED in data/platform-write-status.json
+      (and mirrored in phase write_verified) may receive live Telegram updates.
+    - CANARY_READY platforms are NOT live for Telegram; use explicit canary tools.
     - BASE: always false (unless AUTOFRESH_FORCE_LIVE=1)
-    - VALIDATION_LIVE: only platforms in enabled_platforms or write_verified
     - AUTOFRESH_LIVE_WRITES=0 force off
     """
     if os.environ.get("AUTOFRESH_FORCE_LIVE") == "1":
         return True
     if os.environ.get("AUTOFRESH_LIVE_WRITES") == "0":
         return False
-    if os.environ.get("AUTOFRESH_LIVE_WRITES") == "1" and platform is None:
-        return True
 
     data = load_phase()
     name = phase_name()
@@ -56,21 +57,32 @@ def live_writes_enabled(platform: str | None = None) -> bool:
     if not data.get("live_writes"):
         return False
 
+    # Prefer strict registry
+    try:
+        from lib.write_status import is_write_verified, summary as write_summary
+
+        if platform is None:
+            return write_summary().get("write_verified_count", 0) > 0 or bool(
+                data.get("write_verified")
+            )
+        if is_write_verified(platform):
+            return True
+        # phase list as mirror (must still be WRITE_VERIFIED in registry ideally)
+        verified = {str(p).lower() for p in (data.get("write_verified") or [])}
+        return platform.strip().lower() in verified
+    except Exception:
+        pass
+
     if platform is None:
-        # Phase allows live somewhere
-        return bool(data.get("enabled_platforms") or data.get("write_verified") or data.get("live_canary"))
+        return bool(data.get("write_verified"))
 
     plat = platform.strip().lower()
     verified = {str(p).lower() for p in (data.get("write_verified") or [])}
-    if plat in verified:
-        return True
-    enabled = {str(p).lower() for p in (data.get("enabled_platforms") or [])}
-    if plat in enabled:
-        return True
-    return False
+    return plat in verified
 
 
 def live_canary_allowed(platform: str | None = None) -> bool:
+    """Explicit canary path (not Telegram bulk). CANARY_READY platforms only."""
     if os.environ.get("AUTOFRESH_FORCE_LIVE") == "1":
         return True
     if os.environ.get("AUTOFRESH_LIVE_WRITES") == "0":
@@ -82,7 +94,14 @@ def live_canary_allowed(platform: str | None = None) -> bool:
         return False
     if platform is None:
         return True
-    return live_writes_enabled(platform)
+    try:
+        from lib.write_status import get_platform_status, STATUS_CANARY_READY, STATUS_WRITE_VERIFIED
+
+        st = get_platform_status(platform)
+        return st in {STATUS_CANARY_READY, STATUS_WRITE_VERIFIED}
+    except Exception:
+        enabled = {str(p).lower() for p in (data.get("enabled_platforms") or [])}
+        return platform.strip().lower() in enabled
 
 
 def mark_write_verified(platform: str) -> None:

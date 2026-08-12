@@ -9,7 +9,7 @@
     "programs": ["kraken"],
     "mode": "canary"
   },
-  "note": "VALIDATION_LIVE: only Super-Parrain enabled for Kraken canary. WRITE_PREPARED platforms stay dry-run until WRITE_VERIFIED.",
+  "note": "STRICT: Telegram live writes only for write_verified[]. Super-Parrain=CANARY_READY until real post-verify canary. enabled_platforms used for canary tools only, not Telegram bulk. Monitor=OBSERVATION_ONLY.",
   "live_canary_waiter": "ENABLED_FOR_SUPER_PARRAIN_ONLY",
-  "updated_at": "2026-08-12"
+  "updated_at": "2026-08-13"
 }

@@ -16,19 +16,30 @@ from lib.operator_overrides import (
 from lib.phase import live_writes_enabled, phase_name
 from lib.renderer import MappingRepository, Renderer, TemplateRepository
 from lib.template_builder import extract_values_via_template
+from lib.write_status import (
+    STATUS_AUTH_BLOCKED,
+    STATUS_CANARY_READY,
+    STATUS_WRITE_PREPARED,
+    STATUS_WRITE_VERIFIED,
+    get_platform_status,
+    is_telegram_live_capable,
+    telegram_action_for_platform,
+)
 from platforms.registry import platform_capability
 
 
-# Platform write readiness labels for reports
-WRITE_MODES: dict[str, str] = {
-    "super-parrain": "WRITE_VERIFIED_OR_CANARY",
-    "parrainage-co": "WRITE_PREPARED",
-    "code-parrainage": "WRITE_PREPARED",
-    "1parrainage": "WRITE_PREPARED",
-    "referralcodes": "WRITE_PREPARED",  # official import preferred; not WRITE_VERIFIED yet
-    "referralcode-tv": "WRITE_PREPARED",  # browser sequential prepared; not verified
-    "referraldrop": "AUTH_BLOCKED_GOOGLE",
-}
+def platform_write_mode(platform: str) -> str:
+    """Strict label from write-status registry (never invent WRITE_VERIFIED)."""
+    st = get_platform_status(platform)
+    if st == STATUS_WRITE_VERIFIED:
+        return STATUS_WRITE_VERIFIED
+    if st == STATUS_CANARY_READY:
+        return STATUS_CANARY_READY
+    if st == STATUS_AUTH_BLOCKED:
+        return STATUS_AUTH_BLOCKED
+    if st == STATUS_WRITE_PREPARED:
+        return STATUS_WRITE_PREPARED
+    return st or STATUS_WRITE_PREPARED
 
 
 @dataclass
@@ -119,18 +130,10 @@ def plan_program_impact(
             continue
         if platform_filter and ref.platform != platform_filter:
             continue
-        write_mode = WRITE_MODES.get(ref.platform, "MANUAL_WRITE")
-        can_auto = live_writes_enabled(ref.platform) and write_mode in {
-            "WRITE_VERIFIED",
-            "WRITE_VERIFIED_OR_CANARY",
-        }
-        # refine can_auto from phase
-        if ref.platform == "super-parrain" and live_writes_enabled("super-parrain"):
-            can_auto = True
-            write_mode = "WRITE_VERIFIED_OR_CANARY"
-        if ref.platform == "referraldrop":
-            write_mode = "AUTH_BLOCKED_GOOGLE"
-            can_auto = False
+        write_mode = platform_write_mode(ref.platform)
+        # Telegram live only if WRITE_VERIFIED (strict)
+        can_auto = is_telegram_live_capable(ref.platform) and live_writes_enabled(ref.platform)
+        tg_action = telegram_action_for_platform(ref.platform)
 
         try:
             mapping = mappings.load(ref.platform, ref.program, ref.language)
@@ -199,7 +202,13 @@ def plan_program_impact(
 
             status = "in_sync" if not changed else "pending_update"
             cap = platform_capability(ref.platform)
-            if cap == "MANUAL" and write_mode not in {"WRITE_PREPARED", "WRITE_VERIFIED", "WRITE_VERIFIED_OR_CANARY"}:
+            if write_mode == STATUS_AUTH_BLOCKED:
+                status = "auth_blocked" if status == "pending_update" else status
+            elif cap == "MANUAL" and write_mode not in {
+                STATUS_WRITE_PREPARED,
+                STATUS_WRITE_VERIFIED,
+                STATUS_CANARY_READY,
+            }:
                 if status == "pending_update":
                     status = "manual"
 
@@ -210,9 +219,10 @@ def plan_program_impact(
                     language=ref.language,
                     status=status,
                     write_mode=write_mode,
-                    can_auto_write=can_auto and status == "pending_update",
+                    can_auto_write=bool(can_auto and status == "pending_update"),
                     changed_fields=changed,
                     field_sources=field_sources,
+                    error=None if tg_action != "AUTH_BLOCKED" else "auth_blocked_google",
                 )
             )
         except Exception as exc:  # noqa: BLE001
@@ -228,16 +238,15 @@ def plan_program_impact(
                 )
             )
 
-    auto_capable = sum(1 for i in impacts if i.write_mode in {
-        "WRITE_VERIFIED",
-        "WRITE_VERIFIED_OR_CANARY",
-        "WRITE_PREPARED",
-    })
-    write_verified = sum(
+    from lib.write_status import summary as write_summary
+
+    ws = write_summary()
+    auto_capable = sum(
         1
         for i in impacts
-        if i.write_mode in {"WRITE_VERIFIED", "WRITE_VERIFIED_OR_CANARY"} and live_writes_enabled(i.platform)
+        if i.write_mode in {STATUS_WRITE_VERIFIED, STATUS_WRITE_PREPARED, STATUS_CANARY_READY}
     )
+    write_verified_live = sum(1 for i in impacts if i.write_mode == STATUS_WRITE_VERIFIED)
 
     return {
         "program": program,
@@ -253,9 +262,13 @@ def plan_program_impact(
             "pending_update": sum(1 for i in impacts if i.status == "pending_update"),
             "in_sync": sum(1 for i in impacts if i.status == "in_sync"),
             "auto_capable_labels": auto_capable,
-            "write_verified_live": write_verified,
+            "write_verified_live": write_verified_live,
+            "WRITE_VERIFIED": ws.get("WRITE_VERIFIED"),
+            "telegram_live_capable": ws.get("telegram_live_capable"),
         },
+        "write_status": ws,
         "observation_only_default": True,
+        "monitor_mode": "OBSERVATION_ONLY",
     }
 
 
@@ -310,13 +323,21 @@ def format_plan_report(
 
     s = plan.get("summary") or {}
     lines.append("")
+    from lib.write_status import format_telegram_platform_lines, summary as write_summary
+
+    lines.append("Write readiness (strict):")
+    for line in format_telegram_platform_lines(plan.get("platforms")):
+        lines.append(line)
+    ws = write_summary()
+    lines.append("")
     lines.append(
         f"Mapped: {s.get('platforms_mapped', 0)} | pending: {s.get('pending_update', 0)} | "
         f"in_sync: {s.get('in_sync', 0)}"
     )
     lines.append(
-        f"Phase: {plan.get('phase')} | auto-capable labels: {s.get('auto_capable_labels')} | "
-        f"WRITE_VERIFIED live: {s.get('write_verified_live')}"
+        f"WRITE_VERIFIED: {ws.get('WRITE_VERIFIED')} | "
+        f"Telegram live-capable: {len(ws.get('telegram_live_capable') or [])}/7"
     )
-    lines.append("Aucune publication live sauf writers WRITE_VERIFIED/canary déjà armés.")
+    lines.append("Live Telegram updates ONLY for WRITE_VERIFIED. Others = PLAN_ONLY.")
+    lines.append("Monitor remains OBSERVATION_ONLY (no auto-accept).")
     return "\n".join(lines)

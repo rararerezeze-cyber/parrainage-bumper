@@ -134,6 +134,7 @@ def main() -> int:
 
     if result.ok and result.post_match:
         from lib.paths import golden_path, mapping_path
+        from lib.write_status import mark_write_verified, mark_canary_failed
 
         golden_path("super-parrain", args.program, args.language).write_bytes(
             plan.rendered.encode("utf-8")
@@ -150,13 +151,42 @@ def main() -> int:
         mpath.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         mark_pending_done("super-parrain", args.program, args.language)
         record_super_action_now()
-        print("WRITE_VERIFIED super-parrain")
-        return 0
+        # Strict registry promotion — only with complete evidence
+        evidence = {
+            "post_match": True,
+            "announcement_url": plan.announcement_url,
+            "edit_url": result.edit_url,
+            "public_reread": bool(result.post_publish_text),
+            "immutable_ok": plan.structure_preserved,
+            "source": "controlled_write_super_parrain",
+            "checks": {
+                "authenticated": True,
+                "targeted_edit": bool(plan.changed_fields),
+                "submit_ok": True,
+                "reread_account": True,
+                "expected_values_present": True,
+                "immutable_preserved": plan.structure_preserved,
+            },
+        }
+        # Public reread available → mark check
+        if result.post_publish_text:
+            evidence["checks"]["reread_public"] = True
+        promo = mark_write_verified("super-parrain", program=args.program, evidence=evidence)
+        print(f"WRITE_VERIFIED super-parrain registry={promo}")
+        payload["write_status"] = "WRITE_VERIFIED" if promo.get("ok") else "POST_MATCH_BUT_REGISTRY_INCOMPLETE"
+        path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        return 0 if promo.get("ok") else 1
 
     # blocked_24h from writer also counts as non-verified pending
     if result.error and "24h" in (result.error or "").lower():
         print("Pending conserve — cooldown plateforme", file=sys.stderr)
         return 3
+    try:
+        from lib.write_status import mark_canary_failed
+
+        mark_canary_failed("super-parrain", result.error or "write_failed", program=args.program)
+    except Exception:
+        pass
     return 1
 
 

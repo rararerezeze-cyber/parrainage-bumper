@@ -1,0 +1,139 @@
+{
+  "at": "2026-08-12T20:41:16.074167+00:00",
+  "from_telegram": true,
+  "program": "kraken",
+  "write_status": {
+    "WRITE_VERIFIED": "0/7",
+    "write_verified_count": 0,
+    "telegram_live_capable": [],
+    "telegram_live_capable_count": 0,
+    "by_status": {
+      "CANARY_READY": 1,
+      "WRITE_PREPARED": 5,
+      "AUTH_BLOCKED_GOOGLE": 1
+    },
+    "platforms": [
+      {
+        "platform": "super-parrain",
+        "status": "CANARY_READY",
+        "telegram_action": "CANARY_ONLY",
+        "canary_program": "kraken",
+        "notes": "Writer + post-verify + cooldown ready. Not WRITE_VERIFIED until real auth edit + submit + reread + field post-match.",
+        "last_write_verified_at": null
+      },
+      {
+        "platform": "parrainage-co",
+        "status": "WRITE_PREPARED",
+        "telegram_action": "PLAN_ONLY",
+        "canary_program": "kraken",
+        "notes": "Controlled writer exists; needs one successful canary with post-verify.",
+        "last_write_verified_at": null
+      },
+      {
+        "platform": "code-parrainage",
+        "status": "WRITE_PREPARED",
+        "telegram_action": "PLAN_ONLY",
+        "canary_program": "kraken",
+        "notes": "Templates/mappings ready; live edit canary not completed.",
+        "last_write_verified_at": null
+      },
+      {
+        "platform": "1parrainage",
+        "status": "WRITE_PREPARED",
+        "telegram_action": "PLAN_ONLY",
+        "canary_program": "kraken",
+        "notes": "Templates/mappings ready; live edit canary not completed.",
+        "last_write_verified_at": null
+      },
+      {
+        "platform": "referralcodes",
+        "status": "WRITE_PREPARED",
+        "telegram_action": "PLAN_ONLY",
+        "canary_program": "kraken",
+        "notes": "Official Agent Import preferred. WRITE_VERIFIED only after schema validation + single canary import + reread post-match.",
+        "last_write_verified_at": null
+      },
+      {
+        "platform": "referralcode-tv",
+        "status": "WRITE_PREPARED",
+        "telegram_action": "PLAN_ONLY",
+        "canary_program": "kraken",
+        "notes": "Sequential browser writer prepared. WRITE_VERIFIED only after auth/edit with REFERRALCODE_* + post-verify. No CAPTCHA bypass.",
+        "last_write_verified_at": null
+      },
+      {
+        "platform": "referraldrop",
+        "status": "AUTH_BLOCKED_GOOGLE",
+        "telegram_action": "AUTH_BLOCKED",
+        "canary_program": null,
+        "notes": "Google Sign-In required. No OAuth bypass. May remain non-automated if legitimate durable automation is impossible.",
+        "last_write_verified_at": null
+      }
+    ],
+    "updated_at": "2026-08-12T20:41:15.814436+00:00"
+  },
+  "reports": [
+    {
+      "note": "no_write_verified_platforms_or_plan_only",
+      "WRITE_VERIFIED": "0/7",
+      "platforms": [
+        {
+          "platform": "super-parrain",
+          "status": "CANARY_READY",
+          "telegram_action": "CANARY_ONLY",
+          "canary_program": "kraken",
+          "notes": "Writer + post-verify + cooldown ready. Not WRITE_VERIFIED until real auth edit + submit + reread + field post-match.",
+          "last_write_verified_at": null
+        },
+        {
+          "platform": "parrainage-co",
+          "status": "WRITE_PREPARED",
+          "telegram_action": "PLAN_ONLY",
+          "canary_program": "kraken",
+          "notes": "Controlled writer exists; needs one successful canary with post-verify.",
+          "last_write_verified_at": null
+        },
+        {
+          "platform": "code-parrainage",
+          "status": "WRITE_PREPARED",
+          "telegram_action": "PLAN_ONLY",
+          "canary_program": "kraken",
+          "notes": "Templates/mappings ready; live edit canary not completed.",
+          "last_write_verified_at": null
+        },
+        {
+          "platform": "1parrainage",
+          "status": "WRITE_PREPARED",
+          "telegram_action": "PLAN_ONLY",
+          "canary_program": "kraken",
+          "notes": "Templates/mappings ready; live edit canary not completed.",
+          "last_write_verified_at": null
+        },
+        {
+          "platform": "referralcodes",
+          "status": "WRITE_PREPARED",
+          "telegram_action": "PLAN_ONLY",
+          "canary_program": "kraken",
+          "notes": "Official Agent Import preferred. WRITE_VERIFIED only after schema validation + single canary import + reread post-match.",
+          "last_write_verified_at": null
+        },
+        {
+          "platform": "referralcode-tv",
+          "status": "WRITE_PREPARED",
+          "telegram_action": "PLAN_ONLY",
+          "canary_program": "kraken",
+          "notes": "Sequential browser writer prepared. WRITE_VERIFIED only after auth/edit with REFERRALCODE_* + post-verify. No CAPTCHA bypass.",
+          "last_write_verified_at": null
+        },
+        {
+          "platform": "referraldrop",
+          "status": "AUTH_BLOCKED_GOOGLE",
+          "telegram_action": "AUTH_BLOCKED",
+          "canary_program": null,
+          "notes": "Google Sign-In required. No OAuth bypass. May remain non-automated if legitimate durable automation is impossible.",
+          "last_write_verified_at": null
+        }
+      ]
+    }
+  ]
+}

@@ -7,14 +7,24 @@ Cross-platform impact:
   code-parrainage    pending_update   WRITE_PREPARED               personal_code: None→'4hpz4gdy' | personal_link: None→'https://proinvite.kraken.com/9f1e/lqbuov8u' | referee_reward: '200 € en cryptomonnaies'→'20 €'
   parrainage-co      pending_update   WRITE_PREPARED               personal_code: None→'4hpz4gdy' | personal_link: None→'https://proinvite.kraken.com/9f1e/lqbuov8u' | referee_reward: '200 € en cryptomonnaies'→'20 €'
   referralcodes      pending_update   WRITE_PREPARED               referee_reward: '\\u2b50\\ufe0f $200 in Crypto \\u2b50\\ufe0f'→'20 €'
-  super-parrain      pending_update   WRITE_VERIFIED_OR_CANARY     personal_code: None→'4hpz4gdy' | personal_link: None→'https://proinvite.kraken.com/9f1e/lqbuov8u' | referee_reward: '200 € en cryptomonnaies'→'20 €'
+  super-parrain      pending_update   CANARY_READY                 personal_code: None→'4hpz4gdy' | personal_link: None→'https://proinvite.kraken.com/9f1e/lqbuov8u' | referee_reward: '200 € en cryptomonnaies'→'20 €'
+
+Write readiness (strict):
+  super-parrain      CANARY_READY / PLAN_ONLY personal_code,personal_link,referee_reward
+  parrainage-co      PLAN_ONLY personal_code,personal_link,referee_reward
+  code-parrainage    PLAN_ONLY personal_code,personal_link,referee_reward
+  1parrainage        PLAN_ONLY personal_code,personal_link,referee_reward
+  referralcodes      PLAN_ONLY referee_reward
+  referralcode-tv    PLAN_ONLY
+  referraldrop       AUTH_BLOCKED
 
 Mapped: 5 | pending: 5 | in_sync: 0
-Phase: VALIDATION_LIVE | auto-capable labels: 5 | WRITE_VERIFIED live: 1
-Aucune publication live sauf writers WRITE_VERIFIED/canary déjà armés.
+WRITE_VERIFIED: 0/7 | Telegram live-capable: 0/7
+Live Telegram updates ONLY for WRITE_VERIFIED. Others = PLAN_ONLY.
+Monitor remains OBSERVATION_ONLY (no auto-accept).
 
 {
-  "at": "2026-08-12T20:28:41.729467+00:00",
+  "at": "2026-08-12T20:41:15.827500+00:00",
   "message": "Kraken gain filleul 20 €",
   "parsed": {
     "action": "set",
@@ -32,8 +42,8 @@ Aucune publication live sauf writers WRITE_VERIFIED/canary déjà armés.
       "value": "20 €",
       "platform": null,
       "source": "GLOBAL_OPERATOR_OVERRIDE",
-      "created_at": "2026-08-12T20:28:41.651326+00:00",
-      "updated_at": "2026-08-12T20:28:41.651326+00:00",
+      "created_at": "2026-08-12T20:41:15.750156+00:00",
+      "updated_at": "2026-08-12T20:41:15.750156+00:00",
       "message": "Kraken gain filleul 20 €",
       "id": "global:kraken:referee_reward"
     },
@@ -48,7 +58,9 @@ Aucune publication live sauf writers WRITE_VERIFIED/canary déjà armés.
     "pending_update": 5,
     "in_sync": 0,
     "auto_capable_labels": 5,
-    "write_verified_live": 1
+    "write_verified_live": 0,
+    "WRITE_VERIFIED": "0/7",
+    "telegram_live_capable": []
   },
   "mode": "FULL_OPERATOR_CONTROL"
 }
