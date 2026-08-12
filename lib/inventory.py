@@ -51,11 +51,10 @@ def list_mapping_refs() -> list[MappingRef]:
 def list_platforms() -> list[dict]:
     out = []
     for pid in ALL_PLATFORMS:
-        adapter = get_adapter(pid)
         out.append(
             {
                 "id": pid,
-                "capability": getattr(adapter, "capability", "AUTO"),
+                "capability": platform_capability(pid),
             }
         )
     return out

@@ -4,13 +4,16 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from collections import Counter
+from pathlib import Path
 
 from lib.inventory import list_mapping_refs, list_platforms
 from lib.models import DryRunResult
+from lib.paths import DATA_DIR
 from lib.renderer import MappingRepository
-from platforms.registry import ALL_PLATFORMS, get_adapter, normalize_platform
+from platforms.registry import ALL_PLATFORMS, get_adapter, normalize_platform, platform_capability
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -21,7 +24,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--all",
         action="store_true",
-        help="Dry-run sur tous les mappings + plateformes MANUAL connues",
+        help="Dry-run sur tous les mappings + plateformes sans mapping",
     )
     parser.add_argument(
         "--dry-run",
@@ -31,7 +34,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--list-platforms",
         action="store_true",
-        help="Liste les 7 plateformes et leur capacite",
+        help="Liste les 7 plateformes et leur capacite effective",
     )
     return parser
 
@@ -45,7 +48,7 @@ def _print_result(result: DryRunResult, verbose: bool = True) -> None:
         fields = ",".join(result.changed_fields.keys()) if result.changed_fields else "-"
         print(
             f"{result.platform:18} {result.program:16} {result.language:3} "
-            f"{result.status:16} fields={fields}"
+            f"{result.status:18} fields={fields}"
         )
 
 
@@ -53,6 +56,17 @@ def run_one(platform: str, program: str, language: str) -> DryRunResult:
     mapping = MappingRepository().load(platform, program, language)
     adapter = get_adapter(platform)
     return adapter.dry_run(mapping)
+
+
+def _needs_canonical_count() -> int:
+    path = DATA_DIR / "needs_canonical_data.json"
+    if not path.exists():
+        return 0
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        return len(data.get("items") or [])
+    except Exception:
+        return 0
 
 
 def run_all() -> list[DryRunResult]:
@@ -78,40 +92,52 @@ def run_all() -> list[DryRunResult]:
             )
         results.append(result)
 
-    # Plateformes sans mapping encore (ex. MANUAL) : une ligne informative
     for pid in ALL_PLATFORMS:
         if pid in seen_platforms:
             continue
-        adapter = get_adapter(pid)
-        cap = getattr(adapter, "capability", "AUTO")
+        cap = platform_capability(pid)
         if cap == "MANUAL":
-            results.append(
-                DryRunResult(
-                    platform=pid,
-                    program="*",
-                    language="*",
-                    sync_mode="manual_review_required",
-                    status="manual",
-                    historical_text=None,
-                    rendered_text=None,
-                    error="aucun mapping encore — plateforme MANUAL",
-                    blocking=False,
-                )
-            )
+            status = "manual"
+            mode = "manual_review_required"
+            err = "aucun mapping — plateforme MANUAL"
+        elif cap == "CAPTURE_PENDING":
+            status = "capture_pending"
+            mode = "CAPTURE_PENDING"
+            err = "aucun mapping reel capture — capture requise"
         else:
-            results.append(
-                DryRunResult(
-                    platform=pid,
-                    program="*",
-                    language="*",
-                    sync_mode="REVIEW",
-                    status="no_mappings",
-                    historical_text=None,
-                    rendered_text=None,
-                    error="aucun mapping capture pour cette plateforme",
-                    blocking=False,
-                )
+            status = "no_mappings"
+            mode = "REVIEW"
+            err = "aucun mapping"
+        results.append(
+            DryRunResult(
+                platform=pid,
+                program="*",
+                language="*",
+                sync_mode=mode,
+                status=status,
+                historical_text=None,
+                rendered_text=None,
+                error=err,
+                blocking=False,
             )
+        )
+
+    # Ligne synthese needs_canonical_data
+    ncd = _needs_canonical_count()
+    if ncd:
+        results.append(
+            DryRunResult(
+                platform="inventory",
+                program="needs_canonical_data",
+                language="*",
+                sync_mode="REVIEW",
+                status="needs_canonical_data",
+                historical_text=None,
+                rendered_text=None,
+                error=f"{ncd} annonce(s) sans entree offers.json",
+                blocking=False,
+            )
+        )
     return results
 
 
@@ -137,11 +163,25 @@ def main(argv: list[str] | None = None) -> int:
             _print_result(r, verbose=False)
         print("=" * 40)
         print("Resume dry-run --all")
-        for status, n in sorted(counts.items()):
-            print(f"  {status}: {n}")
-        print(f"  total: {len(results)}")
-        # exit 0 even with pending_update — c'est l'etat normal a synchroniser
-        # exit 1 only if technical errors dominate and zero ready mappings?
+        mapped = sum(1 for r in results if r.program != "*" and r.platform != "inventory")
+        print(f"  mapped_pairs: {mapped}")
+        for status in (
+            "in_sync",
+            "pending_update",
+            "capture_pending",
+            "manual",
+            "needs_canonical_data",
+            "render_error",
+            "error",
+            "missing_source",
+            "no_mappings",
+        ):
+            if counts.get(status):
+                n = counts[status]
+                if status == "needs_canonical_data":
+                    n = _needs_canonical_count() or n
+                print(f"  {status}: {n}")
+        print(f"  total_rows: {len(results)}")
         tech = sum(1 for r in results if r.status in {"error", "render_error"})
         return 1 if tech and tech == len(results) else 0
 
@@ -153,10 +193,7 @@ def main(argv: list[str] | None = None) -> int:
     result = run_one(platform, args.program, args.language)
     for line in result.to_report_lines():
         print(line)
-    # pending_update / in_sync / manual → 0 ; erreurs techniques → 1
-    if result.status in {"render_error", "error", "missing_offer"}:
-        return 1
-    if result.status == "missing_source":
+    if result.status in {"render_error", "error", "missing_offer", "missing_source"}:
         return 1
     return 0
 

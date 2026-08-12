@@ -12,26 +12,26 @@
     {
       "id": "parrainage-co",
       "domain": "parrainage.co",
-      "capability": "AUTO",
+      "capability": "CAPTURE_PENDING",
       "auth": "cookie_rm_or_login_turnstile",
       "public_announcements": "partial",
-      "notes": "Bump via boost-all deja en prod. Capture contenu: a cartographier (compte)."
+      "notes": "Bump via boost-all deja en prod. Capture contenu: a cartographier (compte).; CAPTURE_PENDING until real mappings exist."
     },
     {
       "id": "code-parrainage",
       "domain": "code-parrainage.net",
-      "capability": "AUTO",
+      "capability": "CAPTURE_PENDING",
       "auth": "login",
       "public_announcements": "partial",
-      "notes": "Bump Actualiser en prod. Capture annonces: audit pages publiques/compte."
+      "notes": "Bump Actualiser en prod. Capture annonces: audit pages publiques/compte.; CAPTURE_PENDING until real mappings exist."
     },
     {
       "id": "referralcode-tv",
       "domain": "referralcode.tv",
-      "capability": "AUTO",
+      "capability": "CAPTURE_PENDING",
       "auth": "login",
       "public_announcements": "partial",
-      "notes": "Bump #cliccami en prod. Distinct de referralcodes.com."
+      "notes": "Bump #cliccami en prod. Distinct de referralcodes.com.; CAPTURE_PENDING until real mappings exist."
     },
     {
       "id": "referralcodes",

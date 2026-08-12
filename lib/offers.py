@@ -17,13 +17,14 @@ class OffersRepository:
         self.path = path or OFFERS_PATH
 
     def resolved_path(self) -> Path:
-        if self.path.exists():
-            return self.path
+        # Preview/Telegram: env prioritaire si le fichier existe
         env_path = os.environ.get("BONUS_PARRAIN_OFFERS_PATH")
         if env_path:
             candidate = Path(env_path)
             if candidate.exists():
                 return candidate
+        if self.path.exists():
+            return self.path
         if DEFAULT_BONUS_PARRAIN_OFFERS.exists():
             return DEFAULT_BONUS_PARRAIN_OFFERS
         raise FileNotFoundError(

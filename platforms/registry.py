@@ -8,6 +8,7 @@ from platforms.referralcode_tv.adapter import ReferralCodeTvAdapter
 from platforms.referralcodes.adapter import ReferralCodesAdapter
 from platforms.referraldrop.adapter import ReferralDropAdapter
 from platforms.super_parrain.adapter import SuperParrainAdapter
+from platforms.text_sync_adapter import TextSyncAdapter
 
 # Identifiants canoniques (7 plateformes)
 ADAPTERS: dict[str, type[PlatformAdapter]] = {
@@ -53,5 +54,25 @@ def get_adapter(platform: str) -> PlatformAdapter:
 
 
 def platform_capability(platform: str) -> str:
+    """AUTO | CAPTURE_PENDING | MANUAL — base + presence de mappings reels."""
+    from lib.inventory import list_mapping_refs
+
     adapter = get_adapter(platform)
-    return getattr(adapter, "capability", "AUTO")
+    base = getattr(adapter, "capability", "AUTO")
+    if base == "MANUAL":
+        return "MANUAL"
+    has_mapping = any(r.platform == normalize_platform(platform) for r in list_mapping_refs())
+    if not has_mapping:
+        return "CAPTURE_PENDING"
+    return base
+
+
+def effective_capability(adapter: PlatformAdapter, platform: str) -> str:
+    base = getattr(adapter, "capability", "AUTO")
+    if base == "MANUAL":
+        return "MANUAL"
+    from lib.inventory import list_mapping_refs
+
+    if not any(r.platform == platform for r in list_mapping_refs()):
+        return "CAPTURE_PENDING"
+    return base

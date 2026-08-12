@@ -1,0 +1,66 @@
+name: Capture READ-ONLY (no bump)
+on:
+  workflow_dispatch:
+    inputs:
+      sites:
+        description: "parrainage,code,referralcode"
+        required: false
+        default: "parrainage,code,referralcode"
+permissions:
+  contents: write
+concurrency:
+  group: parrainage-capture-readonly
+  cancel-in-progress: false
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+      - name: Capture authenticated READ-ONLY
+        env:
+          TWOCAPTCHA_KEY: ${{ secrets.TWOCAPTCHA_KEY }}
+          CODE_PARRAINAGE_EMAIL: ${{ secrets.CODE_PARRAINAGE_EMAIL }}
+          CODE_PARRAINAGE_PASSWORD: ${{ secrets.CODE_PARRAINAGE_PASSWORD }}
+          PARRAINAGE_CO_EMAIL: ${{ secrets.PARRAINAGE_CO_EMAIL }}
+          PARRAINAGE_CO_PASSWORD: ${{ secrets.PARRAINAGE_CO_PASSWORD }}
+          PARRAINAGE_CO_RM_COOKIE: ${{ secrets.PARRAINAGE_CO_RM_COOKIE }}
+          REFERRALCODE_EMAIL: ${{ secrets.REFERRALCODE_EMAIL }}
+          REFERRALCODE_PASSWORD: ${{ secrets.REFERRALCODE_PASSWORD }}
+        run: |
+          python tools/capture_auth_readonly.py --sites "${{ github.event.inputs.sites || 'parrainage,code,referralcode' }}"
+      - name: Inventory Super-Parrain needs_canonical_data
+        run: python tools/inventory_needs_canonical.py
+      - name: Upload capture artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: capture-readonly
+          retention-days: 7
+          path: |
+            data/captures/
+            data/platform-mappings/
+            data/platform-templates/
+            data/needs_canonical_data.json
+            data/orphans/
+      - name: Commit capture results on branch
+        if: success()
+        run: |
+          git config user.name "autofresh-bot"
+          git config user.email "autofresh-bot@users.noreply.github.com"
+          git add data/platform-mappings data/platform-templates data/captures data/needs_canonical_data.json data/orphans || true
+          if git diff --cached --quiet; then
+            echo "No capture files to commit"
+          else
+            git commit -m "chore(capture): READ-ONLY multi-site capture artifacts"
+            git push
+          fi
