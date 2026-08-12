@@ -1,0 +1,53 @@
+[
+  {
+    "platform": "parrainage-co",
+    "program": "kraken",
+    "status_now": "CANARY_READY",
+    "checks": {
+      "structure_preserved": true,
+      "has_edit_or_announcement_url": true,
+      "controlled_write_tool": true,
+      "live_pipeline_implemented": true,
+      "dry_run_report": true
+    },
+    "ok": true,
+    "secrets_needed": [
+      "PARRAINAGE_CO_EMAIL",
+      "PARRAINAGE_CO_PASSWORD",
+      "PARRAINAGE_CO_RM_COOKIE"
+    ],
+    "changed_fields": [
+      "personal_code",
+      "personal_link",
+      "referee_reward"
+    ],
+    "edit_url": "https://parrainage.co/account/offers/edit/113735",
+    "announcement_url": "https://parrainage.co/offers/113735",
+    "notes": "CANARY_READY: login (cookie or email/password) + edit + save + reread account/public. Kraken first. Not WRITE_VERIFIED until post_match."
+  },
+  {
+    "platform": "code-parrainage",
+    "program": "kraken",
+    "status_now": "CANARY_READY",
+    "checks": {
+      "structure_preserved": true,
+      "has_edit_or_announcement_url": true,
+      "controlled_write_tool": true,
+      "live_pipeline_implemented": true,
+      "dry_run_report": true
+    },
+    "ok": true,
+    "secrets_needed": [
+      "CODE_PARRAINAGE_EMAIL",
+      "CODE_PARRAINAGE_PASSWORD"
+    ],
+    "changed_fields": [
+      "personal_code",
+      "personal_link",
+      "referee_reward"
+    ],
+    "edit_url": "https://code-parrainage.net/modif/84601",
+    "announcement_url": null,
+    "notes": "CANARY_READY: login (slider solver as historical bumper) + edit + save + reread account (public if URL). Kraken first. Not WRITE_VERIFIED until post_match."
+  }
+]

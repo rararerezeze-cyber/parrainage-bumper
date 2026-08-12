@@ -63,7 +63,7 @@ def main() -> int:
     }
     if (ws.get("write_verified_count") or 0) < 1:
         report["blockers_to_ready"].append(
-            "No WRITE_VERIFIED platform yet — Super-Parrain is CANARY_READY until real post-verify canary"
+            "No WRITE_VERIFIED platform yet — run live canaries (Super-Parrain then parrainage-co / code-parrainage) with post_match"
         )
     if not hermes_ready:
         report["blockers_to_ready"].append("Hermes interface files incomplete")

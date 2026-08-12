@@ -53,14 +53,20 @@ DEFAULT_STATUS: dict[str, dict[str, Any]] = {
         ),
     },
     "parrainage-co": {
-        "status": STATUS_WRITE_PREPARED,
+        "status": STATUS_CANARY_READY,
         "canary_program": "kraken",
-        "notes": "Controlled writer exists; needs one successful canary with post-verify.",
+        "notes": (
+            "CANARY_READY: login/edit/save/reread pipeline ready (controlled_write_parrainage_co). "
+            "Not WRITE_VERIFIED until live post_match canary."
+        ),
     },
     "code-parrainage": {
-        "status": STATUS_WRITE_PREPARED,
+        "status": STATUS_CANARY_READY,
         "canary_program": "kraken",
-        "notes": "Templates/mappings ready; live edit canary not completed.",
+        "notes": (
+            "CANARY_READY: login/edit/save/reread pipeline ready (controlled_write_code_parrainage). "
+            "Not WRITE_VERIFIED until live post_match canary."
+        ),
     },
     "1parrainage": {
         "status": STATUS_WRITE_PREPARED,

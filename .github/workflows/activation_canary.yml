@@ -226,7 +226,28 @@ jobs:
             exit 0
           fi
 
-          # Generic: dry-run controlled writers if module exists
+          # Generic controlled writers (parrainage-co / code-parrainage / 1parrainage)
+          TOOLS_MAP=""
+          case "$P" in
+            parrainage-co) TOOL="tools/controlled_write_parrainage_co.py" ;;
+            code-parrainage) TOOL="tools/controlled_write_code_parrainage.py" ;;
+            *) TOOL="" ;;
+          esac
+          if [ -n "$TOOL" ] && [ -f "$TOOL" ]; then
+            python "$TOOL" --program "$PROG" || true
+            if [ "$EXEC" = "true" ]; then
+              set +e
+              python "$TOOL" --program "$PROG" --execute --force
+              RC=$?
+              set -e
+              echo "canary_exit=$RC"
+              python tools/e2e_status.py || true
+            else
+              echo "execute=false — plan only for $P"
+            fi
+            exit 0
+          fi
+
           python - <<PY
           import json, importlib
           from pathlib import Path

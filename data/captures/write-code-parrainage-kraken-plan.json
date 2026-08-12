@@ -16,13 +16,16 @@
     }
   },
   "structure_preserved": true,
-  "announcement_url": "https://parrainage.co/offers/113735",
-  "edit_url": "https://parrainage.co/account/offers/edit/113735",
+  "announcement_url": null,
+  "edit_url": "https://code-parrainage.net/modif/84601",
   "pipeline": [
     "login",
     "edit",
     "save",
     "reread_account",
-    "reread_public"
+    "reread_public_if_any"
+  ],
+  "steps": [
+    "dry-run only"
   ]
 }

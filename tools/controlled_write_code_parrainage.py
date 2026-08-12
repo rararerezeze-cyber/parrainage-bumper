@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Write controle Parrainage.co — plan | canary execute (login/edit/save/reread)."""
+"""Write controle Code-Parrainage — plan | canary execute (login/edit/save/reread)."""
 from __future__ import annotations
 
 import argparse
@@ -12,7 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from platforms.parrainage_co.writer import (  # noqa: E402
+from platforms.code_parrainage.writer import (  # noqa: E402
     build_write_plan,
     execute_write,
     plan_report_lines,
@@ -33,7 +33,7 @@ def main() -> int:
     )
     args = p.parse_args()
 
-    plan = build_write_plan("parrainage-co", args.program, args.language)
+    plan = build_write_plan("code-parrainage", args.program, args.language)
     for line in plan_report_lines(plan):
         print(line)
 
@@ -43,7 +43,7 @@ def main() -> int:
 
     if not args.execute:
         result = asyncio.run(execute_write(plan, dry_run=True))
-        path = OUT / f"write-parrainage-co-{args.program}-plan.json"
+        path = OUT / f"write-code-parrainage-{args.program}-plan.json"
         OUT.mkdir(parents=True, exist_ok=True)
         path.write_text(
             json.dumps(
@@ -54,7 +54,8 @@ def main() -> int:
                     "structure_preserved": plan.structure_preserved,
                     "announcement_url": plan.announcement_url,
                     "edit_url": plan.edit_url,
-                    "pipeline": ["login", "edit", "save", "reread_account", "reread_public"],
+                    "pipeline": ["login", "edit", "save", "reread_account", "reread_public_if_any"],
+                    "steps": result.steps,
                 },
                 ensure_ascii=False,
                 indent=2,
@@ -69,9 +70,9 @@ def main() -> int:
         print("--execute requiert --force", file=sys.stderr)
         return 2
 
-    print("\n=== EXECUTE REAL WRITE parrainage.co ===")
+    print("\n=== EXECUTE REAL WRITE code-parrainage.net ===")
     result = asyncio.run(execute_write(plan, dry_run=False))
-    path = OUT / f"write-parrainage-co-{args.program}.json"
+    path = OUT / f"write-code-parrainage-{args.program}.json"
     OUT.mkdir(parents=True, exist_ok=True)
     payload = {
         "at": datetime.now(timezone.utc).isoformat(),
@@ -96,10 +97,10 @@ def main() -> int:
         from lib.paths import golden_path, mapping_path
         from lib.write_status import mark_write_verified
 
-        golden_path("parrainage-co", args.program, args.language).write_bytes(
+        golden_path("code-parrainage", args.program, args.language).write_bytes(
             plan.rendered.encode("utf-8")
         )
-        mpath = mapping_path("parrainage-co", args.program, args.language)
+        mpath = mapping_path("code-parrainage", args.program, args.language)
         data = json.loads(mpath.read_text(encoding="utf-8"))
         data["platform_values"] = {
             k: plan.variables.get(k)
@@ -117,7 +118,7 @@ def main() -> int:
             "edit_url": result.edit_url,
             "public_reread": bool(result.post_publish_text),
             "immutable_ok": plan.structure_preserved,
-            "source": "controlled_write_parrainage_co",
+            "source": "controlled_write_code_parrainage",
             "checks": result.evidence_checks
             or {
                 "authenticated": True,
@@ -128,14 +129,16 @@ def main() -> int:
                 "immutable_preserved": plan.structure_preserved,
             },
         }
-        promo = mark_write_verified("parrainage-co", program=args.program, evidence=evidence)
-        print(f"WRITE_VERIFIED parrainage-co registry={promo}")
+        promo = mark_write_verified("code-parrainage", program=args.program, evidence=evidence)
+        print(f"WRITE_VERIFIED code-parrainage registry={promo}")
         return 0 if promo.get("ok") else 1
 
     try:
         from lib.write_status import mark_canary_failed
 
-        mark_canary_failed("parrainage-co", result.error or "write_failed", program=args.program)
+        mark_canary_failed(
+            "code-parrainage", result.error or "write_failed", program=args.program
+        )
     except Exception:
         pass
     return 1

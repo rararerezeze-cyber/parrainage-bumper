@@ -493,7 +493,7 @@ def _reread_public(url: str) -> str:
 
 async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult:
     steps: list[str] = []
-    from lib.phase import live_writes_enabled, phase_name
+    from lib.phase import content_write_allowed, phase_name
 
     if not plan.structure_preserved:
         return WriteResult(
@@ -512,14 +512,14 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
             post_publish_text=plan.historical,
         )
 
-    if dry_run or not live_writes_enabled("super-parrain"):
+    if dry_run or not content_write_allowed("super-parrain"):
         return WriteResult(
             ok=True,
             plan=plan,
             steps=[
                 "dry-run only — aucune publication"
                 if dry_run
-                else f"LIVE_DISABLED ({phase_name()}) — write prepared, not executed"
+                else f"LIVE_DISABLED ({phase_name()}) — need CANARY_READY/WRITE_VERIFIED"
             ],
             post_match=None,
         )

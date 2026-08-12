@@ -104,6 +104,16 @@ def live_canary_allowed(platform: str | None = None) -> bool:
         return platform.strip().lower() in enabled
 
 
+def content_write_allowed(platform: str) -> bool:
+    """True if controlled canary/live content write may execute for this platform.
+
+    - WRITE_VERIFIED → production live path (Telegram + writers)
+    - CANARY_READY → explicit canary tools only (controlled_write_*)
+    Telegram bulk still uses live_writes_enabled() only.
+    """
+    return live_writes_enabled(platform) or live_canary_allowed(platform)
+
+
 def mark_write_verified(platform: str) -> None:
     data = load_phase()
     verified = list(data.get("write_verified") or [])

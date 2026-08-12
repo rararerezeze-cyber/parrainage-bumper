@@ -17,23 +17,23 @@
       "status": "CANARY_READY",
       "telegram_action": "CANARY_ONLY",
       "canary_program": "kraken",
-      "notes": "Writer + post-verify + cooldown ready. Not WRITE_VERIFIED until real auth edit + submit + reread + field post-match.",
+      "notes": "CANARY_PENDING: bump_super_parrain.yml SKIP (no last_super_run). activation_canary.yml sole live-save owner until post_match=true → WRITE_VERIFIED → NORMAL_BUMP.",
       "last_write_verified_at": null
     },
     {
       "platform": "parrainage-co",
-      "status": "WRITE_PREPARED",
-      "telegram_action": "PLAN_ONLY",
+      "status": "CANARY_READY",
+      "telegram_action": "CANARY_ONLY",
       "canary_program": "kraken",
-      "notes": "Controlled writer exists; needs one successful canary with post-verify.",
+      "notes": "CANARY_READY: login (cookie or email/password) + edit + save + reread account/public. Kraken first. Not WRITE_VERIFIED until post_match.",
       "last_write_verified_at": null
     },
     {
       "platform": "code-parrainage",
-      "status": "WRITE_PREPARED",
-      "telegram_action": "PLAN_ONLY",
+      "status": "CANARY_READY",
+      "telegram_action": "CANARY_ONLY",
       "canary_program": "kraken",
-      "notes": "Templates/mappings ready; live edit canary not completed.",
+      "notes": "CANARY_READY: login (slider solver as historical bumper) + edit + save + reread account (public if URL). Kraken first. Not WRITE_VERIFIED until post_match.",
       "last_write_verified_at": null
     },
     {
@@ -70,8 +70,8 @@
     }
   ],
   "by_status": {
-    "CANARY_READY": 1,
-    "WRITE_PREPARED": 5,
+    "CANARY_READY": 3,
+    "WRITE_PREPARED": 3,
     "AUTH_BLOCKED_GOOGLE": 1
   },
   "HERMES_AUTOFRESH_INTERFACE_READY": "YES",
