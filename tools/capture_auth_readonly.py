@@ -79,10 +79,10 @@ def _save_result(platform: str, program: str, language: str, text: str, url: str
 
 
 async def capture_parrainage_co(browser, offers: OffersRepository) -> dict:
-    """READ-ONLY: /account/offers — pas de boost-all."""
+    """READ-ONLY: /account/offers puis pages Modifier — jamais boost/save."""
     cfg = bumper_mod.CONFIG["parrainage"]
     platform = "parrainage-co"
-    report = {"platform": platform, "items": [], "errors": []}
+    report = {"platform": platform, "items": [], "errors": [], "quality": "detail_pages"}
     ctx = await bumper_mod.new_context(browser)
     page = await ctx.new_page()
     try:
@@ -113,67 +113,144 @@ async def capture_parrainage_co(browser, offers: OffersRepository) -> dict:
             await page.goto(f"{cfg['url']}/account/offers", wait_until="domcontentloaded", timeout=60000)
             await bumper_mod.human_sleep(2, 3)
 
-        # Extraire liens edit / cartes annonces
-        cards = await page.evaluate(
-            """
-            () => {
-              const out = [];
-              const anchors = Array.from(document.querySelectorAll('a[href*="edit"], a[href*="offer"], a[href*="annonce"]'));
-              for (const a of anchors) {
-                const href = a.href || '';
-                if (!href || href.includes('boost')) continue;
-                const text = (a.innerText || a.textContent || '').trim();
-                const block = a.closest('tr, li, article, .card, .offer, .row') || a.parentElement;
-                const body = (block ? block.innerText : text) || '';
-                out.push({href, text: text.slice(0,200), body: body.slice(0,4000)});
-              }
-              // textareas / descriptions
-              document.querySelectorAll('textarea, [contenteditable="true"]').forEach(el => {
-                const v = (el.value || el.innerText || '').trim();
-                if (v.length > 40) out.push({href: location.href, text: 'field', body: v.slice(0,8000)});
-              });
-              return out;
-            }
-            """
-        )
-        # Also dump page text segments for matching
         body_text = await page.inner_text("body")
         REPORT_DIR.mkdir(parents=True, exist_ok=True)
         (REPORT_DIR / "parrainage-co-raw.txt").write_text(body_text[:50000], encoding="utf-8")
 
+        # Liens Modifier / edit uniquement (pas boost, pas supprimer)
+        edit_urls = await page.evaluate(
+            """
+            () => {
+              const out = [];
+              for (const a of document.querySelectorAll('a[href]')) {
+                const href = a.href || '';
+                const label = (a.innerText || a.textContent || '').trim().toLowerCase();
+                if (!href) continue;
+                if (href.includes('boost') || href.includes('delete') || href.includes('supprim')) continue;
+                if (label.includes('modifier') || href.includes('/edit') || href.includes('update')
+                    || href.includes('/account/offers/') && label.includes('modifier')) {
+                  out.push(href);
+                }
+              }
+              return Array.from(new Set(out));
+            }
+            """
+        )
+        # Fallback: tout lien offers/* non boost
+        if not edit_urls:
+            edit_urls = await page.evaluate(
+                """
+                () => Array.from(new Set(
+                  Array.from(document.querySelectorAll('a[href*="/account/offers"]'))
+                    .map(a => a.href)
+                    .filter(h => h && !h.includes('boost') && !h.endsWith('/offers') && !h.includes('boost-all'))
+                ))
+                """
+            )
+
+        report["edit_urls_found"] = len(edit_urls)
         seen = set()
-        for card in cards:
-            body = (card.get("body") or "").strip()
-            if len(body) < 30:
-                continue
-            # Guess program from first line / title
-            title = (card.get("text") or body.split("\n", 1)[0]).strip()
-            slug = _slug_from_text(title, offers)
-            if not slug:
-                # try any offer name contained in body
-                for o in offers.load_all():
-                    n = o.get("name") or ""
-                    if n and n.lower() in body.lower():
-                        slug = o.get("lk")
-                        break
-            if not slug or slug in seen:
-                continue
-            seen.add(slug)
+        for url in edit_urls[:80]:
             try:
-                offer = offers.get_by_slug(slug)
-            except KeyError:
-                offer = None
-            try:
-                item = _save_result(platform, slug, "fr", body, card.get("href"), offer)
-                report["items"].append(item)
+                await page.goto(url, wait_until="domcontentloaded", timeout=45000)
+                await bumper_mod.human_sleep(1.0, 1.8)
+                # Extraire texte complet depuis textarea / champs description
+                payload = await page.evaluate(
+                    """
+                    () => {
+                      const pick = (sel) => {
+                        const el = document.querySelector(sel);
+                        if (!el) return '';
+                        return (el.value || el.innerText || '').trim();
+                      };
+                      const areas = Array.from(document.querySelectorAll('textarea'))
+                        .map(t => (t.value || t.innerText || '').trim())
+                        .filter(t => t.length > 20);
+                      const inputs = {};
+                      document.querySelectorAll('input[type="text"], input:not([type])').forEach(i => {
+                        const n = (i.name || i.id || i.placeholder || 'field').toLowerCase();
+                        if (i.value) inputs[n] = i.value.trim();
+                      });
+                      const title = pick('h1') || pick('h2') || document.title || '';
+                      let body = areas.sort((a,b)=>b.length-a.length)[0] || '';
+                      if (!body) {
+                        // fallback: bloc principal sans boutons
+                        body = (document.querySelector('main, .content, .card, form') || document.body)
+                          .innerText || '';
+                      }
+                      return {title, body, inputs, url: location.href};
+                    }
+                    """
+                )
+                body = (payload.get("body") or "").strip()
+                # Nettoyer chrome UI si present
+                for noise in (
+                    "Remonter toutes mes annonces",
+                    "Remettre en haut",
+                    "Vote admin",
+                    "Supprimer",
+                    "Copier",
+                    "Enregistrer",
+                    "Sauvegarder",
+                ):
+                    if body.startswith(noise):
+                        body = body.replace(noise, "", 1).strip()
+                if len(body) < 40:
+                    continue
+                title = payload.get("title") or body.split("\n", 1)[0]
+                slug = _slug_from_text(title, offers)
+                if not slug:
+                    for o in offers.load_all():
+                        n = o.get("name") or ""
+                        if n and n.lower() in (title + "\n" + body).lower():
+                            slug = o.get("lk")
+                            break
+                if not slug or slug in seen:
+                    continue
+                # Prefer explicit code/link inputs if present
+                force = {}
+                inputs = payload.get("inputs") or {}
+                for k, v in inputs.items():
+                    if not v:
+                        continue
+                    if "code" in k and "postal" not in k:
+                        force["personal_code"] = v
+                    if "lien" in k or "link" in k or "url" in k:
+                        if v.startswith("http"):
+                            force["personal_link"] = v
+                try:
+                    offer = offers.get_by_slug(slug)
+                except KeyError:
+                    offer = None
+                result = build_from_text(
+                    platform=platform,
+                    program=slug,
+                    language="fr",
+                    golden_text=body,
+                    offer=offer,
+                    announcement_url=payload.get("url") or url,
+                    force_values=force or None,
+                )
+                paths = write_build_result(result)
+                seen.add(slug)
+                report["items"].append(
+                    {
+                        "program": slug,
+                        "status": "ok",
+                        "mutable": result.mutable_fields,
+                        "chars": len(body),
+                        "url": payload.get("url") or url,
+                    }
+                )
             except Exception as exc:  # noqa: BLE001
-                report["errors"].append({"program": slug, "error": str(exc)})
+                report["errors"].append({"url": url, "error": str(exc)})
 
         if not report["items"]:
             report["errors"].append(
                 {
-                    "error": "aucune annonce structuree extraite — DOM a cartographier",
+                    "error": "aucune annonce detail extraite",
                     "hint": "raw dump: data/captures/parrainage-co-raw.txt",
+                    "edit_urls_found": len(edit_urls),
                 }
             )
     except Exception as exc:  # noqa: BLE001
@@ -196,8 +273,18 @@ async def capture_code_parrainage(browser, offers: OffersRepository) -> dict:
         await bumper_mod.human_sleep(1, 2)
         await bumper_mod.robust_fill(page, 'input[type="email"]', cfg["email"])
         await bumper_mod.robust_fill(page, 'input[type="password"]', cfg["password"])
-        if not await bumper_mod.solve_slider(page):
-            raise RuntimeError("slider captcha non resolu (pas de contournement)")
+        slider_ok = False
+        for attempt in range(3):
+            if await bumper_mod.solve_slider(page):
+                slider_ok = True
+                break
+            await bumper_mod.human_sleep(1.0, 2.0)
+            # recharger le login pour un nouveau puzzle
+            await page.goto(f"{cfg['url']}/login", wait_until="networkidle", timeout=60000)
+            await bumper_mod.robust_fill(page, 'input[type="email"]', cfg["email"])
+            await bumper_mod.robust_fill(page, 'input[type="password"]', cfg["password"])
+        if not slider_ok:
+            raise RuntimeError("slider captcha non resolu apres 3 essais (pas de contournement)")
         await asyncio.sleep(random.uniform(0.8, 1.5))
         await bumper_mod.human_click(
             page, page.locator('button:has-text("Se connecter"), button[type="submit"]').first
@@ -316,32 +403,64 @@ async def capture_referralcode_tv(browser, offers: OffersRepository) -> dict:
         REPORT_DIR.mkdir(parents=True, exist_ok=True)
         (REPORT_DIR / "referralcode-tv-raw.txt").write_text(body_text[:50000], encoding="utf-8")
 
-        cards = await page.evaluate(
+        # Prefer edit links per listing (READ-ONLY open)
+        edit_urls = await page.evaluate(
             """
-            () => {
-              const out = [];
-              document.querySelectorAll(
-                '.listing, .card, article, tr, .job_listing, li, .row'
-              ).forEach(n => {
-                const t = (n.innerText || '').trim();
-                if (t.length < 30 || t.length > 8000) return;
-                if (!/code|link|http|referral|bonus|€|\\$/i.test(t)) return;
-                // ignore pure boost UI
-                if (/^boost|cliccami/i.test(t) && t.length < 80) return;
-                const a = n.querySelector('a[href]');
-                out.push({href: a ? a.href : location.href, body: t});
-              });
-              return out;
-            }
+            () => Array.from(new Set(
+              Array.from(document.querySelectorAll('a[href*="edit"], a:has-text("Edit"), button:has-text("Edit Code")'))
+                .map(a => a.href || '')
+                .filter(h => h && h.startsWith('http'))
+            ))
             """
         )
+        cards = []
+        if not edit_urls:
+            cards = await page.evaluate(
+                """
+                () => {
+                  const out = [];
+                  document.querySelectorAll('.listing, .card, article, .job_listing').forEach(n => {
+                    const t = (n.innerText || '').trim();
+                    if (t.length < 40 || t.length > 2500) return;
+                    if (!/(code|link|http|referral|bonus)/i.test(t)) return;
+                    // un seul bloc — ignorer mega-textes multi-offres
+                    if ((t.match(/Live/g) || []).length > 2) return;
+                    const a = n.querySelector('a[href]');
+                    out.push({href: a ? a.href : location.href, body: t});
+                  });
+                  return out;
+                }
+                """
+            )
         seen = set()
-        for card in cards:
-            body = card["body"]
+        targets = [{"href": u, "body": None} for u in edit_urls[:60]] + cards
+        for card in targets:
+            body = card.get("body")
+            href = card.get("href")
+            if href and body is None:
+                try:
+                    await page.goto(href, wait_until="domcontentloaded", timeout=45000)
+                    await bumper_mod.human_sleep(1, 2)
+                    body = await page.evaluate(
+                        """
+                        () => {
+                          const areas = Array.from(document.querySelectorAll('textarea'))
+                            .map(t => (t.value||'').trim()).filter(t => t.length>20);
+                          if (areas.length) return areas.sort((a,b)=>b.length-a.length)[0];
+                          const main = document.querySelector('main, .content, form, article');
+                          return (main || document.body).innerText.slice(0, 6000);
+                        }
+                        """
+                    )
+                except Exception as exc:  # noqa: BLE001
+                    report["errors"].append({"url": href, "error": str(exc)})
+                    continue
+            if not body or len(body) < 40:
+                continue
             slug = None
             for o in offers.load_all():
                 n = o.get("name") or ""
-                if n and n.lower() in body.lower():
+                if n and n.lower() in body.lower()[:400]:
                     slug = o.get("lk")
                     break
             if not slug or slug in seen:
@@ -352,7 +471,7 @@ async def capture_referralcode_tv(browser, offers: OffersRepository) -> dict:
             except KeyError:
                 offer = None
             try:
-                item = _save_result(platform, slug, "en", body, card.get("href"), offer)
+                item = _save_result(platform, slug, "en", body, href, offer)
                 report["items"].append(item)
             except Exception as exc:  # noqa: BLE001
                 report["errors"].append({"program": slug, "error": str(exc)})
