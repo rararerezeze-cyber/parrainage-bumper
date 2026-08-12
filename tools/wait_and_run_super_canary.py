@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Attend le creneau Super-Parrain 24h puis dispatch le canary fused (branch feature).
 
+DESACTIVE par defaut pendant phase BASE (data/autofresh-phase.json).
+Le canary live est reporte jusqu'a BASE_READY_ALL.
+
 Usage:
-  python tools/wait_and_run_super_canary.py           # wait + dispatch
-  python tools/wait_and_run_super_canary.py --now     # dispatch si eligible, sinon exit 2
-  python tools/wait_and_run_super_canary.py --status  # print only
+  python tools/wait_and_run_super_canary.py --status
+  AUTOFRESH_FORCE_LIVE=1 python tools/wait_and_run_super_canary.py --now
 """
 from __future__ import annotations
 
@@ -19,6 +21,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+from lib.phase import live_canary_allowed, phase_name
 from lib.super_parrain_schedule import is_eligible
 
 BRANCH = "autofresh/phase2b-kraken-capture"
@@ -40,6 +43,14 @@ def status() -> dict:
 
 
 def dispatch() -> int:
+    if not live_canary_allowed():
+        print(
+            f"LIVE_CANARY_DISABLED phase={phase_name()} — "
+            "no dispatch (BASE phase until BASE_READY_ALL). "
+            "Set AUTOFRESH_FORCE_LIVE=1 only after BASE_READY_ALL.",
+            flush=True,
+        )
+        return 4
     cmd = [
         "gh",
         "workflow",
@@ -170,9 +181,19 @@ def main() -> int:
     args = ap.parse_args()
 
     st = status()
+    st["phase"] = phase_name()
+    st["live_canary_allowed"] = live_canary_allowed()
     print(json.dumps(st, indent=2), flush=True)
     if args.status:
         return 0
+
+    if not live_canary_allowed():
+        print(
+            f"ABORTED: live canary disabled (phase={phase_name()}). "
+            "Waiter will not run. BASE phase active.",
+            flush=True,
+        )
+        return 4
 
     if args.now:
         if not st["eligible"]:
@@ -185,7 +206,7 @@ def main() -> int:
         watch_latest()
         return 0
 
-    # Wait loop
+    # Wait loop (only when live canary explicitly allowed)
     while True:
         eligible, nxt, hours = is_eligible()
         print(

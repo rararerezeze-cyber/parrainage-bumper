@@ -15,6 +15,7 @@ from lib.super_parrain_content import (
     get_desired_content,
     program_from_edit_url,
 )
+from lib.phase import live_writes_enabled, phase_name
 from lib.super_parrain_policy import should_prefill_content
 
 log = logging.getLogger("super_parrain.prefill")
@@ -124,6 +125,17 @@ async def prepare_before_save(page, edit_url: str) -> dict[str, Any]:
         result["skipped"] = True
         result["reason"] = "program_unknown_from_url"
         log.info("  Autofresh: programme inconnu pour URL — bump seul")
+        return result
+
+    # Phase BASE: jamais de prefill contenu (canary reporte jusqu'a BASE_READY_ALL)
+    if not live_writes_enabled():
+        result["skipped"] = True
+        result["reason"] = f"base_phase_no_live_writes ({phase_name()})"
+        result["policy"] = "base_phase"
+        log.info(
+            f"  Autofresh [{program}]: phase BASE — prefill contenu OFF, "
+            "Enregistrer = remontee seule (canary deferred)"
+        )
         return result
 
     # Canary / rollout gate — avant tout calcul de contenu

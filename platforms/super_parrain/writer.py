@@ -493,6 +493,8 @@ def _reread_public(url: str) -> str:
 
 async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult:
     steps: list[str] = []
+    from lib.phase import live_writes_enabled, phase_name
+
     if not plan.structure_preserved:
         return WriteResult(
             ok=False,
@@ -510,11 +512,15 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
             post_publish_text=plan.historical,
         )
 
-    if dry_run:
+    if dry_run or not live_writes_enabled():
         return WriteResult(
             ok=True,
             plan=plan,
-            steps=["dry-run only — aucune publication"],
+            steps=[
+                "dry-run only — aucune publication"
+                if dry_run
+                else f"BASE_PHASE_NO_LIVE ({phase_name()}) — write prepared, not executed"
+            ],
             post_match=None,
         )
 

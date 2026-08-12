@@ -270,6 +270,7 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
     steps: list[str] = []
     # Stale / absent du compte authentifie → jamais write ni recreate
     from lib.mapping_guards import write_blocked_reason
+    from lib.phase import live_writes_enabled, phase_name
 
     blocked = write_blocked_reason(plan.platform, plan.program, plan.language)
     if blocked:
@@ -288,8 +289,17 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
         )
     if not plan.changed_fields:
         return WriteResult(ok=True, plan=plan, steps=["noop"], post_match=True, post_publish_text=plan.historical)
-    if dry_run:
-        return WriteResult(ok=True, plan=plan, steps=["dry-run only"])
+    if dry_run or not live_writes_enabled():
+        return WriteResult(
+            ok=True,
+            plan=plan,
+            steps=[
+                "dry-run only"
+                if dry_run
+                else f"BASE_PHASE_NO_LIVE ({phase_name()}) — write prepared, not executed"
+            ],
+            post_match=None,
+        )
 
     bumper = _bumper()
     cfg = bumper.CONFIG["parrainage"]

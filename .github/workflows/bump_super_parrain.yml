@@ -49,6 +49,9 @@ jobs:
           # Premier live: Kraken content only; all other codes = BUMP_ONLY
           AUTOFRESH_MODE: "canary"
           AUTOFRESH_CANARY_PROGRAMS: "kraken"
+          # BASE phase kill-switch: no content prefill until BASE_READY_ALL + force live
+          AUTOFRESH_PHASE: "BASE"
+          AUTOFRESH_LIVE_WRITES: "0"
         run: |
           ACTION="${{ steps.decide.outputs.action }}"
           echo "action=$ACTION"
