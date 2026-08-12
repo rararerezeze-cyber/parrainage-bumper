@@ -7,7 +7,7 @@ Resume point for the next Codex session. Reconstruct from this file + git + stat
 - Repo: `rararerezeze-cyber/parrainage-bumper`
 - Branch: `autofresh/phase2b-kraken-capture`
 - Resume HEAD of this session was `a2e852c` (`fix(parrainage-co): clearer auth errors — prefer RM cookie, flag Turnstile need`)
-- After this handoff commit, `git log -1 --oneline` is the new HEAD.
+- Handoff commit: `484524d`. Follow-up capture: `222960c` (RCTV login timeout). After the HANDOFF refresh commit, `git log -1 --oneline` is the new HEAD.
 
 ## Absolute constraints (still in force)
 
@@ -77,7 +77,7 @@ Writers live under `platforms/<id>/writer.py`. Historical `bumper.py` CONFIG mus
 1. **1Parrainage CANARY_READY without live write** — same bar as parrainage-co / code-parrainage: login + edit + save + reread implemented + `tools/controlled_write_1parrainage.py` + `structure_preserved` on kraken. Promoted via `tools/promote_canary_ready.py --platform 1parrainage --apply`.
 2. **Login URL is `/login`**, proven public HTTP 200 with email+password fields. Previous capture used `connexion.php` (404) → public fallback. `capture_auth_readonly.py` now tries `/login` first.
 3. **Public Kraken offer_id = 100408** (`listeannonces_98906_Adrien89.php#id=100408`). Edit URL still resolved at auth time (member area). Never click Boost / Remonter.
-4. **ReferralCode.tv stays WRITE_PREPARED** — no local `REFERRALCODE_*`. Public probe re-confirmed 12 listings. Auth/edit still required. Do not promote without `EDIT_URLS_FOUND`.
+4. **ReferralCode.tv stays WRITE_PREPARED** — public probe re-confirmed 12 listings. GH `capture_readonly.yml` run `31648937632` (READ-ONLY) had `REFERRALCODE_*` present but **login timed out at 30s** (`auth.login=failed`, `edit_urls=[]`). Treat as stop (timeout/unexpected). Do **not** immediately re-login (already used this cycle). Do not promote without `EDIT_URLS_FOUND`.
 5. **Orchestrator does not auto-live after Super PASS.** `sequence-after-super` prepares remaining queue only when Super is WRITE_VERIFIED. `--execute` also requires `AUTOFRESH_SEQUENCE_LIVE=1`.
 6. **Hermes success only after disk confirm.** `persist_confirmed` is required for `ok=true` on set/remove. File lock serializes mutating commands. Idempotency ledger replays identical set/remove. Snapshot of overrides/status before mutation.
 7. **Monitor SHADOW never writes.** `SHADOW_ACCEPT` is a recommendation only (`auto_applied=false`, `would_write=false`). Human must accept later.
@@ -154,12 +154,7 @@ python monitor.py --shadow
 ## Blockers
 
 1. **Super-Parrain not WRITE_VERIFIED** — wait for `activation_canary.yml` at ~05:37 UTC. Do not live-write Super before eligible. Do not run historical bumper.
-2. **ReferralCode.tv auth/edit unproven** — needs `REFERRALCODE_EMAIL` / `REFERRALCODE_PASSWORD` in a READ-ONLY session:
-   ```
-   python tools/probe_referralcode_tv_edit.py --auth
-   # or GH: workflow_dispatch capture_readonly.yml sites=referralcode
-   ```
-   Promote to CANARY_READY only if `auth.conclusion=EDIT_URLS_FOUND` and field_probes show textarea/code/link. No CAPTCHA bypass.
+2. **ReferralCode.tv auth/edit unproven** — secrets exist in GH but last READ-ONLY probe (`31648937632`, commit `222960c`) failed: `Timeout 30000ms exceeded` on login. Do not re-run immediately (session already used). Next cycle: inspect `data/captures/referralcode-tv-edit-map.json` `auth` + `referralcode-tv-raw.txt` / screenshots in the run artifact, then one new `--auth` probe with longer timeout only if the log is a slow page (not CAPTCHA/403/429). Promote only if `EDIT_URLS_FOUND`.
 3. **No local secrets** — cannot prove 1Parrainage member edit URL or RCTV edit URL on this machine.
 4. **WRITE_VERIFIED 0/7** — Telegram live path stays off.
 
@@ -175,11 +170,7 @@ Do this in order. Stop if any step is 403/429/CAPTCHA/auth/unexpected DOM.
    python tools/activation_orchestrator.py sequence-after-super
    ```
    Then canary **parrainage-co** then **code-parrainage** (one session each, `activation_canary.yml` execute=true).
-4. If Super still pending: prove ReferralCode.tv edit (READ-ONLY):
-   ```
-   gh workflow run capture_readonly.yml -f sites=referralcode --ref autofresh/phase2b-kraken-capture
-   ```
-   Download artifact. If `EDIT_URLS_FOUND`, wire `edit_url` into `data/platform-mappings/referralcode-tv.*.json` and promote CANARY_READY. Else leave WRITE_PREPARED.
+4. If Super still pending: **do not immediately re-probe RCTV** (last cycle already consumed). After a later window, one READ-ONLY `--auth` with timeout raised only if logs show a slow `/login` (not challenge). If `EDIT_URLS_FOUND`, wire `edit_url` into mappings and promote CANARY_READY. Else leave WRITE_PREPARED.
 5. Optional READ-ONLY 1Parrainage edit URL proof (`sites=oneparrainage`) to store real `edit_url` for kraken `100408`. Not required for CANARY_READY; required before first live 1Parrainage canary.
 6. Do not auto-accept SHADOW decisions. Do not live-write 1Parrainage / RCTV / ReferralCodes tonight.
 
