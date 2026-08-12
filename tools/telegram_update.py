@@ -199,6 +199,19 @@ def main() -> int:
     import os
 
     os.environ["BONUS_PARRAIN_OFFERS_PATH"] = update["effective_offers_path"]
+    # Queue Super-Parrain content update (priority over bump)
+    try:
+        from lib.super_parrain_schedule import enqueue_pending
+
+        if parsed["program"]:
+            enqueue_pending(
+                "super-parrain",
+                parsed["program"],
+                "fr",
+                reason=f"telegram_{parsed['field']}",
+            )
+    except Exception:
+        pass
     results = run_all()
     report = format_telegram_report(parsed, update, results)
     print(report)

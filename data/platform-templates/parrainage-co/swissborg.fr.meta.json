@@ -12,7 +12,7 @@
   ],
   "platform_values": {
     "personal_link": "https://swissborg.com/fr/r/adrienOCZI39JF",
-    "referee_reward": "1. Inscrivez-vous via le lien ci-dessus"
+    "referee_reward": "50€ offerts en Bitcoin ⚡️"
   },
   "confidences": {
     "personal_link": "medium",
@@ -20,7 +20,6 @@
   },
   "notes": [
     "lien plateforme != offers.json",
-    "bonus extrait du texte plateforme (confiance moyenne)",
-    "public profile"
+    "bonus extrait du texte plateforme (confiance moyenne)"
   ]
 }

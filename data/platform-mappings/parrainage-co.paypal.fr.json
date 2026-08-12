@@ -29,7 +29,7 @@
     "referee_reward": "15 € offers sur votre compte iGraal m via mon lien ✅"
   },
   "confidences": {
-    "personal_link": "high",
+    "personal_link": "medium",
     "referee_reward": "medium"
   },
   "notes": "lien plateforme != offers.json; bonus extrait du texte plateforme (confiance moyenne)",
@@ -38,5 +38,6 @@
     "personal_link": "offers_json_then_operator",
     "referee_reward": "offers_json_then_official",
     "announcement_text": "platform_target_only"
-  }
+  },
+  "quality": "cleaned_body"
 }

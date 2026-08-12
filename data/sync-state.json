@@ -1,20 +1,22 @@
 {
   "version": 1,
-  "updated_at": "2026-08-12T00:00:00+00:00",
+  "updated_at": "2026-08-12T16:56:37.972506+00:00",
   "entries": {
     "super-parrain:kraken:fr": {
       "platform": "super-parrain",
       "program": "kraken",
       "language": "fr",
       "sync_mode": "REVIEW",
-      "status": "golden_mismatch",
+      "status": "pending_write",
       "last_sync_at": null,
       "last_success_at": null,
       "last_attempt_at": null,
       "last_values": {},
       "last_error": "REVIEW attendu: offers.json (non valide comme verite) != golden Super-Parrain (texte cible historique). Aucune publication tant que valeurs metier non validees par l'operateur / source officielle.",
       "announcement_url": "https://www.super-parrain.com/offres/kraken/parrainage-kraken/annonces/adrien-b-8",
-      "edit_url": null
+      "edit_url": null,
+      "next_eligible_at": "2026-08-12T16:56:37.971504+00:00",
+      "pending_reason": "content_update"
     }
   }
 }

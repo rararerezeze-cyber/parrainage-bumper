@@ -1,20 +1,21 @@
 name: Bump — Super Parrain (1x/jour)
+# Feature-branch version: content update pending > bump; cooldown never forced.
 on:
   schedule:
     - cron: "0 */2 * * *"
   workflow_dispatch:
     inputs:
       mode:
-        description: "bump (default) | write_kraken (controlled Autofresh write)"
+        description: "auto (decide) | bump | write_kraken"
         required: false
-        default: "bump"
+        default: "auto"
 concurrency:
   group: parrainage-bumper-super
   cancel-in-progress: false
 jobs:
   bump:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 35
     permissions:
       contents: write
     steps:
@@ -26,27 +27,59 @@ jobs:
         run: |
           pip install -r requirements.txt
           playwright install --with-deps chromium
+      - name: Ensure pending Kraken content update is queued
+        run: python tools/super_parrain_decide.py --enqueue-kraken
+      - name: Decide action (update > bump, respect 24h)
+        id: decide
+        run: |
+          set +e
+          python tools/super_parrain_decide.py --json > /tmp/decision.json
+          CODE=$?
+          set -e
+          cat /tmp/decision.json
+          ACTION=$(python -c "import json;print(json.load(open('/tmp/decision.json'))['action'])")
+          echo "action=$ACTION" >> "$GITHUB_OUTPUT"
+          echo "exit_code=$CODE" >> "$GITHUB_OUTPUT"
+          # Allow manual override via workflow_dispatch
+          MODE="${{ github.event.inputs.mode }}"
+          if [ -z "$MODE" ]; then MODE=auto; fi
+          if [ "$MODE" = "write_kraken" ]; then
+            echo "action=write" >> "$GITHUB_OUTPUT"
+          elif [ "$MODE" = "bump" ]; then
+            # Still refuse bump if not eligible / pending takes priority unless truly eligible and no pending
+            if [ "$ACTION" = "wait" ]; then
+              echo "Forced bump refused: cooldown active"
+              echo "action=wait" >> "$GITHUB_OUTPUT"
+            else
+              echo "action=bump" >> "$GITHUB_OUTPUT"
+            fi
+          fi
       - name: Super Parrain action
         env:
           SUPER_PARRAIN_EMAIL: ${{ secrets.SUPER_PARRAIN_EMAIL }}
           SUPER_PARRAIN_PASSWORD: ${{ secrets.SUPER_PARRAIN_PASSWORD }}
           TARGET_SITES: "super"
         run: |
-          MODE="${{ github.event.inputs.mode }}"
-          if [ -z "$MODE" ]; then MODE=bump; fi
-          echo "mode=$MODE"
-          if [ "$MODE" = "write_kraken" ]; then
+          ACTION="${{ steps.decide.outputs.action }}"
+          echo "Running action=$ACTION"
+          if [ "$ACTION" = "write" ]; then
+            # --force confirms operator intent but NEVER bypasses platform 24h (writer enforces)
             python tools/controlled_write_super_parrain.py --program kraken --execute --force
-          else
+          elif [ "$ACTION" = "bump" ]; then
             python bumper.py
+          else
+            echo "WAIT — skip bump to preserve window for content update"
+            cat /tmp/decision.json
+            exit 0
           fi
-      - name: Logs / write report
+      - name: Logs / reports
         if: always()
         run: |
           cat bumper.log || true
           ls -la data/captures/write-*.json 2>/dev/null || true
           cat data/captures/write-super-parrain-kraken.json 2>/dev/null || true
-      - name: Upload write artifacts
+          cat data/pending_writes.json 2>/dev/null || true
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -55,17 +88,22 @@ jobs:
           if-no-files-found: ignore
           path: |
             data/captures/write-*.json
+            data/pending_writes.json
             debug_super_write_*.png
+            debug_super_write_form.json
             bumper.log
       - name: Commit results
         if: success()
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add last_super_run.txt data/captures/write-*.json data/platform-mappings/super-parrain.kraken.fr.json data/platform-templates/super-parrain/kraken.fr.golden.txt 2>/dev/null || true
+          git add last_super_run.txt data/captures/write-*.json data/pending_writes.json \
+            data/platform-mappings/super-parrain.kraken.fr.json \
+            data/platform-templates/super-parrain/kraken.fr.golden.txt \
+            data/sync-state.json 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "Nothing to commit"
           else
-            git commit -m "chore: super-parrain run results (mode=${{ github.event.inputs.mode || 'bump' }})"
+            git commit -m "chore: super-parrain action results"
             git push
           fi

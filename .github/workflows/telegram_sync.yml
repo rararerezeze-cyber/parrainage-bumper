@@ -1,0 +1,83 @@
+name: Telegram sync (serverless entry)
+# Declenche par le Cloudflare Worker (repository workflow_dispatch).
+# Branche feature uniquement jusqu'a validation V1.
+on:
+  workflow_dispatch:
+    inputs:
+      message:
+        description: "Message Telegram naturel"
+        required: true
+      chat_id:
+        description: "Telegram chat id pour le rapport"
+        required: false
+        default: ""
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: autofresh-telegram-sync
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+      - name: Apply Telegram message (write offers + dry-run)
+        id: apply
+        env:
+          SUPER_PARRAIN_EMAIL: ${{ secrets.SUPER_PARRAIN_EMAIL }}
+          SUPER_PARRAIN_PASSWORD: ${{ secrets.SUPER_PARRAIN_PASSWORD }}
+          PARRAINAGE_CO_EMAIL: ${{ secrets.PARRAINAGE_CO_EMAIL }}
+          PARRAINAGE_CO_PASSWORD: ${{ secrets.PARRAINAGE_CO_PASSWORD }}
+          PARRAINAGE_CO_RM_COOKIE: ${{ secrets.PARRAINAGE_CO_RM_COOKIE }}
+        run: |
+          set -e
+          MSG='${{ github.event.inputs.message }}'
+          python tools/telegram_update.py "$MSG" --write | tee /tmp/tg-report.txt
+          # Queue Super-Parrain pending content update
+          python tools/super_parrain_decide.py --enqueue-kraken || true
+          # Attempt verified writers only when eligible
+          python tools/run_verified_writers.py --from-telegram || true
+          cat /tmp/tg-report.txt data/captures/telegram-last-report.txt 2>/dev/null | tee /tmp/final-report.txt || true
+      - name: Notify Telegram
+        if: always() && github.event.inputs.chat_id != ''
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: |
+          if [ -z "$TELEGRAM_BOT_TOKEN" ]; then
+            echo "TELEGRAM_BOT_TOKEN secret missing — skip notify"
+            exit 0
+          fi
+          REPORT=$(head -c 3500 /tmp/final-report.txt 2>/dev/null || echo "sync done")
+          python - <<'PY'
+          import os, json, urllib.request
+          token=os.environ["TELEGRAM_BOT_TOKEN"]
+          chat=os.environ.get("CHAT") or """${{ github.event.inputs.chat_id }}"""
+          text=open("/tmp/final-report.txt",encoding="utf-8",errors="replace").read()[:3500]
+          data=json.dumps({"chat_id": chat, "text": text}).encode()
+          req=urllib.request.Request(
+            f"https://api.telegram.org/bot{token}/sendMessage",
+            data=data,
+            headers={"Content-Type":"application/json"},
+          )
+          urllib.request.urlopen(req, timeout=30)
+          print("telegram notified")
+          PY
+      - name: Commit offers + reports
+        if: success()
+        run: |
+          git config user.name "autofresh-bot"
+          git config user.email "autofresh-bot@users.noreply.github.com"
+          git add data/offers.json data/captures data/pending_writes.json data/platform-mappings data/platform-templates data/sync-state.json last_super_run.txt 2>/dev/null || true
+          if git diff --cached --quiet; then echo "no commit"; else
+            git commit -m "chore(telegram): apply update from message"
+            git push
+          fi
