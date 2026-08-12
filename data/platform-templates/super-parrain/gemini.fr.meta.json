@@ -1,0 +1,28 @@
+{
+  "platform": "super-parrain",
+  "program": "gemini",
+  "language": "fr",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": "https://www.super-parrain.com/offres/gemini/parrainage-gemini/annonces/adrien-b-8",
+  "mutable_fields": [
+    "personal_code",
+    "personal_link",
+    "referee_reward"
+  ],
+  "platform_values": {
+    "personal_code": "wd8yn943e",
+    "personal_link": "https://exchange.gemini.com/register?ref=wd8yn943e",
+    "referee_reward": "50$ dans cryptomonnaie de votre choix après votre premier achat/échange éligible"
+  },
+  "confidences": {
+    "personal_code": "high",
+    "personal_link": "medium",
+    "referee_reward": "medium"
+  },
+  "notes": [
+    "lien plateforme != offers.json",
+    "bonus extrait du texte plateforme (confiance moyenne)"
+  ]
+}

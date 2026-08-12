@@ -15,9 +15,7 @@
     "personal_link": "{{PERSONAL_LINK}}",
     "referee_reward": "{{REFEREE_REWARD}}",
     "referrer_reward": "{{REFERRER_REWARD}}",
-    "conditions": "{{CONDITIONS}}",
-    "offer_end_date": "{{OFFER_END_DATE}}",
-    "bonus_special": "{{BONUS_SPECIAL}}"
+    "conditions": "{{CONDITIONS}}"
   },
   "offer_fields": {
     "personal_code": "code",
@@ -27,20 +25,21 @@
   },
   "announcement_url": "https://www.super-parrain.com/offres/kraken/parrainage-kraken/annonces/adrien-b-8",
   "edit_url": null,
-  "notes": "Golden = texte cible/historique Super-Parrain publie (jamais source metier). personal_code/personal_link = valeurs actuelles du compte Kraken fournies par l'operateur apres validation. referee_reward/conditions publiques = source officielle Kraken en priorite. offers.json = referent central seulement apres validation des valeurs. Drift offers.json vs golden = REVIEW attendu, bloque publication. Variables marquees: code, lien, bonus filleul (phrase). Seuils depot/trade €200 et titre 'Jusqu'a 200 €' laisses fixes (role non certain).",
-  "capture_values_on_platform": {
+  "platform_values": {
     "personal_code": "cpbrgddy",
     "personal_link": "https://invite.kraken.com/JDNW/s5qudqe4",
-    "referee_reward": "200 € en cryptomonnaies",
-    "note": "Valeurs observees sur Super-Parrain au moment de la capture — historiques/cibles, pas source de verite metier."
+    "referee_reward": "200 € en cryptomonnaies"
   },
-  "captured_from": "https://www.super-parrain.com/offres/kraken/parrainage-kraken/annonces/adrien-b-8",
+  "confidences": {
+    "personal_code": "medium",
+    "personal_link": "medium",
+    "referee_reward": "medium"
+  },
+  "notes": "code plateforme 'cpbrgddy' != offers.json '4hpz4gdy'; lien plateforme != offers.json; bonus extrait du texte plateforme (confiance moyenne)",
   "source_of_truth": {
-    "personal_code": "operator_account",
-    "personal_link": "operator_account",
-    "referee_reward": "official_program",
-    "conditions": "official_program",
-    "announcement_text": "platform_target_only",
-    "offers_json": "central_after_validation"
+    "personal_code": "offers_json_then_operator",
+    "personal_link": "offers_json_then_operator",
+    "referee_reward": "offers_json_then_official",
+    "announcement_text": "platform_target_only"
   }
 }

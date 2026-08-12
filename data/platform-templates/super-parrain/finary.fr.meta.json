@@ -1,0 +1,25 @@
+{
+  "platform": "super-parrain",
+  "program": "finary",
+  "language": "fr",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": "https://www.super-parrain.com/offres/finary/parrainage-finary/annonces/adrien-b-8",
+  "mutable_fields": [
+    "personal_code",
+    "personal_link",
+    "referee_reward"
+  ],
+  "platform_values": {
+    "personal_code": "KEDEA4",
+    "personal_link": "https://finary.com/referral/KEDEA4",
+    "referee_reward": "1 mois Premium offert"
+  },
+  "confidences": {
+    "personal_code": "high",
+    "personal_link": "high",
+    "referee_reward": "high"
+  },
+  "notes": []
+}

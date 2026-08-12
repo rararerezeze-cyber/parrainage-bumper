@@ -1,0 +1,22 @@
+{
+  "stats": {
+    "ok": 0,
+    "skip": 3,
+    "error": 0
+  },
+  "brands_raw_count": 3,
+  "items": [
+    {
+      "shop": "TikTok",
+      "status": "no_offer"
+    },
+    {
+      "shop": null,
+      "status": "no_offer"
+    },
+    {
+      "shop": "TikTok",
+      "status": "no_offer"
+    }
+  ]
+}

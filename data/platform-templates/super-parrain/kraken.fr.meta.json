@@ -3,27 +3,27 @@
   "program": "kraken",
   "language": "fr",
   "status": "ready",
-  "template_file": "kraken.fr.txt",
-  "golden_file": "kraken.fr.golden.txt",
-  "captured_at": "2026-08-12",
-  "source": "https://www.super-parrain.com/offres/kraken/parrainage-kraken/annonces/adrien-b-8",
-  "source_type": "public_announcement_page",
   "role": "platform_target_historical_text_only",
   "not_business_source_of_truth": true,
-  "capture_values_on_platform": {
-    "personal_code": "cpbrgddy",
-    "personal_link": "https://invite.kraken.com/JDNW/s5qudqe4",
-    "referee_reward": "200 € en cryptomonnaies",
-    "note": "Valeurs observees sur la plateforme a la capture — non autoritatives."
-  },
+  "announcement_url": "https://www.super-parrain.com/offres/kraken/parrainage-kraken/annonces/adrien-b-8",
   "mutable_fields": [
     "personal_code",
     "personal_link",
     "referee_reward"
   ],
-  "left_fixed": [
-    "headline Jusqu'à 200 € offerts (montant max marketing, rôle incertain)",
-    "seuils Déposez/Tradez au moins €200 (conditions, pas le bonus filleul)",
-    "lien Discord, emojis, structure narrative"
+  "platform_values": {
+    "personal_code": "cpbrgddy",
+    "personal_link": "https://invite.kraken.com/JDNW/s5qudqe4",
+    "referee_reward": "200 € en cryptomonnaies"
+  },
+  "confidences": {
+    "personal_code": "medium",
+    "personal_link": "medium",
+    "referee_reward": "medium"
+  },
+  "notes": [
+    "code plateforme 'cpbrgddy' != offers.json '4hpz4gdy'",
+    "lien plateforme != offers.json",
+    "bonus extrait du texte plateforme (confiance moyenne)"
   ]
 }

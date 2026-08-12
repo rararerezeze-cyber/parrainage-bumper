@@ -21,9 +21,15 @@ class PlatformMapping:
     announcement_url: str | None = None
     edit_url: str | None = None
     notes: str | None = None
+    platform_values: dict[str, str] | None = None
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "PlatformMapping":
+        pv = data.get("platform_values") or data.get("capture_values_on_platform") or {}
+        # ignore non-string meta keys like "note"
+        platform_values = {
+            k: str(v) for k, v in dict(pv).items() if isinstance(v, (str, int, float))
+        } or None
         return cls(
             platform=data["platform"],
             program=data["program"],
@@ -36,6 +42,7 @@ class PlatformMapping:
             announcement_url=data.get("announcement_url"),
             edit_url=data.get("edit_url"),
             notes=data.get("notes"),
+            platform_values=platform_values,
         )
 
 
@@ -70,19 +77,19 @@ class DryRunResult:
             f"Plateforme: {self.platform} ({self.language})",
             f"Mode: {self.sync_mode} | Statut: {self.status}",
         ]
-        if self.error:
+        if self.error and self.status not in {"pending_update", "in_sync", "manual"}:
             lines.append(f"Erreur: {self.error}")
+            if self.status not in {"pending_update"}:
+                return lines
+        elif self.error and self.status == "manual":
+            lines.append(f"Info: {self.error}")
             return lines
         if self.golden_match is not None:
-            lines.append(f"Golden match: {'oui' if self.golden_match else 'NON'}")
+            lines.append(
+                f"Identique historique: {'oui' if self.golden_match else 'non (maj prevue)'}"
+            )
         for field_name, diff in self.changed_fields.items():
             old = diff.get("old")
             new = diff.get("new")
             lines.append(f"{field_name}: {old!r} -> {new!r}")
-        if self.historical_text is not None and self.rendered_text is not None:
-            if self.historical_text != self.rendered_text:
-                lines.append("--- historique ---")
-                lines.append(self.historical_text)
-                lines.append("--- rendu ---")
-                lines.append(self.rendered_text)
         return lines

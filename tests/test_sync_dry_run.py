@@ -42,7 +42,7 @@ def test_dry_run_success_with_fixtures(tmp_path):
     result = adapter.dry_run(mapping)
     assert result.blocking is False
     assert result.golden_match is True
-    assert result.status == "ready"
+    assert result.status == "in_sync"
 
 
 def test_dry_run_prod_golden_with_capture_values():
@@ -65,16 +65,17 @@ def test_dry_run_prod_golden_with_capture_values():
     assert mapping.template_status == "ready"
 
 
-def test_dry_run_prod_detects_offers_json_drift():
-    """offers.json BonusParrain peut différer du texte Super-Parrain publié."""
+def test_dry_run_prod_pending_update_when_offers_differ():
+    """Drift offers.json vs annonce = pending_update (a synchroniser), pas un crash."""
     adapter = SuperParrainAdapter(
         mappings=MappingRepository(),
         templates=TemplateRepository(),
-        offers=OffersRepository(),  # data/offers.json prod
+        offers=OffersRepository(),
     )
     mapping = MappingRepository().load("super-parrain", "kraken", "fr")
     result = adapter.dry_run(mapping)
-    # Les valeurs BonusParrain actuelles ne reproduisent pas le golden Super-Parrain.
-    assert result.blocking is True
-    assert result.status == "golden_mismatch"
+    assert result.blocking is False
+    assert result.status == "pending_update"
     assert result.golden_match is False
+    assert result.changed_fields
+    assert any(k in result.changed_fields for k in ("personal_code", "personal_link", "referee_reward"))

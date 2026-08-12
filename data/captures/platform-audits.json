@@ -1,0 +1,65 @@
+{
+  "audited_at": "2026-08-12",
+  "platforms": {
+    "referralcodes": {
+      "domain": "referralcodes.com",
+      "capability": "MANUAL",
+      "public_home": "https://referralcodes.com/",
+      "official_import": {
+        "url": "https://referralcodes.com/agents",
+        "name": "ReferralCodes Agent Import (Beta)",
+        "priority": "use_before_any_browser_automation",
+        "notes": "Import agent / bulk upload codes to profile — preferred path."
+      },
+      "data_feed": {
+        "url": "https://referralcodes.com/data-feed",
+        "status": "beta",
+        "notes": "Data feed API for rewards JSON — read-side, not necessarily write."
+      },
+      "automation_policy": "Do not scrape if official agent import works. No CAPTCHA bypass.",
+      "next_step": "Operator: provide profile username + whether Agent Import token/access exists."
+    },
+    "referraldrop": {
+      "domain": "referraldrop.com",
+      "capability": "MANUAL",
+      "public_home": "https://www.referraldrop.com",
+      "reachable": true,
+      "notes": "Homepage reachable. No public profile URL pattern confirmed for operator yet. Auth/edit flow not mapped without account session.",
+      "automation_policy": "No blind scraping. Manual until edit form + ToS reviewed.",
+      "next_step": "Operator: profile URL or export of current listings."
+    },
+    "1parrainage": {
+      "domain": "1parrainage.com",
+      "capability": "MANUAL",
+      "public_home": "https://www.1parrainage.com",
+      "reachable": true,
+      "risk": "Content edit may interact with boost/remontée logic — keep bump separate.",
+      "automation_policy": "MANUAL until form audit; never conflate with bumper.",
+      "next_step": "Operator: profile/annonces URL if public."
+    },
+    "parrainage-co": {
+      "domain": "parrainage.co",
+      "capability": "AUTO",
+      "bump": "already_in_bumper.py (boost-all / cookie RM)",
+      "content_capture": "no_public_profile_url_confirmed",
+      "auth_available_in_bumper": true,
+      "policy": "Read-only session capture allowed later with existing secrets; no write yet.",
+      "next_step": "Map authenticated offers list endpoint or dashboard HTML."
+    },
+    "code-parrainage": {
+      "domain": "code-parrainage.net",
+      "capability": "AUTO",
+      "bump": "already_in_bumper.py (Actualiser)",
+      "content_capture": "no_public_profile_url_confirmed",
+      "next_step": "Map public or account listing pages for bulk text capture."
+    },
+    "referralcode-tv": {
+      "domain": "referralcode.tv",
+      "capability": "AUTO",
+      "bump": "already_in_bumper.py (#cliccami)",
+      "note": "Distinct from referralcodes.com",
+      "content_capture": "no_public_profile_url_confirmed",
+      "next_step": "Map user public codes page after login or public slug."
+    }
+  }
+}

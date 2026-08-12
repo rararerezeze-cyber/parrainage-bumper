@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "platforms": [
+    {
+      "id": "super-parrain",
+      "domain": "super-parrain.com",
+      "capability": "AUTO",
+      "profile_url": "https://www.super-parrain.com/users/adrien-b-8",
+      "public_announcements": true,
+      "notes": "Capture publique via profil + c-parrain__message"
+    },
+    {
+      "id": "parrainage-co",
+      "domain": "parrainage.co",
+      "capability": "AUTO",
+      "auth": "cookie_rm_or_login_turnstile",
+      "public_announcements": "partial",
+      "notes": "Bump via boost-all deja en prod. Capture contenu: a cartographier (compte)."
+    },
+    {
+      "id": "code-parrainage",
+      "domain": "code-parrainage.net",
+      "capability": "AUTO",
+      "auth": "login",
+      "public_announcements": "partial",
+      "notes": "Bump Actualiser en prod. Capture annonces: audit pages publiques/compte."
+    },
+    {
+      "id": "referralcode-tv",
+      "domain": "referralcode.tv",
+      "capability": "AUTO",
+      "auth": "login",
+      "public_announcements": "partial",
+      "notes": "Bump #cliccami en prod. Distinct de referralcodes.com."
+    },
+    {
+      "id": "referralcodes",
+      "domain": "referralcodes.com",
+      "capability": "MANUAL",
+      "priority": "official_import_api_first",
+      "notes": "Prioriser import/agent officiel. Pas de scraper si API dispo. Audit en cours."
+    },
+    {
+      "id": "referraldrop",
+      "domain": "referraldrop.com",
+      "capability": "MANUAL",
+      "notes": "Audit technique requis avant automation."
+    },
+    {
+      "id": "1parrainage",
+      "domain": "1parrainage.com",
+      "capability": "MANUAL",
+      "notes": "Modification contenu peut impacter remontee — separer bump et update. Audit requis."
+    }
+  ]
+}
