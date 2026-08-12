@@ -16,11 +16,11 @@
   },
   "confidences": {
     "personal_code": "high",
-    "personal_link": "medium"
+    "personal_link": "high"
   },
   "notes": [
     "lien plateforme != offers.json",
     "bonus non marque (ambigu / non trouve) — texte laisse fixe",
-    "site_code_widget=114052844"
+    "auth_edit_url=https://parrainage.co/account/offers/edit/110585"
   ]
 }

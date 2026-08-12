@@ -23,7 +23,7 @@
     "conditions": "cond"
   },
   "announcement_url": "https://parrainage.co/offers/109021",
-  "edit_url": null,
+  "edit_url": "https://parrainage.co/account/offers/edit/109021",
   "platform_values": {
     "personal_link": "https://www.widilo.fr/i/NGA684",
     "referee_reward": "1.    Inscrivez-vous via le lien de parrainage ci-dessus pour recevoir 5 €"
@@ -32,12 +32,12 @@
     "personal_link": "high",
     "referee_reward": "medium"
   },
-  "notes": "bonus extrait du texte plateforme (confiance moyenne); site_code_widget=NGA684",
+  "notes": "bonus extrait du texte plateforme (confiance moyenne); auth_edit_url=https://parrainage.co/account/offers/edit/109021",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",
     "referee_reward": "offers_json_then_official",
     "announcement_text": "platform_target_only"
   },
-  "quality": "public_refetch"
+  "quality": "auth_edit_refetch"
 }

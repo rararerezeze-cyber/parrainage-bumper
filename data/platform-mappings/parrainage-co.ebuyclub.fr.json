@@ -23,7 +23,7 @@
     "conditions": "cond"
   },
   "announcement_url": "https://parrainage.co/offers/84358",
-  "edit_url": null,
+  "edit_url": "https://parrainage.co/account/offers/edit/84358",
   "platform_values": {
     "personal_link": "https://www.ebuyclub.com/?parrain=adrien891000",
     "referee_reward": "5€ de bienvenue crédités dès votre inscription via mon lien parrainage ✅"
@@ -32,12 +32,12 @@
     "personal_link": "high",
     "referee_reward": "medium"
   },
-  "notes": "bonus extrait du texte plateforme (confiance moyenne); site_code_widget=adrien891000",
+  "notes": "bonus extrait du texte plateforme (confiance moyenne); auth_edit_url=https://parrainage.co/account/offers/edit/84358",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",
     "referee_reward": "offers_json_then_official",
     "announcement_text": "platform_target_only"
   },
-  "quality": "public_refetch"
+  "quality": "auth_edit_refetch"
 }

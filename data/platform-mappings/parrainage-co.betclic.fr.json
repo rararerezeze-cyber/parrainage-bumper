@@ -23,7 +23,7 @@
     "conditions": "cond"
   },
   "announcement_url": "https://parrainage.co/offers/75172",
-  "edit_url": null,
+  "edit_url": "https://parrainage.co/account/offers/edit/75172",
   "platform_values": {
     "personal_code": "AD89AW2M",
     "referee_reward": "jusqu’à 140 € en paris gratuits et premier pari remboursé ✅"
@@ -32,12 +32,12 @@
     "personal_code": "high",
     "referee_reward": "medium"
   },
-  "notes": "lien offers.json non trouve dans le texte; bonus extrait du texte plateforme (confiance moyenne); site_code_widget=AD89AW2M",
+  "notes": "lien offers.json non trouve dans le texte; bonus extrait du texte plateforme (confiance moyenne); auth_edit_url=https://parrainage.co/account/offers/edit/75172",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",
     "referee_reward": "offers_json_then_official",
     "announcement_text": "platform_target_only"
   },
-  "quality": "public_refetch"
+  "quality": "auth_edit_refetch"
 }

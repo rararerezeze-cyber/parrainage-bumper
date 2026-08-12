@@ -23,21 +23,21 @@
     "conditions": "cond"
   },
   "announcement_url": "https://parrainage.co/offers/76563",
-  "edit_url": null,
+  "edit_url": "https://parrainage.co/account/offers/edit/76563",
   "platform_values": {
     "personal_link": "https://revolut.com/referral/?referral-code=adrienhcos!JUL2-26-AR-H1&geo-redirect",
     "referee_reward": "200 € offerts !"
   },
   "confidences": {
-    "personal_link": "medium",
+    "personal_link": "high",
     "referee_reward": "medium"
   },
-  "notes": "lien plateforme != offers.json; bonus extrait du texte plateforme (confiance moyenne); site_code_widget=adrienhcos",
+  "notes": "lien plateforme != offers.json; bonus extrait du texte plateforme (confiance moyenne); auth_edit_url=https://parrainage.co/account/offers/edit/76563",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",
     "referee_reward": "offers_json_then_official",
     "announcement_text": "platform_target_only"
   },
-  "quality": "public_refetch"
+  "quality": "auth_edit_refetch"
 }

@@ -1,43 +1,34 @@
 ⚡️ Offre Parrainage SwissBorg – Jusqu’à 50€ offerts en Bitcoin ⚡️
-
+                             
 ⭐️ Bonus aléatoire jusqu’à 50€ en BTC via ticket à gratter après inscription et premier dépôt ✅
-
+       
 ⸻
 
-➡️ Code de parrainage : adrienOCZI39JF
+➡️ Code de parrainage : {{PERSONAL_CODE}}
 
 ➡️ Lien de parrainage :
-
 {{PERSONAL_LINK}}
+
 
 ⸻
 
 ✅ Conditions pour obtenir le bonus :
-
 	{{REFEREE_REWARD}}
-
 	2.	Vérifiez votre identité (KYC)
-
 	3.	Déposez minimum 50€ (ou équivalent)
-
 	4.	Grattez votre ticket bonus pour recevoir entre 1€ et 50€ en Bitcoin
 
 ⸻
 
 ℹ️ À savoir :
-
 • Offre réservée aux nouveaux utilisateurs uniquement
-
 • Le ticket bonus est attribué automatiquement après dépôt
-
 • SwissBorg est une application crypto sécurisée et intuitive
-
 • Possibilité de gagner encore plus avec des challenges communautaires
 
 ⸻
 
 ⭐️ Besoin d’aide ou d’un suivi personnalisé ?
-
 DM-moi — je t’accompagne étape par étape
 
 ↪️ https://discord.gg/dDEMb6jEbn ↩️

@@ -24,7 +24,7 @@
     "conditions": "cond"
   },
   "announcement_url": "https://parrainage.co/offers/115388",
-  "edit_url": null,
+  "edit_url": "https://parrainage.co/account/offers/edit/115388",
   "platform_values": {
     "personal_code": "wd8yn943e",
     "personal_link": "https://exchange.gemini.com/register?ref=wd8yn943e",
@@ -32,15 +32,15 @@
   },
   "confidences": {
     "personal_code": "high",
-    "personal_link": "medium",
+    "personal_link": "high",
     "referee_reward": "medium"
   },
-  "notes": "lien plateforme != offers.json; bonus extrait du texte plateforme (confiance moyenne); site_code_widget=wd8yn943e",
+  "notes": "lien plateforme != offers.json; bonus extrait du texte plateforme (confiance moyenne); auth_edit_url=https://parrainage.co/account/offers/edit/115388",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",
     "referee_reward": "offers_json_then_official",
     "announcement_text": "platform_target_only"
   },
-  "quality": "public_refetch"
+  "quality": "auth_edit_refetch"
 }
