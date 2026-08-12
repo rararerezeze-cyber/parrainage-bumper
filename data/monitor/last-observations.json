@@ -1,354 +1,577 @@
 {
   "kraken": {
-    "status": "ERROR",
-    "confidence": "REJECT",
-    "business_fingerprint": "",
-    "detected_at": "2026-08-12T19:34:27.432847+00:00",
-    "raw_fingerprint": null,
-    "observed_fields": {}
+    "status": "CANDIDATE",
+    "confidence": "HIGH",
+    "business_fingerprint": "qualification_days=15|referee_reward=20 € en bitcoin|reward_type=crypto",
+    "detected_at": "2026-08-12T19:59:29.027857+00:00",
+    "raw_fingerprint": "2e2c91de65b6af7f",
+    "observed_fields": {
+      "referee_reward": "20 € en Bitcoin",
+      "reward_type": "crypto",
+      "qualification_days": "15"
+    },
+    "failure_code": "NONE",
+    "monitor_status": "MONITOR_VERIFIED",
+    "high_streak": 5,
+    "source_class": "VERIFIED_OFFICIAL",
+    "offer_kind": "PUBLIC_CAMPAIGN",
+    "impact_count": 5
   },
   "boursobank": {
-    "status": "ERROR",
-    "confidence": "REJECT",
-    "business_fingerprint": "",
-    "detected_at": "2026-08-12T19:34:10.604550+00:00",
-    "raw_fingerprint": null,
-    "observed_fields": {}
+    "status": "CANDIDATE",
+    "confidence": "HIGH",
+    "business_fingerprint": "campaign_variant=public_bon_plan|min_deposit=300 €|qualification_days=30|referee_reward=jusqu'à 160 €|reward_type=tiered_cash",
+    "detected_at": "2026-08-12T19:59:33.241773+00:00",
+    "raw_fingerprint": "961b39f95423b1cb",
+    "observed_fields": {
+      "referee_reward": "jusqu'à 160 €",
+      "reward_type": "tiered_cash",
+      "campaign_variant": "public_bon_plan",
+      "min_deposit": "300 €",
+      "qualification_days": "30"
+    },
+    "failure_code": "NONE",
+    "monitor_status": "MONITOR_VERIFIED",
+    "high_streak": 4,
+    "source_class": "VERIFIED_OFFICIAL",
+    "offer_kind": "PUBLIC_CAMPAIGN",
+    "impact_count": 4
   },
   "paypal": {
-    "status": "ERROR",
+    "status": "REJECTED",
     "confidence": "REJECT",
-    "business_fingerprint": "",
-    "detected_at": "2026-08-12T19:34:14.805422+00:00",
-    "raw_fingerprint": null,
-    "observed_fields": {}
+    "business_fingerprint": "conditions=conditions (\"terms\"). under these terms, if you are the person inviting people to join paypal you are a \"referrer\", and if you are a person who receives such in",
+    "detected_at": "2026-08-12T19:59:37.680108+00:00",
+    "raw_fingerprint": "c4e52b5c85232081",
+    "observed_fields": {
+      "conditions": "conditions (\"Terms\"). Under these Terms, if you are the person inviting people to join PayPal you are a \"referrer\", and if you are a person who receives such in"
+    },
+    "failure_code": "NO_PUBLIC_OFFER",
+    "monitor_status": "PUBLIC_MONITORABLE_PENDING",
+    "high_streak": 0,
+    "source_class": "VERIFIED_OFFICIAL",
+    "offer_kind": "PUBLIC_CAMPAIGN",
+    "impact_count": 4
   },
   "revolut": {
     "status": "REJECTED",
     "confidence": "REJECT",
     "business_fingerprint": "",
-    "detected_at": "2026-08-12T19:34:21.403581+00:00",
+    "detected_at": "2026-08-12T19:59:30.735911+00:00",
     "raw_fingerprint": "ca6e2d3f427b2f7e",
-    "observed_fields": {}
+    "observed_fields": {},
+    "failure_code": "APP_ONLY",
+    "monitor_status": "APP_PERSONALIZED",
+    "high_streak": 0,
+    "source_class": "AUTH_APP_ONLY",
+    "offer_kind": "APP_PERSONALIZED",
+    "impact_count": 5
   },
   "wise": {
     "status": "REJECTED",
     "confidence": "REJECT",
     "business_fingerprint": "",
-    "detected_at": "2026-08-12T19:34:24.292372+00:00",
-    "raw_fingerprint": "422f52fd1cd10c17",
-    "observed_fields": {}
+    "detected_at": "2026-08-12T19:59:53.493518+00:00",
+    "raw_fingerprint": "8d226fc3cc40f507",
+    "observed_fields": {},
+    "failure_code": "APP_ONLY",
+    "monitor_status": "APP_PERSONALIZED",
+    "high_streak": 0,
+    "source_class": "AUTH_APP_ONLY",
+    "offer_kind": "APP_PERSONALIZED",
+    "impact_count": 3
   },
   "traderepublic": {
     "status": "REJECTED",
     "confidence": "REJECT",
     "business_fingerprint": "",
-    "detected_at": "2026-08-12T19:34:24.845733+00:00",
-    "raw_fingerprint": "2c44ce95feae6a2f",
-    "observed_fields": {}
+    "detected_at": "2026-08-12T19:59:42.702383+00:00",
+    "raw_fingerprint": "658efb7af721f7c9",
+    "observed_fields": {},
+    "failure_code": "APP_ONLY",
+    "monitor_status": "APP_PERSONALIZED",
+    "high_streak": 0,
+    "source_class": "AUTH_APP_ONLY",
+    "offer_kind": "APP_PERSONALIZED",
+    "impact_count": 4
   },
   "robinhood": {
-    "status": "ERROR",
+    "status": "REJECTED",
     "confidence": "REJECT",
     "business_fingerprint": "",
-    "detected_at": "2026-08-12T19:34:25.495377+00:00",
-    "raw_fingerprint": null,
-    "observed_fields": {}
+    "detected_at": "2026-08-12T19:59:40.790297+00:00",
+    "raw_fingerprint": "61a46ef1b9c9280d",
+    "observed_fields": {},
+    "failure_code": "NO_PUBLIC_OFFER",
+    "monitor_status": "PUBLIC_MONITORABLE_PENDING",
+    "high_streak": 0,
+    "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+    "offer_kind": "PUBLIC_CAMPAIGN",
+    "impact_count": 4
   },
   "coinbase": {
     "status": "REJECTED",
     "confidence": "REJECT",
     "business_fingerprint": "",
-    "detected_at": "2026-08-12T19:34:26.353085+00:00",
+    "detected_at": "2026-08-12T19:59:26.355303+00:00",
     "raw_fingerprint": "68a728a7f6dc091f",
-    "observed_fields": {}
+    "observed_fields": {},
+    "failure_code": "EMPTY_PAGE",
+    "monitor_status": "PUBLIC_MONITORABLE_PENDING",
+    "high_streak": 0,
+    "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+    "offer_kind": "PUBLIC_CAMPAIGN",
+    "impact_count": 5
   },
   "binance": {
     "status": "REJECTED",
     "confidence": "REJECT",
     "business_fingerprint": "",
-    "detected_at": "2026-08-12T19:34:26.858454+00:00",
-    "raw_fingerprint": "c452c02edff6c0e0",
-    "observed_fields": {}
+    "detected_at": "2026-08-12T19:59:49.102412+00:00",
+    "raw_fingerprint": "d5107e042f953343",
+    "observed_fields": {},
+    "failure_code": "NO_PUBLIC_OFFER",
+    "monitor_status": "PUBLIC_MONITORABLE_PENDING",
+    "high_streak": 0,
+    "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+    "offer_kind": "PUBLIC_CAMPAIGN",
+    "impact_count": 3
   },
   "bybit": {
+    "status": "NO_CHANGE",
+    "confidence": "REVIEW",
+    "business_fingerprint": "",
+    "detected_at": "2026-08-12T19:59:21.036356+00:00",
+    "raw_fingerprint": "8ea5f2e65622fe0a",
+    "observed_fields": {},
+    "failure_code": "DYNAMIC_JS",
+    "monitor_status": "PUBLIC_MONITORABLE_PENDING",
+    "high_streak": 0,
+    "source_class": "VERIFIED_OFFICIAL",
+    "offer_kind": "PUBLIC_CAMPAIGN",
+    "impact_count": 6
+  },
+  "swissborg": {
+    "status": "NO_CHANGE",
+    "confidence": "REVIEW",
+    "business_fingerprint": "",
+    "detected_at": "2026-08-12T19:59:31.172719+00:00",
+    "raw_fingerprint": "399ea303fb853d3e",
+    "observed_fields": {},
+    "failure_code": "NO_PUBLIC_OFFER",
+    "monitor_status": "PUBLIC_MONITORABLE_PENDING",
+    "high_streak": 0,
+    "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+    "offer_kind": "PUBLIC_CAMPAIGN",
+    "impact_count": 5
+  },
+  "bitstack": {
     "status": "REJECTED",
     "confidence": "REJECT",
     "business_fingerprint": "",
-    "detected_at": "2026-08-12T19:34:28.391597+00:00",
-    "raw_fingerprint": "8ea5f2e65622fe0a",
-    "observed_fields": {}
-  },
-  "swissborg": {
-    "status": "REJECTED",
-    "confidence": "REJECT",
-    "business_fingerprint": "conditions=conditions d’utilisation",
-    "detected_at": "2026-08-12T19:34:29.819517+00:00",
-    "raw_fingerprint": "79c84e1c37922cf9",
-    "observed_fields": {
-      "conditions": "Conditions d’utilisation"
-    }
-  },
-  "bitstack": {
-    "status": "REVIEW",
-    "confidence": "REVIEW",
-    "business_fingerprint": "conditions=conditions générales|referee_reward=0,60 € en 0",
-    "detected_at": "2026-08-12T19:34:30.295099+00:00",
+    "detected_at": "2026-08-12T19:59:32.650804+00:00",
     "raw_fingerprint": "0add36c5624a65e9",
-    "observed_fields": {
-      "referee_reward": "0,60 € en 0",
-      "conditions": "Conditions générales"
-    }
+    "observed_fields": {},
+    "failure_code": "DEAD_URL",
+    "monitor_status": "APP_PERSONALIZED",
+    "high_streak": 0,
+    "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+    "offer_kind": "APP_PERSONALIZED",
+    "impact_count": 4
   },
   "deblock": {
     "status": "REJECTED",
     "confidence": "REJECT",
     "business_fingerprint": "",
-    "detected_at": "2026-08-12T19:34:31.056291+00:00",
+    "detected_at": "2026-08-12T19:59:49.907821+00:00",
     "raw_fingerprint": "0b6352a672823956",
-    "observed_fields": {}
+    "observed_fields": {},
+    "failure_code": "NO_PUBLIC_OFFER",
+    "monitor_status": "APP_PERSONALIZED",
+    "high_streak": 0,
+    "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+    "offer_kind": "APP_PERSONALIZED",
+    "impact_count": 3
   },
   "gemini": {
     "status": "ERROR",
     "confidence": "REJECT",
     "business_fingerprint": "",
-    "detected_at": "2026-08-12T19:34:31.735889+00:00",
+    "detected_at": "2026-08-12T19:59:27.768797+00:00",
     "raw_fingerprint": null,
-    "observed_fields": {}
+    "observed_fields": {},
+    "failure_code": "TEMPORARY_ERROR",
+    "monitor_status": "PUBLIC_MONITORABLE_PENDING",
+    "high_streak": 0,
+    "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+    "offer_kind": "PUBLIC_CAMPAIGN",
+    "impact_count": 5
   },
   "ledger": {
     "status": "REJECTED",
     "confidence": "REJECT",
     "business_fingerprint": "conditions=conditions privacy policy cookie policy disclaimers",
-    "detected_at": "2026-08-12T19:34:32.817766+00:00",
+    "detected_at": "2026-08-12T19:59:30.263541+00:00",
     "raw_fingerprint": "a1616e9a1bfe7cbb",
     "observed_fields": {
       "conditions": "Conditions Privacy Policy Cookie Policy Disclaimers"
-    }
+    },
+    "failure_code": "NO_PUBLIC_OFFER",
+    "monitor_status": "PUBLIC_MONITORABLE_PENDING",
+    "high_streak": 0,
+    "source_class": "VERIFIED_OFFICIAL",
+    "offer_kind": "PUBLIC_CAMPAIGN",
+    "impact_count": 5
   },
   "betclic": {
     "status": "REVIEW",
-    "confidence": "HIGH",
+    "confidence": "REVIEW",
     "business_fingerprint": "conditions=conditions générales d'utilisation|referee_reward=0,00 €",
-    "detected_at": "2026-08-12T19:34:36.859708+00:00",
-    "raw_fingerprint": "07f5f43019f58bf3",
+    "detected_at": "2026-08-12T19:59:32.282268+00:00",
+    "raw_fingerprint": "101ab824b7dee5f0",
     "observed_fields": {
       "referee_reward": "0,00 €",
       "conditions": "Conditions générales d'utilisation"
-    }
+    },
+    "failure_code": "NONE",
+    "monitor_status": "PUBLIC_MONITORABLE_PENDING",
+    "high_streak": 0,
+    "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+    "offer_kind": "PUBLIC_CAMPAIGN",
+    "impact_count": 4
   },
   "unibet": {
     "status": "REJECTED",
     "confidence": "REJECT",
     "business_fingerprint": "conditions=conditions générales d'utilisation",
-    "detected_at": "2026-08-12T19:34:37.705370+00:00",
-    "raw_fingerprint": "9bbb1ecabfba15fc",
+    "detected_at": "2026-08-12T19:59:23.197762+00:00",
+    "raw_fingerprint": "fb80945e8fd6b3cf",
     "observed_fields": {
       "conditions": "Conditions Générales d'Utilisation"
-    }
+    },
+    "failure_code": "NO_PUBLIC_OFFER",
+    "monitor_status": "PUBLIC_MONITORABLE_PENDING",
+    "high_streak": 0,
+    "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+    "offer_kind": "PUBLIC_CAMPAIGN",
+    "impact_count": 6
   },
   "winamax": {
-    "status": "REVIEW",
-    "confidence": "REVIEW",
-    "business_fingerprint": "conditions=condition que les comptes soient vérifiés : papiers d'identité et domiciliation validés.|referee_reward=+ 10 € freebets",
-    "detected_at": "2026-08-12T19:34:38.211482+00:00",
-    "raw_fingerprint": "a0534a60868b0585",
+    "status": "CANDIDATE",
+    "confidence": "HIGH",
+    "business_fingerprint": "referee_reward=10 € bonus + 10 € freebets|reward_type=cash+freebet",
+    "detected_at": "2026-08-12T19:59:47.368541+00:00",
+    "raw_fingerprint": "d74e941fcc650c04",
     "observed_fields": {
-      "referee_reward": "+ 10 € FREEBETS",
-      "conditions": "condition que les comptes soient vérifiés : papiers d'identité et domiciliation validés."
-    }
+      "referee_reward": "10 € bonus + 10 € freebets",
+      "reward_type": "cash+freebet"
+    },
+    "failure_code": "NONE",
+    "monitor_status": "MONITOR_VERIFIED",
+    "high_streak": 4,
+    "source_class": "VERIFIED_OFFICIAL",
+    "offer_kind": "PUBLIC_CAMPAIGN",
+    "impact_count": 4
   },
   "parionssport": {
     "status": "ERROR",
     "confidence": "REJECT",
     "business_fingerprint": "",
-    "detected_at": "2026-08-12T19:34:38.939046+00:00",
+    "detected_at": "2026-08-12T20:00:15.790627+00:00",
     "raw_fingerprint": null,
-    "observed_fields": {}
+    "observed_fields": {},
+    "failure_code": "403_ANTIBOT",
+    "monitor_status": "ANTI_BOT_BLOCKED",
+    "high_streak": 0,
+    "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+    "offer_kind": "PUBLIC_CAMPAIGN",
+    "impact_count": 1
   },
   "heetch": {
     "status": "REJECTED",
     "confidence": "REJECT",
     "business_fingerprint": "",
-    "detected_at": "2026-08-12T19:34:39.711183+00:00",
+    "detected_at": "2026-08-12T19:59:33.842113+00:00",
     "raw_fingerprint": "b7675625e54026f4",
-    "observed_fields": {}
+    "observed_fields": {},
+    "failure_code": "NO_PUBLIC_OFFER",
+    "monitor_status": "PUBLIC_MONITORABLE_PENDING",
+    "high_streak": 0,
+    "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+    "offer_kind": "PUBLIC_CAMPAIGN",
+    "impact_count": 4
   },
   "omio": {
-    "status": "ERROR",
+    "status": "REJECTED",
     "confidence": "REJECT",
     "business_fingerprint": "",
-    "detected_at": "2026-08-12T19:34:40.429638+00:00",
-    "raw_fingerprint": null,
-    "observed_fields": {}
+    "detected_at": "2026-08-12T19:59:51.184850+00:00",
+    "raw_fingerprint": "4e6bce44b689dc8d",
+    "observed_fields": {},
+    "failure_code": "NO_PUBLIC_OFFER",
+    "monitor_status": "PUBLIC_MONITORABLE_PENDING",
+    "high_streak": 0,
+    "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+    "offer_kind": "PUBLIC_CAMPAIGN",
+    "impact_count": 3
   },
   "airbnb": {
     "status": "REJECTED",
     "confidence": "REJECT",
-    "business_fingerprint": "conditions=conditions et dispositions juridiques",
-    "detected_at": "2026-08-12T19:34:42.564572+00:00",
+    "business_fingerprint": "conditions=conditions et dispositions juridiques|qualification_days=180",
+    "detected_at": "2026-08-12T19:59:25.760578+00:00",
     "raw_fingerprint": "7af764b684e6b81f",
     "observed_fields": {
+      "qualification_days": "180",
       "conditions": "Conditions et dispositions juridiques"
-    }
+    },
+    "failure_code": "NO_PUBLIC_OFFER",
+    "monitor_status": "PUBLIC_MONITORABLE_PENDING",
+    "high_streak": 0,
+    "source_class": "VERIFIED_OFFICIAL",
+    "offer_kind": "PUBLIC_CAMPAIGN",
+    "impact_count": 5
   },
   "totalenergies": {
-    "status": "ERROR",
-    "confidence": "REJECT",
-    "business_fingerprint": "",
-    "detected_at": "2026-08-12T19:34:43.094402+00:00",
-    "raw_fingerprint": null,
-    "observed_fields": {}
+    "status": "REVIEW",
+    "confidence": "REVIEW",
+    "business_fingerprint": "conditions=conditions réservée uniquement aux clients particuliers cumulativement titulaires d’un contrat de fourniture d’électricité et/ou de gaz avec totalenergies elect|transaction_count=2",
+    "detected_at": "2026-08-12T19:59:42.148270+00:00",
+    "raw_fingerprint": "1b9d9c07e67f92c3",
+    "observed_fields": {
+      "transaction_count": "2",
+      "conditions": "conditions réservée uniquement aux clients particuliers cumulativement titulaires d’un contrat de fourniture d’électricité et/ou de gaz avec TotalEnergies Elect"
+    },
+    "failure_code": "AMBIGUOUS_REWARD",
+    "monitor_status": "PUBLIC_MONITORABLE_PENDING",
+    "high_streak": 0,
+    "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+    "offer_kind": "PUBLIC_CAMPAIGN",
+    "impact_count": 4
   },
   "igraal": {
-    "status": "REVIEW",
+    "status": "CANDIDATE",
     "confidence": "HIGH",
-    "business_fingerprint": "conditions=conditions de référencement et classement des offres rétractation du contrat gérer les cookies|referee_reward=15 €",
-    "detected_at": "2026-08-12T19:34:43.803569+00:00",
-    "raw_fingerprint": "3446da15cf4b74cf",
+    "business_fingerprint": "referee_reward=3 €",
+    "detected_at": "2026-08-12T19:59:28.375841+00:00",
+    "raw_fingerprint": "facbf0704aef0ec0",
     "observed_fields": {
-      "referee_reward": "15 €",
-      "conditions": "Conditions de référencement et classement des offres Rétractation du contrat Gérer les cookies"
-    }
+      "referee_reward": "3 €"
+    },
+    "failure_code": "NONE",
+    "monitor_status": "MONITOR_VERIFIED",
+    "high_streak": 5,
+    "source_class": "VERIFIED_OFFICIAL",
+    "offer_kind": "PUBLIC_STABLE",
+    "impact_count": 5
   },
   "poulpeo": {
-    "status": "REVIEW",
-    "confidence": "REVIEW",
-    "business_fingerprint": "referee_reward=40 € en ligne",
-    "detected_at": "2026-08-12T19:34:44.634854+00:00",
+    "status": "CANDIDATE",
+    "confidence": "HIGH",
+    "business_fingerprint": "referee_reward=3 €",
+    "detected_at": "2026-08-12T19:59:39.122201+00:00",
     "raw_fingerprint": "35e62698cd456411",
     "observed_fields": {
-      "referee_reward": "40 € en ligne"
-    }
+      "referee_reward": "3 €"
+    },
+    "failure_code": "NONE",
+    "monitor_status": "MONITOR_VERIFIED",
+    "high_streak": 5,
+    "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+    "offer_kind": "PUBLIC_CAMPAIGN",
+    "impact_count": 4
   },
   "ebuyclub": {
-    "status": "REVIEW",
+    "status": "NO_CHANGE",
     "confidence": "REVIEW",
-    "business_fingerprint": "conditions=conditions du marchand choisi. pour encore plus d’économies, vous pouvez cumuler le cashback sur les bons d’achat avec le cashback en ligne ou le cashback en ma|referee_reward=3 €",
-    "detected_at": "2026-08-12T19:34:45.057841+00:00",
+    "business_fingerprint": "",
+    "detected_at": "2026-08-12T19:59:26.812578+00:00",
     "raw_fingerprint": "7daac3c0463d31fe",
-    "observed_fields": {
-      "referee_reward": "3 €",
-      "conditions": "conditions du marchand choisi. Pour encore plus d’économies, vous pouvez cumuler le CashBack sur les bons d’achat avec le CashBack en ligne ou le CashBack en ma"
-    }
+    "observed_fields": {},
+    "failure_code": "AMBIGUOUS_REWARD",
+    "monitor_status": "PUBLIC_MONITORABLE_PENDING",
+    "high_streak": 0,
+    "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+    "offer_kind": "PUBLIC_CAMPAIGN",
+    "impact_count": 5
   },
   "joko": {
-    "status": "REVIEW",
+    "status": "NO_CHANGE",
     "confidence": "REVIEW",
-    "business_fingerprint": "conditions=conditions générales politique de confidentialité éthique & signalement|referee_reward=000000 €",
-    "detected_at": "2026-08-12T19:34:46.988191+00:00",
+    "business_fingerprint": "",
+    "detected_at": "2026-08-12T19:59:22.723490+00:00",
     "raw_fingerprint": "0aa666105a41ea9b",
-    "observed_fields": {
-      "referee_reward": "000000 €",
-      "conditions": "Conditions générales Politique de confidentialité Éthique & signalement"
-    }
+    "observed_fields": {},
+    "failure_code": "AMBIGUOUS_REWARD",
+    "monitor_status": "PUBLIC_MONITORABLE_PENDING",
+    "high_streak": 0,
+    "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+    "offer_kind": "PUBLIC_CAMPAIGN",
+    "impact_count": 6
   },
   "widilo": {
-    "status": "REVIEW",
+    "status": "NO_CHANGE",
     "confidence": "REVIEW",
-    "business_fingerprint": "conditions=conditions du cashback et des codes promo pour chaque marchand.|referee_reward=110 €",
-    "detected_at": "2026-08-12T19:34:47.749749+00:00",
+    "business_fingerprint": "",
+    "detected_at": "2026-08-12T19:59:23.894314+00:00",
     "raw_fingerprint": "daba78f53b6209bb",
-    "observed_fields": {
-      "referee_reward": "110 €",
-      "conditions": "conditions du cashback et des codes promo pour chaque marchand."
-    }
+    "observed_fields": {},
+    "failure_code": "AMBIGUOUS_REWARD",
+    "monitor_status": "PUBLIC_MONITORABLE_PENDING",
+    "high_streak": 0,
+    "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+    "offer_kind": "PUBLIC_CAMPAIGN",
+    "impact_count": 6
   },
   "acheel": {
     "status": "REVIEW",
     "confidence": "REVIEW",
-    "business_fingerprint": "conditions=conditions prévues, que ce soit pour un petit pépin ou de gros dégâts.|referee_reward=30 €",
-    "detected_at": "2026-08-12T19:34:49.168703+00:00",
+    "business_fingerprint": "conditions=conditions prévues, que ce soit pour un petit pépin ou de gros dégâts.",
+    "detected_at": "2026-08-12T19:59:48.735296+00:00",
     "raw_fingerprint": "b9b2b037c79c266b",
     "observed_fields": {
-      "referee_reward": "30 €",
       "conditions": "conditions prévues, que ce soit pour un petit pépin ou de gros dégâts."
-    }
+    },
+    "failure_code": "AMBIGUOUS_REWARD",
+    "monitor_status": "PUBLIC_MONITORABLE_PENDING",
+    "high_streak": 0,
+    "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+    "offer_kind": "PUBLIC_CAMPAIGN",
+    "impact_count": 3
   },
   "lolivier": {
     "status": "ERROR",
     "confidence": "REJECT",
     "business_fingerprint": "",
-    "detected_at": "2026-08-12T19:35:10.418394+00:00",
+    "detected_at": "2026-08-12T20:00:15.091862+00:00",
     "raw_fingerprint": null,
-    "observed_fields": {}
+    "observed_fields": {},
+    "failure_code": "TEMPORARY_ERROR",
+    "monitor_status": "PUBLIC_MONITORABLE_PENDING",
+    "high_streak": 0,
+    "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+    "offer_kind": "PUBLIC_CAMPAIGN",
+    "impact_count": 2
   },
   "finary": {
-    "status": "REVIEW",
+    "status": "NO_CHANGE",
     "confidence": "REVIEW",
-    "business_fingerprint": "referee_reward=0% de frais d'entrée, de versement ou d'arbitrage",
-    "detected_at": "2026-08-12T19:35:11.450295+00:00",
+    "business_fingerprint": "",
+    "detected_at": "2026-08-12T19:59:53.951079+00:00",
     "raw_fingerprint": "8ea2c1daf8ef64ee",
-    "observed_fields": {
-      "referee_reward": "0% de frais d'entrée, de versement ou d'arbitrage"
-    }
+    "observed_fields": {},
+    "failure_code": "AMBIGUOUS_REWARD",
+    "monitor_status": "PUBLIC_MONITORABLE_PENDING",
+    "high_streak": 0,
+    "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+    "offer_kind": "PUBLIC_CAMPAIGN",
+    "impact_count": 2
   },
   "grass": {
     "status": "REJECTED",
     "confidence": "REJECT",
     "business_fingerprint": "conditions=conditions wallet terms and conditions rewards terms and conditions network use policy cookie policy cookie settings",
-    "detected_at": "2026-08-12T19:35:12.047057+00:00",
+    "detected_at": "2026-08-12T20:00:16.265042+00:00",
     "raw_fingerprint": "69d1261f59ec4b4a",
     "observed_fields": {
       "conditions": "Conditions Wallet Terms and Conditions Rewards Terms and Conditions Network Use Policy Cookie Policy Cookie Settings"
-    }
+    },
+    "failure_code": "NO_PUBLIC_OFFER",
+    "monitor_status": "PUBLIC_MONITORABLE_PENDING",
+    "high_streak": 0,
+    "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+    "offer_kind": "PUBLIC_CAMPAIGN",
+    "impact_count": 0
   },
   "fdj-francaise-des-jeux": {
-    "status": "ERROR",
+    "status": "SKIPPED",
     "confidence": "REJECT",
     "business_fingerprint": "",
-    "detected_at": "2026-08-12T19:35:12.424868+00:00",
+    "detected_at": "2026-08-12T19:59:53.494522+00:00",
     "raw_fingerprint": null,
-    "observed_fields": {}
+    "observed_fields": {},
+    "failure_code": "NO_PUBLIC_OFFER",
+    "monitor_status": "OPERATOR_ONLY",
+    "high_streak": 0,
+    "source_class": "NO_PUBLIC_REFERRAL_SOURCE",
+    "offer_kind": "OPERATOR_ONLY",
+    "impact_count": 2
   },
   "nrj-mobile": {
     "status": "REVIEW",
-    "confidence": "HIGH",
-    "business_fingerprint": "conditions=conditions et liste des destinations €ope/dom sur nrjmobile.fr.|referee_reward=10 €",
-    "detected_at": "2026-08-12T19:35:13.099619+00:00",
+    "confidence": "REVIEW",
+    "business_fingerprint": "conditions=conditions et liste des destinations €ope/dom sur nrjmobile.fr.|min_deposit=10 €",
+    "detected_at": "2026-08-12T19:59:50.496079+00:00",
     "raw_fingerprint": "bbeb9b88bec8ea43",
     "observed_fields": {
-      "referee_reward": "10 €",
+      "min_deposit": "10 €",
       "conditions": "conditions et liste des destinations Europe/DOM sur nrjmobile.fr."
-    }
+    },
+    "failure_code": "AMBIGUOUS_REWARD",
+    "monitor_status": "PUBLIC_MONITORABLE_PENDING",
+    "high_streak": 0,
+    "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+    "offer_kind": "PUBLIC_CAMPAIGN",
+    "impact_count": 3
   },
   "okx": {
-    "status": "ERROR",
+    "status": "REJECTED",
     "confidence": "REJECT",
     "business_fingerprint": "",
-    "detected_at": "2026-08-12T19:35:13.969667+00:00",
-    "raw_fingerprint": null,
-    "observed_fields": {}
+    "detected_at": "2026-08-12T19:59:36.069566+00:00",
+    "raw_fingerprint": "34541e7caf519c82",
+    "observed_fields": {},
+    "failure_code": "NO_PUBLIC_OFFER",
+    "monitor_status": "PUBLIC_MONITORABLE_PENDING",
+    "high_streak": 0,
+    "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+    "offer_kind": "PUBLIC_CAMPAIGN",
+    "impact_count": 4
   },
   "plum": {
-    "status": "REVIEW",
-    "confidence": "REVIEW",
-    "business_fingerprint": "conditions=conditions générales|referee_reward=1 €",
-    "detected_at": "2026-08-12T19:35:15.374343+00:00",
+    "status": "REJECTED",
+    "confidence": "REJECT",
+    "business_fingerprint": "",
+    "detected_at": "2026-08-12T19:59:52.441803+00:00",
     "raw_fingerprint": "0f3bc9f203b23785",
-    "observed_fields": {
-      "referee_reward": "1 €",
-      "conditions": "Conditions générales"
-    }
+    "observed_fields": {},
+    "failure_code": "APP_ONLY",
+    "monitor_status": "APP_PERSONALIZED",
+    "high_streak": 0,
+    "source_class": "AUTH_APP_ONLY",
+    "offer_kind": "APP_PERSONALIZED",
+    "impact_count": 3
   },
   "vinted": {
     "status": "REJECTED",
     "confidence": "REJECT",
     "business_fingerprint": "conditions=conditions de vinted pro",
-    "detected_at": "2026-08-12T19:35:20.181820+00:00",
+    "detected_at": "2026-08-12T19:59:44.725657+00:00",
     "raw_fingerprint": "36d00791058c2633",
     "observed_fields": {
       "conditions": "conditions de Vinted Pro"
-    }
+    },
+    "failure_code": "NO_PUBLIC_OFFER",
+    "monitor_status": "PUBLIC_MONITORABLE_PENDING",
+    "high_streak": 0,
+    "source_class": "VERIFIED_OFFICIAL",
+    "offer_kind": "PUBLIC_CAMPAIGN",
+    "impact_count": 4
   },
   "whatnot": {
     "status": "REJECTED",
     "confidence": "REJECT",
     "business_fingerprint": "conditions=conditions d'utilisation confidentialité",
-    "detected_at": "2026-08-12T19:35:23.407858+00:00",
-    "raw_fingerprint": "40371488a48dd05a",
+    "detected_at": "2026-08-12T19:59:46.659071+00:00",
+    "raw_fingerprint": "c4beeb59302e033d",
     "observed_fields": {
       "conditions": "Conditions d'utilisation Confidentialité"
-    }
+    },
+    "failure_code": "NO_PUBLIC_OFFER",
+    "monitor_status": "PUBLIC_MONITORABLE_PENDING",
+    "high_streak": 0,
+    "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+    "offer_kind": "PUBLIC_CAMPAIGN",
+    "impact_count": 4
   }
 }

@@ -1,0 +1,590 @@
+{
+  "generated_at": "2026-08-12T19:54:15.968123+00:00",
+  "count": 38,
+  "by_source_class": {
+    "VERIFIED_OFFICIAL": 6,
+    "OFFICIAL_BUT_NOT_MACHINE_READABLE": 22,
+    "UNVERIFIED": 2,
+    "AUTH_APP_ONLY": 6,
+    "NO_PUBLIC_REFERRAL_SOURCE": 1,
+    "ANTI_BOT_BLOCKED": 1
+  },
+  "programs": [
+    {
+      "program": "bybit",
+      "impact_count": 6,
+      "url": "https://www.bybit.com/en/help-center/article/Referral-Program",
+      "status": 200,
+      "source_class": "VERIFIED_OFFICIAL",
+      "failure": "NONE",
+      "notes": [
+        "http_200",
+        "has_json_ld_or_next",
+        "referral_keywords"
+      ],
+      "body_len": 98414,
+      "parser": "bybit_referral_fr",
+      "offer_kind": "PUBLIC_CAMPAIGN"
+    },
+    {
+      "program": "joko",
+      "impact_count": 6,
+      "url": "https://www.hellojoko.com/",
+      "status": 200,
+      "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+      "failure": "NO_PUBLIC_OFFER",
+      "notes": [
+        "http_200",
+        "no_referral_keywords"
+      ],
+      "body_len": 204669,
+      "parser": "cashback_portal_fr",
+      "offer_kind": "PUBLIC_CAMPAIGN"
+    },
+    {
+      "program": "unibet",
+      "impact_count": 6,
+      "url": "https://www.unibet.fr/promotions",
+      "status": 200,
+      "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+      "failure": "NO_PUBLIC_OFFER",
+      "notes": [
+        "http_200",
+        "has_json_ld_or_next",
+        "no_referral_keywords"
+      ],
+      "body_len": 132335,
+      "parser": "unibet_promos_fr",
+      "offer_kind": "PUBLIC_CAMPAIGN"
+    },
+    {
+      "program": "widilo",
+      "impact_count": 6,
+      "url": "https://www.widilo.fr/",
+      "status": 200,
+      "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+      "failure": "NO_PUBLIC_OFFER",
+      "notes": [
+        "http_200",
+        "has_json_ld_or_next",
+        "no_referral_keywords"
+      ],
+      "body_len": 542841,
+      "parser": "cashback_portal_fr",
+      "offer_kind": "PUBLIC_CAMPAIGN"
+    },
+    {
+      "program": "airbnb",
+      "impact_count": 5,
+      "url": "https://www.airbnb.fr/help/article/2856",
+      "status": 200,
+      "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+      "failure": "NO_PUBLIC_OFFER",
+      "notes": [
+        "http_200",
+        "no_referral_keywords"
+      ],
+      "body_len": 1151554,
+      "parser": "airbnb_referral_fr",
+      "offer_kind": "PUBLIC_CAMPAIGN"
+    },
+    {
+      "program": "coinbase",
+      "impact_count": 5,
+      "url": "https://www.coinbase.com/invite",
+      "status": 200,
+      "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+      "failure": "NO_PUBLIC_OFFER",
+      "notes": [
+        "http_200",
+        "no_referral_keywords"
+      ],
+      "body_len": 1743,
+      "parser": "coinbase_referral_fr",
+      "offer_kind": "PUBLIC_CAMPAIGN"
+    },
+    {
+      "program": "ebuyclub",
+      "impact_count": 5,
+      "url": "https://www.ebuyclub.com/",
+      "status": 200,
+      "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+      "failure": "NO_PUBLIC_OFFER",
+      "notes": [
+        "http_200",
+        "has_json_ld_or_next",
+        "no_referral_keywords"
+      ],
+      "body_len": 202065,
+      "parser": "cashback_portal_fr",
+      "offer_kind": "PUBLIC_CAMPAIGN"
+    },
+    {
+      "program": "gemini",
+      "impact_count": 5,
+      "url": "https://www.gemini.com/share",
+      "status": 500,
+      "source_class": "UNVERIFIED",
+      "failure": "TEMPORARY_ERROR",
+      "notes": [
+        "http_500"
+      ],
+      "body_len": 3569,
+      "parser": "structured_first",
+      "offer_kind": "PUBLIC_CAMPAIGN"
+    },
+    {
+      "program": "igraal",
+      "impact_count": 5,
+      "url": "https://fr.igraal.com/parrainage",
+      "status": 200,
+      "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+      "failure": "NO_PUBLIC_OFFER",
+      "notes": [
+        "http_200",
+        "has_json_ld_or_next",
+        "no_referral_keywords"
+      ],
+      "body_len": 550627,
+      "parser": "igraal_referral_fr",
+      "offer_kind": "PUBLIC_STABLE"
+    },
+    {
+      "program": "kraken",
+      "impact_count": 5,
+      "url": "https://www.kraken.com/referrals",
+      "status": 200,
+      "source_class": "VERIFIED_OFFICIAL",
+      "failure": "NONE",
+      "notes": [
+        "http_200",
+        "has_json_ld_or_next",
+        "referral_keywords"
+      ],
+      "body_len": 918936,
+      "parser": "kraken_referral_fr",
+      "offer_kind": "PUBLIC_CAMPAIGN"
+    },
+    {
+      "program": "ledger",
+      "impact_count": 5,
+      "url": "https://shop.ledger.com/pages/referral-program",
+      "status": 200,
+      "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+      "failure": "NO_PUBLIC_OFFER",
+      "notes": [
+        "http_200",
+        "has_json_ld_or_next",
+        "no_referral_keywords"
+      ],
+      "body_len": 911741,
+      "parser": "ledger_referral_fr",
+      "offer_kind": "PUBLIC_CAMPAIGN"
+    },
+    {
+      "program": "revolut",
+      "impact_count": 5,
+      "url": "https://www.revolut.com/referral/",
+      "status": 200,
+      "source_class": "AUTH_APP_ONLY",
+      "failure": "APP_ONLY",
+      "notes": [
+        "http_200",
+        "has_json_ld_or_next"
+      ],
+      "body_len": 109550,
+      "parser": "app_personalized_stub",
+      "offer_kind": "APP_PERSONALIZED"
+    },
+    {
+      "program": "swissborg",
+      "impact_count": 5,
+      "url": "https://swissborg.com/fr",
+      "status": 200,
+      "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+      "failure": "NO_PUBLIC_OFFER",
+      "notes": [
+        "http_200",
+        "has_json_ld_or_next",
+        "no_referral_keywords"
+      ],
+      "body_len": 353612,
+      "parser": "swissborg_referral_fr",
+      "offer_kind": "PUBLIC_CAMPAIGN"
+    },
+    {
+      "program": "betclic",
+      "impact_count": 4,
+      "url": "https://www.betclic.fr/aide/parrainage",
+      "status": 200,
+      "source_class": "VERIFIED_OFFICIAL",
+      "failure": "NONE",
+      "notes": [
+        "http_200",
+        "referral_keywords"
+      ],
+      "body_len": 619120,
+      "parser": "structured_first",
+      "offer_kind": "PUBLIC_CAMPAIGN"
+    },
+    {
+      "program": "bitstack",
+      "impact_count": 4,
+      "url": "https://bitstack-app.com/",
+      "status": 200,
+      "source_class": "AUTH_APP_ONLY",
+      "failure": "APP_ONLY",
+      "notes": [
+        "http_200"
+      ],
+      "body_len": 113851,
+      "parser": "structured_first",
+      "offer_kind": "APP_PERSONALIZED"
+    },
+    {
+      "program": "boursobank",
+      "impact_count": 4,
+      "url": "https://www.boursobank.com/bon-plan/parrainage-boursobank",
+      "status": 200,
+      "source_class": "VERIFIED_OFFICIAL",
+      "failure": "NONE",
+      "notes": [
+        "http_200",
+        "referral_keywords"
+      ],
+      "body_len": 268015,
+      "parser": "structured_first",
+      "offer_kind": "PUBLIC_CAMPAIGN"
+    },
+    {
+      "program": "heetch",
+      "impact_count": 4,
+      "url": "https://www.heetch.com/fr",
+      "status": 200,
+      "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+      "failure": "NO_PUBLIC_OFFER",
+      "notes": [
+        "http_200",
+        "no_referral_keywords"
+      ],
+      "body_len": 35543,
+      "parser": "structured_first",
+      "offer_kind": "PUBLIC_CAMPAIGN"
+    },
+    {
+      "program": "okx",
+      "impact_count": 4,
+      "url": "https://www.okx.com/join",
+      "status": 200,
+      "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+      "failure": "NO_PUBLIC_OFFER",
+      "notes": [
+        "http_200",
+        "no_referral_keywords"
+      ],
+      "body_len": 86454,
+      "parser": "structured_first",
+      "offer_kind": "PUBLIC_CAMPAIGN"
+    },
+    {
+      "program": "paypal",
+      "impact_count": 4,
+      "url": "https://www.paypal.com/uk/webapps/mpp/invite/terms",
+      "status": 200,
+      "source_class": "VERIFIED_OFFICIAL",
+      "failure": "NONE",
+      "notes": [
+        "http_200",
+        "has_json_ld_or_next",
+        "referral_keywords"
+      ],
+      "body_len": 174679,
+      "parser": "paypal_referral_fr",
+      "offer_kind": "PUBLIC_CAMPAIGN"
+    },
+    {
+      "program": "poulpeo",
+      "impact_count": 4,
+      "url": "https://www.poulpeo.com/",
+      "status": 200,
+      "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+      "failure": "NO_PUBLIC_OFFER",
+      "notes": [
+        "http_200",
+        "no_referral_keywords"
+      ],
+      "body_len": 275644,
+      "parser": "cashback_portal_fr",
+      "offer_kind": "PUBLIC_CAMPAIGN"
+    },
+    {
+      "program": "robinhood",
+      "impact_count": 4,
+      "url": "https://robinhood.com/us/en/support/",
+      "status": 200,
+      "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+      "failure": "NO_PUBLIC_OFFER",
+      "notes": [
+        "http_200",
+        "has_json_ld_or_next",
+        "no_referral_keywords"
+      ],
+      "body_len": 141970,
+      "parser": "structured_first",
+      "offer_kind": "PUBLIC_CAMPAIGN"
+    },
+    {
+      "program": "totalenergies",
+      "impact_count": 4,
+      "url": "https://www.totalenergies.fr/",
+      "status": 200,
+      "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+      "failure": "NO_PUBLIC_OFFER",
+      "notes": [
+        "http_200",
+        "has_json_ld_or_next",
+        "no_referral_keywords"
+      ],
+      "body_len": 170509,
+      "parser": "totalenergies_referral_fr",
+      "offer_kind": "PUBLIC_CAMPAIGN"
+    },
+    {
+      "program": "traderepublic",
+      "impact_count": 4,
+      "url": "https://traderepublic.com/fr-fr/support",
+      "status": 200,
+      "source_class": "AUTH_APP_ONLY",
+      "failure": "APP_ONLY",
+      "notes": [
+        "http_200"
+      ],
+      "body_len": 76322,
+      "parser": "app_personalized_stub",
+      "offer_kind": "APP_PERSONALIZED"
+    },
+    {
+      "program": "vinted",
+      "impact_count": 4,
+      "url": "https://www.vinted.fr/help/96",
+      "status": 200,
+      "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+      "failure": "NO_PUBLIC_OFFER",
+      "notes": [
+        "http_200",
+        "no_referral_keywords"
+      ],
+      "body_len": 1589219,
+      "parser": "vinted_referral_fr",
+      "offer_kind": "PUBLIC_CAMPAIGN"
+    },
+    {
+      "program": "whatnot",
+      "impact_count": 4,
+      "url": "https://www.whatnot.com/",
+      "status": 200,
+      "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+      "failure": "NO_PUBLIC_OFFER",
+      "notes": [
+        "http_200",
+        "no_referral_keywords"
+      ],
+      "body_len": 1728830,
+      "parser": "structured_first",
+      "offer_kind": "PUBLIC_CAMPAIGN"
+    },
+    {
+      "program": "winamax",
+      "impact_count": 4,
+      "url": "https://www.winamax.fr/parrainage",
+      "status": 200,
+      "source_class": "VERIFIED_OFFICIAL",
+      "failure": "NONE",
+      "notes": [
+        "http_200",
+        "referral_keywords"
+      ],
+      "body_len": 42300,
+      "parser": "winamax_parrainage_fr",
+      "offer_kind": "PUBLIC_CAMPAIGN"
+    },
+    {
+      "program": "acheel",
+      "impact_count": 3,
+      "url": "https://www.acheel.com/",
+      "status": 200,
+      "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+      "failure": "NO_PUBLIC_OFFER",
+      "notes": [
+        "http_200",
+        "no_referral_keywords"
+      ],
+      "body_len": 198625,
+      "parser": "structured_first",
+      "offer_kind": "PUBLIC_CAMPAIGN"
+    },
+    {
+      "program": "binance",
+      "impact_count": 3,
+      "url": "https://www.binance.com/en/activity/referral",
+      "status": 202,
+      "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+      "failure": "NO_PUBLIC_OFFER",
+      "notes": [
+        "http_202",
+        "no_referral_keywords"
+      ],
+      "body_len": 2035,
+      "parser": "structured_first",
+      "offer_kind": "PUBLIC_CAMPAIGN"
+    },
+    {
+      "program": "deblock",
+      "impact_count": 3,
+      "url": "https://deblock.com/",
+      "status": 200,
+      "source_class": "AUTH_APP_ONLY",
+      "failure": "APP_ONLY",
+      "notes": [
+        "http_200",
+        "has_json_ld_or_next"
+      ],
+      "body_len": 97326,
+      "parser": "structured_first",
+      "offer_kind": "APP_PERSONALIZED"
+    },
+    {
+      "program": "nrj-mobile",
+      "impact_count": 3,
+      "url": "https://www.nrjmobile.fr/",
+      "status": 200,
+      "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+      "failure": "NO_PUBLIC_OFFER",
+      "notes": [
+        "http_200",
+        "no_referral_keywords"
+      ],
+      "body_len": 139744,
+      "parser": "structured_first",
+      "offer_kind": "PUBLIC_CAMPAIGN"
+    },
+    {
+      "program": "omio",
+      "impact_count": 3,
+      "url": "https://www.omio.com/",
+      "status": 200,
+      "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+      "failure": "NO_PUBLIC_OFFER",
+      "notes": [
+        "http_200",
+        "has_json_ld_or_next",
+        "no_referral_keywords"
+      ],
+      "body_len": 483819,
+      "parser": "structured_first",
+      "offer_kind": "PUBLIC_CAMPAIGN"
+    },
+    {
+      "program": "plum",
+      "impact_count": 3,
+      "url": "https://withplum.com/",
+      "status": 200,
+      "source_class": "AUTH_APP_ONLY",
+      "failure": "APP_ONLY",
+      "notes": [
+        "http_200"
+      ],
+      "body_len": 1120415,
+      "parser": "app_personalized_stub",
+      "offer_kind": "APP_PERSONALIZED"
+    },
+    {
+      "program": "wise",
+      "impact_count": 3,
+      "url": "https://wise.com/invite",
+      "status": 200,
+      "source_class": "AUTH_APP_ONLY",
+      "failure": "APP_ONLY",
+      "notes": [
+        "http_200",
+        "has_json_ld_or_next"
+      ],
+      "body_len": 107744,
+      "parser": "app_personalized_stub",
+      "offer_kind": "APP_PERSONALIZED"
+    },
+    {
+      "program": "fdj-francaise-des-jeux",
+      "impact_count": 2,
+      "url": "https://www.fdj.fr/",
+      "status": 403,
+      "source_class": "NO_PUBLIC_REFERRAL_SOURCE",
+      "failure": "403_ANTIBOT",
+      "notes": [
+        "http_403"
+      ],
+      "body_len": 766,
+      "parser": "structured_first",
+      "offer_kind": "OPERATOR_ONLY"
+    },
+    {
+      "program": "finary",
+      "impact_count": 2,
+      "url": "https://finary.com/fr",
+      "status": 200,
+      "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+      "failure": "NO_PUBLIC_OFFER",
+      "notes": [
+        "http_200",
+        "no_referral_keywords"
+      ],
+      "body_len": 319017,
+      "parser": "structured_first",
+      "offer_kind": "PUBLIC_CAMPAIGN"
+    },
+    {
+      "program": "lolivier",
+      "impact_count": 2,
+      "url": "https://www.olivierassurance.fr/",
+      "status": 0,
+      "source_class": "UNVERIFIED",
+      "failure": "TEMPORARY_ERROR",
+      "notes": [
+        "http_0"
+      ],
+      "body_len": 0,
+      "parser": "structured_first",
+      "offer_kind": "PUBLIC_CAMPAIGN"
+    },
+    {
+      "program": "parionssport",
+      "impact_count": 1,
+      "url": "https://www.enligne.parionssport.fdj.fr/",
+      "status": 403,
+      "source_class": "ANTI_BOT_BLOCKED",
+      "failure": "403_ANTIBOT",
+      "notes": [
+        "http_403",
+        "public_fetch_blocked"
+      ],
+      "body_len": 772,
+      "parser": "structured_first",
+      "offer_kind": "PUBLIC_CAMPAIGN"
+    },
+    {
+      "program": "grass",
+      "impact_count": 0,
+      "url": "https://www.grass.io/",
+      "status": 200,
+      "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
+      "failure": "NO_PUBLIC_OFFER",
+      "notes": [
+        "http_200",
+        "no_referral_keywords"
+      ],
+      "body_len": 365910,
+      "parser": "structured_first",
+      "offer_kind": "PUBLIC_CAMPAIGN"
+    }
+  ]
+}

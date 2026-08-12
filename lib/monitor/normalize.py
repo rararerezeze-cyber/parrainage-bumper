@@ -31,6 +31,13 @@ def normalize_reward(s: str | None) -> str | None:
         t,
     )
     t = " ".join(t.split()).strip(" -:")
+    # compound rewards: 10 € bonus + 10 € freebets
+    m_comp = re.match(
+        r"(?i)^(\d[\d\s.,]*\s*€\s*(?:bonus|cash|espèces)?\s*(?:\+|et)\s*\d[\d\s.,]*\s*€\s*(?:freebets?|free bets?|bonus)?)",
+        t,
+    )
+    if m_comp:
+        return " ".join(m_comp.group(1).split())
     # keep core amount + asset if present
     m = re.match(
         r"(?i)^((?:jusqu['’]à\s+)?\d[\d\s.,]*\s*€(?:\s+en\s+\w+)?)",
@@ -60,11 +67,16 @@ def is_plausible_reward(s: str | None) -> bool:
     # reject absurd lengths
     if len(t) > 120:
         return False
+    # reject zero amounts (0 € / 0,00 €)
+    if re.search(r"(?i)^(?:jusqu['’]à\s+)?0(?:[.,]0+)?\s*€", t):
+        return False
     # if has euro amount, check range-ish
-    nums = re.findall(r"(\d+)", t.replace(" ", ""))
+    nums = re.findall(r"(\d+)", t.replace(" ", "").replace(",", "."))
     for n in nums[:3]:
         try:
-            v = int(n)
+            v = int(float(n)) if "." in n else int(n)
+            if v == 0:
+                return False
             if v > 100_000:
                 return False
         except ValueError:
