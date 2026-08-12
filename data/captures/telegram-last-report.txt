@@ -1,25 +1,26 @@
 Kraken mis a jour (dry-run)
-code: '4hpz4gdy' -> 'TESTCODE99'
+code: '4hpz4gdy' -> 'DEMO999'
 offers.json ecrit: non (simulation)
 
 Programme kraken:
+  - parrainage-co: pending_update (referee_reward)
   - super-parrain: pending_update (personal_code, personal_link, referee_reward)
 
-1 plateforme(s) avec mapping pour ce programme | 3 capture_pending | 3 manual (global)
+2 plateforme(s) avec mapping pour ce programme | 1 capture_pending | 3 manual (global)
 Aucune publication reelle effectuee.
 
 {
-  "at": "2026-08-12T15:48:44.006021+00:00",
-  "message": "Kraken code TESTCODE99",
+  "at": "2026-08-12T15:54:33.850453+00:00",
+  "message": "Kraken code DEMO999",
   "parsed": {
     "program": "kraken",
     "field": "code",
-    "value": "TESTCODE99",
+    "value": "DEMO999",
     "offer_name": "Kraken"
   },
   "update": {
     "old": "4hpz4gdy",
-    "new": "TESTCODE99",
+    "new": "DEMO999",
     "written": false,
     "effective_offers_path": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\captures\\_offers_preview.json"
   }

@@ -1,0 +1,23 @@
+{
+  "platform": "code-parrainage",
+  "program": "traderepublic",
+  "language": "fr",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": "https://code-parrainage.net/moncompte",
+  "mutable_fields": [
+    "personal_code"
+  ],
+  "platform_values": {
+    "personal_code": "s931znqx"
+  },
+  "confidences": {
+    "personal_code": "high"
+  },
+  "notes": [
+    "lien offers.json non trouve dans le texte",
+    "bonus non marque (ambigu / non trouve) — texte laisse fixe",
+    "source: liste moncompte (texte peut etre tronque) — detail edit a capturer plus tard"
+  ]
+}
