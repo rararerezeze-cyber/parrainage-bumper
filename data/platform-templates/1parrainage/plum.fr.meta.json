@@ -1,0 +1,25 @@
+{
+  "platform": "1parrainage",
+  "program": "plum",
+  "language": "fr",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php",
+  "mutable_fields": [
+    "personal_link",
+    "referee_reward"
+  ],
+  "platform_values": {
+    "personal_link": "https://withplum.com",
+    "referee_reward": "10 € offerts après inscription et premier dépôt"
+  },
+  "confidences": {
+    "personal_link": "medium",
+    "referee_reward": "high"
+  },
+  "notes": [
+    "lien plateforme != offers.json",
+    "native_platform_style_only"
+  ]
+}

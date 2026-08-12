@@ -1,0 +1,41 @@
+{
+  "platform": "1parrainage",
+  "program": "swissborg",
+  "language": "fr",
+  "sync_mode": "REVIEW",
+  "template_status": "ready",
+  "golden_file": "swissborg.fr.golden.txt",
+  "mutable_fields": [
+    "referee_reward"
+  ],
+  "markers": {
+    "personal_code": "{{PERSONAL_CODE}}",
+    "personal_link": "{{PERSONAL_LINK}}",
+    "referee_reward": "{{REFEREE_REWARD}}",
+    "referrer_reward": "{{REFERRER_REWARD}}",
+    "conditions": "{{CONDITIONS}}"
+  },
+  "offer_fields": {
+    "personal_code": "code",
+    "personal_link": "link",
+    "referee_reward": "reward",
+    "conditions": "cond"
+  },
+  "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php",
+  "edit_url": null,
+  "platform_values": {
+    "referee_reward": "50 € offerts en Bitcoin Bonus aléatoire jusqu"
+  },
+  "confidences": {
+    "referee_reward": "medium"
+  },
+  "notes": "lien offers.json non trouve dans le texte; bonus extrait du texte plateforme (confiance moyenne); native_platform_style_only; no emoji re-injection",
+  "source_of_truth": {
+    "personal_code": "offers_json_then_operator",
+    "personal_link": "offers_json_then_operator",
+    "referee_reward": "offers_json_then_official",
+    "announcement_text": "platform_target_only"
+  },
+  "quality": "native_list_or_auth",
+  "style_policy": "native_platform_style_only"
+}

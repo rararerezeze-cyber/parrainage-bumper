@@ -5,13 +5,21 @@
   "status": "ready",
   "role": "platform_target_historical_text_only",
   "not_business_source_of_truth": true,
-  "announcement_url": "https://www.1parrainage.com/offre_parrainage_OKX.php",
-  "mutable_fields": [],
-  "platform_values": {},
-  "confidences": {},
+  "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php",
+  "mutable_fields": [
+    "personal_code",
+    "personal_link"
+  ],
+  "platform_values": {
+    "personal_code": "28947271",
+    "personal_link": "https://my.okx.com/fr-fr/join/28947271"
+  },
+  "confidences": {
+    "personal_code": "high",
+    "personal_link": "high"
+  },
   "notes": [
-    "lien offers.json non trouve dans le texte",
     "bonus non marque (ambigu / non trouve) — texte laisse fixe",
-    "native 1parrainage style; do not force Super-Parrain emojis"
+    "native_platform_style_only"
   ]
 }

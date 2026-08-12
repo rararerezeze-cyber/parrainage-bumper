@@ -1,0 +1,23 @@
+{
+  "platform": "1parrainage",
+  "program": "parionssport",
+  "language": "fr",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php",
+  "mutable_fields": [
+    "personal_link"
+  ],
+  "platform_values": {
+    "personal_link": "https://www.enligne.parionssport.fdj.fr/inscription/?campaign=290725&parrain=03356181D410779A"
+  },
+  "confidences": {
+    "personal_link": "medium"
+  },
+  "notes": [
+    "lien plateforme != offers.json",
+    "bonus non marque (ambigu / non trouve) — texte laisse fixe",
+    "native_platform_style_only"
+  ]
+}
