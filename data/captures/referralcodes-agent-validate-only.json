@@ -19,10 +19,10 @@
   },
   "schema_ok": true,
   "schema_errors": [],
-  "at": "2026-08-13T13:49:49.342116+00:00",
-  "agent_import_result_text": "{\"draft_id\":124,\"summary\":{\"total\":1,\"valid\":1,\"invalid\":0},\"items\":[{\"index\":0,\"shop_id\":4769,\"shop_name\":\"Kraken\",\"errors\":[]}]}",
+  "at": "2026-08-13T14:49:06.233274+00:00",
+  "agent_import_result_text": "{\"draft_id\":125,\"summary\":{\"total\":1,\"valid\":1,\"invalid\":0},\"items\":[{\"index\":0,\"shop_id\":4769,\"shop_name\":\"Kraken\",\"errors\":[]}]}",
   "agent_import_result_json": {
-    "draft_id": 124,
+    "draft_id": 125,
     "summary": {
       "total": 1,
       "valid": 1,
@@ -40,8 +40,10 @@
   "classify": {
     "existing_detected": true,
     "update_or_duplicate": "SHOP_MATCHED_UPDATE_UNKNOWN",
-    "shop_ids": [4769],
-    "draft_id": 124,
+    "shop_ids": [
+      4769
+    ],
+    "draft_id": 125,
     "signals": {
       "shop_matched": true,
       "listing_update_proven": false,

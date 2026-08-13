@@ -1,0 +1,32 @@
+{
+  "platform": "referralcodes",
+  "phase": "INSPECT_COMMIT_SEMANTICS",
+  "commit_clicked": false,
+  "live_write": false,
+  "payload": {
+    "version": "1.0",
+    "items": [
+      {
+        "shop": "kraken",
+        "discount": "\\u2b50\\ufe0f $200 in Crypto \\u2b50\\ufe0f",
+        "url": "https://invite.kraken.com/JDNW/s5qudqe4",
+        "code": "cpbrgddy",
+        "description": "VALIDATE ONLY — existing TheSuperReff listing, no commit"
+      }
+    ]
+  },
+  "at": "2026-08-13T14:49:17.457599+00:00",
+  "ok": false,
+  "error": "'async_generator' object is not iterable",
+  "semantics": {
+    "commit_endpoint": null,
+    "commit_payload": null,
+    "existing_listing_identifier_found": null,
+    "update_semantics_proven": false,
+    "duplicate_risk": "UNKNOWN",
+    "pc_off_ready_possible": false,
+    "support_question_required": true,
+    "draft_id": null,
+    "shop_id": null
+  }
+}
