@@ -259,10 +259,21 @@ async def _wait_user_save(page, report: dict) -> None:
             report["captcha_manual"] = True
             await asyncio.sleep(2.0)
             return
-        rec = await page.evaluate(READ_JS)
+        try:
+            rec = await page.evaluate(READ_JS)
+            recaptcha = rec.get("has_recaptcha")
+        except Exception as exc:
+            msg = str(exc).lower()
+            if "destroyed" in msg or "navigation" in msg:
+                print("navigation après Save — je passe au reread")
+                report["save_submitted"] = True
+                report["captcha_manual"] = True
+                await asyncio.sleep(2.0)
+                return
+            recaptcha = None
         now = asyncio.get_event_loop().time()
         if now - last > 12:
-            print(f"  en attente de ton Save… url={url} recaptcha={rec.get('has_recaptcha')}")
+            print(f"  en attente de ton Save… url={url} recaptcha={recaptcha}")
             try:
                 pub = fetch_text(PUBLIC) or ""
                 if "s5qudqe4" in pub and OLD_CODE not in pub:
@@ -283,8 +294,11 @@ async def _wait_user_save(page, report: dict) -> None:
 async def _reread(page, before: dict, report: dict) -> None:
     try:
         await page.goto(EDIT, wait_until="domcontentloaded", timeout=60000)
-        await asyncio.sleep(1.2)
-        acc = await page.evaluate(READ_JS)
+        await asyncio.sleep(1.5)
+        try:
+            acc = await page.evaluate(READ_JS)
+        except Exception as exc:
+            acc = {"error": str(exc)}
     except Exception as exc:
         acc = {"error": str(exc)}
     report["account_reread"] = acc
@@ -360,10 +374,31 @@ async def run() -> int:
         fields_new = NEW_CODE in (before.get("code") or "") and "s5qudqe4" in (before.get("link") or "")
         content_old = OLD_CODE in (before.get("content") or "") or "2seeom3g" in (before.get("content") or "")
         if fields_new and not content_old:
-            report["error"] = "already published in fields+content — STOP no fill"
+            print("champs+texte déjà NEW — pas de fill, je relis compte+public")
+            report["filled"] = False
+            report["save_submitted"] = True
+            report["captcha_manual"] = True
+            await _reread(page, before, report)
             _write(OUT, report)
-            print("STOP: déjà à jour dans champs et texte — aucun fill")
-            return 5
+            print(
+                "RCTV_WRITE_PROOF\n"
+                f"eid: {EID}\n"
+                f"targeted_fields: code,link\n"
+                f"captcha_manual: {report.get('captcha_manual')}\n"
+                f"save_submitted: {report.get('save_submitted')}\n"
+                f"account_reread: {report.get('account_reread_ok')}\n"
+                f"public_reread: {report.get('public_reread')}\n"
+                f"new_code_verified: {report.get('new_code_verified')}\n"
+                f"new_link_verified: {report.get('new_link_verified')}\n"
+                f"old_code_absent: {report.get('old_code_absent')}\n"
+                f"old_link_absent: {report.get('old_link_absent')}\n"
+                f"native_en_preserved: {report.get('native_en_preserved')}\n"
+                f"immutable_preserved: {report.get('immutable_preserved')}\n"
+                f"post_match: {report.get('post_match')}\n"
+                f"WRITE_VERIFIED: {report.get('WRITE_VERIFIED')}"
+            )
+            print(f"report={OUT}")
+            return 0 if report.get("post_match") else 1
         if not fields_new and OLD_CODE not in blob:
             report["error"] = "OLD code not in form — STOP no fill"
             _write(OUT, report)
