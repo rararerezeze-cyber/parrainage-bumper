@@ -26,8 +26,10 @@
   "announcement_url": "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-kraken-referral-bonus-up-to-200-in-crypto-%e2%ad%90%ef%b8%8f-join-kraken-one-of-the-most-trusted-and-secure-crypto-exchanges-worldwide/",
   "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23004",
   "platform_values": {
-    "personal_code": "85d3qj9p",
-    "personal_link": "https://invite.kraken.com/JDNW/2seeom3g",
+    "personal_code": "cpbrgddy",
+    "personal_link": "https://invite.kraken.com/JDNW/s5qudqe4",
+    "public_body_code": "85d3qj9p",
+    "public_body_link": "https://invite.kraken.com/JDNW/2seeom3g",
     "referee_reward": "Up to $200 in crypto rewards for new users"
   },
   "confidences": {
@@ -35,7 +37,7 @@
     "personal_link": "high",
     "referee_reward": "medium"
   },
-  "notes": "VIEW postid-23004 is this listing (sid=eid=23004). Observed 85d3qj9p / JDNW/2seeom3g / $200. OPERATOR wants cpbrgddy / s5qudqe4. Keep native EN $200 wording. REAL_SAFE_DIFF on code+link. 18858/23422/24470/4007 are OTHER users on the same page. No save.",
+  "notes": "eid=23004. Custom fields already operator (headed 2026-08-13). Public body still 85d3qj9p / 2seeom3g. REAL_SAFE_DIFF is description tokens only. Native EN $200. No save yet.",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",

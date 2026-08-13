@@ -179,9 +179,13 @@ async def _fill(page, before: dict) -> None:
           const codeBefore = codeEl.value || '';
           const linkBefore = linkEl.value || '';
           const contentBefore = contentEl ? (contentEl.value || '') : '';
-          if (newCode && codeBefore.includes(newCode) && newLink && linkBefore.includes('s5qudqe4'))
+          const fieldsAlreadyNew = !!(newCode && codeBefore.includes(newCode)
+            && newLink && linkBefore.includes('s5qudqe4'));
+          const contentHasOld = !!(contentBefore.includes(oldCode) || contentBefore.includes(oldBare)
+            || (oldLink && contentBefore.includes(oldLink)));
+          if (fieldsAlreadyNew && !contentHasOld)
             return {ok: false, reason: 'already_new'};
-          if (oldCode && !codeBefore.includes(oldCode) && !contentBefore.includes(oldCode))
+          if (oldCode && !codeBefore.includes(oldCode) && !contentBefore.includes(oldCode) && !fieldsAlreadyNew)
             return {ok: false, reason: 'old_code_missing', codeBefore, linkBefore};
           codeEl.value = newCode;
           codeEl.dispatchEvent(new Event('input', {bubbles: true}));
@@ -352,16 +356,26 @@ async def run() -> int:
             "title": before.get("title"),
             "content_head": (before.get("content") or "")[:400],
         }
-        if OLD_CODE not in ((before.get("code") or "") + (before.get("content") or "")):
+        blob = (before.get("code") or "") + (before.get("link") or "") + (before.get("content") or "")
+        fields_new = NEW_CODE in (before.get("code") or "") and "s5qudqe4" in (before.get("link") or "")
+        content_old = OLD_CODE in (before.get("content") or "") or "2seeom3g" in (before.get("content") or "")
+        if fields_new and not content_old:
+            report["error"] = "already published in fields+content — STOP no fill"
+            _write(OUT, report)
+            print("STOP: déjà à jour dans champs et texte — aucun fill")
+            return 5
+        if not fields_new and OLD_CODE not in blob:
             report["error"] = "OLD code not in form — STOP no fill"
             _write(OUT, report)
             print("STOP: ancien code absent — aucun fill")
             return 5
-        if "2seeom3g" not in ((before.get("link") or "") + (before.get("content") or "")):
+        if not fields_new and "2seeom3g" not in blob:
             report["error"] = "OLD link not in form — STOP no fill"
             _write(OUT, report)
             print("STOP: ancien lien absent — aucun fill")
             return 5
+        if fields_new and content_old:
+            print("champs déjà NEW — je remplace seulement les tokens dans le texte EN")
         snap = snapshot_state("canary:referralcode-tv:headed")
         report["snapshot"] = snap.get("id")
         await _fill(page, before)
