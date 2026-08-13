@@ -626,7 +626,7 @@ async def execute_write(
                     steps=steps + ["blocked_24h"],
                 )
 
-                                    form_dump = await _dump_form_debug(page, "debug_super_write_form.json")
+            form_dump = await _dump_form_debug(page, "debug_super_write_form.json")
             form_names = [
                 str((i or {}).get("name") or "")
                 for i in (form_dump.get("inputs") or [])
