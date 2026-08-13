@@ -218,23 +218,47 @@ async def auth_discovery() -> dict:
                 except Exception as exc:  # noqa: BLE001
                     report["errors"].append({"url": url, "error": str(exc)})
 
-            # Open first few edit candidates READ-ONLY and detect fields
+            # Open edit candidates READ-ONLY and detect fields (no save).
             field_probes = []
-            for href in report["edit_urls"][:8]:
+            edit_only = [h for h in report["edit_urls"] if "eid=" in (h or "")]
+            for href in (edit_only or report["edit_urls"])[:30]:
                 try:
                     await page.goto(href, wait_until="domcontentloaded", timeout=45000)
                     await bumper_mod.human_sleep(1.0, 1.8)
                     fields = await page.evaluate(
                         """
                         () => {
-                          const textareas = Array.from(document.querySelectorAll('textarea'))
-                            .map(t => ({name: t.name||t.id||'', len: (t.value||'').length}));
-                          const inputs = Array.from(document.querySelectorAll('input'))
-                            .filter(i => ['text','url','search'].includes((i.type||'text').toLowerCase()) || !i.type)
-                            .map(i => ({name: ((i.name||'')+' '+(i.id||'')+' '+(i.placeholder||'')).trim(), value_len: (i.value||'').length}))
-                            .slice(0, 30);
-                          const ce = !!document.querySelector('[contenteditable="true"], .ql-editor, .ProseMirror');
-                          return {url: location.href, textareas, inputs, contenteditable: ce, title: document.title};
+                          const val = (sel) => {
+                            const el = document.querySelector(sel);
+                            return el ? (el.value || el.innerText || '').trim() : '';
+                          };
+                          const title = val('input[name="form[post_title]"], #form_post_title, input.form_post_title');
+                          const code = val('input[name="custom[code]"], input.field-code, #field-code');
+                          const link = val('input[name="custom[buy_link]"], input.field-buy_link, #field-buy_link');
+                          const content = val('textarea[name="form[post_content]"], textarea#form_post_content');
+                          const blob = (title + ' ' + content + ' ' + link).toLowerCase();
+                          let program = null;
+                          const keys = [
+                            ['kraken','kraken'], ['okx','okx'], ['paypal','paypal'],
+                            ['robinhood','robinhood'], ['whatnot','whatnot'], ['wise','wise'],
+                            ['stake','stake'], ['gemini','gemini'], ['bybit','bybit'],
+                            ['swissborg','swissborg'], ['airbnb','airbnb'], ['joko','joko'],
+                          ];
+                          for (const [prog, key] of keys) {
+                            if (blob.includes(key)) { program = prog; break; }
+                          }
+                          const eidM = (location.search || '').match(/[?&]eid=(\\d+)/);
+                          return {
+                            url: location.href,
+                            eid: eidM ? eidM[1] : null,
+                            program,
+                            post_title: title.slice(0, 180),
+                            code: code.slice(0, 80),
+                            buy_link: link.slice(0, 200),
+                            content_len: content.length,
+                            content_head: content.slice(0, 240),
+                            page_title: document.title,
+                          };
                         }
                         """
                     )

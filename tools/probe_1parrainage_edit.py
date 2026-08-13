@@ -159,6 +159,40 @@ async def auth_discovery() -> dict:
                     if should_stop_platform(kind):
                         report["stopped"] = kind.value
                         break
+            known_edit = "https://www.1parrainage.com/espace_parrain/parrainages/edit/2541207/"
+            try:
+                await page.goto(known_edit, wait_until="domcontentloaded", timeout=60000)
+                await bumper_mod.human_sleep(1.2, 1.8)
+                await _detect_challenge(page)
+                ck = await page.evaluate(
+                    """
+                    () => {
+                      const id = 'edit_parrainage_presentation';
+                      const inst = window.CKEDITOR && CKEDITOR.instances && CKEDITOR.instances[id];
+                      const data = inst ? (inst.getData() || '') : '';
+                      const ta = document.getElementById(id);
+                      const tv = ta ? (ta.value || '') : '';
+                      const blob = data || tv;
+                      return {
+                        url: location.href,
+                        bounced_login: (location.href || '').includes('/login'),
+                        has_ckeditor: !!inst,
+                        has_textarea: !!ta,
+                        len: blob.length,
+                        has_s5qudqe4: blob.includes('s5qudqe4'),
+                        has_4jdp7sea: blob.includes('4jdp7sea'),
+                        has_cpbrgddy: blob.includes('cpbrgddy'),
+                        form_edit: !!document.querySelector('form[action*="parrainages/edit"]'),
+                      };
+                    }
+                    """
+                )
+                report["known_edit_probe"] = ck
+                report["save_clicked"] = False
+                if ck.get("url") and ck["url"] not in report["edit_urls"]:
+                    report["edit_urls"].append(ck["url"])
+            except Exception as exc:  # noqa: BLE001
+                report["known_edit_probe"] = {"error": str(exc)}
             report["ok"] = report["login"] == "ok"
             report["conclusion"] = (
                 "EDIT_URLS_FOUND" if report["edit_urls"] else "LOGIN_OK_NO_EDIT_URLS_YET"

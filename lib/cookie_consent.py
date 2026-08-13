@@ -186,6 +186,49 @@ async def _click_in_owner(owner, button: dict[str, str]) -> bool:
         return False
 
 
+KNOWN_ACCEPT_SELECTORS = (
+    "#didomi-notice-agree-button",
+    "button#didomi-notice-agree-button",
+    "[id*='didomi'] button[aria-label*='Accept' i]",
+    "[id*='didomi'] button[aria-label*='Accepter' i]",
+    "button[id*='accept-recommended']",
+    "button.sp_choice_type_11",
+    "#onetrust-accept-btn-handler",
+    "button#onetrust-accept-btn-handler",
+    "button[title='Tout accepter']",
+    "button[title='Accept all']",
+    "button[aria-label='Tout accepter']",
+    "button[aria-label='Accept all']",
+)
+
+
+async def _click_known_accept(page) -> str | None:
+    """Standard CMP accept IDs only. No reject/customize, no overlay bypass."""
+    owners = [page, *list(page.frames)]
+    for owner in owners:
+        for sel in KNOWN_ACCEPT_SELECTORS:
+            try:
+                loc = owner.locator(sel).first
+                if await loc.count() == 0:
+                    continue
+                if not await loc.is_visible():
+                    continue
+                label = (
+                    (await loc.inner_text() or "")
+                    or (await loc.get_attribute("aria-label") or "")
+                    or (await loc.get_attribute("title") or "")
+                    or sel
+                )
+                kind = classify_consent_label(label) if label and label != sel else "ACCEPT"
+                if kind == "REJECT_OR_SETTINGS":
+                    continue
+                await loc.click(timeout=3000)
+                return (label or sel).strip()[:80]
+            except Exception:
+                continue
+    return None
+
+
 async def handle_cookie_consent(page, *, timeout_s: float = 8.0) -> dict[str, Any]:
     """Click a single standard Accept if a consent banner is visible.
 
@@ -194,6 +237,9 @@ async def handle_cookie_consent(page, *, timeout_s: float = 8.0) -> dict[str, An
     import asyncio
 
     await asyncio.sleep(0.6)
+    # Give late Didomi/Sourcepoint iframes a short extra beat on headless Linux.
+    if not await _username_visible(page):
+        await asyncio.sleep(1.2)
     form_visible = await _username_visible(page)
     banner = await _consent_ui_visible(page)
     owners = [page, *list(page.frames)]
@@ -218,6 +264,26 @@ async def handle_cookie_consent(page, *, timeout_s: float = 8.0) -> dict[str, An
             "cookie_consent_handled": "NO",
             "reason": "no_visible_consent_banner",
             "login_form_visible": True,
+        }
+
+    known = await _click_known_accept(page)
+    if known:
+        deadline = asyncio.get_event_loop().time() + timeout_s
+        while asyncio.get_event_loop().time() < deadline:
+            await asyncio.sleep(0.4)
+            form_visible = await _username_visible(page)
+            banner = await _consent_ui_visible(page)
+            if form_visible and not banner:
+                break
+        form_visible = await _username_visible(page)
+        if not form_visible:
+            raise ConsentBlocked("overlay still covering #_username after known CMP accept")
+        return {
+            "cookie_consent_handled": "YES",
+            "button": known,
+            "login_form_visible": True,
+            "overlay_gone": not banner,
+            "via": "known_cmp_selector",
         }
 
     if banner and not accept_candidates:

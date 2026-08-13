@@ -3,7 +3,7 @@ Parrainage Auto-Bumper - VERSION PRO
 super-parrain.com | code-parrainage.net | parrainage.co
 """
 
-import asyncio, os, io, random, logging, httpx
+import asyncio, os, io, json, random, logging, httpx
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
 from playwright.async_api import async_playwright, Page, TimeoutError as PWTimeout
@@ -221,6 +221,18 @@ def find_gap_position(bg_bytes, piece_bytes):
         log.warning(f"  PIL echoue: {e}")
         return 117
 
+
+def _write_slider_diag(diag: dict) -> None:
+    try:
+        from pathlib import Path
+
+        path = Path(__file__).resolve().parent / "data" / "captures" / "code-parrainage-slider-diag.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(diag, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    except Exception:
+        pass
+
+
 async def solve_slider(page):
     present = False
     for sel in ['div[class*="captcha"]', 'div[class*="slider"]', 'div:has-text("Glissez")']:
@@ -231,9 +243,20 @@ async def solve_slider(page):
         except Exception:
             pass
     if not present:
+        _write_slider_diag({"present": False, "ok": True, "note": "no slider widget"})
         return True
 
     log.info("  Slider CAPTCHA en cours...")
+    diag = {
+        "present": True,
+        "canvas_count": None,
+        "target_x": None,
+        "drag_px": None,
+        "captcha_valide": None,
+        "widget_gone": None,
+        "ok": False,
+        "note": "existing solver only — no bypass, no extra attempts on same puzzle",
+    }
     await human_sleep(1, 2)
 
     bg_bytes = piece_bytes = None
@@ -243,8 +266,10 @@ async def solve_slider(page):
         if n >= 1: bg_bytes = await canvases.nth(0).screenshot()
         if n >= 2: piece_bytes = await canvases.nth(1).screenshot()
         log.info(f"  {n} canvas captures")
+        diag["canvas_count"] = n
     except Exception as e:
         log.debug(f"  canvas: {e}")
+        diag["canvas_error"] = str(e)[:200]
 
     if bg_bytes: open("debug_bg.png", "wb").write(bg_bytes)
     if piece_bytes: open("debug_piece.png", "wb").write(piece_bytes)
@@ -256,10 +281,15 @@ async def solve_slider(page):
         await handle.wait_for(state="visible", timeout=5000)
     except Exception:
         log.warning("  Handle introuvable")
+        diag["error"] = "handle_not_found"
+        _write_slider_diag(diag)
         return False
 
     box = await handle.bounding_box()
-    if not box: return False
+    if not box:
+        diag["error"] = "handle_box_missing"
+        _write_slider_diag(diag)
+        return False
 
     canvas_box = await page.locator('.slidercaptcha canvas').first.bounding_box()
     canvas_left = canvas_box["x"] if canvas_box else box["x"]
@@ -267,6 +297,8 @@ async def solve_slider(page):
     sy = box["y"] + box["height"] / 2
     real_dist = max(5, int(target_x - (sx - canvas_left)))
     log.info(f"  drag cible={real_dist}px")
+    diag["target_x"] = target_x
+    diag["drag_px"] = real_dist
 
     # Une glissade refusee invalide le puzzle. Les decalages supplementaires
     # sur la meme image ne peuvent plus reussir; le retry recharge un defi neuf.
@@ -279,20 +311,28 @@ async def solve_slider(page):
         await human_drag(page, sx, sy, dist)
         try:
             val = await page.locator('#captcha_valide, input[name="captcha_valide"]').first.input_value()
+            diag["captcha_valide"] = val
             if val in ("true", "1", "yes", "ok"):
                 log.info("  Slider OK !")
+                diag["ok"] = True
+                _write_slider_diag(diag)
                 return True
         except Exception:
             pass
         try:
             if not await page.locator('.slidercaptcha').first.is_visible():
                 log.info("  Slider OK (widget disparu) !")
+                diag["widget_gone"] = True
+                diag["ok"] = True
+                _write_slider_diag(diag)
                 return True
+            diag["widget_gone"] = False
         except Exception:
             pass
         await human_sleep(1.5, 2.5)
 
     log.warning("  Slider non resolu")
+    _write_slider_diag(diag)
     return False
 
 # -- RETRY --------------------------------------------------------------------
