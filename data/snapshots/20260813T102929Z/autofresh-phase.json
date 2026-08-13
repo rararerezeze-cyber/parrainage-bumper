@@ -2,18 +2,11 @@
   "phase": "VALIDATION_LIVE",
   "live_writes": true,
   "live_canary": true,
-  "enabled_platforms": [
-    "super-parrain",
-    "1parrainage"
-  ],
-  "write_verified": [
-    "1parrainage"
-  ],
+  "enabled_platforms": ["super-parrain"],
+  "write_verified": [],
   "canary": {
     "platform": "super-parrain",
-    "programs": [
-      "kraken"
-    ],
+    "programs": ["kraken"],
     "mode": "canary"
   },
   "note": "STRICT: Telegram live writes only for write_verified[]. Super-Parrain CANARY_PENDING: bump_super_parrain.yml ALWAYS SKIP (no save). Only activation_canary.yml may live-save until post_match=true → WRITE_VERIFIED → NORMAL_BUMP. Shared concurrency parrainage-bumper-super. Monitor=OBSERVATION_ONLY.",

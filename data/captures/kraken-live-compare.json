@@ -40,11 +40,12 @@
       "url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100408",
       "observed": {
         "personal_code": "cpbrgddy",
-        "personal_link": "https://invite.kraken.com/JDNW/4jdp7sea",
+        "personal_link": "https://invite.kraken.com/JDNW/s5qudqe4",
         "referee_reward": "200 € en cryptomonnaies"
       },
-      "class": "REAL_SAFE_DIFF",
-      "note": "Only personal_link differs (4jdp7sea -> s5qudqe4). Code and reward already correct. Previous auth compare login failed — one live canary may retry."
+      "class": "NO_SAFE_DIFF",
+      "write_verified": true,
+      "note": "Headed canary 2026-08-13: Envoyer on edit/2541207. Public list + offre_parrainage_Kraken now have s5qudqe4; 4jdp7sea absent. Code/reward unchanged."
     },
     {
       "platform": "referralcodes",
@@ -60,7 +61,7 @@
       "note": "Public card already shows native $200 in Crypto + cpbrgddy. Do not overwrite native EN style with FR 200 € text."
     }
   ],
-  "first_real_safe_diff": "1parrainage",
+  "first_real_safe_diff": null,
   "super_parrain": {
     "class": "NO_SAFE_DIFF",
     "content_sync": "SYNC_VERIFIED_NO_SAFE_DIFF",

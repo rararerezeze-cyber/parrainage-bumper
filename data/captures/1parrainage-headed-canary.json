@@ -1,10 +1,10 @@
 {
-  "at": "2026-08-13T10:01:41.239015+00:00",
+  "at": "2026-08-13T10:29:05.127216+00:00",
   "single_session": true,
   "no_guessed_urls": true,
   "offer_id": "100408",
-  "WRITE_VERIFIED": false,
-  "save_submitted": false,
+  "WRITE_VERIFIED": true,
+  "save_submitted": true,
   "cookie_consent_handled": "YES",
   "login_form_visible": true,
   "authenticated": true,
@@ -36,41 +36,6 @@
     "current_content": "<p>Offre Parrainage Kraken &ndash; Jusqu&rsquo;&agrave; 200 &euro; offerts</p>\n\n<p>Bonus : 200 &euro; en cryptomonnaies<br />\nRejoignez Kraken, une plateforme d&rsquo;&eacute;change crypto reconnue et s&eacute;curis&eacute;e.</p>\n\n<p>Code parrain : cpbrgddy</p>\n\n<p>Lien :</p>\n\n<p>https://invite.kraken.com/JDNW/4jdp7sea</p>\n\n<p>&Eacute;tapes &agrave; suivre pour obtenir le bonus :</p>\n\n<p>Conditions de parrainage :</p>\n\n<p>Une fois que votre ami(e) aura termin&eacute; ces &eacute;tapes, vous recevrez tous les deux le bonus.</p>\n\n<p>Cr&eacute;er et v&eacute;rifier un compte<br />\nD&eacute;posez au moins 200 &euro;<br />\nTradez au moins 200 &euro;</p>\n\n<p>&Agrave; savoir :<br />\n&bull; Offre r&eacute;serv&eacute;e aux nouveaux utilisateurs<br />\n&bull; Le bonus est cr&eacute;dit&eacute; apr&egrave;s validation des conditions sans action manuelle n&eacute;cessaire</p>\n\n<p>Besoin d&rsquo;aide ou d&rsquo;un suivi personnalis&eacute; ?<br />\nDM-moi &mdash; je te guide &eacute;tape par &eacute;tape</p>\n\n<p>https://discord.gg/dDEMb6jEbn</p>\n\n<p>&nbsp;</p>",
     "page_log": [
       {
-        "requested_url": "https://www.1parrainage.com/espace_parrain/",
-        "final_url": "https://www.1parrainage.com/espace_parrain/",
-        "title": "Parrainages, Offres de parrains pour filleuls, Codes promo & Réductions",
-        "http_status": 200,
-        "forms": [
-          {
-            "action": "https://www.1parrainage.com/texte_results.php",
-            "method": "get",
-            "id": null
-          }
-        ],
-        "links_near_100408": [],
-        "links_near_kraken": []
-      },
-      {
-        "requested_url": "https://www.1parrainage.com/espace_parrain/parrainages/",
-        "final_url": "https://www.1parrainage.com/espace_parrain/parrainages/",
-        "title": "Parrainages, Offres de parrains pour filleuls, Codes promo & Réductions",
-        "http_status": 200,
-        "forms": [
-          {
-            "action": "https://www.1parrainage.com/texte_results.php",
-            "method": "get",
-            "id": null
-          },
-          {
-            "action": null,
-            "method": "post",
-            "id": null
-          }
-        ],
-        "links_near_100408": [],
-        "links_near_kraken": []
-      },
-      {
         "requested_url": "https://www.1parrainage.com/espace_parrain/parrainages/edit/2541207/",
         "final_url": "https://www.1parrainage.com/espace_parrain/parrainages/edit/2541207/",
         "title": "Parrainages, Offres de parrains pour filleuls, Codes promo & Réductions",
@@ -96,5 +61,19 @@
   "offer_100408_found": true,
   "edit_url": "https://www.1parrainage.com/espace_parrain/parrainages/edit/2541207/",
   "old_link_verified": true,
-  "error": "precondition code/reward missing — STOP no save"
+  "snapshot": "20260813T102929Z",
+  "targeted_field_only": true,
+  "save_label": "Envoyer",
+  "account_reread": true,
+  "new_link_verified_account": true,
+  "code_unchanged": true,
+  "reward_unchanged": true,
+  "public_reread": true,
+  "new_link_verified_public": true,
+  "old_absent_public": true,
+  "code_public": true,
+  "reward_public": true,
+  "new_link_verified": true,
+  "immutable_preserved": true,
+  "post_match": true
 }

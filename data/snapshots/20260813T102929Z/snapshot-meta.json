@@ -1,0 +1,21 @@
+{
+  "id": "20260813T102929Z",
+  "at": "2026-08-13T10:29:29.125190+00:00",
+  "reason": "canary:1parrainage:headed",
+  "copied": [
+    "operator-overrides.json",
+    "platform-write-status.json",
+    "pending_writes.json",
+    "autofresh-phase.json",
+    "circuit-breakers.json",
+    "sync-state.json"
+  ],
+  "missing": [],
+  "path": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\snapshots\\20260813T102929Z",
+  "excludes": [
+    "last_super_run.txt",
+    "secrets",
+    "cookies",
+    "storage-state"
+  ]
+}

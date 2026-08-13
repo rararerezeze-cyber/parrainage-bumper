@@ -1,12 +1,10 @@
 {
   "version": 1,
-  "updated_at": "2026-08-13T10:32:53.339624+00:00",
+  "updated_at": "2026-08-13T09:52:01.156085+00:00",
   "note": "Strict write readiness. WRITE_VERIFIED requires full post-verify evidence. Telegram live writes only for WRITE_VERIFIED platforms.",
-  "write_verified_count": 1,
-  "write_verified_ratio": "1/7",
-  "telegram_live_capable": [
-    "1parrainage"
-  ],
+  "write_verified_count": 0,
+  "write_verified_ratio": "0/7",
+  "telegram_live_capable": [],
   "platforms": {
     "super-parrain": {
       "status": "CANARY_READY",
@@ -43,42 +41,22 @@
       "last_compare_note": "slider captcha non resolu (pas de contournement). Dry-run vs mapping has no field diff. Not SYNC (no live reread). Not WRITE_VERIFIED."
     },
     "1parrainage": {
-      "status": "WRITE_VERIFIED",
+      "status": "CANARY_READY",
       "canary_program": "kraken",
-      "notes": "WRITE_VERIFIED (local headed Chrome): CKEditor presentation link-only 4jdp7sea -> s5qudqe4, Envoyer on form[action*=parrainages/edit/2541207], account+public reread post_match. Code/reward unchanged. GH Actions headless login still unproven. No Boost/Remonter. Telegram LIVE_UPDATE allowed for this platform only.",
-      "last_compare_class": "NO_SAFE_DIFF",
-      "last_compare_at": "2026-08-13T10:32:53.322453+00:00",
-      "last_compare_note": "headed canary Envoyer + independent public reread: s5qudqe4 present, 4jdp7sea absent, cpbrgddy + 200 EUR unchanged",
+      "notes": "CANARY_READY: login /login + edit + save + reread account/public list. Native style only. Kraken first (offer_id=100408). Not WRITE_VERIFIED until post_match. No Boost/Remonter. Stop on 403/429/CAPTCHA/auth/unexpected DOM.",
+      "last_compare_class": "DOM_BLOCKED",
+      "last_compare_at": "2026-08-13T08:29:36.794673+00:00",
+      "last_compare_note": "Live canary 31681603602 stopped: unexpected_dom login fields not found on /login. No save. Public REAL_SAFE_DIFF (4jdp7sea) remains for a later cycle. Do not retry this session.",
       "last_compare_observed": {
         "personal_code": "cpbrgddy",
-        "personal_link": "https://invite.kraken.com/JDNW/s5qudqe4",
+        "personal_link": "https://invite.kraken.com/JDNW/4jdp7sea",
         "referee_reward": "200 € en cryptomonnaies"
       },
       "last_failure": {
         "error": "unexpected_dom: login fields not found on /login",
         "program": "kraken",
         "at": "2026-08-13T08:49:08.330947+00:00"
-      },
-      "last_write_verified_at": "2026-08-13T10:29:40.550997+00:00",
-      "evidence": {
-        "program": "kraken",
-        "checks": {
-          "authenticated": true,
-          "targeted_edit": true,
-          "submit_ok": true,
-          "reread_account": true,
-          "expected_values_present": true,
-          "immutable_preserved": true
-        },
-        "post_match": true,
-        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100408",
-        "edit_url": "https://www.1parrainage.com/espace_parrain/parrainages/edit/2541207/",
-        "public_reread": true,
-        "immutable_ok": true,
-        "recorded_at": "2026-08-13T10:29:40.550997+00:00",
-        "source": "local_headed_1parrainage"
-      },
-      "content_sync": "SYNC_VERIFIED_NO_SAFE_DIFF"
+      }
     },
     "referralcodes": {
       "status": "CANARY_READY",
