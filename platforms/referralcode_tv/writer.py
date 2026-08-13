@@ -169,7 +169,12 @@ def dry_run_report(program: str | None = None) -> dict[str, Any]:
 def execute_write(*_a, **_k) -> dict[str, Any]:
     return {
         "ok": False,
-        "write_mode": dry_run_report().get("write_mode"),
-        "error": "referralcode_tv_edit_page_must_be_proven_before_live_write",
-        "plan": dry_run_report(),
+        "live": False,
+        "write_mode": "HUMAN_SAVE_REQUIRED",
+        "save_requires_captcha": True,
+        "eid": "23004",
+        "error": (
+            "HUMAN_SAVE_REQUIRED: SAVE_REQUIRES_CAPTCHA — "
+            "no bypass, no GH auto-save"
+        ),
     }

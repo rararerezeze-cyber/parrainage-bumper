@@ -1,4 +1,4 @@
-"""ReferralDrop — public read + AUTH_BLOCKED_GOOGLE. No OAuth bypass."""
+"""ReferralDrop — public read + AUTH_BLOCKED_MANUAL. No official OAuth."""
 from __future__ import annotations
 
 import json
@@ -31,14 +31,15 @@ def dry_run_report() -> dict[str, Any]:
 
     out = {
         "platform": "referraldrop",
-        "auth_status": "AUTH_BLOCKED_GOOGLE",
+        "auth_status": "AUTH_BLOCKED_MANUAL",
         "read": "READ_PUBLIC_OK",
         "write_mode": "MANUAL_WRITE",
         "live": False,
         "notes": [
-            "Google Sign-In only; password reset broken; no OAuth bypass.",
-            "Public profile inventory only until Google session available as secret.",
-            "BASE_READY compatible with AUTH_BLOCKED_GOOGLE.",
+            "No official partner OAuth and no public write API.",
+            "llms.txt: account/admin/API routes are not documented and not for public indexing.",
+            "Login is email/password + optional 'continue with' social — not automatable OAuth.",
+            "Durable classification: AUTH_BLOCKED_MANUAL. No bypass.",
         ],
         "programs": items,
     }

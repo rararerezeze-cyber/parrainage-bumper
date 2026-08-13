@@ -77,7 +77,7 @@ def main() -> int:
         )
     if not hermes_ready:
         report["blockers_to_ready"].append("Hermes interface files incomplete")
-    blocked = {"AUTH_BLOCKED_GOOGLE", "AUTH_BLOCKED"}
+    blocked = {"AUTH_BLOCKED_GOOGLE", "AUTH_BLOCKED", "AUTH_BLOCKED_MANUAL"}
     non_blocked = [
         p for p in (ws.get("platforms") or []) if p.get("status") not in blocked
     ]

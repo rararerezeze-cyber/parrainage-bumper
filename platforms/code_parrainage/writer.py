@@ -150,7 +150,10 @@ def dry_run_report(program: str = "kraken", language: str = "fr") -> dict[str, A
         "pipeline": ["login", "edit", "save", "reread_account", "reread_public_if_any"],
         "live": False,
         "canary_ready_gate": content_write_allowed("code-parrainage"),
-        "note": "Login uses historical bumper slider solver (same as bump path).",
+        "note": (
+            "PC-off: login + save use bumper.solve_slider only (same as historical bump). "
+            "No second solver. No fake write. Empty changed_fields = NO_SAFE_DIFF."
+        ),
     }
 
 
@@ -271,6 +274,11 @@ async def _fill_and_save(page, text: str, code: str | None, link: str | None) ->
     if not filled and not steps:
         raise RuntimeError("aucun champ editable trouve sur code-parrainage")
 
+    # Same official slider as login / historical bumper. No second solver.
+    if not await bumper.solve_slider(page):
+        raise RuntimeError("slider captcha non resolu on save (pas de contournement)")
+    steps.append("slider=bumper.solve_slider")
+
     btn = page.locator(
         'button:has-text("Enregistrer"), button:has-text("Sauvegarder"), '
         'button:has-text("Modifier"), button:has-text("Valider"), '
@@ -364,8 +372,9 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
             ok=True,
             plan=plan,
             steps=["noop"],
-            post_match=True,
+            post_match=None,
             post_publish_text=plan.historical,
+            error="NO_SAFE_DIFF",
             evidence_checks={
                 "authenticated": False,
                 "targeted_edit": False,

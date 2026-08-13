@@ -1,0 +1,20 @@
+{
+  "at": "2026-08-13T13:30:00+00:00",
+  "from_head": "05f6c52",
+  "live_canary": false,
+  "1p_pc_off": "READY — GH login+edit PROVEN; writer now CKEditor setData + form[action*=parrainages/edit] Envoyer; next real SAFE_DIFF is executable headless; gh_headless_save=NOT_RUN (no fake write)",
+  "rctv": "HUMAN_SAVE_REQUIRED — WRITE_VERIFIED eid=23004 but SAVE_REQUIRES_CAPTCHA; Telegram not live; no bypass",
+  "code_parrainage_pc_off": "READY — bumper.solve_slider only (login+save); Kraken already operator-matched; next real SAFE_DIFF executable PC-off; not WRITE_VERIFIED",
+  "referralcodes": "IMPORT_UI_BETA_NOT_PROVEN — official Agent Import is Validate+Commit beta UI; direct API is future; durable unattended R/W not proven; keep native $200",
+  "referraldrop": "AUTH_BLOCKED_MANUAL — no official OAuth/public write API (llms.txt); durable",
+  "fully_unattended_platforms": ["1parrainage", "code-parrainage"],
+  "human_required_platforms": ["referralcode-tv", "referraldrop"],
+  "remaining_core_work": [
+    "1P first GH headless save only on a real SAFE_DIFF",
+    "Code-P first content save only on a real SAFE_DIFF",
+    "Super-Parrain remains CANARY_PENDING SKIP (NO_SAFE_DIFF, no fake write)",
+    "ReferralCodes Agent Import not a durable API — do not overwrite EN $200 with FR 200 €",
+    "parrainage-co SYNC writer exists, not WRITE_VERIFIED — not blocking",
+    "Secondary mappings (Bitget / Uber Eats / Stake) backlog"
+  ]
+}

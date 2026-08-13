@@ -1,12 +1,11 @@
 {
   "version": 1,
-  "updated_at": "2026-08-13T12:47:36.402325+00:00",
+  "updated_at": "2026-08-13T13:00:44.131759+00:00",
   "note": "Strict write readiness. WRITE_VERIFIED requires full post-verify evidence. Telegram live writes only for WRITE_VERIFIED platforms.",
   "write_verified_count": 2,
   "write_verified_ratio": "2/7",
   "telegram_live_capable": [
-    "1parrainage",
-    "referralcode-tv"
+    "1parrainage"
   ],
   "platforms": {
     "super-parrain": {
@@ -38,7 +37,8 @@
     "code-parrainage": {
       "status": "CANARY_READY",
       "canary_program": "kraken",
-      "notes": "GH 31695046367: historical bumper.solve_slider OK (captcha_valide=true). Auth reread Kraken already cpbrgddy / s5qudqe4 / 200 EUR. Not WRITE_VERIFIED (no save).",
+      "autonomy": "PC_OFF_READY",
+      "notes": "PC-off writer uses bumper.solve_slider only (same as historical bump). GH 31695046367 slider OK; Kraken already operator-matched. Not WRITE_VERIFIED (no save). Next real SAFE_DIFF is executable PC-off.",
       "last_compare_class": "NO_SAFE_DIFF",
       "last_compare_at": "2026-08-13T11:29:23.291254+00:00",
       "last_compare_note": "slider solver shared with bumper succeeded; account reread matches OPERATOR_VALIDATED",
@@ -53,7 +53,8 @@
     "1parrainage": {
       "status": "WRITE_VERIFIED",
       "canary_program": "kraken",
-      "notes": "WRITE_VERIFIED (headed Envoyer). GH 31695046367 headless login+edit PROVEN: /espace_parrain + CKEditor edit/2541207, s5qudqe4 present, save_clicked=false. PC-off read/edit path yes. No GH live save yet.",
+      "autonomy": "FULLY_UNATTENDED",
+      "notes": "WRITE_VERIFIED. GH headless login+edit PROVEN. Writer PC-off now uses CKEditor setData + form[action*=parrainages/edit] Envoyer (same as headed canary). No fake write. gh_headless_save=NOT_RUN until next real SAFE_DIFF.",
       "last_compare_class": "NO_SAFE_DIFF",
       "last_compare_at": "2026-08-13T10:32:53.322453+00:00",
       "last_compare_note": "headed canary Envoyer + independent public reread: s5qudqe4 present, 4jdp7sea absent, cpbrgddy + 200 EUR unchanged",
@@ -94,7 +95,8 @@
     "referralcodes": {
       "status": "CANARY_READY",
       "canary_program": "kraken",
-      "notes": "CANARY_READY + SYNC_VERIFIED_NO_SAFE_DIFF: public TheSuperReff already shows native $200 in Crypto + cpbrgddy. Do not overwrite EN style with FR 200 €. Not WRITE_VERIFIED.",
+      "autonomy": "IMPORT_UI_BETA_NOT_PROVEN",
+      "notes": "Official Agent Import is beta UI (Validate then Commit). Direct API is future. Durable unattended R/W NOT_PROVEN. Keep native $200 in Crypto — do not overwrite with FR 200 €. Not WRITE_VERIFIED.",
       "prefer": "official_import",
       "import_ui": "https://referralcodes.com/profile/import/agent",
       "content_sync": "SYNC_VERIFIED_NO_SAFE_DIFF",
@@ -106,7 +108,8 @@
     "referralcode-tv": {
       "status": "WRITE_VERIFIED",
       "canary_program": "kraken",
-      "notes": "WRITE_VERIFIED headed canary eid=23004: custom code+link + EN body tokens. Account+headed View post_match. Native $200 kept. SAVE_REQUIRES_CAPTCHA — GH cannot auto-save. Anonymous HTTP may lag CDN. Telegram LIVE_UPDATE this platform. Super bumper still SKIP.",
+      "autonomy": "HUMAN_SAVE_REQUIRED",
+      "notes": "WRITE_VERIFIED headed canary eid=23004. SAVE_REQUIRES_CAPTCHA — HUMAN_SAVE_REQUIRED. No bypass. Telegram must not auto-save. Super bumper still SKIP.",
       "kraken_listing": "KRAKEN_EXISTS",
       "eid_status": "23004",
       "auth_edit_path": "AUTH_EDIT_PATH_PROVEN",
@@ -139,9 +142,10 @@
       }
     },
     "referraldrop": {
-      "status": "AUTH_BLOCKED_GOOGLE",
+      "status": "AUTH_BLOCKED_MANUAL",
       "canary_program": null,
-      "notes": "Google Sign-In required. No OAuth bypass. May remain non-automated if legitimate durable automation is impossible."
+      "autonomy": "AUTH_BLOCKED_MANUAL",
+      "notes": "No official OAuth / public write API (llms.txt account/admin/API not public). AUTH_BLOCKED_MANUAL durable. No bypass."
     }
   }
 }

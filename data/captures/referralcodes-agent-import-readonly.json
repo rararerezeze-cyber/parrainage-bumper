@@ -1,0 +1,27 @@
+{
+  "platform": "referralcodes",
+  "live": false,
+  "read_only": true,
+  "docs": "https://referralcodes.com/agents",
+  "import_ui": "https://referralcodes.com/profile/import/agent",
+  "official_path": "Agent Import (Beta) JSON/CSV",
+  "workflow": [
+    "Open /profile/import/agent",
+    "Paste JSON",
+    "Click Validate",
+    "Read #agent-import-result",
+    "Click Commit"
+  ],
+  "machine_readable_result": "script#agent-import-result",
+  "direct_api": "future — not available",
+  "future_interfaces": [
+    "direct API import",
+    "automated inbox scanning",
+    "brand detection from screenshots",
+    "referral discovery from websites"
+  ],
+  "durable_unattended_rw": false,
+  "autonomy": "IMPORT_UI_BETA_NOT_PROVEN",
+  "write_verified": false,
+  "note": "Official channel exists and is agent-oriented, but it is a beta browser UI, not a durable API. No live Validate+Commit this pass. Keep native EN $200 — do not import FR 200 €."
+}

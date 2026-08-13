@@ -42,7 +42,7 @@ def dry_run_report(program: str | None = "kraken") -> dict[str, Any]:
     out = {
         "platform": "referralcodes",
         "method": "official_agent_import",
-        "prefer": ["Agent Import JSON/CSV", "future API", "no browser CAPTCHA bypass"],
+        "prefer": ["Agent Import JSON/CSV (beta UI)", "future API not ready", "no CAPTCHA bypass"],
         "docs": DOCS_URL,
         "import_ui": IMPORT_UI,
         "schema_version": SCHEMA_VERSION,
@@ -56,14 +56,17 @@ def dry_run_report(program: str | None = "kraken") -> dict[str, Any]:
         "programs": meta,
         "pending_updates": sum(1 for m in meta if m.get("status") == "ok"),
         "artifacts": paths,
+        "durable_unattended": False,
+        "autonomy": "IMPORT_UI_BETA_NOT_PROVEN",
         "blocker_to_write_verified": (
             None
             if validation.ok
             else "Payload failed schema validation — fix offers/mappings before canary import"
         )
         or (
-            "Live step remaining: login REFERRALCODES_* → open import UI → Validate → "
-            "Commit one canary item → reread profile post_match"
+            "Official Agent Import is beta UI (paste → Validate → Commit). "
+            "Direct API is listed as future — not a durable unattended R/W API. "
+            "No live import this pass."
         ),
         "canary_steps": [
             "python tools/prepare_referralcodes_agent_import.py --program kraken",

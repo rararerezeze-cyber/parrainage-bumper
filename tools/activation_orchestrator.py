@@ -53,7 +53,7 @@ QUEUE = [
     "referralcodes",
     "referralcode-tv",
 ]
-SKIP = {"referraldrop": "AUTH_BLOCKED_GOOGLE"}
+SKIP = {"referraldrop": "AUTH_BLOCKED_MANUAL"}
 
 PREPARE_CMDS: dict[str, list[str]] = {
     "super-parrain": [

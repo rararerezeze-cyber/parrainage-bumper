@@ -37,6 +37,9 @@ log = logging.getLogger("oneparrainage.writer")
 BASE = "https://www.1parrainage.com"
 LOGIN_URL = f"{BASE}/login"
 PUBLIC_LIST = "https://www.1parrainage.com/listeannonces_98906_Adrien89.php"
+# Proven on headed WRITE_VERIFIED + GH 31695046367 headless login/edit.
+CK_ID = "edit_parrainage_presentation"
+EDIT_FORM = 'form[action*="parrainages/edit"]'
 
 # Proven public + likely member targets (resolved after login)
 KNOWN_PATHS = {
@@ -209,7 +212,11 @@ def dry_run_report(program: str = "kraken", language: str = "fr") -> dict[str, A
         "style_policy": plan.style_policy,
         "known_paths": KNOWN_PATHS,
         "secrets": ["ONEPARRAINAGE_EMAIL", "ONEPARRAINAGE_PASSWORD"],
-        "note": "Native list style only. Login is /login (not connexion.php). No live write in dry-run.",
+        "note": (
+            "PC-off: cookie consent + official /login + CKEditor "
+            f"#{CK_ID} + {EDIT_FORM} Envoyer. No fake write. "
+            "Hidden textarea.fill() is forbidden (times out)."
+        ),
     }
 
 
@@ -413,36 +420,103 @@ async def _resolve_edit_url(page, plan: WritePlan) -> str:
     )
 
 
+async def _ck_ready(page) -> bool:
+    try:
+        await page.wait_for_function(
+            """() => !!(window.CKEDITOR && CKEDITOR.instances
+              && CKEDITOR.instances.edit_parrainage_presentation)""",
+            timeout=15000,
+        )
+        return True
+    except Exception:
+        return False
+
+
+async def _ck_get(page) -> str:
+    return (
+        await page.evaluate(
+            """
+            (id) => {
+              const inst = window.CKEDITOR && CKEDITOR.instances && CKEDITOR.instances[id];
+              if (inst) return inst.getData() || '';
+              const ta = document.getElementById(id);
+              return ta ? (ta.value || '') : '';
+            }
+            """,
+            CK_ID,
+        )
+        or ""
+    )
+
+
+async def _ck_set(page, text: str) -> dict[str, Any]:
+    return await page.evaluate(
+        """
+        ({id, text}) => {
+          const inst = window.CKEDITOR && CKEDITOR.instances && CKEDITOR.instances[id];
+          if (!inst) return {ok: false, reason: 'no_ckeditor'};
+          inst.setData(text);
+          if (inst.updateElement) inst.updateElement();
+          const after = inst.getData() || '';
+          const ta = document.getElementById(id);
+          if (ta) ta.value = after;
+          return {ok: true, len: after.length};
+        }
+        """,
+        {"id": CK_ID, "text": text},
+    )
+
+
 async def _fill_and_save(page, text: str, code: str | None, link: str | None) -> list[str]:
+    """PC-off save: CKEditor API + Envoyer on parrainages/edit only.
+
+    Never textarea.fill() on the hidden CKEditor field (times out).
+    Never the site search form (texte_results.php).
+    """
     bumper = _bumper()
     steps: list[str] = []
     await _detect_challenge(page)
-    areas = page.locator("textarea")
-    n = await areas.count()
+    form = page.locator(EDIT_FORM).first
+    if await form.count() == 0:
+        raise RuntimeError("unexpected_dom: formulaire parrainages/edit introuvable")
+
     filled = False
-    if n:
-        best_i, best_len = 0, -1
-        for i in range(n):
-            v = await areas.nth(i).input_value()
-            if len(v) > best_len:
-                best_len = len(v)
-                best_i = i
-        await areas.nth(best_i).fill(text)
-        steps.append(f"textarea[{best_i}]")
-        filled = True
+    if await _ck_ready(page):
+        result = await _ck_set(page, text)
+        if isinstance(result, dict) and result.get("ok"):
+            steps.append("ckeditor.setData")
+            filled = True
     if not filled:
-        ce = page.locator('[contenteditable="true"], .ql-editor, .ProseMirror').first
-        if await ce.count():
-            await ce.click()
-            await page.keyboard.press("Control+A")
-            await page.keyboard.type(text, delay=5)
-            steps.append("contenteditable")
+        # Last-resort visible iframe body — still not hidden textarea.fill().
+        frame = page.frame_locator(
+            "iframe.cke_wysiwyg_frame, iframe.cke_wysiwyg_div iframe"
+        ).first
+        try:
+            body = frame.locator("body")
+            if await body.count():
+                await body.evaluate("(el, html) => { el.innerHTML = html; }", text)
+                steps.append("ckeditor.iframe")
+                filled = True
+        except Exception:
+            pass
+    if not filled:
+        visible = page.locator("textarea:visible")
+        n = await visible.count()
+        if n:
+            best_i, best_len = 0, -1
+            for i in range(n):
+                v = await visible.nth(i).input_value()
+                if len(v) > best_len:
+                    best_len = len(v)
+                    best_i = i
+            await visible.nth(best_i).fill(text)
+            steps.append(f"visible_textarea[{best_i}]")
             filled = True
     if code:
         for sel in (
+            f'{EDIT_FORM} input[name*="code" i]',
             'input[name*="code" i]',
             'input[id*="code" i]',
-            'input[placeholder*="code" i]',
         ):
             loc = page.locator(sel).first
             if await loc.count() and await loc.is_visible():
@@ -451,9 +525,9 @@ async def _fill_and_save(page, text: str, code: str | None, link: str | None) ->
                 break
     if link:
         for sel in (
+            f'{EDIT_FORM} input[name*="lien" i]',
             'input[name*="lien" i]',
             'input[name*="link" i]',
-            'input[name*="url" i]',
             'input[id*="lien" i]',
         ):
             loc = page.locator(sel).first
@@ -461,27 +535,52 @@ async def _fill_and_save(page, text: str, code: str | None, link: str | None) ->
                 await loc.fill(link)
                 steps.append("link_field")
                 break
-    if not filled and not steps:
-        raise RuntimeError("unexpected_dom: aucun champ editable trouve sur 1parrainage")
+    if not filled:
+        raise RuntimeError(
+            "unexpected_dom: CKEditor/edit field introuvable — no hidden textarea.fill()"
+        )
 
-    btn = page.locator(
-        'button:has-text("Enregistrer"), button:has-text("Sauvegarder"), '
-        'button:has-text("Mettre à jour"), button:has-text("Valider"), '
-        'button:has-text("Modifier"), input[type="submit"], button[type="submit"]'
+    try:
+        await page.evaluate(
+            """
+            (id) => {
+              const inst = window.CKEDITOR && CKEDITOR.instances && CKEDITOR.instances[id];
+              if (inst && inst.updateElement) inst.updateElement();
+            }
+            """,
+            CK_ID,
+        )
+    except Exception:
+        pass
+
+    candidates = form.locator(
+        'input[type="submit"], button[type="submit"], '
+        'button:has-text("Envoyer"), button:has-text("Valider"), '
+        'button:has-text("Enregistrer"), '
+        'input[value*="Envoy" i], input[value*="Valid" i], input[value*="Enregistr" i]'
     )
-    count = await btn.count()
+    count = await candidates.count()
     chosen = None
     for i in range(count):
-        b = btn.nth(i)
+        b = candidates.nth(i)
         label = ((await b.inner_text()) or (await b.get_attribute("value") or "")).lower()
-        if any(x in label for x in ("boost", "remont", "supprim", "delete", "actualis")):
+        if any(
+            x in label
+            for x in ("boost", "remont", "supprim", "delete", "recherch", "search", "actualis")
+        ):
             continue
         chosen = b
-        break
+        if any(x in label for x in ("envoy", "valid", "enregistr", "sauvegard")):
+            break
     if chosen is None:
-        raise RuntimeError("unexpected_dom: bouton Enregistrer introuvable (pas Boost/Remonter)")
+        raise RuntimeError(
+            "unexpected_dom: bouton Envoyer/Valider du formulaire d'annonce introuvable"
+        )
     await bumper.human_click(page, chosen)
-    await page.wait_for_load_state("networkidle")
+    try:
+        await page.wait_for_load_state("networkidle", timeout=20000)
+    except Exception:
+        await page.wait_for_load_state("domcontentloaded")
     await bumper.human_sleep(1.5, 2.5)
     await _detect_challenge(page)
     steps.append("saved")
@@ -489,6 +588,8 @@ async def _fill_and_save(page, text: str, code: str | None, link: str | None) ->
 
 
 async def _reread_account_fields(page) -> str:
+    await _ck_ready(page)
+    ck = await _ck_get(page)
     payload = await page.evaluate(
         """
         () => {
@@ -508,7 +609,7 @@ async def _reread_account_fields(page) -> str:
         }
         """
     )
-    body = (payload or {}).get("body") or ""
+    body = ck or (payload or {}).get("body") or ""
     extras = "\n".join((payload or {}).get("inputs") or [])
     return (body + "\n" + extras).strip()
 

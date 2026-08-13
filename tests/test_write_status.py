@@ -72,8 +72,33 @@ def test_mark_verified_with_full_evidence(status_path, monkeypatch, tmp_path):
 
 
 def test_referraldrop_auth_blocked(status_path):
-    assert ws.get_platform_status("referraldrop") == ws.STATUS_AUTH_BLOCKED
+    assert ws.get_platform_status("referraldrop") == ws.STATUS_AUTH_BLOCKED_MANUAL
     assert ws.telegram_action_for_platform("referraldrop") == "AUTH_BLOCKED"
+    assert ws.autonomy_class("referraldrop") == ws.AUTONOMY_AUTH_BLOCKED_MANUAL
+
+
+def test_rctv_write_verified_is_not_telegram_live(status_path, monkeypatch, tmp_path):
+    phase = tmp_path / "phase.json"
+    phase.write_text(
+        json.dumps({"phase": "VALIDATION_LIVE", "live_writes": True, "write_verified": []}),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr("lib.phase.PHASE_PATH", phase)
+    checks = {k: True for k in ws.REQUIRED_VERIFY_CHECKS}
+    r = ws.mark_write_verified(
+        "referralcode-tv",
+        program="kraken",
+        evidence={"post_match": True, "checks": checks},
+    )
+    assert r["ok"] is True
+    data = ws.load_write_status()
+    data["platforms"]["referralcode-tv"]["save_requires_captcha"] = True
+    data["platforms"]["referralcode-tv"]["autonomy"] = ws.AUTONOMY_HUMAN_SAVE_REQUIRED
+    ws.save_write_status(data)
+    assert ws.is_write_verified("referralcode-tv")
+    assert ws.is_telegram_live_capable("referralcode-tv") is False
+    assert ws.telegram_action_for_platform("referralcode-tv") == ws.AUTONOMY_HUMAN_SAVE_REQUIRED
+    assert "referralcode-tv" not in ws.summary()["telegram_live_capable"]
 
 
 def test_count_starts_at_zero(status_path):

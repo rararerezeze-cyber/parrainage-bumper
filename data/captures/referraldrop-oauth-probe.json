@@ -1,29 +1,18 @@
 {
   "pages": [
     {
+      "url": "https://referraldrop.com/llms.txt",
+      "account_api_public": false,
+      "quote": "Account, admin, and API routes are not documented here and are not intended for public indexing."
+    },
+    {
       "url": "https://referraldrop.com/en/login",
-      "len": 171452,
-      "google": false,
-      "password_field": true,
-      "oauth_mentions": [],
-      "has_official_api_docs": false
-    },
-    {
-      "url": "https://referraldrop.com/login",
-      "len": 171452,
-      "google": false,
-      "password_field": true,
-      "oauth_mentions": [],
-      "has_official_api_docs": false
-    },
-    {
-      "url": "https://referraldrop.com/en/user/TheSuperPenguins",
-      "len": 380223,
-      "google": false,
-      "password_field": false,
-      "oauth_mentions": [],
-      "has_official_api_docs": false
+      "email_password": true,
+      "or_continue_with": true,
+      "official_partner_oauth": false,
+      "public_write_api": false
     }
   ],
-  "conclusion": "NO_OFFICIAL_OAUTH. llms.txt: account/admin/API routes are not documented and not intended for public indexing. No partner OAuth. Keep AUTH_BLOCKED_GOOGLE."
+  "conclusion": "NO_OFFICIAL_OAUTH. AUTH_BLOCKED_MANUAL durable. No bypass."
 }
+

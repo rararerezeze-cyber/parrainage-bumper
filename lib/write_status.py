@@ -28,8 +28,16 @@ STATUS_WRITE_PREPARED = "WRITE_PREPARED"
 STATUS_CANARY_READY = "CANARY_READY"
 STATUS_WRITE_VERIFIED = "WRITE_VERIFIED"
 STATUS_AUTH_BLOCKED = "AUTH_BLOCKED_GOOGLE"
+STATUS_AUTH_BLOCKED_MANUAL = "AUTH_BLOCKED_MANUAL"
 STATUS_MANUAL_ONLY = "MANUAL_ONLY"
 STATUS_FAILED = "CANARY_FAILED"
+
+# Autonomy classes (do not replace status). WRITE_VERIFIED ≠ unattended.
+AUTONOMY_FULLY_UNATTENDED = "FULLY_UNATTENDED"
+AUTONOMY_PC_OFF_READY = "PC_OFF_READY"
+AUTONOMY_HUMAN_SAVE_REQUIRED = "HUMAN_SAVE_REQUIRED"
+AUTONOMY_IMPORT_UI_BETA_NOT_PROVEN = "IMPORT_UI_BETA_NOT_PROVEN"
+AUTONOMY_AUTH_BLOCKED_MANUAL = "AUTH_BLOCKED_MANUAL"
 
 # Content-sync flag (does NOT replace status). Super-Parrain after honest no-diff canary.
 CONTENT_SYNC_VERIFIED_NO_SAFE_DIFF = "SYNC_VERIFIED_NO_SAFE_DIFF"
@@ -74,25 +82,28 @@ DEFAULT_STATUS: dict[str, dict[str, Any]] = {
     "code-parrainage": {
         "status": STATUS_CANARY_READY,
         "canary_program": "kraken",
+        "autonomy": AUTONOMY_PC_OFF_READY,
         "notes": (
-            "CANARY_READY: login/edit/save/reread pipeline ready (controlled_write_code_parrainage). "
-            "Not WRITE_VERIFIED until live post_match canary."
+            "PC-off writer uses bumper.solve_slider only (same as historical bump). "
+            "Not WRITE_VERIFIED until a real SAFE_DIFF save + post_match."
         ),
     },
     "1parrainage": {
         "status": STATUS_CANARY_READY,
         "canary_program": "kraken",
+        "autonomy": AUTONOMY_PC_OFF_READY,
         "notes": (
-            "CANARY_READY: login /login + edit + save + reread account/public list. "
-            "Native style only. Kraken first. Not WRITE_VERIFIED until post_match."
+            "PC-off: cookie + official /login + CKEditor + form[action*=parrainages/edit] Envoyer. "
+            "No fake write."
         ),
     },
     "referralcodes": {
         "status": STATUS_CANARY_READY,
         "canary_program": "kraken",
+        "autonomy": AUTONOMY_IMPORT_UI_BETA_NOT_PROVEN,
         "notes": (
-            "CANARY_READY: Agent Import schema v1.0 + login/Validate/Commit/reread path. "
-            "Kraken first. WRITE_VERIFIED after post_match. Sequential after 1Parrainage PASS."
+            "Official Agent Import is beta UI (Validate then Commit). "
+            "Direct API is future — durable unattended R/W not proven."
         ),
         "prefer": "official_import",
         "import_ui": "https://referralcodes.com/profile/import/agent",
@@ -100,18 +111,20 @@ DEFAULT_STATUS: dict[str, dict[str, Any]] = {
     "referralcode-tv": {
         "status": STATUS_WRITE_PREPARED,
         "canary_program": "kraken",
+        "autonomy": AUTONOMY_HUMAN_SAVE_REQUIRED,
+        "save_requires_captcha": True,
         "notes": (
-            "Public listings mapped; authenticated edit URL not yet proven. "
-            "Run tools/probe_referralcode_tv_edit.py --auth with REFERRALCODE_* before canary. "
-            "No CAPTCHA bypass. Boost (#cliccami) ≠ content edit."
+            "WRITE_VERIFIED headed canary still requires reCAPTCHA on Save. "
+            "HUMAN_SAVE_REQUIRED. No bypass. No GH auto-save."
         ),
     },
     "referraldrop": {
-        "status": STATUS_AUTH_BLOCKED,
+        "status": STATUS_AUTH_BLOCKED_MANUAL,
         "canary_program": None,
+        "autonomy": AUTONOMY_AUTH_BLOCKED_MANUAL,
         "notes": (
-            "Google Sign-In required. No OAuth bypass. "
-            "May remain non-automated if legitimate durable automation is impossible."
+            "No official OAuth / public write API (llms.txt). "
+            "AUTH_BLOCKED_MANUAL durable. No bypass."
         ),
     },
 }
@@ -160,7 +173,7 @@ def save_write_status(data: dict[str, Any]) -> Path:
     data["telegram_live_capable"] = [
         p
         for p, meta in (data.get("platforms") or {}).items()
-        if (meta or {}).get("status") == STATUS_WRITE_VERIFIED
+        if _meta_telegram_live(meta or {})
     ]
     data["write_verified_ratio"] = f"{data['write_verified_count']}/7"
     STATUS_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -279,9 +292,48 @@ def mark_sync_verified_no_safe_diff(
     }
 
 
+def get_platform_meta(platform: str) -> dict[str, Any]:
+    data = load_write_status()
+    return dict((data.get("platforms") or {}).get(platform.strip().lower()) or {})
+
+
+def _meta_telegram_live(meta: dict[str, Any]) -> bool:
+    """WRITE_VERIFIED is not enough: captcha/human save stays off Telegram live."""
+    if (meta or {}).get("status") != STATUS_WRITE_VERIFIED:
+        return False
+    if (meta or {}).get("save_requires_captcha"):
+        return False
+    if (meta or {}).get("autonomy") == AUTONOMY_HUMAN_SAVE_REQUIRED:
+        return False
+    return True
+
+
+def save_requires_human(platform: str) -> bool:
+    meta = get_platform_meta(platform)
+    return bool(
+        meta.get("save_requires_captcha")
+        or meta.get("autonomy") == AUTONOMY_HUMAN_SAVE_REQUIRED
+    )
+
+
+def autonomy_class(platform: str) -> str:
+    meta = get_platform_meta(platform)
+    raw = meta.get("autonomy")
+    if raw:
+        return str(raw)
+    if meta.get("save_requires_captcha"):
+        return AUTONOMY_HUMAN_SAVE_REQUIRED
+    st = str(meta.get("status") or "")
+    if st in {STATUS_AUTH_BLOCKED, STATUS_AUTH_BLOCKED_MANUAL}:
+        return AUTONOMY_AUTH_BLOCKED_MANUAL
+    if st == STATUS_WRITE_VERIFIED:
+        return AUTONOMY_FULLY_UNATTENDED
+    return AUTONOMY_PC_OFF_READY if st == STATUS_CANARY_READY else "NOT_PROVEN"
+
+
 def is_telegram_live_capable(platform: str) -> bool:
-    """Only WRITE_VERIFIED platforms receive live Telegram field updates."""
-    return is_write_verified(platform)
+    """Unattended Telegram field updates only — not HUMAN_SAVE_REQUIRED."""
+    return _meta_telegram_live(get_platform_meta(platform))
 
 
 def is_canary_ready(platform: str) -> bool:
@@ -290,12 +342,15 @@ def is_canary_ready(platform: str) -> bool:
 
 def telegram_action_for_platform(platform: str) -> str:
     """What Telegram path may do on this platform."""
-    st = get_platform_status(platform)
+    meta = get_platform_meta(platform)
+    st = str(meta.get("status") or STATUS_UNPREPARED)
+    if save_requires_human(platform):
+        return AUTONOMY_HUMAN_SAVE_REQUIRED
     if st == STATUS_WRITE_VERIFIED:
         return "LIVE_UPDATE"
     if st == STATUS_CANARY_READY:
         return "CANARY_ONLY"  # explicit canary tool, not bulk telegram auto
-    if st == STATUS_AUTH_BLOCKED:
+    if st in {STATUS_AUTH_BLOCKED, STATUS_AUTH_BLOCKED_MANUAL}:
         return "AUTH_BLOCKED"
     if st == STATUS_WRITE_PREPARED:
         return "PLAN_ONLY"
@@ -407,6 +462,7 @@ def summary() -> dict[str, Any]:
                 "platform": pid,
                 "status": st,
                 "telegram_action": telegram_action_for_platform(pid),
+                "autonomy": autonomy_class(pid),
                 "canary_program": meta.get("canary_program"),
                 "notes": meta.get("notes"),
                 "last_write_verified_at": meta.get("last_write_verified_at"),
@@ -432,13 +488,15 @@ def format_telegram_platform_lines(plan_platforms: list[dict[str, Any]] | None =
         action = telegram_action_for_platform(pid)
         imp = impacts.get(pid) or {}
         ch = imp.get("changed_fields") or {}
-        if st == STATUS_WRITE_VERIFIED and imp.get("status") == "pending_update":
+        if action == AUTONOMY_HUMAN_SAVE_REQUIRED:
+            label = "HUMAN_SAVE_REQUIRED"
+        elif st == STATUS_WRITE_VERIFIED and imp.get("status") == "pending_update":
             label = "UPDATED + VERIFIED" if action == "LIVE_UPDATE" else "PLAN (verified)"
         elif st == STATUS_WRITE_VERIFIED and imp.get("status") == "in_sync":
             label = "IN_SYNC + VERIFIED"
         elif st == STATUS_CANARY_READY:
             label = "CANARY_READY / PLAN_ONLY"
-        elif st == STATUS_AUTH_BLOCKED:
+        elif st in {STATUS_AUTH_BLOCKED, STATUS_AUTH_BLOCKED_MANUAL}:
             label = "AUTH_BLOCKED"
         elif st == STATUS_WRITE_PREPARED:
             label = "PLAN_ONLY"

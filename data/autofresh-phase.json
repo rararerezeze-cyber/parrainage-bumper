@@ -18,7 +18,7 @@
     ],
     "mode": "canary"
   },
-  "note": "STRICT: Telegram live writes only for write_verified[]. Super-Parrain CANARY_PENDING: bump_super_parrain.yml ALWAYS SKIP (no save). Only activation_canary.yml may live-save until post_match=true → WRITE_VERIFIED → NORMAL_BUMP. Shared concurrency parrainage-bumper-super. Monitor=OBSERVATION_ONLY.",
+  "note": "STRICT: Telegram live writes only for WRITE_VERIFIED platforms that are not HUMAN_SAVE_REQUIRED. RCTV stays WRITE_VERIFIED but HUMAN_SAVE_REQUIRED (captcha). Super-Parrain CANARY_PENDING: bump_super_parrain.yml ALWAYS SKIP. Monitor=OBSERVATION_ONLY.",
   "super_parrain_runtime": "CANARY_PENDING",
   "live_canary_waiter": "ENABLED_FOR_SUPER_PARRAIN_ONLY",
   "updated_at": "2026-08-12T21:05:00+00:00",

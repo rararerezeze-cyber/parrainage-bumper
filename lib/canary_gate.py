@@ -16,6 +16,7 @@ from lib.safety import is_circuit_open, live_write_blocked_reason, maybe_trip_fr
 from lib.write_status import (
     COMPARE_DOM_BLOCKED,
     STATUS_AUTH_BLOCKED,
+    STATUS_AUTH_BLOCKED_MANUAL,
     STATUS_CANARY_READY,
     STATUS_WRITE_PREPARED,
     STATUS_WRITE_VERIFIED,
@@ -34,7 +35,7 @@ QUEUE = [
     "referralcodes",
     "referralcode-tv",
 ]
-SKIP = {"referraldrop": "AUTH_BLOCKED_GOOGLE"}
+SKIP = {"referraldrop": "AUTH_BLOCKED_MANUAL"}
 
 POST_SUPER_EXECUTABLE = (
     "parrainage-co",
@@ -142,8 +143,8 @@ def may_execute_canary(platform: str, *, for_super: bool = False) -> dict[str, A
         out["error"] = "already_WRITE_VERIFIED"
         out["done"] = True
         return out
-    if st == STATUS_AUTH_BLOCKED:
-        out["error"] = "AUTH_BLOCKED"
+    if st in {STATUS_AUTH_BLOCKED, STATUS_AUTH_BLOCKED_MANUAL}:
+        out["error"] = st
         return out
     if st != STATUS_CANARY_READY:
         out["error"] = f"not_CANARY_READY:{st}"
