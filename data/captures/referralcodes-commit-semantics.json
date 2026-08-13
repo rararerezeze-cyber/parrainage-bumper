@@ -1,32 +1,28 @@
 {
-  "platform": "referralcodes",
-  "phase": "INSPECT_COMMIT_SEMANTICS",
+  "draft_id_first": 124,
+  "draft_id_latest": 130,
+  "shop_id": 4769,
+  "shop_name": "Kraken",
   "commit_clicked": false,
-  "live_write": false,
-  "payload": {
-    "version": "1.0",
-    "items": [
-      {
-        "shop": "kraken",
-        "discount": "\\u2b50\\ufe0f $200 in Crypto \\u2b50\\ufe0f",
-        "url": "https://invite.kraken.com/JDNW/s5qudqe4",
-        "code": "cpbrgddy",
-        "description": "VALIDATE ONLY — existing TheSuperReff listing, no commit"
-      }
-    ]
+  "commit_endpoint": null,
+  "commit_payload": null,
+  "commit_button": {
+    "id": "agent-import-commit",
+    "type": "button",
+    "label": "Commit (1)",
+    "form": null,
+    "formaction": null,
+    "href": null,
+    "dataset": {},
+    "visible_attrs": ["id", "type", "class"]
   },
-  "at": "2026-08-13T14:59:16.648397+00:00",
-  "ok": false,
-  "error": "'async_generator' object is not iterable",
-  "semantics": {
-    "commit_endpoint": null,
-    "commit_payload": null,
-    "existing_listing_identifier_found": null,
-    "update_semantics_proven": false,
-    "duplicate_risk": "UNKNOWN",
-    "pc_off_ready_possible": false,
-    "support_question_required": true,
-    "draft_id": null,
-    "shop_id": null
-  }
+  "validate_result_fields": ["draft_id", "summary.total/valid/invalid", "items[].index", "items[].shop_id", "items[].shop_name", "items[].errors"],
+  "existing_listing_identifier_found": null,
+  "shop_id_meaning": "catalog brand id, not a user listing id",
+  "update_semantics_proven": false,
+  "duplicate_risk": "UNKNOWN",
+  "pc_off_ready_possible": false,
+  "support_question_required": true,
+  "official_docs": "https://referralcodes.com/agents — Validate then Commit; no upsert/update/duplicate rule",
+  "runs": ["31706463195", "31712722277", "31712891305"]
 }
