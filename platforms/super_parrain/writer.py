@@ -626,12 +626,13 @@ async def execute_write(
                     steps=steps + ["blocked_24h"],
                 )
 
-            form_dump = await _dump_form_debug(page, "debug_super_write_form.json")
+                        form_dump = await _dump_form_debug(page, "debug_super_write_form.json")
             form_names = [str((i or {}).get("name") or "") for i in (form_dump.get("inputs") or [])]
             assert_not_codes_promo_form(
                 url=page.url, form_names=form_names, html=form_dump.get("bodyPreview")
             )
-                       if plan.program == "poulpeo":
+
+            if plan.program == "poulpeo":
                 from lib.super_parrain_resource import poulpeo_pre_save_assertions
 
                 message_loc = page.locator('textarea[name="form[message]"]')
@@ -641,6 +642,25 @@ async def execute_write(
                         plan=plan,
                         edit_url=edit_url,
                         error=f"{HARD_STOP_WRONG_RESOURCE}: expected exactly one form[message]",
+                        steps=steps,
+                    )
+
+                current_message = await message_loc.input_value()
+
+                chk = poulpeo_pre_save_assertions(
+                    page_url=page.url,
+                    page_text=current_message,
+                    public_listing=plan.announcement_url,
+                    rendered=plan.rendered,
+                    historical=plan.historical,
+                )
+                steps.append(f"poulpeo_pre_save={chk}")
+                if not chk["ok"]:
+                    return WriteResult(
+                        ok=False,
+                        plan=plan,
+                        edit_url=edit_url,
+                        error=f"STOP pre-save assertions failed: {chk['errors']}",
                         steps=steps,
                     )
 
