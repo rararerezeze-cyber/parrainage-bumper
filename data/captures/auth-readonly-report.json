@@ -2,12 +2,39 @@
   "sites": {
     "referralcode-tv": {
       "platform": "referralcode-tv",
-      "items": [],
-      "errors": [
+      "items": [
         {
-          "error": "Timeout 30000ms exceeded."
+          "program": "airbnb",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/referralcode-tv/airbnb.en.golden.txt",
+            "template": "data/platform-templates/referralcode-tv/airbnb.en.txt",
+            "mapping": "data/platform-mappings/referralcode-tv.airbnb.en.json",
+            "meta": "data/platform-templates/referralcode-tv/airbnb.en.meta.json"
+          }
+        },
+        {
+          "program": "joko",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/referralcode-tv/joko.en.golden.txt",
+            "template": "data/platform-templates/referralcode-tv/joko.en.txt",
+            "mapping": "data/platform-mappings/referralcode-tv.joko.en.json",
+            "meta": "data/platform-templates/referralcode-tv/joko.en.meta.json"
+          }
         }
-      ]
+      ],
+      "errors": []
     }
   },
   "missing_credentials": [],
