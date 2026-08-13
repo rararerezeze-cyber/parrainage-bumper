@@ -19,10 +19,10 @@
   },
   "schema_ok": true,
   "schema_errors": [],
-  "at": "2026-08-13T14:55:23.760510+00:00",
-  "agent_import_result_text": "{\"draft_id\":128,\"summary\":{\"total\":1,\"valid\":1,\"invalid\":0},\"items\":[{\"index\":0,\"shop_id\":4769,\"shop_name\":\"Kraken\",\"errors\":[]}]}",
+  "at": "2026-08-13T14:57:10.029488+00:00",
+  "agent_import_result_text": "{\"draft_id\":129,\"summary\":{\"total\":1,\"valid\":1,\"invalid\":0},\"items\":[{\"index\":0,\"shop_id\":4769,\"shop_name\":\"Kraken\",\"errors\":[]}]}",
   "agent_import_result_json": {
-    "draft_id": 128,
+    "draft_id": 129,
     "summary": {
       "total": 1,
       "valid": 1,
@@ -43,7 +43,7 @@
     "shop_ids": [
       4769
     ],
-    "draft_id": 128,
+    "draft_id": 129,
     "signals": {
       "shop_matched": true,
       "listing_update_proven": false,
@@ -52,6 +52,78 @@
     }
   },
   "commit_clicked": false,
+  "commit_surface": {
+    "buttons": [
+      {
+        "label": "Commit (1)",
+        "id": "agent-import-commit",
+        "name": null,
+        "type": "button",
+        "href": null,
+        "formaction": null,
+        "formmethod": null,
+        "dataset": {},
+        "disabled": false,
+        "form_action": null,
+        "form_method": null,
+        "form_id": null
+      }
+    ],
+    "forms": [
+      {
+        "action": "https://referralcodes.com/search",
+        "method": "get",
+        "id": "",
+        "names": [
+          "term"
+        ]
+      },
+      {
+        "action": "https://referralcodes.com/logout",
+        "method": "post",
+        "id": "",
+        "names": [
+          "_token"
+        ]
+      },
+      {
+        "action": "https://referralcodes.com/search",
+        "method": "get",
+        "id": "",
+        "names": [
+          "term"
+        ]
+      },
+      {
+        "action": "https://referralcodes.com/logout",
+        "method": "post",
+        "id": "",
+        "names": [
+          "_token"
+        ]
+      }
+    ],
+    "scripts": [
+      "https://www.googletagmanager.com/gtag/js?id=G-CZ9M1KD2H2&cx=c&gtm=4e68b1",
+      "https://www.google-analytics.com/analytics.js",
+      "https://www.gstatic.com/recaptcha/releases/XOqlk8PL_yVx6IdpLbpXdiLy/recaptcha__fr.js",
+      "https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js",
+      "https://www.google.com/recaptcha/api.js",
+      "https://www.googletagmanager.com/gtag/js?id=UA-99900826-1",
+      "https://www.googletagmanager.com/gtag/js?id=G-CZ9M1KD2H2",
+      "https://tpembars.com/NDk1MzYw.js?t=495360",
+      "https://tpembars.com/chunk.yvWSnQiA.js",
+      "https://referralcodes.com/front_assets/js/jquery.min.js",
+      "https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js",
+      "https://referralcodes.com/front_assets/js/bootstrap.bundle.min.js",
+      "https://referralcodes.com/front_assets/js/cookiealert-standalone.js",
+      "https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js",
+      "https://referralcodes.com/js/pagination.js?_=1.1",
+      "https://referralcodes.com/livewire/livewire.js?id=90730a3b0e7144480175",
+      "https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496"
+    ],
+    "url": "https://referralcodes.com/profile/import/agent"
+  },
   "ok": true,
   "steps": [
     "login",
