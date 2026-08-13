@@ -5,9 +5,7 @@ Resume point for the next Codex session. Reconstruct from this file + git + stat
 ## Repo / HEAD
 
 - Repo: `rararerezeze-cyber/parrainage-bumper`
-- Branch: `autofresh/phase2b-kraken-capture`
-- Feature started this finalize at `a683eb3`; Super formalized `5ce5c34`; capture `fdc992e`.
-- main HEAD at finalize start: `50877ed` (scheduled Super canary NO_SAFE_DIFF). Do not treat main e2e-status as product truth.
+- Product runtime is on **main** after merge `c6a3554` (feature `autofresh/phase2b-kraken-capture` integrated). Super SYNC / CANARY_PENDING kept. `bump_autres.yml` unchanged.
 - After this handoff commit, `git log -1 --oneline` is the new HEAD.
 
 ## Absolute constraints (still in force)
@@ -29,28 +27,29 @@ Resume point for the next Codex session. Reconstruct from this file + git + stat
 | super-parrain | CANARY_READY + CANARY_PENDING + SYNC_VERIFIED_NO_SAFE_DIFF | NO_SAFE_DIFF | CANARY_ONLY | Scheduled canary `50877ed` SUCCESS. `changed_fields=none`. No login/save. Not WRITE_VERIFIED. Bumper remains SKIP. Sequence-cleared. |
 | parrainage-co | CANARY_READY + SYNC_VERIFIED_NO_SAFE_DIFF | NO_SAFE_DIFF | CANARY_ONLY | Public `offers/113735` already has operator values. Dry-run empty. No fake write. |
 | code-parrainage | CANARY_READY | DOM_BLOCKED | CANARY_ONLY | Slider captcha on auth read. Dry-run vs mapping empty. Not SYNC. Skipped so later REAL_SAFE_DIFF can run. |
-| 1parrainage | CANARY_READY | DOM_BLOCKED (public still REAL_SAFE_DIFF) | CANARY_ONLY | Public `4jdp7sea` → operator `s5qudqe4`. Live canary `31681603602` STOP on `unexpected_dom: login fields not found on /login`. No save. Do not retry this cycle. Template cleaned (no iGraal HTML leak). |
+| 1parrainage | CANARY_READY | public REAL_SAFE_DIFF / live DOM_BLOCKED | CANARY_ONLY | Public still `4jdp7sea` vs operator `s5qudqe4`. Official login is `#_username`/`#_password`. Two live canaries (`31681603602`, `31682885152`) STOP: fields not visible in GH Actions headless. **No save. Do not retry automatically.** |
 | referralcodes | CANARY_READY + SYNC_VERIFIED_NO_SAFE_DIFF | NO_SAFE_DIFF | CANARY_ONLY | Native `$200 in Crypto` + `cpbrgddy`. Do not overwrite EN with FR 200 €. |
 | referralcode-tv | CANARY_READY | auth+edit proven | CANARY_ONLY | Run `31682310236`: login OK, `add-referral-code/?eid=` is the content edit form (post_content/code/buy_link). Boost `#cliccami` ≠ edit. No Kraken listing — no live write. |
 | referraldrop | AUTH_BLOCKED_GOOGLE | — | AUTH_BLOCKED | Google Sign-In. No OAuth bypass. Stay blocked. |
 
-- WRITE_VERIFIED: **0/7**
+- WRITE_VERIFIED: **0/7** (un vrai diff 1P existe, write bloqué par DOM login headless)
 - Super sequence-cleared: **YES** (SYNC, not WRITE_VERIFIED)
-- next-executable: **1parrainage**
-- Hermes interface: READY + PRODUCTION_READY (lock + persist_confirmed + idempotency ledger + snapshot)
-- Monitor: OBSERVATION_ONLY + SHADOW engine ready (no auto-accept)
-- Orchestrator: one-at-a-time; Super SYNC unblocks later; DOM_BLOCKED predecessor may be skipped
+- Hermes / SHADOW / rollback / multiprogram: READY
 - Operator Kraken lock: `cpbrgddy` / `https://invite.kraken.com/JDNW/s5qudqe4` / `200 € en cryptomonnaies`. Never publish `4hpz4gdy` / proinvite / 20 € Bitcoin.
 
 ### Goal flags
 
 | Flag | Value |
 |---|---|
-| ALL_NON_BLOCKED_PLATFORMS_CANARY_READY | **YES** |
-| POST_SUPER_CANARIES_ARMED | **YES** |
-| MULTIPROGRAM_DRY_RUN_READY | **YES** |
+| HISTORICAL_BUMPERS_OK | **YES** (`bump_autres.yml` intact; Super bumper SKIP while pending) |
+| SUPER_SYNC_SAFE | **YES** |
+| ALL_POSSIBLE_WRITERS_CANARY_READY | **YES** (ReferralDrop stays AUTH_BLOCKED_GOOGLE) |
+| AT_LEAST_ONE_REAL_WRITE_VERIFIED | **NO** (1P REAL_SAFE_DIFF exists; login DOM not visible in Actions) |
+| MULTIPROGRAM_READY | **YES** |
 | HERMES_PRODUCTION_READY | **YES** |
 | MONITOR_SHADOW_READY | **YES** |
+| ROLLBACK_READY | **YES** |
+| MAIN_PRODUCTION_RUNTIME_READY | **YES** |
 
 ## Architecture (do not replace)
 
@@ -84,6 +83,14 @@ Monitor:
 ```
 
 Writers live under `platforms/<id>/writer.py`. Historical `bumper.py` CONFIG must not gain a 1Parrainage runner (config-only secrets are unused unless `TARGET_SITES` includes a runner). 1Parrainage writer reads `ONEPARRAINAGE_*` itself.
+
+## Remaining human actions
+
+1. **1Parrainage login** — public HTML has `#_username` / `#_password` on `/login`. GitHub Actions headless never sees them as visible (CMP / bot wall). Confirm `ONEPARRAINAGE_*` in a real browser, then one `activation_canary.yml` `platform=1parrainage execute=true` to write only `4jdp7sea` → `s5qudqe4`.
+2. **Code-Parrainage slider** — no bypass. Retry only when the historical slider solver succeeds.
+3. **Do not re-enable Super historical bumper** until a Super content WRITE_VERIFIED (not 1P).
+4. **ReferralCode.tv** — first content canary only after a Kraken listing exists. Boost ≠ edit.
+5. **ReferralDrop** — stays Google-blocked unless official OAuth exists.
 
 ## Decisions this finalize session
 
