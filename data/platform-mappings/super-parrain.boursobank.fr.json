@@ -7,32 +7,45 @@
   "golden_file": "boursobank.fr.golden.txt",
   "mutable_fields": [
     "personal_code",
-    "personal_link"
+    "personal_link",
+    "referee_reward",
+    "min_deposit",
+    "qualification_days"
   ],
   "markers": {
     "personal_code": "{{PERSONAL_CODE}}",
     "personal_link": "{{PERSONAL_LINK}}",
     "referee_reward": "{{REFEREE_REWARD}}",
     "referrer_reward": "{{REFERRER_REWARD}}",
-    "conditions": "{{CONDITIONS}}"
+    "conditions": "{{CONDITIONS}}",
+    "min_deposit": "{{MIN_DEPOSIT}}",
+    "qualification_days": "{{QUALIFICATION_DAYS}}"
   },
   "offer_fields": {
     "personal_code": "code",
     "personal_link": "link",
     "referee_reward": "reward",
-    "conditions": "cond"
+    "conditions": "cond",
+    "min_deposit": "min_deposit",
+    "qualification_days": "qualification_days"
   },
   "announcement_url": "https://www.super-parrain.com/offres/boursobank-1/parrainage-boursobank-1/annonces/adrien-b-8",
   "edit_url": null,
   "platform_values": {
     "personal_code": "ADBE5645",
-    "personal_link": "https://bour.so/p/cdRUvTEbxaf"
+    "personal_link": "https://bour.so/p/cdRUvTEbxaf",
+    "referee_reward": "200 €",
+    "min_deposit": "300€",
+    "qualification_days": "30"
   },
   "confidences": {
     "personal_code": "high",
-    "personal_link": "medium"
+    "personal_link": "medium",
+    "referee_reward": "high",
+    "min_deposit": "high",
+    "qualification_days": "high"
   },
-  "notes": "lien plateforme != offers.json; bonus non marque (ambigu / non trouve) — texte laisse fixe",
+  "notes": "native spans: referee_reward='200 €' (headline + prime totale; 200€ legal line left unmarked — different token). min_deposit='300€'. qualification_days=EasyMove '30' only. reward_type=tiered_cash has no native phrase — not marked. campaign_variant not mutable.",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",

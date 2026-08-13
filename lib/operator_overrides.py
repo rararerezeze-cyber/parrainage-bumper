@@ -469,39 +469,58 @@ def effective_variables_for_mapping(
     program = mapping.program
     platform = mapping.platform
 
-    for logical_name, offer_field in (mapping.offer_fields or {}).items():
+    published = getattr(mapping, "platform_values", None) or {}
+
+    def _canonical_for(logical_name: str, offer_field: str | None) -> str | None:
         if logical_name in local_overrides:
-            canon = local_overrides[logical_name]
-        else:
-            canon = offer.get(offer_field)
-            canon = str(canon) if canon is not None else None
+            return local_overrides[logical_name]
+        # Published identity stays the render canonical (catalog URL/code may differ).
+        if logical_name in {"personal_code", "personal_link"}:
+            pub = published.get(logical_name)
+            if pub is not None and str(pub).strip() != "":
+                return str(pub)
+        if offer_field:
+            raw = offer.get(offer_field)
+            if raw is not None and str(raw).strip() != "":
+                return str(raw)
+        pub = published.get(logical_name)
+        return str(pub) if pub is not None and str(pub).strip() != "" else None
+
+    for logical_name, offer_field in (mapping.offer_fields or {}).items():
         eff = resolve_effective_value(
             program,
             logical_name,
             platform=platform,
-            canonical=canon,
+            canonical=_canonical_for(logical_name, offer_field),
             store=store,
             accepted=accepted,
         )
         variables[logical_name] = eff.value
 
-    # mutable fields that might only exist as operator extras
+    # mutable fields that might only exist as operator extras / native spans
     for logical_name in mapping.mutable_fields or []:
         if logical_name in variables:
             continue
-        if logical_name in local_overrides:
-            canon = local_overrides[logical_name]
-        else:
-            canon = None
         eff = resolve_effective_value(
             program,
             logical_name,
             platform=platform,
-            canonical=canon,
+            canonical=_canonical_for(logical_name, None),
             store=store,
             accepted=accepted,
         )
         variables[logical_name] = eff.value
+
+    if published:
+        from lib.native_field_format import adapt_monitor_value_to_native
+
+        for logical_name, current in list(variables.items()):
+            native = published.get(logical_name)
+            if native is None:
+                continue
+            variables[logical_name] = adapt_monitor_value_to_native(
+                logical_name, current, native
+            )
     return variables
 
 

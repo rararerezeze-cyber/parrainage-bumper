@@ -304,6 +304,8 @@ def simulate_routes(
     from lib.inventory import list_mapping_refs
     from lib.renderer import MappingRepository
 
+    from lib.native_field_format import adapt_monitor_value_to_native
+
     store = store or OperatorOverrideStore()
     hypo = _hypothetical_accepted(accepts)
     maps = MappingRepository()
@@ -319,14 +321,15 @@ def simulate_routes(
         except Exception:
             continue
         changed: dict[str, dict[str, str | None]] = {}
+        published = mapping.platform_values or {}
         for field in mapping.mutable_fields:
             if field in NEVER_AUTO_FIELDS:
                 continue
             offer_key = (mapping.offer_fields or {}).get(field)
             canon = None
-            if offer_key:
-                # platform_values are the published snapshot
-                canon = (mapping.platform_values or {}).get(field)
+            if offer_key or field in published:
+                # platform_values are the published native span
+                canon = published.get(field)
             current = resolve_effective_value(
                 ref.program, field, platform=ref.platform, canonical=canon, store=store
             )
@@ -338,9 +341,15 @@ def simulate_routes(
                 store=store,
                 accepted=hypo,
             )
-            if str(current.value or "") != str(future.value or ""):
+            current_val = current.value
+            future_val = future.value
+            native = published.get(field)
+            if native:
+                current_val = adapt_monitor_value_to_native(field, current_val, native)
+                future_val = adapt_monitor_value_to_native(field, future_val, native)
+            if str(current_val or "") != str(future_val or ""):
                 if future.source == SOURCE_ACCEPTED_MONITOR:
-                    changed[field] = {"old": current.value, "new": future.value}
+                    changed[field] = {"old": current_val, "new": future_val}
 
         route = runtime_route(ref.platform)
         if ref.platform == "super-parrain":
@@ -350,7 +359,11 @@ def simulate_routes(
         else:
             route_label = route
         if ref.platform not in routes:
-            routes[ref.platform] = {"route": route_label, "programs": []}
+            routes[ref.platform] = {
+                "route": route_label,
+                "runtime_route": route,
+                "programs": [],
+            }
         if changed:
             routes[ref.platform]["route"] = route_label
             diffs.append(
@@ -360,6 +373,7 @@ def simulate_routes(
                     "language": ref.language,
                     "changed_fields": changed,
                     "route": route_label,
+                    "runtime_route": route,
                     "human_command": human_local_command(ref.platform)
                     if route == ROUTE_HUMAN_SAVE_REQUIRED
                     else None,
@@ -426,7 +440,8 @@ def simulate(
         ),
         "remaining_monitor_work": [
             "Do not flip monitor_auto_accept without operator OK",
-            "BoursoBank mappings currently have empty mutable_fields — accept would update effective values but no SAFE_DIFF until markers are wired",
+            "BoursoBank native spans are wired; campaign_variant stays rejected; reward_type has no native phrase",
+            "Super content canary still CANARY_PENDING_SKIP until one fused live save is validated",
             "APP_PERSONALIZED stays Hermes/Telegram",
             "ReferralCodes still NEVER_AUTO_COMMIT pending support",
         ],

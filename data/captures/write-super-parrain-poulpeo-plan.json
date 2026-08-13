@@ -1,0 +1,13 @@
+{
+  "execute": false,
+  "ok": true,
+  "changed_fields": {
+    "referee_reward": {
+      "old": "5€ de bienvenue crédités dès votre inscription via mon code parrain ✅",
+      "new": "3€ de bienvenue crédités dès votre inscription via mon code parrain ✅"
+    }
+  },
+  "structure_preserved": true,
+  "next_eligible_at": "2026-08-13T05:37:10.549152+00:00",
+  "hours_remaining": 0.0
+}

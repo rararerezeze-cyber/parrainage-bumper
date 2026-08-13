@@ -133,3 +133,10 @@ def test_simulate_scope_only():
     report = simulate([], persist_report=False)
     assert report["live_writes_performed"] == 0
     assert report["switch_enabled"] is False
+
+
+def test_simulate_does_not_enable_switch():
+    from lib.phase import load_phase
+
+    assert load_phase().get("monitor_auto_accept") is False
+    assert auto_accept_enabled() is False

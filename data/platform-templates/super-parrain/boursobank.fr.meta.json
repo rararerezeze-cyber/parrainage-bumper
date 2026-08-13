@@ -8,18 +8,27 @@
   "announcement_url": "https://www.super-parrain.com/offres/boursobank-1/parrainage-boursobank-1/annonces/adrien-b-8",
   "mutable_fields": [
     "personal_code",
-    "personal_link"
+    "personal_link",
+    "referee_reward",
+    "min_deposit",
+    "qualification_days"
   ],
   "platform_values": {
     "personal_code": "ADBE5645",
-    "personal_link": "https://bour.so/p/cdRUvTEbxaf"
+    "personal_link": "https://bour.so/p/cdRUvTEbxaf",
+    "referee_reward": "200 €",
+    "min_deposit": "300€",
+    "qualification_days": "30"
   },
   "confidences": {
     "personal_code": "high",
-    "personal_link": "medium"
+    "personal_link": "medium",
+    "referee_reward": "high",
+    "min_deposit": "high",
+    "qualification_days": "high"
   },
   "notes": [
-    "lien plateforme != offers.json",
-    "bonus non marque (ambigu / non trouve) — texte laisse fixe"
+    "native spans wired: 200 € / 300€ / EasyMove 30",
+    "reward_type and campaign_variant not marked"
   ]
 }

@@ -30,7 +30,7 @@ from lib.phase import content_write_allowed, phase_name
 from lib.renderer import MappingRepository, Renderer, TemplateRepository
 from lib.cookie_consent import ConsentBlocked, handle_cookie_consent
 from lib.safety import abort_forbidden_publish, live_write_blocked_reason, maybe_trip_from_error
-from lib.template_builder import extract_values_via_template
+from lib.template_builder import extract_values_via_template, structure_preserved_via_markers
 
 log = logging.getLogger("oneparrainage.writer")
 
@@ -140,13 +140,15 @@ def build_write_plan(
         if old != new:
             changed[field] = {"old": old, "new": new}
 
-    check = historical
-    for field in mapping.mutable_fields:
-        old = hist_vals.get(field)
-        new = variables.get(field)
-        if old and new is not None and old in check:
-            check = check.replace(old, new, 1)
-    structure_preserved = check == rendered
+    structure_preserved = structure_preserved_via_markers(
+        template,
+        historical,
+        rendered,
+        mapping.mutable_fields,
+        mapping.markers,
+        hist_vals,
+        variables,
+    )
 
     offer_id = getattr(mapping, "platform_offer_id", None)
     if not offer_id:

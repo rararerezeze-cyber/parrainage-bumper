@@ -201,15 +201,30 @@
   "simulated_safe_diffs": [
     {
       "platform": "1parrainage",
+      "program": "boursobank",
+      "language": "fr",
+      "changed_fields": {
+        "referee_reward": {
+          "old": "200 €",
+          "new": "160 €"
+        }
+      },
+      "route": "AUTO_ON_SAFE_DIFF",
+      "runtime_route": "AUTO_ON_SAFE_DIFF",
+      "human_command": null
+    },
+    {
+      "platform": "1parrainage",
       "program": "igraal",
       "language": "fr",
       "changed_fields": {
         "referee_reward": {
           "old": "15 € offerts sur votre compte iGraal via mon lien",
-          "new": "3 €"
+          "new": "3 € offerts sur votre compte iGraal via mon lien"
         }
       },
       "route": "AUTO_ON_SAFE_DIFF",
+      "runtime_route": "AUTO_ON_SAFE_DIFF",
       "human_command": null
     },
     {
@@ -219,10 +234,11 @@
       "changed_fields": {
         "referee_reward": {
           "old": "5 € de bienvenue crédités dès votre inscription via le code de parrain",
-          "new": "3 €"
+          "new": "3 € de bienvenue crédités dès votre inscription via le code de parrain"
         }
       },
       "route": "AUTO_ON_SAFE_DIFF",
+      "runtime_route": "AUTO_ON_SAFE_DIFF",
       "human_command": null
     },
     {
@@ -236,6 +252,7 @@
         }
       },
       "route": "AUTO_ON_SAFE_DIFF",
+      "runtime_route": "AUTO_ON_SAFE_DIFF",
       "human_command": null
     },
     {
@@ -245,10 +262,11 @@
       "changed_fields": {
         "referee_reward": {
           "old": "15 € offers sur votre compte iGraal m via mon lien ✅",
-          "new": "3 €"
+          "new": "3 € offers sur votre compte iGraal m via mon lien ✅"
         }
       },
       "route": "AUTO_ON_SAFE_DIFF",
+      "runtime_route": "AUTO_ON_SAFE_DIFF",
       "human_command": null
     },
     {
@@ -258,10 +276,11 @@
       "changed_fields": {
         "referee_reward": {
           "old": "5€ de bienvenue crédités dès votre inscription via mon code parrain ✅",
-          "new": "3 €"
+          "new": "3€ de bienvenue crédités dès votre inscription via mon code parrain ✅"
         }
       },
       "route": "AUTO_ON_SAFE_DIFF",
+      "runtime_route": "AUTO_ON_SAFE_DIFF",
       "human_command": null
     },
     {
@@ -275,6 +294,21 @@
         }
       },
       "route": "AUTO_ON_SAFE_DIFF",
+      "runtime_route": "AUTO_ON_SAFE_DIFF",
+      "human_command": null
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "boursobank",
+      "language": "fr",
+      "changed_fields": {
+        "referee_reward": {
+          "old": "200 €",
+          "new": "160 €"
+        }
+      },
+      "route": "AUTO_ON_SAFE_DIFF",
+      "runtime_route": "AUTO_ON_SAFE_DIFF",
       "human_command": null
     },
     {
@@ -284,10 +318,11 @@
       "changed_fields": {
         "referee_reward": {
           "old": "15 € offers sur votre compte iGraal m via mon lien ✅",
-          "new": "3 €"
+          "new": "3 € offers sur votre compte iGraal m via mon lien ✅"
         }
       },
       "route": "AUTO_ON_SAFE_DIFF",
+      "runtime_route": "AUTO_ON_SAFE_DIFF",
       "human_command": null
     },
     {
@@ -297,10 +332,11 @@
       "changed_fields": {
         "referee_reward": {
           "old": "5€ de bienvenue crédités dès votre inscription via mon code parrain ✅",
-          "new": "3 €"
+          "new": "3€ de bienvenue crédités dès votre inscription via mon code parrain ✅"
         }
       },
       "route": "AUTO_ON_SAFE_DIFF",
+      "runtime_route": "AUTO_ON_SAFE_DIFF",
       "human_command": null
     },
     {
@@ -314,6 +350,7 @@
         }
       },
       "route": "AUTO_ON_SAFE_DIFF",
+      "runtime_route": "AUTO_ON_SAFE_DIFF",
       "human_command": null
     },
     {
@@ -323,10 +360,11 @@
       "changed_fields": {
         "referee_reward": {
           "old": "5 € offers sur votre compte iGraal m via mon lien ✅",
-          "new": "3 €"
+          "new": "3 € offers sur votre compte iGraal m via mon lien ✅"
         }
       },
       "route": "HUMAN_SAVE_REQUIRED",
+      "runtime_route": "HUMAN_SAVE_REQUIRED",
       "human_command": "python -u tools/local_headed_rctv_canary.py"
     },
     {
@@ -340,7 +378,22 @@
         }
       },
       "route": "HUMAN_SAVE_REQUIRED",
+      "runtime_route": "HUMAN_SAVE_REQUIRED",
       "human_command": "python -u tools/local_headed_rctv_canary.py"
+    },
+    {
+      "platform": "super-parrain",
+      "program": "boursobank",
+      "language": "fr",
+      "changed_fields": {
+        "referee_reward": {
+          "old": "200 €",
+          "new": "160 €"
+        }
+      },
+      "route": "FUSED_UPDATE_BUMP",
+      "runtime_route": "CANARY_PENDING_SKIP",
+      "human_command": null
     },
     {
       "platform": "super-parrain",
@@ -349,10 +402,11 @@
       "changed_fields": {
         "referee_reward": {
           "old": "5 € offers sur votre compte iGraal m via mon lien ✅",
-          "new": "3 €"
+          "new": "3 € offers sur votre compte iGraal m via mon lien ✅"
         }
       },
       "route": "FUSED_UPDATE_BUMP",
+      "runtime_route": "CANARY_PENDING_SKIP",
       "human_command": null
     },
     {
@@ -362,10 +416,11 @@
       "changed_fields": {
         "referee_reward": {
           "old": "5€ de bienvenue crédités dès votre inscription via mon code parrain ✅",
-          "new": "3 €"
+          "new": "3€ de bienvenue crédités dès votre inscription via mon code parrain ✅"
         }
       },
       "route": "FUSED_UPDATE_BUMP",
+      "runtime_route": "CANARY_PENDING_SKIP",
       "human_command": null
     },
     {
@@ -379,13 +434,16 @@
         }
       },
       "route": "FUSED_UPDATE_BUMP",
+      "runtime_route": "CANARY_PENDING_SKIP",
       "human_command": null
     }
   ],
   "simulated_platform_routes": {
     "1parrainage": {
       "route": "AUTO_ON_SAFE_DIFF",
+      "runtime_route": "AUTO_ON_SAFE_DIFF",
       "programs": [
+        "boursobank",
         "igraal",
         "poulpeo",
         "winamax"
@@ -393,6 +451,7 @@
     },
     "code-parrainage": {
       "route": "AUTO_ON_SAFE_DIFF",
+      "runtime_route": "AUTO_ON_SAFE_DIFF",
       "programs": [
         "igraal",
         "poulpeo",
@@ -401,7 +460,9 @@
     },
     "parrainage-co": {
       "route": "AUTO_ON_SAFE_DIFF",
+      "runtime_route": "AUTO_ON_SAFE_DIFF",
       "programs": [
+        "boursobank",
         "igraal",
         "poulpeo",
         "winamax"
@@ -409,6 +470,7 @@
     },
     "referralcode-tv": {
       "route": "HUMAN_SAVE_REQUIRED",
+      "runtime_route": "HUMAN_SAVE_REQUIRED",
       "programs": [
         "igraal",
         "poulpeo"
@@ -416,15 +478,19 @@
     },
     "referralcodes": {
       "route": "NEVER_AUTO_COMMIT",
+      "runtime_route": "NEVER_AUTO_COMMIT",
       "programs": []
     },
     "referraldrop": {
       "route": "MANUAL",
+      "runtime_route": "AUTH_BLOCKED_MANUAL",
       "programs": []
     },
     "super-parrain": {
       "route": "FUSED_UPDATE_BUMP",
+      "runtime_route": "CANARY_PENDING_SKIP",
       "programs": [
+        "boursobank",
         "igraal",
         "poulpeo",
         "winamax"
@@ -438,9 +504,10 @@
   "production_activation_switch": "data/autofresh-phase.json → \"monitor_auto_accept\": true",
   "remaining_monitor_work": [
     "Do not flip monitor_auto_accept without operator OK",
-    "BoursoBank mappings currently have empty mutable_fields — accept would update effective values but no SAFE_DIFF until markers are wired",
+    "BoursoBank native spans are wired; campaign_variant stays rejected; reward_type has no native phrase",
+    "Super content canary still CANARY_PENDING_SKIP until one fused live save is validated",
     "APP_PERSONALIZED stays Hermes/Telegram",
     "ReferralCodes still NEVER_AUTO_COMMIT pending support"
   ],
-  "at": "2026-08-13T15:28:11.991706+00:00"
+  "at": "2026-08-13T15:48:22.386136+00:00"
 }

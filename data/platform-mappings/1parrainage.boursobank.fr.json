@@ -5,7 +5,9 @@
   "sync_mode": "REVIEW",
   "template_status": "ready",
   "golden_file": "boursobank.fr.golden.txt",
-  "mutable_fields": [],
+  "mutable_fields": [
+    "referee_reward"
+  ],
   "markers": {
     "personal_code": "{{PERSONAL_CODE}}",
     "personal_link": "{{PERSONAL_LINK}}",
@@ -21,9 +23,13 @@
   },
   "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=79",
   "edit_url": null,
-  "platform_values": {},
-  "confidences": {},
-  "notes": "lien offers.json non trouve dans le texte; bonus non marque (ambigu / non trouve) — texte laisse fixe; native style only — no emoji reinjection; list_brand=coupon promotionnel Boursorama Banque; multi_occurrence=2 distinct offer_ids",
+  "platform_values": {
+    "referee_reward": "200 €"
+  },
+  "confidences": {
+    "referee_reward": "high"
+  },
+  "notes": "native span referee_reward='200 €' (headline + prime totale). min_deposit/qualification_days/reward_type absent from list card — not marked. campaign_variant not mutable. native style only — no emoji reinjection; list_brand=coupon promotionnel Boursorama Banque; multi_occurrence=2 distinct offer_ids",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",

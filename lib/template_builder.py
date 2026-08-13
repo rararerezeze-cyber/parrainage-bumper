@@ -323,3 +323,34 @@ def extract_values_via_template(
             end = idx
         values[field_name] = golden[start:end]
     return values
+
+
+def structure_preserved_via_markers(
+    template: str,
+    historical: str,
+    rendered: str,
+    mutable_fields: list[str],
+    markers: dict[str, str],
+    hist_vals: dict[str, str | None],
+    new_vals: dict[str, str | None],
+) -> bool:
+    """True iff markers sit on historical spans and render only substitutes those spans.
+
+    Safe for repeated identical tokens (\"200 €\") and for short tokens (\"30\")
+    that must not be globally replaced inside \"300€\".
+    """
+    old_fill = template
+    new_fill = template
+    for field_name in mutable_fields:
+        marker = markers.get(field_name)
+        if not marker:
+            return False
+        old = hist_vals.get(field_name)
+        new = new_vals.get(field_name)
+        if old is None or new is None:
+            return False
+        if marker not in old_fill:
+            return False
+        old_fill = old_fill.replace(marker, str(old))
+        new_fill = new_fill.replace(marker, str(new))
+    return old_fill == historical and new_fill == rendered

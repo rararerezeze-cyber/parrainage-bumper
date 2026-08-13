@@ -10,7 +10,7 @@ from typing import Any
 
 from lib.offers import OffersRepository
 from lib.renderer import MappingRepository, Renderer, TemplateRepository
-from lib.template_builder import extract_values_via_template
+from lib.template_builder import extract_values_via_template, structure_preserved_via_markers
 
 # URL path fragment → program slug
 URL_PROGRAM_HINTS = [
@@ -135,13 +135,15 @@ def get_desired_content(program: str, language: str = "fr") -> DesiredContent:
         )
         for k, v in extracted.items():
             hist.setdefault(k, v)
-        check = golden
-        for field_name in mapping.mutable_fields:
-            old = hist.get(field_name)
-            new = variables.get(field_name)
-            if old and new is not None and old in check:
-                check = check.replace(old, new, 1)
-        out.structure_preserved = check == rendered
+        out.structure_preserved = structure_preserved_via_markers(
+            template,
+            golden,
+            rendered,
+            mapping.mutable_fields,
+            mapping.markers,
+            hist,
+            variables,
+        )
     except KeyError:
         out.error = "program_not_in_offers"
     except Exception as exc:  # noqa: BLE001

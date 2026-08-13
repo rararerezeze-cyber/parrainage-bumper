@@ -37,12 +37,41 @@ def main() -> int:
         action="store_true",
         help="Confirme l'intention d'ecrire. NE contourne PAS le cooldown plateforme.",
     )
+    parser.add_argument(
+        "--only-fields",
+        default="",
+        help="Comma-separated mutable fields to change (others stay published).",
+    )
+    parser.add_argument(
+        "--override",
+        action="append",
+        default=[],
+        help="FIELD=VALUE render override (repeatable). Example: referee_reward=3 €",
+    )
     args = parser.parse_args()
 
-    # Always queue pending so scheduler prefers update over bump
-    enqueue_pending("super-parrain", args.program, args.language, reason="content_update")
+    overrides: dict[str, str] = {}
+    for raw in args.override or []:
+        if "=" not in raw:
+            print(f"invalid --override {raw!r} (expected FIELD=VALUE)", file=sys.stderr)
+            return 2
+        key, val = raw.split("=", 1)
+        overrides[key.strip()] = val
+    only_fields = [p.strip() for p in (args.only_fields or "").split(",") if p.strip()]
 
-    plan = build_write_plan("super-parrain", args.program, args.language)
+    if args.execute:
+        # Queue pending so the fused cycle prefers update over bump-only.
+        enqueue_pending(
+            "super-parrain", args.program, args.language, reason="content_update"
+        )
+
+    plan = build_write_plan(
+        "super-parrain",
+        args.program,
+        args.language,
+        overrides=overrides or None,
+        only_fields=only_fields or None,
+    )
     for line in plan_report_lines(plan):
         print(line)
 

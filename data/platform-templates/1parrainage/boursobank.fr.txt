@@ -4,9 +4,9 @@
 
 Publiée le 14-06-2026
 
-Jusqu’à 200 € offerts en ce moment
+Jusqu’à {{REFEREE_REWARD}} offerts en ce moment
 
-Prime totale jusqu’à 200 € pour vous
+Prime totale jusqu’à {{REFEREE_REWARD}} pour vous
 
 Jusqu’à 120 € pour un premier compte avec un premier versement, puis au moins 1 opération par carte par mois pendant 3 mois.
 

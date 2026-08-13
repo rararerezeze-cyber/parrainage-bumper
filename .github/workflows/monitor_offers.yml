@@ -73,7 +73,7 @@ else:
           # should_commit is computed by save_run_report (compares to previous report)
           if python monitor.py --should-commit; then
             echo "Business/status change detected — committing light state"
-            git add data/monitor/last-observations.json data/monitor/history.jsonl data/offer-sources.json data/captures/monitor-last-report.json 2>/dev/null || true
+            git add data/monitor/last-observations.json data/monitor/history.jsonl data/monitor/accepted-fields.json data/monitor/accepted-history.jsonl data/offer-sources.json data/captures/monitor-last-report.json data/captures/monitor-auto-accept-simulation.json 2>/dev/null || true
             if git diff --staged --quiet; then
               echo "no staged file changes"
             else

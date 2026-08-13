@@ -26,7 +26,7 @@
     "personal_link": "https://bour.so/p/cdRUvTEbxaf"
   },
   "confidences": {},
-  "notes": "lien offers.json non trouve dans le texte; bonus non marque (ambigu / non trouve) — texte laisse fixe; public author capture; distinct from referralcodes.com; public author capture; distinct from referralcodes.com",
+  "notes": "public listing dump has no referee_reward/min_deposit/qualification_days/reward_type phrase — not marked, no invented sentence. campaign_variant not mutable. public author capture; distinct from referralcodes.com",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",

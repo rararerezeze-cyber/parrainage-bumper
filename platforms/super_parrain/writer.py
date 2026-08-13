@@ -20,7 +20,7 @@ if str(_ROOT / "tools") not in sys.path:
 from lib.http_fetch import fetch_text
 from lib.offers import OffersRepository
 from lib.renderer import MappingRepository, Renderer, TemplateRepository
-from lib.template_builder import extract_values_via_template
+from lib.template_builder import extract_values_via_template, structure_preserved_via_markers
 import capture_super_parrain as csp
 
 log = logging.getLogger("super_parrain.writer")
@@ -62,6 +62,9 @@ def build_write_plan(
     platform: str = "super-parrain",
     program: str = "kraken",
     language: str = "fr",
+    *,
+    overrides: dict[str, str | None] | None = None,
+    only_fields: list[str] | None = None,
 ) -> WritePlan:
     mapping = MappingRepository().load(platform, program, language)
     templates = TemplateRepository()
@@ -69,8 +72,6 @@ def build_write_plan(
     template = templates.load_text(platform, program, language)
     historical = templates.load_golden(platform, program, language)
     offer = renderer.offers.get_by_slug(program)
-    variables = renderer.build_variables(mapping, offer=offer)
-    rendered = renderer.render(template, mapping, offer=offer)
 
     hist_vals = dict(mapping.platform_values or {})
     extracted = extract_values_via_template(
@@ -79,6 +80,16 @@ def build_write_plan(
     for k, v in extracted.items():
         hist_vals.setdefault(k, v)
 
+    lock: dict[str, str | None] = dict(overrides or {})
+    if only_fields:
+        allowed = {f.strip() for f in only_fields if f and f.strip()}
+        for field in mapping.mutable_fields:
+            if field not in allowed and field in hist_vals:
+                lock[field] = hist_vals[field]
+
+    variables = renderer.build_variables(mapping, offer=offer, overrides=lock or None)
+    rendered = renderer.render(template, mapping, offer=offer, overrides=lock or None)
+
     changed: dict[str, dict[str, str | None]] = {}
     for field in mapping.mutable_fields:
         old = hist_vals.get(field)
@@ -86,14 +97,15 @@ def build_write_plan(
         if old != new:
             changed[field] = {"old": old, "new": new}
 
-    # Structure: only mutable values differ
-    check = historical
-    for field in mapping.mutable_fields:
-        old = hist_vals.get(field)
-        new = variables.get(field)
-        if old and new is not None and old in check:
-            check = check.replace(old, new, 1)
-    structure_preserved = check == rendered
+    structure_preserved = structure_preserved_via_markers(
+        template,
+        historical,
+        rendered,
+        mapping.mutable_fields,
+        mapping.markers,
+        hist_vals,
+        variables,
+    )
 
     url = mapping.announcement_url or (
         f"https://www.super-parrain.com/offres/{program}/parrainage-{program}/annonces/adrien-b-8"
