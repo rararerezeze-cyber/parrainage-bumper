@@ -1,31 +1,8 @@
 {
   "sites": {
-    "code-parrainage": {
-      "platform": "code-parrainage",
+    "parrainage-co": {
+      "platform": "parrainage-co",
       "items": [
-        {
-          "program": "kraken",
-          "status": "ok",
-          "mutable": [
-            "personal_code",
-            "personal_link",
-            "referee_reward"
-          ],
-          "chars": 869,
-          "edit_url": "https://code-parrainage.net/annonce/84601",
-          "quality": "full_edit"
-        },
-        {
-          "program": "betclic",
-          "status": "ok",
-          "mutable": [
-            "personal_code",
-            "referee_reward"
-          ],
-          "chars": 1266,
-          "edit_url": "https://code-parrainage.net/annonce/58862",
-          "quality": "full_edit"
-        },
         {
           "program": "plum",
           "status": "ok",
@@ -34,234 +11,9 @@
             "personal_link",
             "referee_reward"
           ],
-          "chars": 1155,
-          "edit_url": "https://code-parrainage.net/annonce/86437",
-          "quality": "full_edit"
-        },
-        {
-          "program": "ledger",
-          "status": "ok",
-          "mutable": [
-            "personal_code",
-            "personal_link",
-            "referee_reward"
-          ],
-          "chars": 1343,
-          "edit_url": "https://code-parrainage.net/annonce/84107",
-          "quality": "full_edit"
-        },
-        {
-          "program": "widilo",
-          "status": "ok",
-          "mutable": [
-            "personal_link",
-            "referee_reward"
-          ],
-          "chars": 892,
-          "edit_url": "https://code-parrainage.net/annonce/81401",
-          "quality": "full_edit"
-        },
-        {
-          "program": "paypal",
-          "status": "ok",
-          "mutable": [
-            "personal_link",
-            "referee_reward"
-          ],
-          "chars": 971,
-          "edit_url": "https://code-parrainage.net/annonce/58868",
-          "quality": "full_edit"
-        },
-        {
-          "program": "bitstack",
-          "status": "ok",
-          "mutable": [
-            "personal_link",
-            "referee_reward"
-          ],
-          "chars": 979,
-          "edit_url": "https://code-parrainage.net/annonce/84752",
-          "quality": "full_edit"
-        },
-        {
-          "program": "nrj-mobile",
-          "status": "ok",
-          "mutable": [
-            "personal_link",
-            "referee_reward"
-          ],
-          "chars": 1123,
-          "edit_url": "https://code-parrainage.net/annonce/87488",
-          "quality": "full_edit"
-        },
-        {
-          "program": "unibet",
-          "status": "ok",
-          "mutable": [
-            "personal_link",
-            "referee_reward"
-          ],
-          "chars": 1547,
-          "edit_url": "https://code-parrainage.net/annonce/58865",
-          "quality": "full_edit"
-        },
-        {
-          "program": "binance",
-          "status": "ok",
-          "mutable": [
-            "personal_code",
-            "personal_link"
-          ],
-          "chars": 1112,
-          "edit_url": "https://code-parrainage.net/annonce/60720",
-          "quality": "full_edit"
-        },
-        {
-          "program": "coinbase",
-          "status": "ok",
-          "mutable": [
-            "personal_link",
-            "referee_reward"
-          ],
-          "chars": 1281,
-          "edit_url": "https://code-parrainage.net/annonce/60471",
-          "quality": "full_edit"
-        },
-        {
-          "program": "poulpeo",
-          "status": "ok",
-          "mutable": [
-            "personal_code",
-            "personal_link",
-            "referee_reward"
-          ],
-          "chars": 769,
-          "edit_url": "https://code-parrainage.net/annonce/67416",
-          "quality": "full_edit"
-        },
-        {
-          "program": "deblock",
-          "status": "ok",
-          "mutable": [
-            "personal_link",
-            "referee_reward"
-          ],
-          "chars": 1045,
-          "edit_url": "https://code-parrainage.net/annonce/83085",
-          "quality": "full_edit"
-        },
-        {
-          "program": "airbnb",
-          "status": "ok",
-          "mutable": [
-            "personal_code",
-            "personal_link",
-            "referee_reward"
-          ],
-          "chars": 1301,
-          "edit_url": "https://code-parrainage.net/annonce/81273",
-          "quality": "full_edit"
-        },
-        {
-          "program": "fdj-francaise-des-jeux",
-          "status": "ok",
-          "mutable": [
-            "personal_link",
-            "referee_reward"
-          ],
-          "chars": 1219,
-          "edit_url": "https://code-parrainage.net/annonce/83441",
-          "quality": "full_edit"
-        },
-        {
-          "program": "traderepublic",
-          "status": "ok",
-          "mutable": [
-            "personal_code",
-            "personal_link"
-          ],
-          "chars": 1574,
-          "edit_url": "https://code-parrainage.net/annonce/58863",
-          "quality": "full_edit"
-        },
-        {
-          "program": "totalenergies",
-          "status": "ok",
-          "mutable": [
-            "personal_code",
-            "personal_link"
-          ],
-          "chars": 837,
-          "edit_url": "https://code-parrainage.net/annonce/72025",
-          "quality": "full_edit"
-        },
-        {
-          "program": "ebuyclub",
-          "status": "ok",
-          "mutable": [
-            "personal_code",
-            "personal_link",
-            "referee_reward"
-          ],
-          "chars": 895,
-          "edit_url": "https://code-parrainage.net/annonce/67412",
-          "quality": "full_edit"
-        },
-        {
-          "program": "winamax",
-          "status": "ok",
-          "mutable": [
-            "personal_code",
-            "referee_reward"
-          ],
-          "chars": 1377,
-          "edit_url": "https://code-parrainage.net/annonce/58867",
-          "quality": "full_edit"
-        },
-        {
-          "program": "robinhood",
-          "status": "ok",
-          "mutable": [
-            "personal_code",
-            "personal_link",
-            "referee_reward"
-          ],
-          "chars": 1318,
-          "edit_url": "https://code-parrainage.net/annonce/84600",
-          "quality": "full_edit"
-        },
-        {
-          "program": "revolut",
-          "status": "ok",
-          "mutable": [
-            "personal_link",
-            "referee_reward"
-          ],
-          "chars": 1268,
-          "edit_url": "https://code-parrainage.net/annonce/60472",
-          "quality": "full_edit"
-        },
-        {
-          "program": "heetch",
-          "status": "ok",
-          "mutable": [
-            "personal_code",
-            "referee_reward"
-          ],
-          "chars": 928,
-          "edit_url": "https://code-parrainage.net/annonce/81276",
-          "quality": "full_edit"
-        },
-        {
-          "program": "igraal",
-          "status": "ok",
-          "mutable": [
-            "personal_link",
-            "referee_reward"
-          ],
-          "chars": 1002,
-          "edit_url": "https://code-parrainage.net/annonce/58870",
-          "quality": "full_edit"
+          "chars": 997,
+          "announcement_url": "https://parrainage.co/offers/122884",
+          "edit_url": "https://parrainage.co/account/offers/edit/122884"
         },
         {
           "program": "vinted",
@@ -271,20 +23,178 @@
             "personal_link",
             "referee_reward"
           ],
-          "chars": 1035,
-          "edit_url": "https://code-parrainage.net/annonce/58869",
-          "quality": "full_edit"
+          "chars": 912,
+          "announcement_url": "https://parrainage.co/offers/118536",
+          "edit_url": "https://parrainage.co/account/offers/edit/118536"
         },
         {
-          "program": "wise",
+          "program": "whatnot",
           "status": "ok",
           "mutable": [
             "personal_link",
             "referee_reward"
           ],
-          "chars": 1346,
-          "edit_url": "https://code-parrainage.net/annonce/81275",
-          "quality": "full_edit"
+          "chars": 821,
+          "announcement_url": "https://parrainage.co/offers/125961",
+          "edit_url": "https://parrainage.co/account/offers/edit/125961"
+        },
+        {
+          "program": "coinbase",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "personal_link",
+            "referee_reward"
+          ],
+          "chars": 1192,
+          "announcement_url": "https://parrainage.co/offers/76562",
+          "edit_url": "https://parrainage.co/account/offers/edit/76562"
+        },
+        {
+          "program": "revolut",
+          "status": "ok",
+          "mutable": [
+            "personal_link",
+            "referee_reward"
+          ],
+          "chars": 1104,
+          "announcement_url": "https://parrainage.co/offers/76563",
+          "edit_url": "https://parrainage.co/account/offers/edit/76563"
+        },
+        {
+          "program": "bitstack",
+          "status": "ok",
+          "mutable": [
+            "personal_link",
+            "referee_reward"
+          ],
+          "chars": 879,
+          "announcement_url": "https://parrainage.co/offers/114464",
+          "edit_url": "https://parrainage.co/account/offers/edit/114464"
+        },
+        {
+          "program": "kraken",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "personal_link",
+            "referee_reward"
+          ],
+          "chars": 750,
+          "announcement_url": "https://parrainage.co/offers/113735",
+          "edit_url": "https://parrainage.co/account/offers/edit/113735"
+        },
+        {
+          "program": "swissborg",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "personal_link",
+            "referee_reward"
+          ],
+          "chars": 929,
+          "announcement_url": "https://parrainage.co/offers/114509",
+          "edit_url": "https://parrainage.co/account/offers/edit/114509"
+        },
+        {
+          "program": "poulpeo",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "referee_reward"
+          ],
+          "chars": 672,
+          "announcement_url": "https://parrainage.co/offers/84354",
+          "edit_url": "https://parrainage.co/account/offers/edit/84354"
+        },
+        {
+          "program": "ebuyclub",
+          "status": "ok",
+          "mutable": [
+            "personal_link",
+            "referee_reward"
+          ],
+          "chars": 815,
+          "announcement_url": "https://parrainage.co/offers/84358",
+          "edit_url": "https://parrainage.co/account/offers/edit/84358"
+        },
+        {
+          "program": "betclic",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "referee_reward"
+          ],
+          "chars": 1159,
+          "announcement_url": "https://parrainage.co/offers/75172",
+          "edit_url": "https://parrainage.co/account/offers/edit/75172"
+        },
+        {
+          "program": "unibet",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "personal_link",
+            "referee_reward"
+          ],
+          "chars": 1359,
+          "announcement_url": "https://parrainage.co/offers/75173",
+          "edit_url": "https://parrainage.co/account/offers/edit/75173"
+        },
+        {
+          "program": "traderepublic",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "personal_link"
+          ],
+          "chars": 1447,
+          "announcement_url": "https://parrainage.co/offers/75174",
+          "edit_url": "https://parrainage.co/account/offers/edit/75174"
+        },
+        {
+          "program": "robinhood",
+          "status": "ok",
+          "mutable": [
+            "personal_link",
+            "referee_reward"
+          ],
+          "chars": 1227,
+          "announcement_url": "https://parrainage.co/offers/115110",
+          "edit_url": "https://parrainage.co/account/offers/edit/115110"
+        },
+        {
+          "program": "winamax",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "referee_reward"
+          ],
+          "chars": 1259,
+          "announcement_url": "https://parrainage.co/offers/75175",
+          "edit_url": "https://parrainage.co/account/offers/edit/75175"
+        },
+        {
+          "program": "igraal",
+          "status": "ok",
+          "mutable": [
+            "personal_link",
+            "referee_reward"
+          ],
+          "chars": 834,
+          "announcement_url": "https://parrainage.co/offers/75178",
+          "edit_url": "https://parrainage.co/account/offers/edit/75178"
+        },
+        {
+          "program": "nrj-mobile",
+          "status": "ok",
+          "mutable": [
+            "personal_link",
+            "referee_reward"
+          ],
+          "chars": 983,
+          "announcement_url": "https://parrainage.co/offers/125100",
+          "edit_url": "https://parrainage.co/account/offers/edit/125100"
         },
         {
           "program": "bybit",
@@ -293,20 +203,76 @@
             "personal_code",
             "personal_link"
           ],
-          "chars": 956,
-          "edit_url": "https://code-parrainage.net/annonce/83674",
-          "quality": "full_edit"
+          "chars": 839,
+          "announcement_url": "https://parrainage.co/offers/127408",
+          "edit_url": "https://parrainage.co/account/offers/edit/127408"
         },
         {
-          "program": "swissborg",
+          "program": "boursobank",
+          "status": "ok",
+          "mutable": [
+            "personal_link"
+          ],
+          "chars": 1804,
+          "announcement_url": "https://parrainage.co/offers/75195",
+          "edit_url": "https://parrainage.co/account/offers/edit/75195"
+        },
+        {
+          "program": "gemini",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "personal_link",
+            "referee_reward"
+          ],
+          "chars": 1252,
+          "announcement_url": "https://parrainage.co/offers/115388",
+          "edit_url": "https://parrainage.co/account/offers/edit/115388"
+        },
+        {
+          "program": "acheel",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "referee_reward"
+          ],
+          "chars": 768,
+          "announcement_url": "https://parrainage.co/offers/92118",
+          "edit_url": "https://parrainage.co/account/offers/edit/92118"
+        },
+        {
+          "program": "widilo",
           "status": "ok",
           "mutable": [
             "personal_link",
             "referee_reward"
           ],
-          "chars": 1045,
-          "edit_url": "https://code-parrainage.net/annonce/83675",
-          "quality": "full_edit"
+          "chars": 732,
+          "announcement_url": "https://parrainage.co/offers/109021",
+          "edit_url": "https://parrainage.co/account/offers/edit/109021"
+        },
+        {
+          "program": "joko",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "referee_reward"
+          ],
+          "chars": 681,
+          "announcement_url": "https://parrainage.co/offers/86502",
+          "edit_url": "https://parrainage.co/account/offers/edit/86502"
+        },
+        {
+          "program": "ledger",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "personal_link",
+            "referee_reward"
+          ],
+          "chars": 1192,
+          "announcement_url": "https://parrainage.co/offers/115693",
+          "edit_url": "https://parrainage.co/account/offers/edit/115693"
         },
         {
           "program": "okx",
@@ -316,118 +282,175 @@
             "personal_link",
             "referee_reward"
           ],
-          "chars": 1195,
-          "edit_url": "https://code-parrainage.net/annonce/86831",
-          "quality": "full_edit"
+          "chars": 1079,
+          "announcement_url": "https://parrainage.co/offers/123892",
+          "edit_url": "https://parrainage.co/account/offers/edit/123892"
         },
         {
-          "program": "joko",
+          "program": "totalenergies",
           "status": "ok",
           "mutable": [
             "personal_code",
-            "personal_link",
-            "referee_reward"
+            "personal_link"
           ],
-          "chars": 825,
-          "edit_url": "https://code-parrainage.net/annonce/68715",
-          "quality": "full_edit"
+          "chars": 731,
+          "announcement_url": "https://parrainage.co/offers/110585",
+          "edit_url": "https://parrainage.co/account/offers/edit/110585"
         }
       ],
-      "errors": [
-        {
-          "url": "https://code-parrainage.net/annonce/67415",
-          "error": "program_unknown",
-          "title": "Code de parrainage :",
-          "first": "Publié le 13-08-2026"
-        },
-        {
-          "url": "https://code-parrainage.net/modif/67415",
-          "error": "program_unknown",
-          "title": "Modifier votre annonce",
-          "first": "⚡️ Offre Parrainage Rakuten – 10€ offerts pour vous ⚡"
-        },
-        {
-          "url": "https://code-parrainage.net/annonce/81274",
-          "error": "program_unknown",
-          "title": "Code de parrainage :",
-          "first": "Publié le 13-08-2026"
-        },
-        {
-          "url": "https://code-parrainage.net/modif/81274",
-          "error": "program_unknown",
-          "title": "Modifier votre annonce",
-          "first": "⭐️ Offre Parrainage Uber Eats – 5€ offerts sur votre première commande de 15€ mi"
-        },
-        {
-          "url": "https://code-parrainage.net/annonce/58918",
-          "error": "program_unknown",
-          "title": "Code de parrainage :",
-          "first": "Publié le 13-08-2026"
-        },
-        {
-          "url": "https://code-parrainage.net/modif/58918",
-          "error": "program_unknown",
-          "title": "Modifier votre annonce",
-          "first": "⭐️ Jusqu’à 200 € OFFERTS en ce MOMENT ⭐️"
-        },
-        {
-          "url": "https://code-parrainage.net/annonce/75705",
-          "error": "program_unknown",
-          "title": "Code de parrainage :",
-          "first": "Publié le 13-08-2026"
-        },
-        {
-          "url": "https://code-parrainage.net/modif/75705",
-          "error": "program_unknown",
-          "title": "Modifier votre annonce",
-          "first": "⭐️ Offre spéciale : 1 mois offert ⭐️"
-        },
-        {
-          "url": "https://code-parrainage.net/annonce/83006",
-          "error": "program_unknown",
-          "title": "Code de parrainage :",
-          "first": "Publié le 13-08-2026"
-        },
-        {
-          "url": "https://code-parrainage.net/modif/83006",
-          "error": "program_unknown",
-          "title": "Modifier votre annonce",
-          "first": "⭐️ Offre Parrainage Back Market – 10€ offerts ⭐️⭐️⭐️"
-        },
-        {
-          "url": "https://code-parrainage.net/annonce/83663",
-          "error": "program_unknown",
-          "title": "Code de parrainage :",
-          "first": "Publié le 13-08-2026"
-        },
-        {
-          "url": "https://code-parrainage.net/modif/83663",
-          "error": "program_unknown",
-          "title": "Modifier votre annonce",
-          "first": "⭐️ Offre Parrainage Ynstant – Jusqu’à 150€ à gagner !"
-        }
-      ],
-      "session_model": "single_login_then_sequential_edits",
+      "errors": [],
+      "orphans": [],
+      "quality": "auth_edit_pages",
       "login": "password",
-      "edit_urls_found": 72,
+      "session_model": "single_login_then_sequential_edits",
+      "edit_urls_found": 26,
+      "dashboard_preview": [
+        {
+          "edit": "https://parrainage.co/account/offers/edit/122884",
+          "public": null,
+          "row": "Modifier"
+        },
+        {
+          "edit": "https://parrainage.co/account/offers/edit/118536",
+          "public": null,
+          "row": "Modifier"
+        },
+        {
+          "edit": "https://parrainage.co/account/offers/edit/125961",
+          "public": null,
+          "row": "Modifier"
+        },
+        {
+          "edit": "https://parrainage.co/account/offers/edit/76562",
+          "public": null,
+          "row": "Modifier"
+        },
+        {
+          "edit": "https://parrainage.co/account/offers/edit/76563",
+          "public": null,
+          "row": "Modifier"
+        },
+        {
+          "edit": "https://parrainage.co/account/offers/edit/114464",
+          "public": null,
+          "row": "Modifier"
+        },
+        {
+          "edit": "https://parrainage.co/account/offers/edit/113735",
+          "public": null,
+          "row": "Modifier"
+        },
+        {
+          "edit": "https://parrainage.co/account/offers/edit/114509",
+          "public": null,
+          "row": "Modifier"
+        },
+        {
+          "edit": "https://parrainage.co/account/offers/edit/84354",
+          "public": null,
+          "row": "Modifier"
+        },
+        {
+          "edit": "https://parrainage.co/account/offers/edit/84358",
+          "public": null,
+          "row": "Modifier"
+        },
+        {
+          "edit": "https://parrainage.co/account/offers/edit/75172",
+          "public": null,
+          "row": "Modifier"
+        },
+        {
+          "edit": "https://parrainage.co/account/offers/edit/75173",
+          "public": null,
+          "row": "Modifier"
+        },
+        {
+          "edit": "https://parrainage.co/account/offers/edit/75174",
+          "public": null,
+          "row": "Modifier"
+        },
+        {
+          "edit": "https://parrainage.co/account/offers/edit/115110",
+          "public": null,
+          "row": "Modifier"
+        },
+        {
+          "edit": "https://parrainage.co/account/offers/edit/75175",
+          "public": null,
+          "row": "Modifier"
+        },
+        {
+          "edit": "https://parrainage.co/account/offers/edit/75178",
+          "public": null,
+          "row": "Modifier"
+        },
+        {
+          "edit": "https://parrainage.co/account/offers/edit/125100",
+          "public": null,
+          "row": "Modifier"
+        },
+        {
+          "edit": "https://parrainage.co/account/offers/edit/127408",
+          "public": null,
+          "row": "Modifier"
+        },
+        {
+          "edit": "https://parrainage.co/account/offers/edit/75195",
+          "public": null,
+          "row": "Modifier"
+        },
+        {
+          "edit": "https://parrainage.co/account/offers/edit/115388",
+          "public": null,
+          "row": "Modifier"
+        },
+        {
+          "edit": "https://parrainage.co/account/offers/edit/92118",
+          "public": null,
+          "row": "Modifier"
+        },
+        {
+          "edit": "https://parrainage.co/account/offers/edit/109021",
+          "public": null,
+          "row": "Modifier"
+        },
+        {
+          "edit": "https://parrainage.co/account/offers/edit/86502",
+          "public": null,
+          "row": "Modifier"
+        },
+        {
+          "edit": "https://parrainage.co/account/offers/edit/115693",
+          "public": null,
+          "row": "Modifier"
+        },
+        {
+          "edit": "https://parrainage.co/account/offers/edit/123892",
+          "public": null,
+          "row": "Modifier"
+        },
+        {
+          "edit": "https://parrainage.co/account/offers/edit/110585",
+          "public": null,
+          "row": "Modifier"
+        }
+      ],
       "programs_captured": [
-        "airbnb",
+        "acheel",
         "betclic",
-        "binance",
         "bitstack",
+        "boursobank",
         "bybit",
         "coinbase",
-        "deblock",
         "ebuyclub",
-        "fdj-francaise-des-jeux",
-        "heetch",
+        "gemini",
         "igraal",
         "joko",
         "kraken",
         "ledger",
         "nrj-mobile",
         "okx",
-        "paypal",
         "plum",
         "poulpeo",
         "revolut",
@@ -437,324 +460,9 @@
         "traderepublic",
         "unibet",
         "vinted",
-        "widilo",
-        "winamax",
-        "wise"
-      ]
-    },
-    "referralcode-tv": {
-      "platform": "referralcode-tv",
-      "items": [],
-      "errors": [
-        {
-          "error": "Timeout 30000ms exceeded."
-        }
-      ]
-    },
-    "1parrainage": {
-      "platform": "1parrainage",
-      "items": [
-        {
-          "program": "kraken",
-          "status": "ok",
-          "chars": 246,
-          "mutable": [
-            "personal_code",
-            "personal_link",
-            "referee_reward"
-          ]
-        },
-        {
-          "program": "whatnot",
-          "status": "ok",
-          "chars": 231,
-          "mutable": [
-            "referee_reward"
-          ]
-        },
-        {
-          "program": "plum",
-          "status": "ok",
-          "chars": 253,
-          "mutable": [
-            "personal_link",
-            "referee_reward"
-          ]
-        },
-        {
-          "program": "nrj-mobile",
-          "status": "ok",
-          "chars": 248,
-          "mutable": [
-            "referee_reward"
-          ]
-        },
-        {
-          "program": "revolut",
-          "status": "ok",
-          "chars": 266,
-          "mutable": [
-            "referee_reward"
-          ]
-        },
-        {
-          "program": "traderepublic",
-          "status": "ok",
-          "chars": 253,
-          "mutable": [
-            "personal_code",
-            "personal_link"
-          ]
-        },
-        {
-          "program": "okx",
-          "status": "ok",
-          "chars": 266,
-          "mutable": [
-            "personal_code",
-            "personal_link"
-          ]
-        },
-        {
-          "program": "totalenergies",
-          "status": "ok",
-          "chars": 258,
-          "mutable": [
-            "personal_code",
-            "personal_link"
-          ]
-        },
-        {
-          "program": "igraal",
-          "status": "ok",
-          "chars": 274,
-          "mutable": [
-            "personal_link",
-            "referee_reward"
-          ]
-        },
-        {
-          "program": "swissborg",
-          "status": "ok",
-          "chars": 232,
-          "mutable": [
-            "referee_reward"
-          ]
-        },
-        {
-          "program": "robinhood",
-          "status": "ok",
-          "chars": 271,
-          "mutable": [
-            "referee_reward"
-          ]
-        },
-        {
-          "program": "gemini",
-          "status": "ok",
-          "chars": 278,
-          "mutable": [
-            "referee_reward"
-          ]
-        },
-        {
-          "program": "omio",
-          "status": "ok",
-          "chars": 259,
-          "mutable": [
-            "personal_code",
-            "referee_reward"
-          ]
-        },
-        {
-          "program": "deblock",
-          "status": "ok",
-          "chars": 234,
-          "mutable": [
-            "referee_reward"
-          ]
-        },
-        {
-          "program": "fdj-francaise-des-jeux",
-          "status": "ok",
-          "chars": 256,
-          "mutable": []
-        },
-        {
-          "program": "bybit",
-          "status": "ok",
-          "chars": 270,
-          "mutable": [
-            "personal_code",
-            "personal_link"
-          ]
-        },
-        {
-          "program": "ledger",
-          "status": "ok",
-          "chars": 272,
-          "mutable": [
-            "referee_reward"
-          ]
-        },
-        {
-          "program": "heetch",
-          "status": "ok",
-          "chars": 245,
-          "mutable": [
-            "personal_code",
-            "referee_reward"
-          ]
-        },
-        {
-          "program": "bitstack",
-          "status": "ok",
-          "chars": 264,
-          "mutable": [
-            "personal_link",
-            "referee_reward"
-          ]
-        },
-        {
-          "program": "parionssport",
-          "status": "ok",
-          "chars": 255,
-          "mutable": [
-            "personal_link"
-          ]
-        },
-        {
-          "program": "finary",
-          "status": "ok",
-          "chars": 281,
-          "mutable": [
-            "referee_reward"
-          ]
-        },
-        {
-          "program": "airbnb",
-          "status": "ok",
-          "chars": 246,
-          "mutable": [
-            "personal_link",
-            "referee_reward"
-          ]
-        },
-        {
-          "program": "widilo",
-          "status": "ok",
-          "chars": 235,
-          "mutable": [
-            "personal_link",
-            "referee_reward"
-          ]
-        },
-        {
-          "program": "binance",
-          "status": "ok",
-          "chars": 281,
-          "mutable": [
-            "personal_link"
-          ]
-        },
-        {
-          "program": "coinbase",
-          "status": "ok",
-          "chars": 255,
-          "mutable": [
-            "personal_code",
-            "referee_reward"
-          ]
-        },
-        {
-          "program": "paypal",
-          "status": "ok",
-          "chars": 262,
-          "mutable": [
-            "referee_reward"
-          ]
-        },
-        {
-          "program": "ebuyclub",
-          "status": "ok",
-          "chars": 258,
-          "mutable": [
-            "personal_link",
-            "referee_reward"
-          ]
-        },
-        {
-          "program": "joko",
-          "status": "ok",
-          "chars": 233,
-          "mutable": [
-            "personal_code",
-            "referee_reward"
-          ]
-        },
-        {
-          "program": "poulpeo",
-          "status": "ok",
-          "chars": 255,
-          "mutable": [
-            "personal_code",
-            "referee_reward"
-          ]
-        },
-        {
-          "program": "vinted",
-          "status": "ok",
-          "chars": 267,
-          "mutable": [
-            "personal_code",
-            "personal_link"
-          ]
-        },
-        {
-          "program": "betclic",
-          "status": "ok",
-          "chars": 234,
-          "mutable": [
-            "referee_reward"
-          ]
-        }
-      ],
-      "errors": [],
-      "login": "password",
-      "session_model": "single_login_then_sequential_edits",
-      "style_policy": "native_platform_style_only",
-      "programs_captured": [
-        "airbnb",
-        "betclic",
-        "binance",
-        "bitstack",
-        "bybit",
-        "coinbase",
-        "deblock",
-        "ebuyclub",
-        "fdj-francaise-des-jeux",
-        "finary",
-        "gemini",
-        "heetch",
-        "igraal",
-        "joko",
-        "kraken",
-        "ledger",
-        "nrj-mobile",
-        "okx",
-        "omio",
-        "parionssport",
-        "paypal",
-        "plum",
-        "poulpeo",
-        "revolut",
-        "robinhood",
-        "swissborg",
-        "totalenergies",
-        "traderepublic",
-        "vinted",
         "whatnot",
-        "widilo"
+        "widilo",
+        "winamax"
       ]
     }
   },

@@ -1,0 +1,23 @@
+{
+  "platform": "parrainage-co",
+  "live": false,
+  "save_clicked": false,
+  "cookie_used": false,
+  "login_path": "bumper.smart_login_parrainage",
+  "turnstile": "bumper.solve_turnstile",
+  "twocaptcha_present": true,
+  "at": "2026-08-13T13:46:52.086973+00:00",
+  "login_ok": true,
+  "url_after_login": "https://parrainage.co/account",
+  "offers_url": "https://parrainage.co/account/offers",
+  "offers_ok": true,
+  "edit_url": "https://parrainage.co/account/offers/edit/113735",
+  "edit_bounced_login": false,
+  "textarea_count": 1,
+  "edit_len": 750,
+  "has_cpbrgddy": true,
+  "has_s5qudqe4": true,
+  "ok": true,
+  "gh_login": "PROVEN",
+  "gh_edit_access": "PROVEN"
+}

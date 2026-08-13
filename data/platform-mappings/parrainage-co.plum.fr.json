@@ -35,12 +35,12 @@
     "personal_link": "high",
     "referee_reward": "high"
   },
-  "notes": null,
+  "notes": "auth_edit_url=https://parrainage.co/account/offers/edit/122884",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",
     "referee_reward": "offers_json_then_official",
     "announcement_text": "platform_target_only"
   },
-  "quality": "auth_orphan_promoted"
+  "quality": "auth_edit_refetch"
 }

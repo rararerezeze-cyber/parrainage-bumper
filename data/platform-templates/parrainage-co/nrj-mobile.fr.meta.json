@@ -5,7 +5,7 @@
   "status": "ready",
   "role": "platform_target_historical_text_only",
   "not_business_source_of_truth": true,
-  "announcement_url": null,
+  "announcement_url": "https://parrainage.co/offers/125100",
   "mutable_fields": [
     "personal_link",
     "referee_reward"
@@ -18,5 +18,7 @@
     "personal_link": "high",
     "referee_reward": "high"
   },
-  "notes": []
+  "notes": [
+    "auth_edit_url=https://parrainage.co/account/offers/edit/125100"
+  ]
 }
