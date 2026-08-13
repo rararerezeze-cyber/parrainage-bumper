@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""ONE headed Chrome session: you log in, I learn RCTV listing EIDs. NO SAVE.
+"""Headed RCTV: View ads one by one. No batch edit. No save.
 
   python -u tools/local_headed_rctv.py
 
-After /my-account, do not click Boost / Add / Submit. I only read edit forms.
+After login, click View on each ad. I only read. Never Boost / Add / Submit.
+If the ad is already OK I say CONFORME — go to the next View.
 """
 from __future__ import annotations
 
@@ -20,27 +21,15 @@ sys.path.insert(0, str(ROOT))
 
 LOGIN = "https://www.referralcode.tv/login/"
 ACCOUNT = "https://www.referralcode.tv/my-account/?tab=listings"
+AUTHOR = "https://www.referralcode.tv/author/thesuperreff/"
 OUT = ROOT / "data" / "captures" / "rctv-headed-eid.json"
 LOCAL = ROOT / ".local-auth"
 LOGIN_WAIT_S = 900
-WANTED = ("kraken", "paypal", "robinhood", "whatnot", "wise", "okx", "stake")
+WATCH_S = 900
+OLD_LINK = "4jdp7sea"
+NEW_LINK = "s5qudqe4"
+CODE = "cpbrgddy"
 
-
-def _now() -> str:
-    return datetime.now(timezone.utc).isoformat()
-
-
-def _write(path: Path, data: dict) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-
-
-def _wipe() -> None:
-    if LOCAL.exists():
-        shutil.rmtree(LOCAL, ignore_errors=True)
-
-
-# Longest / most specific first. Never classify iGraal as PayPal.
 _BRANDS = (
     ("traderepublic", ("trade republic", "traderepublic", "trade.re")),
     ("boursobank", ("boursobank", "boursorama", "bour.so")),
@@ -60,19 +49,45 @@ _BRANDS = (
     ("unibet", ("unibet",)),
     ("airbnb", ("airbnb",)),
     ("bybit", ("bybit",)),
-    ("stake", ("stake.com", "stake")),
-    ("wise", ("transferwise", "wise.")),
+    ("stake", ("stake.com",)),
+    ("wise", ("transferwise", "wise.com", "wise.")),
     ("okx", ("okx",)),
     ("joko", ("joko",)),
 )
 
 
-def _classify(title: str, content: str, link: str) -> str | None:
-    blob = f"{title} {content} {link}".lower()
+def _now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _write(path: Path, data: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def _wipe() -> None:
+    if LOCAL.exists():
+        shutil.rmtree(LOCAL, ignore_errors=True)
+
+
+def _classify(blob: str) -> str | None:
+    low = (blob or "").lower()
     for prog, keys in _BRANDS:
-        if any(k in blob for k in keys):
+        if any(k in low for k in keys):
             return prog
     return None
+
+
+def _verdict(program: str | None, blob: str) -> str:
+    if program != "kraken":
+        return "VIEW_OK_SKIP"  # no operator lock on this program this cycle
+    if NEW_LINK in blob and CODE in blob and OLD_LINK not in blob:
+        return "CONFORME"
+    if OLD_LINK in blob or (CODE in blob and NEW_LINK not in blob):
+        return "DIFF_LINK"
+    if "kraken" in blob.lower():
+        return "KRAKEN_SEEN_CHECK_FIELDS"
+    return "UNKNOWN"
 
 
 async def _launch():
@@ -104,7 +119,6 @@ async def _wait_account(page) -> bool:
     print("=" * 64)
     print("LOGIN MANUEL — une seule fois, ne ferme pas Chrome")
     print(f"     {LOGIN}")
-    print("     Ensuite ouvre My Account / My Referral Codes si besoin.")
     print("=" * 64)
     print()
     deadline = asyncio.get_event_loop().time() + LOGIN_WAIT_S
@@ -114,8 +128,7 @@ async def _wait_account(page) -> bool:
         if "my-account" in url and "login" not in url:
             print(f"my-account détecté: {page.url}")
             return True
-        if "referralcode.tv" in url and "login" not in url and "sign" not in url:
-            print(f"login OK ({page.url}) → listings même session")
+        if "referralcode.tv" in url and "login" not in url:
             await page.goto(ACCOUNT, wait_until="domcontentloaded", timeout=60000)
             await asyncio.sleep(1.0)
             if "my-account" in (page.url or "").lower():
@@ -125,122 +138,81 @@ async def _wait_account(page) -> bool:
             print(f"  en attente de login… url={page.url}")
             last = now
         await asyncio.sleep(2)
-    print("TIMEOUT: /my-account non atteint")
     return False
 
 
-async def _eids_on_page(page) -> list[str]:
-    hrefs = await page.evaluate(
-        """
-        () => Array.from(document.querySelectorAll('a[href]'))
-          .map(a => a.href || '')
-          .filter(h => /eid=\\d+/.test(h) && h.includes('add-referral-code'))
-        """
-    )
-    eids = []
-    for h in hrefs or []:
-        m = re.search(r"[?&]eid=(\d+)", h)
-        if m and m.group(1) not in eids:
-            eids.append(m.group(1))
-    return eids
-
-
-async def _collect_eids(page) -> list[str]:
-    eids: list[str] = []
-    start_urls = (
-        ACCOUNT,
-        "https://www.referralcode.tv/my-account/?tab=listings&paged=2",
-        "https://www.referralcode.tv/my-account/?tab=listings&page=2",
-        "https://www.referralcode.tv/my-account/?dashboard=listings&paged=2",
-        "https://referralcode.tv/my-account/?tab=listings",
-    )
-    for url in start_urls:
-        try:
-            await page.goto(url, wait_until="domcontentloaded", timeout=60000)
-            await asyncio.sleep(1.2)
-        except Exception:
-            continue
-        found = await _eids_on_page(page)
-        for eid in found:
-            if eid not in eids:
-                eids.append(eid)
-        print(f"  page {page.url} → +{len(found)} (total {len(eids)})")
-
-    # Pagination / next on the listings dashboard (never Boost).
-    await page.goto(ACCOUNT, wait_until="domcontentloaded", timeout=60000)
-    await asyncio.sleep(1.0)
-    for _ in range(4):
-        clicked = False
-        for sel in (
-            "a.page-numbers.next",
-            "a[rel='next']",
-            "a:has-text('Next')",
-            "a:has-text('»')",
-            ".pagination a.next",
-            "a.page-numbers:has-text('2')",
-            "a.page-numbers:has-text('3')",
-        ):
-            loc = page.locator(sel).first
-            try:
-                if await loc.count() and await loc.is_visible():
-                    label = ((await loc.inner_text()) or "").lower()
-                    if "boost" in label or "add" in label:
-                        continue
-                    await loc.click()
-                    await asyncio.sleep(1.4)
-                    clicked = True
-                    break
-            except Exception:
-                continue
-        if not clicked:
-            break
-        found = await _eids_on_page(page)
-        before = len(eids)
-        for eid in found:
-            if eid not in eids:
-                eids.append(eid)
-        print(f"  after next → +{len(eids) - before} (total {len(eids)})")
-        if len(eids) >= 23:
-            break
-    print(f"EIDs uniques: {len(eids)}")
-    return eids
-
-
-async def _read_edit(page, eid: str) -> dict:
-    url = f"https://referralcode.tv/add-referral-code/?eid={eid}"
-    await page.goto(url, wait_until="domcontentloaded", timeout=60000)
-    await asyncio.sleep(0.8)
-    rec = await page.evaluate(
+async def _cards(page) -> list[dict]:
+    return await page.evaluate(
         """
         () => {
-          const val = (sel) => {
-            const el = document.querySelector(sel);
-            return el ? (el.value || el.innerText || '').trim() : '';
-          };
-          return {
-            url: location.href,
-            title: val('input[name="form[post_title]"], #form_post_title, input.form_post_title'),
-            code: val('input[name="custom[code]"], input.field-code'),
-            link: val('input[name="custom[buy_link]"], input.field-buy_link'),
-            content: val('textarea[name="form[post_content]"]'),
-          };
+          const out = [];
+          const seen = new Set();
+          for (const a of document.querySelectorAll('a[href]')) {
+            const href = a.href || '';
+            const text = ((a.innerText || '') + ' ' + (a.getAttribute('title') || '')).replace(/\\s+/g, ' ').trim();
+            const low = (href + ' ' + text).toLowerCase();
+            if (low.includes('boost') || low.includes('cliccami') || low.includes('add-referral-code/?eid=') === false
+                && !href.includes('/referral-code/') && !href.includes('/brand/')) continue;
+            if (href.includes('add-referral-code/') && !href.includes('eid=')) continue;
+            if (!href.startsWith('http')) continue;
+            const key = href.split('#')[0];
+            if (seen.has(key)) continue;
+            seen.add(key);
+            const eidM = href.match(/[?&]eid=(\\d+)/);
+            const sidM = href.match(/[?&]__sid=(\\d+)/);
+            out.push({
+              href,
+              text: text.slice(0, 140),
+              eid: eidM ? eidM[1] : null,
+              sid: sidM ? sidM[1] : null,
+              kind: href.includes('eid=') ? 'edit' : (href.includes('/referral-code/') ? 'view' : 'other'),
+            });
+          }
+          return out;
         }
         """
     )
-    rec["eid"] = eid
-    rec["program"] = _classify(rec.get("title") or "", rec.get("content") or "", rec.get("link") or "")
-    rec["save_clicked"] = False
-    print(f"  eid={eid} program={rec.get('program')} title={(rec.get('title') or '')[:70]!r}")
-    return rec
+
+
+async def _read_view(page) -> dict:
+    url = page.url or ""
+    title = ""
+    try:
+        title = await page.title()
+    except Exception:
+        pass
+    body = ""
+    try:
+        body = await page.inner_text("body")
+    except Exception:
+        pass
+    blob = f"{title}\n{body}"
+    eid_m = re.search(r"[?&]eid=(\d+)", url)
+    sid_m = re.search(r"[?&]__sid=(\d+)", url)
+    program = _classify(blob + " " + url)
+    verdict = _verdict(program, blob)
+    return {
+        "url": url,
+        "title": title[:180],
+        "program": program,
+        "eid": eid_m.group(1) if eid_m else None,
+        "sid": sid_m.group(1) if sid_m else None,
+        "has_s5qudqe4": NEW_LINK in blob,
+        "has_4jdp7sea": OLD_LINK in blob,
+        "has_cpbrgddy": CODE in blob,
+        "verdict": verdict,
+        "head": re.sub(r"\s+", " ", body)[:280],
+    }
 
 
 async def run() -> int:
     report = {
         "at": _now(),
+        "mode": "view_one_by_one",
         "READ_ONLY": True,
         "save_clicked": False,
-        "listings": [],
-        "wanted": {},
+        "inventory": [],
+        "reviewed": [],
     }
     pw = browser = ctx = page = None
     try:
@@ -250,44 +222,63 @@ async def run() -> int:
             report["error"] = "account_not_reached"
             _write(OUT, report)
             return 3
-        eids = await _collect_eids(page)
-        report["eid_count"] = len(eids)
-        report["eids"] = eids
-        if not eids:
-            report["error"] = "no_eid_links — stay on My Referral Codes, no save"
-            _write(OUT, report)
-            print("STOP: aucun lien eid= — ouvre l'onglet My Referral Codes puis relance si besoin")
-            return 4
-        print("=== READ-ONLY — ouverture des formulaires d'édition, AUCUN SAVE ===")
-        for eid in eids:
-            rec = await _read_edit(page, eid)
-            report["listings"].append(
-                {
-                    "eid": eid,
-                    "program": rec.get("program"),
-                    "title": rec.get("title"),
-                    "code": rec.get("code"),
-                    "link": rec.get("link"),
-                    "content_head": (rec.get("content") or "")[:240],
-                    "edit_url": rec.get("url"),
-                }
+
+        await page.goto(ACCOUNT, wait_until="domcontentloaded", timeout=60000)
+        await asyncio.sleep(1.2)
+        inv = await _cards(page)
+        report["inventory"] = inv
+        print(f"cartes dashboard: {len(inv)}")
+        for c in inv:
+            print(f"  [{c.get('kind')}] eid={c.get('eid')} sid={c.get('sid')} {(c.get('text') or '')[:70]!r}")
+
+        print()
+        print("=" * 64)
+        print("VIEW ADS — une annonce à la fois")
+        print("  Clique View (œil / titre / View) sur une carte.")
+        print("  PAS Boost, PAS Add, PAS Submit.")
+        print("  Si CONFORME → View sur l'annonce suivante.")
+        print("  Priorité : trouve Kraken (⭐️ Kraken Referral Bonus).")
+        print("=" * 64)
+        print()
+
+        seen: set[str] = set()
+        deadline = asyncio.get_event_loop().time() + WATCH_S
+        last_url = page.url
+        while asyncio.get_event_loop().time() < deadline:
+            url = page.url or ""
+            interesting = (
+                "/referral-code/" in url
+                or ("eid=" in url and "add-referral-code" in url)
             )
-            prog = rec.get("program")
-            if prog in WANTED and prog not in report["wanted"]:
-                report["wanted"][prog] = {
-                    "eid": eid,
-                    "edit_url": rec.get("url"),
-                    "title": rec.get("title"),
-                    "code": rec.get("code"),
-                    "link": rec.get("link"),
-                }
-        report["kraken_eid"] = (report["wanted"].get("kraken") or {}).get("eid")
+            if interesting and url not in seen and url != last_url:
+                await asyncio.sleep(0.8)
+                rec = await _read_view(page)
+                seen.add(url)
+                report["reviewed"].append(rec)
+                print(
+                    f"VIEW program={rec['program']} verdict={rec['verdict']} "
+                    f"eid={rec['eid']} sid={rec['sid']}"
+                )
+                print(f"  {rec['head'][:160]}")
+                if rec["program"] == "kraken":
+                    report["kraken"] = rec
+                    print(f"=== KRAKEN {rec['verdict']} sid={rec['sid']} eid={rec['eid']} ===")
+                    if rec["verdict"] == "CONFORME":
+                        print("Rien à changer. Tu peux View l'annonce suivante ou arrêter.")
+                    else:
+                        print("DIFF vu — je NE SAUVE PAS. Reste sur la page ou passe à la suivante.")
+                else:
+                    print("  → CONFORME pour ce cycle (pas Kraken). View l'annonce suivante.")
+                _write(OUT, report)
+            last_url = url
+            await asyncio.sleep(1.0)
+
+        report["kraken_eid"] = (report.get("kraken") or {}).get("eid") or (report.get("kraken") or {}).get("sid")
         report["ok"] = True
         _write(OUT, report)
-        print(f"kraken_eid={report['kraken_eid']}")
-        print(f"wanted={list(report['wanted'])}")
+        print(f"reviewed={len(report['reviewed'])} kraken={report.get('kraken')}")
         print(f"report={OUT}")
-        return 0 if report.get("kraken_eid") else 1
+        return 0 if report.get("kraken") else 1
     except Exception as exc:
         report["error"] = str(exc)
         _write(OUT, report)
