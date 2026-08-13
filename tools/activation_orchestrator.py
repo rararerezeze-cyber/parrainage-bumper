@@ -100,13 +100,15 @@ def queue_state() -> dict:
         st = get_platform_status(plat)
         pred = predecessor(plat)
         gate = may_execute_canary(plat, for_super=False)
+        from lib.write_status import is_sequence_cleared as _seq
+
         rows.append(
             {
                 "order": i,
                 "platform": plat,
                 "status": st,
                 "predecessor": pred,
-                "done": st == STATUS_WRITE_VERIFIED,
+                "done": _seq(plat),
                 "ready_for_canary": st == STATUS_CANARY_READY,
                 "may_execute_now": bool(gate.get("ok")),
                 "gate_error": None if gate.get("ok") else gate.get("error"),
@@ -118,10 +120,14 @@ def queue_state() -> dict:
             next_plat = r["platform"]
             break
     super_status = get_platform_status("super-parrain")
+    from lib.write_status import is_sequence_cleared, get_content_sync
+
     return {
         "at": datetime.now(timezone.utc).isoformat(),
         "super_parrain": super_status,
-        "super_pass": super_status == STATUS_WRITE_VERIFIED,
+        "super_content_sync": get_content_sync("super-parrain"),
+        "super_pass": is_sequence_cleared("super-parrain"),
+        "super_write_verified": super_status == STATUS_WRITE_VERIFIED,
         "write_verified_count": write_summary().get("write_verified_count", 0),
         "queue": rows,
         "next": next_plat,

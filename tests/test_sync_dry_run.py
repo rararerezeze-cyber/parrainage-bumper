@@ -68,8 +68,8 @@ def test_dry_run_prod_golden_with_capture_values():
     assert mapping.template_status == "ready"
 
 
-def test_dry_run_prod_pending_update_when_offers_differ():
-    """Drift offers.json vs annonce = pending_update (a synchroniser), pas un crash."""
+def test_dry_run_prod_in_sync_when_operator_validated():
+    """OPERATOR_VALIDATED Kraken values match Super-Parrain golden — no fake diff."""
     adapter = SuperParrainAdapter(
         mappings=MappingRepository(),
         templates=TemplateRepository(),
@@ -78,7 +78,6 @@ def test_dry_run_prod_pending_update_when_offers_differ():
     mapping = MappingRepository().load("super-parrain", "kraken", "fr")
     result = adapter.dry_run(mapping)
     assert result.blocking is False
-    assert result.status == "pending_update"
-    assert result.golden_match is False
-    assert result.changed_fields
-    assert any(k in result.changed_fields for k in ("personal_code", "personal_link", "referee_reward"))
+    assert result.status == "in_sync"
+    assert result.golden_match is True
+    assert not result.changed_fields

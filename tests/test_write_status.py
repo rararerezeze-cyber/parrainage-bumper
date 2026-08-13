@@ -80,3 +80,14 @@ def test_count_starts_at_zero(status_path):
     s = ws.summary()
     assert s["write_verified_count"] == 0
     assert s["WRITE_VERIFIED"] == "0/7"
+
+
+def test_sync_verified_no_safe_diff_is_not_write_verified(status_path):
+    r = ws.mark_sync_verified_no_safe_diff("super-parrain", program="kraken")
+    assert r["ok"] is True
+    assert r["write_verified"] is False
+    assert ws.is_write_verified("super-parrain") is False
+    assert ws.is_telegram_live_capable("super-parrain") is False
+    assert ws.is_sequence_cleared("super-parrain") is True
+    assert ws.get_content_sync("super-parrain") == ws.CONTENT_SYNC_VERIFIED_NO_SAFE_DIFF
+    assert ws.get_platform_status("super-parrain") == ws.STATUS_CANARY_READY

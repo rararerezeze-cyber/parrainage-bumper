@@ -30,6 +30,7 @@ def test_refuses_before_super_pass(tmp_path, monkeypatch):
     p.write_text(json.dumps(data), encoding="utf-8")
     monkeypatch.setattr(ws, "STATUS_PATH", p)
     monkeypatch.setattr("lib.canary_gate.is_write_verified", lambda plat: False)
+    monkeypatch.setattr("lib.canary_gate.is_sequence_cleared", lambda plat: False)
     monkeypatch.setattr("lib.canary_gate.get_platform_status", ws.get_platform_status)
     monkeypatch.setattr("lib.canary_gate.is_circuit_open", lambda *_a, **_k: (False, None))
 
@@ -50,6 +51,7 @@ def test_one_at_a_time_after_super(tmp_path, monkeypatch):
         return ws.STATUS_WRITE_VERIFIED if plat in verified else ws.STATUS_CANARY_READY
 
     monkeypatch.setattr("lib.canary_gate.is_write_verified", _verified)
+    monkeypatch.setattr("lib.canary_gate.is_sequence_cleared", _verified)
     monkeypatch.setattr("lib.canary_gate.get_platform_status", _status)
     monkeypatch.setattr("lib.canary_gate.is_circuit_open", lambda *_a, **_k: (False, None))
 
@@ -69,6 +71,25 @@ def test_one_at_a_time_after_super(tmp_path, monkeypatch):
     assert next_executable()["next"] == "1parrainage"
     verified.add("1parrainage")
     assert next_executable()["next"] == "referralcodes"
+
+
+def test_super_no_safe_diff_unlocks_next(tmp_path, monkeypatch):
+    """SYNC_VERIFIED_NO_SAFE_DIFF on Super is not WRITE_VERIFIED but clears the sequence."""
+    p = tmp_path / "platform-write-status.json"
+    data = {
+        "version": 1,
+        "platforms": {k: dict(v) for k, v in ws.DEFAULT_STATUS.items()},
+    }
+    data["platforms"]["super-parrain"]["status"] = ws.STATUS_CANARY_READY
+    data["platforms"]["super-parrain"]["content_sync"] = ws.CONTENT_SYNC_VERIFIED_NO_SAFE_DIFF
+    p.write_text(json.dumps(data), encoding="utf-8")
+    monkeypatch.setattr(ws, "STATUS_PATH", p)
+    monkeypatch.setattr("lib.canary_gate.is_circuit_open", lambda *_a, **_k: (False, None))
+
+    assert ws.is_write_verified("super-parrain") is False
+    assert ws.is_sequence_cleared("super-parrain") is True
+    assert may_execute_canary("parrainage-co")["ok"] is True
+    assert next_executable()["next"] == "parrainage-co"
 
 
 def test_post_super_set():

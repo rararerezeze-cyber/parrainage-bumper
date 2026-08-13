@@ -19,6 +19,7 @@ from lib.write_status import (
     STATUS_WRITE_PREPARED,
     STATUS_WRITE_VERIFIED,
     get_platform_status,
+    is_sequence_cleared,
     is_write_verified,
 )
 
@@ -109,7 +110,8 @@ def may_execute_canary(platform: str, *, for_super: bool = False) -> dict[str, A
 
     Super-Parrain is owned by activation_canary.yml (cooldown). This gate
     does not authorize Super unless for_super=True (that workflow).
-    Other platforms: Super WRITE_VERIFIED + predecessor WRITE_VERIFIED
+    Other platforms: Super sequence-cleared (WRITE_VERIFIED or
+    SYNC_VERIFIED_NO_SAFE_DIFF) + predecessor sequence-cleared
     + CANARY_READY + circuit closed. Never parallel.
     """
     plat = (platform or "").strip().lower()
@@ -152,12 +154,12 @@ def may_execute_canary(platform: str, *, for_super: bool = False) -> dict[str, A
         out["note"] = "activation_canary.yml still enforces 24h cooldown"
         return out
 
-    if not is_write_verified("super-parrain"):
+    if not is_sequence_cleared("super-parrain"):
         out["error"] = "SUPER_PASS_REQUIRED"
         return out
 
     pred = predecessor(plat)
-    if pred and not is_write_verified(pred):
+    if pred and not is_sequence_cleared(pred):
         out["error"] = f"PREDECESSOR_NOT_PASS:{pred}"
         out["predecessor_status"] = get_platform_status(pred)
         return out
@@ -181,7 +183,7 @@ def next_executable(*, for_super: bool = False) -> dict[str, Any]:
     for plat in QUEUE:
         if plat in SKIP:
             continue
-        if is_write_verified(plat):
+        if is_sequence_cleared(plat):
             continue
         gate = may_execute_canary(plat, for_super=for_super)
         return {

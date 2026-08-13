@@ -31,6 +31,9 @@ STATUS_AUTH_BLOCKED = "AUTH_BLOCKED_GOOGLE"
 STATUS_MANUAL_ONLY = "MANUAL_ONLY"
 STATUS_FAILED = "CANARY_FAILED"
 
+# Content-sync flag (does NOT replace status). Super-Parrain after honest no-diff canary.
+CONTENT_SYNC_VERIFIED_NO_SAFE_DIFF = "SYNC_VERIFIED_NO_SAFE_DIFF"
+
 ALL_PLATFORMS = (
     "super-parrain",
     "parrainage-co",
@@ -48,9 +51,11 @@ DEFAULT_STATUS: dict[str, dict[str, Any]] = {
         "canary_program": "kraken",
         "runtime_mode": "CANARY_PENDING",
         "notes": (
-            "CANARY_PENDING: historical bumper blocked until content canary WRITE_VERIFIED. "
-            "Exclusive slot for Kraken auth edit + post_match."
+            "CANARY_PENDING: historical bumper blocked until content WRITE_VERIFIED. "
+            "SYNC_VERIFIED_NO_SAFE_DIFF (if set) unblocks later platform canaries "
+            "without claiming WRITE_VERIFIED."
         ),
+        "content_sync": None,
     },
     "parrainage-co": {
         "status": STATUS_CANARY_READY,
@@ -176,6 +181,60 @@ def get_platform_status(platform: str) -> str:
 
 def is_write_verified(platform: str) -> bool:
     return get_platform_status(platform) == STATUS_WRITE_VERIFIED
+
+
+def get_content_sync(platform: str) -> str | None:
+    data = load_write_status()
+    meta = (data.get("platforms") or {}).get(platform.strip().lower()) or {}
+    raw = meta.get("content_sync")
+    return str(raw) if raw else None
+
+
+def is_sequence_cleared(platform: str) -> bool:
+    """May later platforms proceed past this one?
+
+    WRITE_VERIFIED always clears. SYNC_VERIFIED_NO_SAFE_DIFF also clears
+    (honest no-diff, no fake write). Never implies Telegram live.
+    """
+    if is_write_verified(platform):
+        return True
+    return get_content_sync(platform) == CONTENT_SYNC_VERIFIED_NO_SAFE_DIFF
+
+
+def mark_sync_verified_no_safe_diff(
+    platform: str,
+    *,
+    program: str = "kraken",
+    notes: str | None = None,
+) -> dict[str, Any]:
+    """Record honest no-diff sync. Does not promote WRITE_VERIFIED."""
+    data = load_write_status()
+    meta = data.setdefault("platforms", {}).setdefault(platform, {})
+    if meta.get("status") == STATUS_WRITE_VERIFIED:
+        save_write_status(data)
+        return {"ok": True, "status": STATUS_WRITE_VERIFIED, "content_sync": meta.get("content_sync")}
+    if meta.get("status") not in {STATUS_CANARY_READY, STATUS_WRITE_PREPARED}:
+        meta["status"] = STATUS_CANARY_READY
+    meta["content_sync"] = CONTENT_SYNC_VERIFIED_NO_SAFE_DIFF
+    meta["canary_program"] = program
+    meta["sync_verified_at"] = _now()
+    if platform == "super-parrain":
+        meta["runtime_mode"] = "CANARY_PENDING"
+        meta["notes"] = notes or (
+            "CANARY_READY + SYNC_VERIFIED_NO_SAFE_DIFF: Kraken already matches "
+            "OPERATOR_VALIDATED. No fake write. Not WRITE_VERIFIED. "
+            "Historical bumper remains SKIP. Later platforms may sequence."
+        )
+    elif notes:
+        meta["notes"] = notes
+    save_write_status(data)
+    return {
+        "ok": True,
+        "platform": platform,
+        "status": meta.get("status"),
+        "content_sync": CONTENT_SYNC_VERIFIED_NO_SAFE_DIFF,
+        "write_verified": False,
+    }
 
 
 def is_telegram_live_capable(platform: str) -> bool:

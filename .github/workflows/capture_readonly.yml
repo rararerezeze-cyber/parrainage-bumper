@@ -6,6 +6,10 @@ on:
         description: "parrainage,code,referralcode (tv only — NOT referralcodes.com). Prefer single site for focused runs."
         required: false
         default: "parrainage"
+      mode:
+        description: "capture | compare-kraken (read-only live vs OPERATOR_VALIDATED)"
+        required: false
+        default: "capture"
 permissions:
   contents: write
 concurrency:
@@ -56,6 +60,12 @@ jobs:
               v=os.environ.get(k) or ""
               print(f"{k}: {'yes' if v else 'no'} len={len(v)}")
           PY
+          MODE="${{ github.event.inputs.mode }}"
+          if [ -z "$MODE" ]; then MODE=capture; fi
+          if [ "$MODE" = "compare-kraken" ]; then
+            python tools/compare_kraken_readonly.py --platforms "parrainage-co,code-parrainage,1parrainage,referralcodes"
+            exit 0
+          fi
           python tools/capture_auth_readonly.py --sites "$SITES"
           # Extra READ-ONLY edit probes (never save)
           if echo "$SITES" | grep -q referralcode; then
