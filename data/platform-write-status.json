@@ -105,11 +105,18 @@
     "referralcode-tv": {
       "status": "CANARY_READY",
       "canary_program": "kraken",
-      "notes": "KRAKEN_EXISTS. 12/23 EIDs from listings page 1 (Kraken not among them). View cycle proven (Widilo sid=eid=23043). Edit form add-referral-code/?eid= proven. SAVE_REQUIRES_CAPTCHA (reCAPTCHA on submit) — no bypass, no auto-save. Boost #cliccami is not content edit. Not WRITE_VERIFIED.",
+      "notes": "Kraken VIEW postid/eid=23004. Observed 85d3qj9p / invite.kraken.com/JDNW/2seeom3g / $200. OPERATOR cpbrgddy / s5qudqe4. REAL_SAFE_DIFF code+link. Keep native EN $200. SAVE_REQUIRES_CAPTCHA — no bypass, no auto-save. Not WRITE_VERIFIED.",
       "kraken_listing": "KRAKEN_EXISTS",
-      "eid_status": "EID_NOT_YET_RESOLVED",
+      "eid_status": "23004",
       "auth_edit_path": "AUTH_EDIT_PATH_PROVEN",
-      "save_requires_captcha": true
+      "save_requires_captcha": true,
+      "last_compare_class": "REAL_SAFE_DIFF",
+      "last_compare_note": "View 23004: 85d3qj9p / 2seeom3g vs operator cpbrgddy / s5qudqe4",
+      "last_compare_observed": {
+        "personal_code": "85d3qj9p",
+        "personal_link": "https://invite.kraken.com/JDNW/2seeom3g",
+        "referee_reward": "Up to $200 in crypto"
+      }
     },
     "referraldrop": {
       "status": "AUTH_BLOCKED_GOOGLE",

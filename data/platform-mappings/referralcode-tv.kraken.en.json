@@ -1,0 +1,47 @@
+{
+  "platform": "referralcode-tv",
+  "program": "kraken",
+  "language": "en",
+  "sync_mode": "REVIEW",
+  "template_status": "ready",
+  "golden_file": "kraken.en.golden.txt",
+  "mutable_fields": [
+    "personal_code",
+    "personal_link",
+    "referee_reward"
+  ],
+  "markers": {
+    "personal_code": "{{PERSONAL_CODE}}",
+    "personal_link": "{{PERSONAL_LINK}}",
+    "referee_reward": "{{REFEREE_REWARD}}",
+    "referrer_reward": "{{REFERRER_REWARD}}",
+    "conditions": "{{CONDITIONS}}"
+  },
+  "offer_fields": {
+    "personal_code": "code",
+    "personal_link": "link",
+    "referee_reward": "reward",
+    "conditions": "cond"
+  },
+  "announcement_url": "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-kraken-referral-bonus-up-to-200-in-crypto-%e2%ad%90%ef%b8%8f-join-kraken-one-of-the-most-trusted-and-secure-crypto-exchanges-worldwide/",
+  "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23004",
+  "platform_values": {
+    "personal_code": "85d3qj9p",
+    "personal_link": "https://invite.kraken.com/JDNW/2seeom3g",
+    "referee_reward": "Up to $200 in crypto rewards for new users"
+  },
+  "confidences": {
+    "personal_code": "high",
+    "personal_link": "high",
+    "referee_reward": "medium"
+  },
+  "notes": "VIEW postid-23004 is this listing (sid=eid=23004). Observed 85d3qj9p / JDNW/2seeom3g / $200. OPERATOR wants cpbrgddy / s5qudqe4. Keep native EN $200 wording. REAL_SAFE_DIFF on code+link. 18858/23422/24470/4007 are OTHER users on the same page. No save.",
+  "source_of_truth": {
+    "personal_code": "offers_json_then_operator",
+    "personal_link": "offers_json_then_operator",
+    "referee_reward": "offers_json_then_official",
+    "announcement_text": "platform_target_only"
+  },
+  "edit_url_source": "view_postid_23004",
+  "platform_offer_id": "23004"
+}

@@ -1,0 +1,24 @@
+{
+  "platform": "referralcode-tv",
+  "program": "kraken",
+  "language": "en",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-kraken-referral-bonus-up-to-200-in-crypto-%e2%ad%90%ef%b8%8f-join-kraken-one-of-the-most-trusted-and-secure-crypto-exchanges-worldwide/",
+  "mutable_fields": [
+    "personal_code",
+    "referee_reward"
+  ],
+  "platform_values": {
+    "personal_code": "85d3qj9p",
+    "referee_reward": "Up to $200 in crypto rewards for new users"
+  },
+  "confidences": {
+    "personal_code": "high",
+    "referee_reward": "medium"
+  },
+  "notes": [
+    "bonus extrait du texte plateforme (confiance moyenne)"
+  ]
+}
