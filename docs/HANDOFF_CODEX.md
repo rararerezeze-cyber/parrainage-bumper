@@ -29,7 +29,7 @@ Resume point for the next Codex session. Reconstruct from this file + git + stat
 | super-parrain | CANARY_READY + CANARY_PENDING + SYNC_VERIFIED_NO_SAFE_DIFF | NO_SAFE_DIFF | CANARY_ONLY | Scheduled canary `50877ed` SUCCESS. `changed_fields=none`. No login/save. Not WRITE_VERIFIED. Bumper remains SKIP. Sequence-cleared. |
 | parrainage-co | CANARY_READY + SYNC_VERIFIED_NO_SAFE_DIFF | NO_SAFE_DIFF | CANARY_ONLY | Public `offers/113735` already has operator values. Dry-run empty. No fake write. |
 | code-parrainage | CANARY_READY | DOM_BLOCKED | CANARY_ONLY | Slider captcha on auth read. Dry-run vs mapping empty. Not SYNC. Skipped so later REAL_SAFE_DIFF can run. |
-| 1parrainage | CANARY_READY | REAL_SAFE_DIFF | CANARY_ONLY | **First real canary.** Public list has `4jdp7sea`; operator link is `s5qudqe4`. Code + 200 € already correct. |
+| 1parrainage | CANARY_READY | DOM_BLOCKED (public still REAL_SAFE_DIFF) | CANARY_ONLY | Public `4jdp7sea` → operator `s5qudqe4`. Live canary `31681603602` STOP on `unexpected_dom: login fields not found on /login`. No save. Do not retry this cycle. Template cleaned (no iGraal HTML leak). |
 | referralcodes | CANARY_READY + SYNC_VERIFIED_NO_SAFE_DIFF | NO_SAFE_DIFF | CANARY_ONLY | Native `$200 in Crypto` + `cpbrgddy`. Do not overwrite EN with FR 200 €. |
 | referralcode-tv | WRITE_PREPARED | — | PLAN_ONLY | One auth retry still pending this finalize. Boost ≠ content edit. |
 | referraldrop | AUTH_BLOCKED_GOOGLE | — | AUTH_BLOCKED | Google Sign-In. No OAuth bypass. Stay blocked. |
@@ -69,7 +69,7 @@ Content canaries (strict sequence, never parallel):
   1. Super-Parrain     activation_canary.yml (05:37 UTC, owns cooldown) — DONE NO_SAFE_DIFF
   2. parrainage-co     Super sequence-cleared — DONE NO_SAFE_DIFF (public)
   3. code-parrainage   DOM_BLOCKED this cycle (slider) — skipped, not WRITE_VERIFIED
-  4. 1parrainage       first REAL_SAFE_DIFF — one live canary
+  4. 1parrainage       public REAL_SAFE_DIFF — live STOP unexpected_dom /login (no save)
   5. referralcodes     NO_SAFE_DIFF native $200 — do not execute FR import
   6. referralcode-tv   blocked until auth/edit proven (one auth retry after 1P canary)
 

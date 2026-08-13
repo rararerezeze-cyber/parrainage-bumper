@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-08-13T08:28:26.550546+00:00",
+  "updated_at": "2026-08-13T08:29:36.794673+00:00",
   "note": "Strict write readiness. WRITE_VERIFIED requires full post-verify evidence. Telegram live writes only for WRITE_VERIFIED platforms.",
   "write_verified_count": 0,
   "write_verified_ratio": "0/7",
@@ -44,9 +44,9 @@
       "status": "CANARY_READY",
       "canary_program": "kraken",
       "notes": "CANARY_READY: login /login + edit + save + reread account/public list. Native style only. Kraken first (offer_id=100408). Not WRITE_VERIFIED until post_match. No Boost/Remonter. Stop on 403/429/CAPTCHA/auth/unexpected DOM.",
-      "last_compare_class": "REAL_SAFE_DIFF",
-      "last_compare_at": "2026-08-13T08:17:27.436609+00:00",
-      "last_compare_note": "public list shows cpbrgddy + 200 € + invite .../4jdp7sea. Operator link is .../s5qudqe4. Targeted personal_link only. Login previously failed — one live canary may retry auth.",
+      "last_compare_class": "DOM_BLOCKED",
+      "last_compare_at": "2026-08-13T08:29:36.794673+00:00",
+      "last_compare_note": "Live canary 31681603602 stopped: unexpected_dom login fields not found on /login. No save. Public REAL_SAFE_DIFF (4jdp7sea) remains for a later cycle. Do not retry this session.",
       "last_compare_observed": {
         "personal_code": "cpbrgddy",
         "personal_link": "https://invite.kraken.com/JDNW/4jdp7sea",
