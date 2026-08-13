@@ -212,6 +212,41 @@ async def main() -> int:
             report["agent_import_result_json"] = script_json
             report["classify"] = _classify_result(result_text, script_json)
             report["commit_clicked"] = False
+            # Official Commit surface only — never click.
+            report["commit_surface"] = await page.evaluate(
+                """
+                () => {
+                  const btns = Array.from(document.querySelectorAll('button, input[type=submit], a'))
+                    .map(el => {
+                      const label = ((el.innerText || el.value || '') + '').trim();
+                      const blob = (label + ' ' + (el.id||'') + ' ' + (el.className||'') + ' ' + (el.getAttribute('href')||'')).toLowerCase();
+                      if (!blob.includes('commit')) return null;
+                      const form = el.form || el.closest('form');
+                      return {
+                        label,
+                        id: el.id || null,
+                        name: el.name || null,
+                        type: el.getAttribute('type'),
+                        href: el.href || el.getAttribute('href'),
+                        formaction: el.getAttribute('formaction'),
+                        formmethod: el.getAttribute('formmethod'),
+                        dataset: Object.assign({}, el.dataset || {}),
+                        disabled: !!el.disabled,
+                        form_action: form ? form.action : null,
+                        form_method: form ? form.method : null,
+                        form_id: form ? form.id : null,
+                      };
+                    })
+                    .filter(Boolean);
+                  const forms = Array.from(document.forms).map(f => ({
+                    action: f.action, method: f.method, id: f.id,
+                    names: Array.from(f.elements).map(e => e.name).filter(Boolean).slice(0, 30),
+                  }));
+                  const scripts = Array.from(document.scripts).map(s => s.src).filter(Boolean);
+                  return {buttons: btns, forms, scripts, url: location.href};
+                }
+                """
+            )
             report["ok"] = True
             report["steps"] = steps
         except Exception as exc:
