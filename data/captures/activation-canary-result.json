@@ -1,0 +1,12 @@
+{
+  "platform": "super-parrain",
+  "result": "CANARY_ATTEMPTED",
+  "runtime_mode": "CANARY_PENDING",
+  "canary_pending": true,
+  "post_match": null,
+  "historical_bumper_after": {
+    "action": "skip",
+    "run_bump": false,
+    "runtime_mode": "CANARY_PENDING"
+  }
+}
