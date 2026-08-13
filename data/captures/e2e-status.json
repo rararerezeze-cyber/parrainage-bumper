@@ -17,7 +17,7 @@
       "status": "CANARY_READY",
       "telegram_action": "CANARY_ONLY",
       "canary_program": "kraken",
-      "notes": "CANARY_PENDING: bump_super_parrain.yml SKIP (no last_super_run). activation_canary.yml sole live-save owner until post_match=true → WRITE_VERIFIED → NORMAL_BUMP.",
+      "notes": "CANARY_READY + SYNC_VERIFIED_NO_SAFE_DIFF: Kraken already matches OPERATOR_VALIDATED. No fake write. Not WRITE_VERIFIED. Historical bumper remains SKIP. Later platforms may sequence.",
       "last_write_verified_at": null
     },
     {
@@ -25,7 +25,7 @@
       "status": "CANARY_READY",
       "telegram_action": "CANARY_ONLY",
       "canary_program": "kraken",
-      "notes": "CANARY_READY: login (cookie or email/password) + edit + save + reread account/public. Kraken first. Not WRITE_VERIFIED until post_match.",
+      "notes": "CANARY_READY + SYNC_VERIFIED_NO_SAFE_DIFF: public https://parrainage.co/offers/113735 already has cpbrgddy / invite.kraken.com/JDNW/s5qudqe4 / 200 € en cryptomonnaies. Dry-run changed_fields none. No fake write. Not WRITE_VERIFIED.",
       "last_write_verified_at": null
     },
     {
@@ -49,7 +49,7 @@
       "status": "CANARY_READY",
       "telegram_action": "CANARY_ONLY",
       "canary_program": "kraken",
-      "notes": "Agent Import schema validated + kraken payload ready",
+      "notes": "CANARY_READY + SYNC_VERIFIED_NO_SAFE_DIFF: public TheSuperReff already shows native $200 in Crypto + cpbrgddy. Do not overwrite EN style with FR 200 €. Not WRITE_VERIFIED.",
       "last_write_verified_at": null
     },
     {
