@@ -256,32 +256,42 @@ async def _login(page, cfg: dict) -> None:
     if "/login" not in page.url and "connexion" not in page.url.lower():
         # already a session? confirm not bounced
         log.info("not on /login after goto — checking session")
+    # Official form is form[action="/login"] with #_username (type=text) + #_password.
+    # Do NOT use name*="mail" / #email — that matches the Sendinblue newsletter.
     email_ok = await bumper.smart_fill(
         page,
         [
-            'input[type="email"]',
-            'input[name*="mail" i]',
-            'input[name*="login" i]',
-            'input[name*="user" i]',
-            'input[name="email"]',
-            "#email",
+            'form[action="/login"] input#_username',
+            'form[action="/login"] input[name="_username"]',
+            "input#_username",
+            'input[name="_username"]',
         ],
         email,
         timeout=8000,
     )
     pass_ok = await bumper.smart_fill(
         page,
-        ['input[type="password"]', 'input[name*="pass" i]', "#password"],
+        [
+            'form[action="/login"] input#_password',
+            'form[action="/login"] input[name="_password"]',
+            "input#_password",
+            'input[name="_password"]',
+            'form[action="/login"] input[type="password"]',
+        ],
         password,
         timeout=8000,
     )
     if not email_ok or not pass_ok:
         await _detect_challenge(page)
+        try:
+            await page.screenshot(path="debug_1parrainage_login.png", full_page=True)
+        except Exception:
+            pass
         raise RuntimeError("unexpected_dom: login fields not found on /login")
     btn = page.locator(
-        'button[type="submit"], input[type="submit"], '
-        'button:has-text("Connexion"), button:has-text("Se connecter"), '
-        'button:has-text("Connectez"), #connexion'
+        'form[action="/login"] input[type="submit"][name="submit"], '
+        'form[action="/login"] input[value="Je me connecte"], '
+        'input[type="submit"][name="submit"]'
     ).first
     await bumper.human_click(page, btn)
     try:
