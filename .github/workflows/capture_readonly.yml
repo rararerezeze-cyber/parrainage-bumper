@@ -78,6 +78,7 @@ jobs:
           fi
           if echo "$SITES" | grep -q referralcodes; then
             python tools/validate_referralcodes_agent_import.py || true
+            python tools/inspect_referralcodes_commit_semantics.py || true
           fi
           if echo "$SITES" | grep -q referralcode && ! echo "$SITES" | grep -q referralcodes; then
             python tools/probe_referralcode_tv_edit.py --public --auth || true
