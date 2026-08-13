@@ -24,7 +24,7 @@
     "conditions": "cond"
   },
   "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100408",
-  "edit_url": null,
+  "edit_url": "https://www.1parrainage.com/espace_parrain/parrainages/edit/2541207/",
   "platform_values": {
     "personal_code": "cpbrgddy",
     "personal_link": "https://invite.kraken.com/JDNW/4jdp7sea",
@@ -52,5 +52,7 @@
       "chars": 407
     }
   ],
-  "occurrence_count": 1
+  "occurrence_count": 1,
+  "edit_url_source": "headed_manual_discovery",
+  "edit_url_learned_at": "2026-08-13T10:02:28.158105+00:00"
 }

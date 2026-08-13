@@ -331,6 +331,7 @@ def _edit_candidates(offer_id: str | None) -> list[str]:
         return []
     oid = offer_id
     return [
+        f"{BASE}/espace_parrain/parrainages/edit/2541207/",
         f"{BASE}/modifier_annonce.php?id={oid}",
         f"{BASE}/edit_annonce.php?id={oid}",
         f"{BASE}/editer_annonce.php?id={oid}",

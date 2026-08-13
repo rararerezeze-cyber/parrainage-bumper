@@ -13,6 +13,7 @@ import json
 import shutil
 import sys
 from datetime import datetime, timezone
+from html import unescape
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -44,6 +45,15 @@ EDIT_FIELDS = "textarea, input:not([type='password']):not([type='hidden']):not([
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def _plain(s: str) -> str:
+    return unescape(s or "").replace("\xa0", " ")
+
+
+def _has_reward(text: str) -> bool:
+    p = _plain(text)
+    return REWARD in p or "200 €" in p or "200 &euro;" in (text or "")
 
 
 def _wipe_local() -> None:
@@ -265,7 +275,12 @@ async def _wait_manual_edit_form(page, status_map: dict[str, int], report: dict)
 
 
 async def _set_link_only(page, field: dict) -> None:
-    loc = page.locator(EDIT_FIELDS).nth(int(field["index"]))
+    sel = field.get("selector") or (
+        "#edit_parrainage_presentation"
+        if field.get("id") == "edit_parrainage_presentation"
+        else None
+    )
+    loc = page.locator(sel).first if sel else page.locator(EDIT_FIELDS).nth(int(field["index"]))
     v = await loc.input_value()
     if OLD_LINK not in v or NEW_LINK in v:
         raise RuntimeError("targeted replace failed — STOP no save")
@@ -374,6 +389,16 @@ async def run() -> int:
         home = await _inspect_page(page, requested_url=page.url, status_map=status_map)
         report["espace_parrain_inspect"] = home
 
+        known = None
+        try:
+            known = (json.loads(mapping_path("1parrainage", "kraken", "fr").read_text(encoding="utf-8")) or {}).get("edit_url")
+        except Exception:
+            known = None
+        if known and "parrainages/edit/" in str(known):
+            print(f"URL d'édition déjà apprise — ouverture même session: {known}")
+            await page.goto(str(known), wait_until="domcontentloaded", timeout=60000)
+            await asyncio.sleep(1.0)
+
         learned = await _wait_manual_edit_form(page, status_map, report)
         if not learned:
             report["error"] = "edit_form_not_opened — no save"
@@ -385,11 +410,12 @@ async def run() -> int:
         report["offer_100408_found"] = True
         report["edit_url"] = edit_url
 
-        field = await _locate_from_learned(page, learned)
+        field = await _locate_presentation(page, learned)
         value = (field or {}).get("value") or ""
-        report["old_link_verified"] = OLD_LINK in value and value.count(OLD_LINK) >= 1
-        hay_code = CODE in value
-        hay_reward = REWARD in value or "200 €" in value
+        plain = _plain(value)
+        report["old_link_verified"] = OLD_LINK in value
+        hay_code = CODE in value or CODE in plain
+        hay_reward = _has_reward(value)
         if not field or not report["old_link_verified"]:
             report["error"] = "OLD link not exactly in edit field — STOP no save"
             _write(OUT, report)
@@ -400,11 +426,10 @@ async def run() -> int:
             _write(OUT, report)
             return 5
         if not hay_code or not hay_reward:
-            # code/reward may live in sibling fields
             others = await _editable_fields(page)
             blob = "\n".join(f.get("value") or "" for f in others)
-            hay_code = hay_code or CODE in blob
-            hay_reward = hay_reward or REWARD in blob or "200 €" in blob
+            hay_code = hay_code or CODE in blob or CODE in _plain(blob)
+            hay_reward = hay_reward or _has_reward(blob)
         if not hay_code or not hay_reward:
             report["error"] = "precondition code/reward missing — STOP no save"
             _write(OUT, report)
@@ -515,9 +540,25 @@ async def run() -> int:
         print("local auth/state wiped")
 
 
-async def _locate_from_learned(page, learned: dict) -> dict | None:
+async def _locate_presentation(page, learned: dict | None = None) -> dict | None:
+    for sel in ("#edit_parrainage_presentation", "textarea[name='edit_parrainage[presentation]']"):
+        loc = page.locator(sel).first
+        try:
+            if await loc.count() and await loc.is_visible():
+                v = await loc.input_value()
+                return {
+                    "index": 0,
+                    "name": "edit_parrainage[presentation]",
+                    "id": "edit_parrainage_presentation",
+                    "selector": sel,
+                    "value": v,
+                    "has_old": OLD_LINK in v,
+                    "has_new": NEW_LINK in v,
+                }
+        except Exception:
+            continue
     fields = await _editable_fields(page)
-    sel = (learned.get("field_selectors") or {})
+    sel = (learned or {}).get("field_selectors") or {}
     for f in fields:
         if sel.get("name") and f.get("name") == sel.get("name"):
             return f
