@@ -243,7 +243,20 @@ async def main() -> int:
                     names: Array.from(f.elements).map(e => e.name).filter(Boolean).slice(0, 30),
                   }));
                   const scripts = Array.from(document.scripts).map(s => s.src).filter(Boolean);
-                  return {buttons: btns, forms, scripts, url: location.href};
+                  const commitEl = document.getElementById('agent-import-commit');
+                  const commit_attrs = commitEl
+                    ? Array.from(commitEl.attributes).map(a => ({name: a.name, value: (a.value||'').slice(0, 500)}))
+                    : [];
+                  const wire = Array.from(document.querySelectorAll('[wire\\\\:id], [wire\\\\:snapshot], [wire\\\\:click]'))
+                    .slice(0, 20)
+                    .map(el => ({
+                      tag: el.tagName,
+                      id: el.id || null,
+                      attrs: Array.from(el.attributes)
+                        .filter(a => (a.name||'').includes('wire') || a.name.startsWith('x-'))
+                        .map(a => ({name: a.name, value: (a.value||'').slice(0, 800)})),
+                    }));
+                  return {buttons: btns, forms, scripts, url: location.href, commit_attrs, wire};
                 }
                 """
             )
