@@ -28,6 +28,7 @@ from lib.offers import OffersRepository
 from lib.paths import mapping_path
 from lib.phase import content_write_allowed, phase_name
 from lib.renderer import MappingRepository, Renderer, TemplateRepository
+from lib.cookie_consent import ConsentBlocked, handle_cookie_consent
 from lib.safety import abort_forbidden_publish, live_write_blocked_reason, maybe_trip_from_error
 from lib.template_builder import extract_values_via_template
 
@@ -256,21 +257,17 @@ async def _login(page, cfg: dict) -> None:
     await page.goto(LOGIN_URL, wait_until="domcontentloaded", timeout=60000)
     await bumper.human_sleep(1.0, 2.0)
     await _detect_challenge(page)
-    # Consent banners can cover #_username in Linux headless (visible locally).
-    for sel in (
-        "#didomi-notice-agree-button",
-        'button:has-text("Tout accepter")',
-        'button:has-text("Accept all")',
-        'button:has-text("J\'accepte")',
-    ):
+    try:
+        consent = await handle_cookie_consent(page)
+    except ConsentBlocked as exc:
         try:
-            loc = page.locator(sel).first
-            if await loc.count() and await loc.is_visible():
-                await loc.click(timeout=2000)
-                await bumper.human_sleep(0.4, 0.8)
-                break
+            await page.screenshot(path="debug_1parrainage_login.png", full_page=True)
         except Exception:
-            continue
+            pass
+        raise RuntimeError(str(exc)) from exc
+    log.info("cookie_consent_handled=%s", consent.get("cookie_consent_handled"))
+    if not consent.get("login_form_visible"):
+        raise RuntimeError("CONSENT_BLOCKED: login form still not visible after consent step")
     if "/login" not in page.url and "connexion" not in page.url.lower():
         # already a session? confirm not bounced
         log.info("not on /login after goto — checking session")

@@ -18,6 +18,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+from lib.cookie_consent import ConsentBlocked, handle_cookie_consent  # noqa: E402
 from lib.http_fetch import fetch_text  # noqa: E402
 from lib.safety import abort_forbidden_publish, snapshot_state  # noqa: E402
 from platforms.oneparrainage.writer import (  # noqa: E402
@@ -351,6 +352,24 @@ async def run() -> int:
     try:
         pw, browser, ctx, page = await _launch()
         await page.goto(LOGIN_URL, wait_until="domcontentloaded", timeout=60000)
+        try:
+            consent = await handle_cookie_consent(page)
+        except ConsentBlocked as exc:
+            report["cookie_consent_handled"] = "NO"
+            report["error"] = str(exc)
+            report["login_form_visible"] = False
+            _write(report)
+            print(str(exc))
+            return 7
+        report["cookie_consent_handled"] = consent.get("cookie_consent_handled")
+        report["login_form_visible"] = bool(consent.get("login_form_visible"))
+        report["consent"] = consent
+        print(f"cookie_consent_handled={report['cookie_consent_handled']}")
+        print(f"login_form_visible={report['login_form_visible']}")
+        if not report["login_form_visible"]:
+            report["error"] = "CONSENT_BLOCKED: #_username not visible after consent"
+            _write(report)
+            return 7
         ok = await _wait_espace_parrain(page)
         report["authenticated"] = ok
         report["authenticated_url"] = page.url if ok else None
