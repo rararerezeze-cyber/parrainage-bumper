@@ -65,6 +65,8 @@ def test_mark_verified_with_full_evidence(status_path, monkeypatch, tmp_path):
     )
     assert r["ok"] is True
     assert ws.is_write_verified("super-parrain")
+    assert ws.runtime_route("super-parrain") == "FUSED_UPDATE_BUMP"
+    assert ws.may_auto_execute_on_safe_diff("super-parrain") is False
     assert ws.is_telegram_live_capable("super-parrain") is False
     s = ws.summary()
     assert s["write_verified_count"] == 1

@@ -333,15 +333,17 @@ def save_requires_human(platform: str) -> bool:
 
 def autonomy_class(platform: str) -> str:
     meta = get_platform_meta(platform)
+    plat = platform.strip().lower()
+    st = str(meta.get("status") or "")
+    if plat == "super-parrain" and st == STATUS_WRITE_VERIFIED:
+        return str(meta.get("autonomy") or "FUSED_UPDATE_BUMP")
     raw = meta.get("autonomy")
     if raw:
         return str(raw)
     if meta.get("save_requires_captcha"):
         return AUTONOMY_HUMAN_SAVE_REQUIRED
-    st = str(meta.get("status") or "")
     if st in {STATUS_AUTH_BLOCKED, STATUS_AUTH_BLOCKED_MANUAL}:
         return AUTONOMY_AUTH_BLOCKED_MANUAL
-    plat = platform.strip().lower()
     if plat == "super-parrain":
         return AUTONOMY_CANARY_PENDING_SKIP
     if plat == "parrainage-co":
@@ -355,6 +357,8 @@ def runtime_route(platform: str) -> str:
     """Monitor → Hermes → writer dispatch class."""
     plat = (platform or "").strip().lower()
     if plat == "super-parrain":
+        if is_write_verified(plat):
+            return "FUSED_UPDATE_BUMP"
         return ROUTE_CANARY_PENDING_SKIP
     auto = autonomy_class(plat)
     if auto == AUTONOMY_PC_OFF_READY:
@@ -441,8 +445,11 @@ def mark_write_verified(
     meta["last_write_verified_at"] = _now()
     if platform == "super-parrain":
         meta["runtime_mode"] = "NORMAL_BUMP"
+        meta["autonomy"] = "FUSED_UPDATE_BUMP"
         meta["notes"] = (
-            "WRITE_VERIFIED — content canary passed; historical bumper re-enabled."
+            "WRITE_VERIFIED — Poulpeo content canary passed; "
+            "CANARY_PENDING_SKIP removed; historical bumper re-enabled. "
+            "Still never AUTO_ON_SAFE_DIFF."
         )
     meta["evidence"] = {
         "program": program,

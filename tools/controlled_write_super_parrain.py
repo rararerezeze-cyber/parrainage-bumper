@@ -186,6 +186,7 @@ def main() -> int:
         "historical": plan.historical,
         "rendered": plan.rendered,
         "post_publish_text": result.post_publish_text,
+        "account_reread_text": result.account_reread_text,
         "write_status": "WRITE_VERIFIED" if (result.ok and result.post_match) else "FAILED",
     }
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

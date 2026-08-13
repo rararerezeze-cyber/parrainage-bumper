@@ -12,6 +12,14 @@ on:
         description: "true = publication reelle; false = plan/diff only"
         required: true
         default: "false"
+      only_fields:
+        description: "Champs mutables a changer (ex. referee_reward). Vide = tous."
+        required: false
+        default: ""
+      override:
+        description: "FIELD=VALUE render override (ex. referee_reward=3 €)"
+        required: false
+        default: ""
 permissions:
   contents: write
 concurrency:
@@ -35,11 +43,15 @@ jobs:
           SUPER_PARRAIN_EMAIL: ${{ secrets.SUPER_PARRAIN_EMAIL }}
           SUPER_PARRAIN_PASSWORD: ${{ secrets.SUPER_PARRAIN_PASSWORD }}
         run: |
+          ARGS=(--program "${{ github.event.inputs.program }}")
+          ONLY="${{ github.event.inputs.only_fields }}"
+          OV="${{ github.event.inputs.override }}"
+          if [ -n "$ONLY" ]; then ARGS+=(--only-fields "$ONLY"); fi
+          if [ -n "$OV" ]; then ARGS+=(--override "$OV"); fi
           if [ "${{ github.event.inputs.execute }}" = "true" ]; then
-            python tools/controlled_write_super_parrain.py --program "${{ github.event.inputs.program }}" --execute --force
-          else
-            python tools/controlled_write_super_parrain.py --program "${{ github.event.inputs.program }}"
+            ARGS+=(--execute --force)
           fi
+          python -u tools/controlled_write_super_parrain.py "${ARGS[@]}"
       - name: Upload write artifacts
         if: always()
         uses: actions/upload-artifact@v4

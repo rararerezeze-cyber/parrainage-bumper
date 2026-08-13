@@ -53,6 +53,7 @@ class WriteResult:
     plan: WritePlan
     edit_url: str | None = None
     post_publish_text: str | None = None
+    account_reread_text: str | None = None
     post_match: bool | None = None
     error: str | None = None
     steps: list[str] | None = None
@@ -170,10 +171,28 @@ async def _login_super(page, cfg: dict[str, str]) -> None:
         raise RuntimeError("Login Super-Parrain echoue")
 
 
-async def _find_kraken_edit_url(page, base: str, program: str) -> str:
-    """Trouve l'URL d'edition du contenu Kraken (prefere annonces > codes-promo)."""
+def _page_blocked_reason(body: str, url: str = "") -> str | None:
+    blob = f"{body or ''} {url or ''}".lower()
+    if "captcha" in blob or "recaptcha" in blob or "hcaptcha" in blob or "cloudflare" in blob and "challenge" in blob:
+        return "CAPTCHA_OR_CHALLENGE"
+    if "403" in blob and ("forbidden" in blob or "accès refusé" in blob or "access denied" in blob):
+        return "HTTP_403"
+    if "429" in blob or "too many requests" in blob or "trop de requêtes" in blob:
+        return "HTTP_429"
+    return None
+
+
+async def _find_program_edit_url(
+    page,
+    base: str,
+    program: str,
+    announcement_url: str | None = None,
+) -> str:
+    """Trouve l'URL d'edition du programme cible (annonces > codes-promo)."""
     bumper_mod = _bumper()
-    # Prefer content-oriented dashboards first (codes-promo edit = often remontee/bump only)
+    needle = (program or "").strip().lower()
+    if not needle:
+        raise RuntimeError("program manquant pour trouver l'URL d'edition")
     candidates_pages = [
         f"{base}/tableau-de-bord/annonces",
         f"{base}/tableau-de-bord/mes-annonces",
@@ -189,9 +208,12 @@ async def _find_kraken_edit_url(page, base: str, program: str) -> str:
             await _dismiss_blocking_modals(page)
         except Exception:
             continue
+        blocked = _page_blocked_reason(await page.inner_text("body"), page.url)
+        if blocked:
+            raise RuntimeError(f"STOP {blocked} on {page.url}")
         hrefs = await page.evaluate(
             """
-            () => {
+            (needle) => {
               const out = [];
               for (const a of document.querySelectorAll('a[href]')) {
                 const href = a.href || '';
@@ -201,17 +223,17 @@ async def _find_kraken_edit_url(page, base: str, program: str) -> str:
                 const isEdit = href.includes('/edit') || href.includes('modifier')
                   || label.includes('modifier') || label.includes('éditer') || label.includes('editer');
                 if (!isEdit) continue;
-                const isKraken = label.includes('kraken') || href.includes('kraken');
-                out.push({href, isKraken, isCodesPromo: href.includes('codes-promo')});
+                const isTarget = label.includes(needle) || href.includes(needle);
+                out.push({href, isTarget, isCodesPromo: href.includes('codes-promo')});
               }
               return out;
             }
-            """
+            """,
+            needle,
         )
         for h in hrefs:
-            if not h.get("isKraken"):
+            if not h.get("isTarget"):
                 continue
-            # Prefer non-codes-promo edit URLs (likely content)
             score = 0
             if not h.get("isCodesPromo"):
                 score += 10
@@ -221,17 +243,18 @@ async def _find_kraken_edit_url(page, base: str, program: str) -> str:
 
         pair = await page.evaluate(
             """
-            () => {
+            (needle) => {
               const rows = Array.from(document.querySelectorAll('tr, .card, li, article, .list-item, .row'));
               for (const row of rows) {
                 const t = (row.innerText || '').toLowerCase();
-                if (!t.includes('kraken')) continue;
+                if (!t.includes(needle)) continue;
                 const a = row.querySelector('a[href*="edit"], a[href*="modifier"]');
                 if (a && a.href) return a.href;
               }
               return null;
             }
-            """
+            """,
+            needle,
         )
         if pair:
             score = 10 if "codes-promo" not in pair else 1
@@ -239,16 +262,20 @@ async def _find_kraken_edit_url(page, base: str, program: str) -> str:
 
     if ranked:
         ranked.sort(key=lambda x: -x[0])
-        return ranked[0][1]
+        chosen = ranked[0][1]
+        if needle not in chosen.lower():
+            raise RuntimeError(
+                f"STOP unexpected edit URL for {program}: {chosen} — refuse other listing"
+            )
+        return chosen
 
-    # Public page owner edit
+    public = announcement_url or f"{base}/offres/{needle}/parrainage-{needle}/annonces/adrien-b-8"
     try:
-        await page.goto(
-            f"{base}/offres/kraken/parrainage-kraken/annonces/adrien-b-8",
-            wait_until="domcontentloaded",
-            timeout=45000,
-        )
+        await page.goto(public, wait_until="domcontentloaded", timeout=45000)
         await bumper_mod.human_sleep(1, 2)
+        blocked = _page_blocked_reason(await page.inner_text("body"), page.url)
+        if blocked:
+            raise RuntimeError(f"STOP {blocked} on {page.url}")
         edit = await page.evaluate(
             """
             () => {
@@ -263,12 +290,18 @@ async def _find_kraken_edit_url(page, base: str, program: str) -> str:
             """
         )
         if edit:
+            if needle not in edit.lower() and needle not in (await page.inner_text("body")).lower():
+                raise RuntimeError(
+                    f"STOP unexpected DOM: edit {edit} is not {program}"
+                )
             return edit
+    except RuntimeError:
+        raise
     except Exception:
         pass
 
     raise RuntimeError(
-        "URL d'edition Kraken introuvable (contenu). "
+        f"URL d'edition {program} introuvable (contenu). "
         "Le lien codes-promo/edit est le flux remontee et peut etre bloque 24h."
     )
 
@@ -549,6 +582,7 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
     from playwright.async_api import async_playwright
 
     edit_url = None
+    account_text: str | None = None
     async with async_playwright() as pw:
         browser = await pw.chromium.launch(
             headless=True,
@@ -565,10 +599,29 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
             steps.append("login")
             await _login_super(page, cfg)
             steps.append("find_edit_url")
-            edit_url = await _find_kraken_edit_url(page, cfg["url"], plan.program)
+            edit_url = await _find_program_edit_url(
+                page, cfg["url"], plan.program, plan.announcement_url
+            )
             steps.append(f"edit_url={edit_url}")
+            if plan.program.lower() not in (edit_url or "").lower():
+                return WriteResult(
+                    ok=False,
+                    plan=plan,
+                    edit_url=edit_url,
+                    error=f"STOP unexpected edit URL (not {plan.program}): {edit_url}",
+                    steps=steps,
+                )
             await page.goto(edit_url, wait_until="networkidle", timeout=60000)
             await bumper_mod.human_sleep(1.5, 2.5)
+            blocked = _page_blocked_reason(await page.inner_text("body"), page.url)
+            if blocked:
+                return WriteResult(
+                    ok=False,
+                    plan=plan,
+                    edit_url=edit_url,
+                    error=f"STOP {blocked} on edit page {page.url}",
+                    steps=steps,
+                )
 
             # Screenshot debug without secrets
             try:
@@ -617,6 +670,29 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
             except Exception:
                 pass
             steps.append("saved")
+
+            steps.append("reread_account")
+            try:
+                await page.goto(edit_url, wait_until="networkidle", timeout=60000)
+                account_text = await page.evaluate(
+                    """
+                    () => {
+                      const t = document.querySelector('textarea');
+                      if (t && t.value) return t.value;
+                      const ce = document.querySelector('[contenteditable="true"], .ql-editor, .ProseMirror, .note-editable');
+                      if (ce) return ce.innerText || '';
+                      return '';
+                    }
+                    """
+                )
+            except Exception as exc:
+                return WriteResult(
+                    ok=False,
+                    plan=plan,
+                    edit_url=edit_url,
+                    error=f"relecture compte echouee: {exc}",
+                    steps=steps,
+                )
         except Exception as exc:
             return WriteResult(
                 ok=False,
@@ -640,6 +716,7 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
             ok=False,
             plan=plan,
             edit_url=edit_url,
+            account_reread_text=account_text,
             error=f"relecture publique echouee: {exc}",
             steps=steps,
         )
@@ -647,12 +724,12 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
     match = published == plan.rendered
     steps.append(f"post_match={match}")
     if not match:
-        # Detailed mismatch report
         return WriteResult(
             ok=False,
             plan=plan,
             edit_url=edit_url,
             post_publish_text=published,
+            account_reread_text=account_text,
             post_match=False,
             error="POST-UPDATE MISMATCH: texte public != rendu attendu — STOP propagation",
             steps=steps,
@@ -663,6 +740,7 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
         plan=plan,
         edit_url=edit_url,
         post_publish_text=published,
+        account_reread_text=account_text,
         post_match=True,
         steps=steps,
     )
