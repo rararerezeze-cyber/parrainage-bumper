@@ -310,10 +310,36 @@ async def _reread(page, before: dict, report: dict) -> None:
             acc.get("title") or "",
         ]
     )
-    pub = fetch_text(PUBLIC) or ""
-    pub2 = fetch_text(PUBLIC + "?__sid=23004") or ""
-    pub_all = pub + "\n" + pub2
-    pf = _public_flags(pub_all)
+    # Prefer the headed View (same browser as users). Anonymous HTTP is often CDN-stale.
+    pub_browser = ""
+    try:
+        await page.goto(PUBLIC, wait_until="domcontentloaded", timeout=60000)
+        await asyncio.sleep(1.5)
+        pub_browser = (await page.inner_text("body")) or ""
+        pub_html = ""
+        try:
+            pub_html = await page.content()
+        except Exception:
+            pub_html = ""
+        report["public_url"] = page.url
+    except Exception as exc:
+        report["public_browser_error"] = str(exc)
+        pub_html = ""
+    pub_http = ""
+    try:
+        pub_http = fetch_text(PUBLIC) or ""
+    except Exception:
+        pass
+    # Score THIS listing only: headed View body first, then HTTP.
+    pf_browser = _public_flags(pub_browser + "\n" + pub_html)
+    pf_http = _public_flags(pub_http)
+    report["public_flags_browser"] = pf_browser
+    report["public_flags_http"] = pf_http
+    pf = pf_browser if (pf_browser.get("new_code") or pf_browser.get("new_link")) else pf_http
+    # Old tokens on HTTP-only (og:description / cache) do not fail if headed View is clean.
+    if pf_browser.get("new_code") and pf_browser.get("new_link") and not pf_browser.get("old_code") and not pf_browser.get("old_link"):
+        pf = pf_browser
+    report["public_flags"] = pf
     report["public_flags"] = pf
     report["new_code_verified"] = NEW_CODE in acc_blob and pf["new_code"]
     report["new_link_verified"] = "s5qudqe4" in acc_blob and pf["new_link"]
@@ -334,6 +360,57 @@ async def _reread(page, before: dict, report: dict) -> None:
         and report["old_link_absent"]
         and report["immutable_preserved"]
     )
+
+
+def _print_proof(report: dict) -> None:
+    print(
+        "RCTV_WRITE_PROOF\n"
+        f"eid: {EID}\n"
+        f"targeted_fields: code,link\n"
+        f"captcha_manual: {report.get('captcha_manual')}\n"
+        f"save_submitted: {report.get('save_submitted')}\n"
+        f"account_reread: {report.get('account_reread_ok')}\n"
+        f"public_reread: {report.get('public_reread')}\n"
+        f"new_code_verified: {report.get('new_code_verified')}\n"
+        f"new_link_verified: {report.get('new_link_verified')}\n"
+        f"old_code_absent: {report.get('old_code_absent')}\n"
+        f"old_link_absent: {report.get('old_link_absent')}\n"
+        f"native_en_preserved: {report.get('native_en_preserved')}\n"
+        f"immutable_preserved: {report.get('immutable_preserved')}\n"
+        f"post_match: {report.get('post_match')}\n"
+        f"WRITE_VERIFIED: {report.get('WRITE_VERIFIED')}"
+    )
+
+
+def _maybe_mark(report: dict) -> None:
+    if not report.get("post_match"):
+        print("post_match incomplete — not WRITE_VERIFIED")
+        return
+    from lib.write_status import mark_write_verified
+
+    promo = mark_write_verified(
+        "referralcode-tv",
+        program="kraken",
+        evidence={
+            "post_match": True,
+            "announcement_url": PUBLIC,
+            "edit_url": EDIT,
+            "public_reread": True,
+            "immutable_ok": True,
+            "source": "local_headed_rctv_canary",
+            "checks": {
+                "authenticated": True,
+                "targeted_edit": True,
+                "submit_ok": True,
+                "reread_account": True,
+                "expected_values_present": True,
+                "immutable_preserved": True,
+            },
+        },
+    )
+    report["WRITE_VERIFIED"] = bool(promo.get("ok"))
+    if report["WRITE_VERIFIED"]:
+        print("WRITE_VERIFIED referralcode-tv")
 
 
 async def run() -> int:
@@ -379,26 +456,11 @@ async def run() -> int:
             report["save_submitted"] = True
             report["captcha_manual"] = True
             await _reread(page, before, report)
+            _maybe_mark(report)
             _write(OUT, report)
-            print(
-                "RCTV_WRITE_PROOF\n"
-                f"eid: {EID}\n"
-                f"targeted_fields: code,link\n"
-                f"captcha_manual: {report.get('captcha_manual')}\n"
-                f"save_submitted: {report.get('save_submitted')}\n"
-                f"account_reread: {report.get('account_reread_ok')}\n"
-                f"public_reread: {report.get('public_reread')}\n"
-                f"new_code_verified: {report.get('new_code_verified')}\n"
-                f"new_link_verified: {report.get('new_link_verified')}\n"
-                f"old_code_absent: {report.get('old_code_absent')}\n"
-                f"old_link_absent: {report.get('old_link_absent')}\n"
-                f"native_en_preserved: {report.get('native_en_preserved')}\n"
-                f"immutable_preserved: {report.get('immutable_preserved')}\n"
-                f"post_match: {report.get('post_match')}\n"
-                f"WRITE_VERIFIED: {report.get('WRITE_VERIFIED')}"
-            )
+            _print_proof(report)
             print(f"report={OUT}")
-            return 0 if report.get("post_match") else 1
+            return 0 if report.get("WRITE_VERIFIED") else 1
         if not fields_new and OLD_CODE not in blob:
             report["error"] = "OLD code not in form — STOP no fill"
             _write(OUT, report)
@@ -417,52 +479,10 @@ async def run() -> int:
         report["filled"] = True
         await _wait_user_save(page, report)
         await _reread(page, before, report)
-        if report.get("post_match"):
-            from lib.write_status import mark_write_verified
-
-            promo = mark_write_verified(
-                "referralcode-tv",
-                program="kraken",
-                evidence={
-                    "post_match": True,
-                    "announcement_url": PUBLIC,
-                    "edit_url": EDIT,
-                    "public_reread": True,
-                    "immutable_ok": True,
-                    "source": "local_headed_rctv_canary",
-                    "checks": {
-                        "authenticated": True,
-                        "targeted_edit": True,
-                        "submit_ok": True,
-                        "reread_account": True,
-                        "expected_values_present": True,
-                        "immutable_preserved": True,
-                    },
-                },
-            )
-            report["WRITE_VERIFIED"] = bool(promo.get("ok"))
-            print("WRITE_VERIFIED referralcode-tv")
-        else:
-            print("post_match incomplete — not WRITE_VERIFIED")
+        _maybe_mark(report)
         _write(OUT, report)
         print(f"report={OUT}")
-        print(
-            "RCTV_WRITE_PROOF\n"
-            f"eid: {EID}\n"
-            f"targeted_fields: code,link\n"
-            f"captcha_manual: {report.get('captcha_manual')}\n"
-            f"save_submitted: {report.get('save_submitted')}\n"
-            f"account_reread: {report.get('account_reread_ok')}\n"
-            f"public_reread: {report.get('public_reread')}\n"
-            f"new_code_verified: {report.get('new_code_verified')}\n"
-            f"new_link_verified: {report.get('new_link_verified')}\n"
-            f"old_code_absent: {report.get('old_code_absent')}\n"
-            f"old_link_absent: {report.get('old_link_absent')}\n"
-            f"native_en_preserved: {report.get('native_en_preserved')}\n"
-            f"immutable_preserved: {report.get('immutable_preserved')}\n"
-            f"post_match: {report.get('post_match')}\n"
-            f"WRITE_VERIFIED: {report.get('WRITE_VERIFIED')}"
-        )
+        _print_proof(report)
         return 0 if report.get("WRITE_VERIFIED") else 1
     except Exception as exc:
         report["error"] = str(exc)
