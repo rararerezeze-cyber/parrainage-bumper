@@ -105,10 +105,11 @@
     "referralcode-tv": {
       "status": "CANARY_READY",
       "canary_program": "kraken",
-      "notes": "KRAKEN_EXISTS (referralcode-tv-raw.txt: Kraken Referral Bonus – Up to $200 in Crypto). EID_NOT_YET_RESOLVED — do not create a listing; resolve EID read-only later. AUTH_EDIT_PATH_PROVEN (31682310236): add-referral-code/?eid= with post_content/code/buy_link. Boost #cliccami is not content edit. Not WRITE_VERIFIED. No live write.",
+      "notes": "KRAKEN_EXISTS. 12/23 EIDs from listings page 1 (Kraken not among them). View cycle proven (Widilo sid=eid=23043). Edit form add-referral-code/?eid= proven. SAVE_REQUIRES_CAPTCHA (reCAPTCHA on submit) — no bypass, no auto-save. Boost #cliccami is not content edit. Not WRITE_VERIFIED.",
       "kraken_listing": "KRAKEN_EXISTS",
       "eid_status": "EID_NOT_YET_RESOLVED",
-      "auth_edit_path": "AUTH_EDIT_PATH_PROVEN"
+      "auth_edit_path": "AUTH_EDIT_PATH_PROVEN",
+      "save_requires_captcha": true
     },
     "referraldrop": {
       "status": "AUTH_BLOCKED_GOOGLE",

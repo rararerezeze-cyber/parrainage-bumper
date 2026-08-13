@@ -191,8 +191,19 @@ async def _read_view(page) -> dict:
     sid_m = re.search(r"[?&]__sid=(\d+)", url)
     program = _classify(blob + " " + url)
     verdict = _verdict(program, blob)
+    recaptcha = False
+    try:
+        recaptcha = bool(
+            await page.locator(
+                "iframe[src*='recaptcha'], textarea[name='g-recaptcha-response'], .g-recaptcha"
+            ).count()
+        )
+    except Exception:
+        pass
+    kind = "edit" if "add-referral-code" in url and "eid=" in url else "view"
     return {
         "url": url,
+        "kind": kind,
         "title": title[:180],
         "program": program,
         "eid": eid_m.group(1) if eid_m else None,
@@ -200,6 +211,7 @@ async def _read_view(page) -> dict:
         "has_s5qudqe4": NEW_LINK in blob,
         "has_4jdp7sea": OLD_LINK in blob,
         "has_cpbrgddy": CODE in blob,
+        "recaptcha": recaptcha,
         "verdict": verdict,
         "head": re.sub(r"\s+", " ", body)[:280],
     }
@@ -224,8 +236,12 @@ async def run() -> int:
             return 3
 
         await page.goto(ACCOUNT, wait_until="domcontentloaded", timeout=60000)
-        await asyncio.sleep(1.2)
+        await asyncio.sleep(2.5)
         inv = await _cards(page)
+        if len(inv) < 5:
+            await page.goto("https://www.referralcode.tv/my-account/?tab=listings", wait_until="domcontentloaded", timeout=60000)
+            await asyncio.sleep(2.0)
+            inv = await _cards(page)
         report["inventory"] = inv
         print(f"cartes dashboard: {len(inv)}")
         for c in inv:
@@ -256,19 +272,21 @@ async def run() -> int:
                 seen.add(url)
                 report["reviewed"].append(rec)
                 print(
-                    f"VIEW program={rec['program']} verdict={rec['verdict']} "
-                    f"eid={rec['eid']} sid={rec['sid']}"
+                    f"{rec['kind'].upper()} program={rec['program']} verdict={rec['verdict']} "
+                    f"eid={rec['eid']} sid={rec['sid']} recaptcha={rec['recaptcha']}"
                 )
                 print(f"  {rec['head'][:160]}")
+                if rec.get("recaptcha"):
+                    print("  CAPTCHA de validation vu — je ne le résous pas, je ne clique pas Submit.")
                 if rec["program"] == "kraken":
                     report["kraken"] = rec
                     print(f"=== KRAKEN {rec['verdict']} sid={rec['sid']} eid={rec['eid']} ===")
                     if rec["verdict"] == "CONFORME":
-                        print("Rien à changer. Tu peux View l'annonce suivante ou arrêter.")
+                        print("Rien à changer. View l'annonce suivante.")
                     else:
-                        print("DIFF vu — je NE SAUVE PAS. Reste sur la page ou passe à la suivante.")
+                        print("DIFF vu — PAS de save (captcha). View suivante ou reste ici.")
                 else:
-                    print("  → CONFORME pour ce cycle (pas Kraken). View l'annonce suivante.")
+                    print("  → pas Kraken : rien à changer maintenant. View l'annonce suivante.")
                 _write(OUT, report)
             last_url = url
             await asyncio.sleep(1.0)
