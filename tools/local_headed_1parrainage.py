@@ -274,26 +274,82 @@ async def _wait_manual_edit_form(page, status_map: dict[str, int], report: dict)
     return None
 
 
-async def _set_link_only(page, field: dict) -> None:
-    sel = field.get("selector") or (
-        "#edit_parrainage_presentation"
-        if field.get("id") == "edit_parrainage_presentation"
-        else None
+CK_ID = "edit_parrainage_presentation"
+
+
+async def _ck_get(page) -> str:
+    return (
+        await page.evaluate(
+            """
+            (id) => {
+              const inst = window.CKEDITOR && CKEDITOR.instances && CKEDITOR.instances[id];
+              if (inst) return inst.getData() || '';
+              const ta = document.getElementById(id);
+              return ta ? (ta.value || '') : '';
+            }
+            """,
+            CK_ID,
+        )
+        or ""
     )
-    loc = page.locator(sel).first if sel else page.locator(EDIT_FIELDS).nth(int(field["index"]))
-    v = await loc.input_value()
-    if OLD_LINK not in v or NEW_LINK in v:
-        raise RuntimeError("targeted replace failed — STOP no save")
-    nxt = v.replace(OLD_LINK, NEW_LINK)
-    if nxt == v:
-        raise RuntimeError("targeted replace failed — STOP no save")
-    await loc.fill(nxt)
-    got = await loc.input_value()
-    if NEW_LINK not in got or OLD_LINK in got:
-        raise RuntimeError("targeted replace failed — STOP no save")
+
+
+async def _set_link_only(page, field: dict) -> None:
+    # Hidden CKEditor textarea is not fill()-able. Edit via CKEDITOR API only.
+    result = await page.evaluate(
+        """
+        ({id, oldLink, newLink}) => {
+          const inst = window.CKEDITOR && CKEDITOR.instances && CKEDITOR.instances[id];
+          if (!inst) return {ok: false, reason: 'no_ckeditor'};
+          const data = inst.getData() || '';
+          if (!data.includes(oldLink)) return {ok: false, reason: 'old_missing', data};
+          if (data.includes(newLink)) return {ok: false, reason: 'new_already'};
+          const next = data.split(oldLink).join(newLink);
+          if (next === data) return {ok: false, reason: 'no_change'};
+          inst.setData(next);
+          if (inst.updateElement) inst.updateElement();
+          const after = inst.getData() || '';
+          const ta = document.getElementById(id);
+          if (ta) ta.value = after;
+          return {
+            ok: after.includes(newLink) && !after.includes(oldLink),
+            after,
+          };
+        }
+        """,
+        {"id": CK_ID, "oldLink": OLD_LINK, "newLink": NEW_LINK},
+    )
+    if isinstance(result, dict) and result.get("ok"):
+        await asyncio.sleep(0.4)
+        return
+    if isinstance(result, dict) and result.get("reason") == "no_ckeditor":
+        frame = page.frame_locator("iframe.cke_wysiwyg_frame, iframe.cke_wysiwyg_div iframe").first
+        body = frame.locator("body")
+        html = await body.inner_html()
+        if OLD_LINK not in html or NEW_LINK in html:
+            raise RuntimeError("targeted replace failed — STOP no save")
+        nxt = html.replace(OLD_LINK, NEW_LINK)
+        await body.evaluate("(el, html) => { el.innerHTML = html; }", nxt)
+        got = await body.inner_html()
+        if NEW_LINK not in got or OLD_LINK in got:
+            raise RuntimeError("targeted replace failed — STOP no save")
+        return
+    raise RuntimeError(f"targeted replace failed — STOP no save ({result})")
 
 
 async def _click_save(page) -> str:
+    try:
+        await page.evaluate(
+            """
+            (id) => {
+              const inst = window.CKEDITOR && CKEDITOR.instances && CKEDITOR.instances[id];
+              if (inst && inst.updateElement) inst.updateElement();
+            }
+            """,
+            CK_ID,
+        )
+    except Exception:
+        pass
     btn = page.locator(
         'button:has-text("Enregistrer"), button:has-text("Sauvegarder"), '
         'button:has-text("Mettre à jour"), button:has-text("Valider"), '
@@ -435,18 +491,21 @@ async def run() -> int:
             _write(OUT, report)
             return 5
 
-        print("=== DISCOVERY DONE — canary targeted link only ===")
-        current = value
+        print("=== DISCOVERY DONE — canary targeted link only (CKEditor) ===")
+        current = await _ck_get(page) or value
+        if OLD_LINK not in current or NEW_LINK in current:
+            report["error"] = "CKEditor data missing OLD — STOP no save"
+            _write(OUT, report)
+            return 6
         snap = snapshot_state("canary:1parrainage:headed")
         report["snapshot"] = snap.get("id")
         await _set_link_only(page, field)
-        after_fields = await _editable_fields(page)
-        after = next((f for f in after_fields if f.get("index") == field.get("index")), None)
-        if not after or not after.get("has_new") or after.get("has_old"):
+        after = await _ck_get(page)
+        if NEW_LINK not in after or OLD_LINK in after:
             report["error"] = "replace failed — STOP no save"
             _write(OUT, report)
             return 6
-        if (after.get("value") or "") != current.replace(OLD_LINK, NEW_LINK):
+        if after.replace(NEW_LINK, OLD_LINK) != current:
             report["error"] = "non-targeted text change — STOP no save"
             _write(OUT, report)
             return 6
@@ -458,13 +517,14 @@ async def run() -> int:
         print(f"saved via {label!r}")
 
         await page.goto(edit_url, wait_until="domcontentloaded", timeout=60000)
-        await asyncio.sleep(1.5)
-        reread_fields = await _editable_fields(page)
-        acc_blob = "\n".join(f.get("value") or "" for f in reread_fields)
+        await asyncio.sleep(1.8)
+        acc_blob = await _ck_get(page)
+        if not acc_blob:
+            acc_blob = "\n".join(f.get("value") or "" for f in await _editable_fields(page))
         report["account_reread"] = True
         report["new_link_verified_account"] = NEW_LINK in acc_blob and OLD_LINK not in acc_blob
         report["code_unchanged"] = CODE in acc_blob
-        report["reward_unchanged"] = REWARD in acc_blob or "200 €" in acc_blob
+        report["reward_unchanged"] = _has_reward(acc_blob)
 
         pub = fetch_text(PUBLIC_LIST)
         report["public_reread"] = True
@@ -544,8 +604,8 @@ async def _locate_presentation(page, learned: dict | None = None) -> dict | None
     for sel in ("#edit_parrainage_presentation", "textarea[name='edit_parrainage[presentation]']"):
         loc = page.locator(sel).first
         try:
-            if await loc.count() and await loc.is_visible():
-                v = await loc.input_value()
+            if await loc.count():
+                v = await loc.input_value(timeout=5000)
                 return {
                     "index": 0,
                     "name": "edit_parrainage[presentation]",
