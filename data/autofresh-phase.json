@@ -19,6 +19,7 @@
     "mode": "canary"
   },
   "note": "STRICT: auto writers only PC_OFF_READY (1P, Code-P) on a real SAFE_DIFF. RCTV HUMAN_SAVE_REQUIRED (local command). ReferralCodes NEVER_AUTO_COMMIT. ReferralDrop AUTH_BLOCKED_MANUAL. Parrainage.co COOKIE_SESSION_NOT_PC_OFF. Super CANARY_PENDING SKIP. Monitor=OBSERVATION_ONLY.",
+  "monitor_auto_accept": false,
   "super_parrain_runtime": "CANARY_PENDING",
   "live_canary_waiter": "ENABLED_FOR_SUPER_PARRAIN_ONLY",
   "updated_at": "2026-08-12T21:05:00+00:00",

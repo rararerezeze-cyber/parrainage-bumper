@@ -41,6 +41,15 @@ jobs:
           set -e
           echo "monitor_exit=$RC"
           python monitor.py --production-report || true
+          python monitor.py --simulate-auto-accept || true
+          python -c "
+from lib.monitor.auto_accept import auto_accept_enabled, observations_from_last_report, evaluate_all, apply_accepts
+if auto_accept_enabled():
+    ev = evaluate_all(observations_from_last_report())
+    print(apply_accepts(ev['accepts']))
+else:
+    print('monitor_auto_accept=false — simulation only, no accepted-fields write')
+"
           # never fail hard on single source 403 — report is enough
           exit 0
       - name: Upload report (always — history can live in artifacts)
@@ -51,6 +60,7 @@ jobs:
           retention-days: 30
           path: |
             data/captures/monitor-last-report.json
+            data/captures/monitor-auto-accept-simulation.json
             data/captures/offer-sources-verify.json
             data/monitor/
             data/offer-sources.json

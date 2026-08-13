@@ -301,8 +301,22 @@ def main() -> int:
         action="store_true",
         help="Run SHADOW acceptance on last report or --all (never auto-accept)",
     )
+    p.add_argument(
+        "--simulate-auto-accept",
+        action="store_true",
+        help="Simulate deterministic auto-accept on last report (no write)",
+    )
     args = p.parse_args()
 
+    if args.simulate_auto_accept:
+        from lib.monitor.auto_accept import observations_from_last_report, simulate
+
+        report = simulate(observations_from_last_report(), persist_report=True)
+        print(json.dumps({k: report[k] for k in report if k != "simulated_safe_diffs"}, ensure_ascii=False, indent=2))
+        print(f"simulated_accepts={len(report.get('simulated_accepts') or [])}")
+        print(f"simulated_safe_diffs={len(report.get('simulated_safe_diffs') or [])}")
+        print("live_writes_performed=0")
+        return 0
     if args.shadow and not args.all and not args.program:
         return cmd_shadow_from_report()
     if args.coverage:
