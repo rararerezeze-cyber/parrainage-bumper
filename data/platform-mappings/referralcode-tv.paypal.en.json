@@ -1,12 +1,12 @@
 {
   "platform": "referralcode-tv",
-  "program": "widilo",
+  "program": "paypal",
   "language": "en",
   "sync_mode": "REVIEW",
   "template_status": "ready",
-  "golden_file": "widilo.en.golden.txt",
+  "golden_file": "paypal.en.golden.txt",
   "mutable_fields": [
-    "personal_code",
+    "personal_link",
     "referee_reward"
   ],
   "markers": {
@@ -22,18 +22,17 @@
     "referee_reward": "reward",
     "conditions": "cond"
   },
-  "announcement_url": "https://www.referralcode.tv/referral-code/%e2%9a%a1%ef%b8%8f-widilo-signup-bonus-up-to-e6-free-%e2%9a%a1%ef%b8%8f-get-cashback-rewards-just-for-signing-up-and-installing-the-extension/?__sid=23043",
-  "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23043",
+  "announcement_url": "https://www.referralcode.tv/add-referral-code/?eid=23061",
+  "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23061",
   "platform_values": {
-    "personal_code": "NGA684",
-    "referee_reward": "€5 for signing up via referral link",
-    "personal_link": "https://www.widilo.fr/i/NGA684"
+    "personal_link": "https://py.pl/1GOwby",
+    "referee_reward": "$10 PayPal cash after completing simple requirements"
   },
   "confidences": {
-    "personal_code": "high",
+    "personal_link": "high",
     "referee_reward": "medium"
   },
-  "notes": "lien offers.json non trouve dans le texte; bonus extrait du texte plateforme (confiance moyenne); public author capture; distinct from referralcodes.com; public author capture; distinct from referralcodes.com",
+  "notes": "bonus extrait du texte plateforme (confiance moyenne); headed READ-ONLY eid; no create/save",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",
@@ -41,5 +40,5 @@
     "announcement_text": "platform_target_only"
   },
   "edit_url_source": "headed_readonly_eid",
-  "platform_offer_id": "23043"
+  "platform_offer_id": "23061"
 }

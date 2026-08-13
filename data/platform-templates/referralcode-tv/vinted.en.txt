@@ -1,0 +1,16 @@
+⚡️ Vinted Referral Offer – Easy Signup & Secure Buying/Selling ⚡️  Join Vinted, the leading marketplace for second-hand fashion.
+
+⚡️ Vinted Referral Offer – Easy Signup & Secure Buying/Selling ⚡️
+
+Join Vinted, the leading marketplace for second-hand fashion.
+
+⸻
+
+🎁 Bonus: {{REFEREE_REWARD}}
+
+⸻
+
+🎟️ Referral code: {{PERSONAL_CODE}}
+🔗 Sign up h
+
+{{PERSONAL_LINK}}

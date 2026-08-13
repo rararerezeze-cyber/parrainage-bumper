@@ -20,8 +20,11 @@
     "conditions": "cond"
   },
   "announcement_url": "https://www.referralcode.tv/brand/boursobank-referral-codes/",
-  "edit_url": null,
-  "platform_values": {},
+  "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23070",
+  "platform_values": {
+    "personal_code": "ADBE5645",
+    "personal_link": "https://bour.so/p/cdRUvTEbxaf"
+  },
   "confidences": {},
   "notes": "lien offers.json non trouve dans le texte; bonus non marque (ambigu / non trouve) — texte laisse fixe; public author capture; distinct from referralcodes.com; public author capture; distinct from referralcodes.com",
   "source_of_truth": {
@@ -29,5 +32,7 @@
     "personal_link": "offers_json_then_operator",
     "referee_reward": "offers_json_then_official",
     "announcement_text": "platform_target_only"
-  }
+  },
+  "edit_url_source": "headed_readonly_eid",
+  "platform_offer_id": "23070"
 }

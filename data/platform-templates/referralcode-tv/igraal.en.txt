@@ -1,0 +1,19 @@
+⚡ Bonus : {{REFEREE_REWARD}}
+
+⚡️ Offre Parrainage iGraal – 5 € offerts ⚡
+
+⚡ Bonus : {{REFEREE_REWARD}}
+
+⸻
+
+⭐️ Lien de parrainage :
+
+➡️ fr.igraal.com/parrainage?parrain={{PERSONAL_CODE}}
+
+⸻
+
+✅ Conditions pour obtenir le bonus :
+
+1. Créez v
+
+{{PERSONAL_LINK}}

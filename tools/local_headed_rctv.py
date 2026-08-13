@@ -40,26 +40,38 @@ def _wipe() -> None:
         shutil.rmtree(LOCAL, ignore_errors=True)
 
 
+# Longest / most specific first. Never classify iGraal as PayPal.
+_BRANDS = (
+    ("traderepublic", ("trade republic", "traderepublic", "trade.re")),
+    ("boursobank", ("boursobank", "boursorama", "bour.so")),
+    ("swissborg", ("swissborg",)),
+    ("robinhood", ("robinhood",)),
+    ("ebuyclub", ("ebuyclub", "ebuy club")),
+    ("igraal", ("igraal",)),
+    ("poulpeo", ("poulpeo",)),
+    ("whatnot", ("whatnot",)),
+    ("widilo", ("widilo",)),
+    ("revolut", ("revolut",)),
+    ("vinted", ("vinted",)),
+    ("paypal", ("paypal", "py.pl/")),
+    ("kraken", ("kraken",)),
+    ("gemini", ("gemini",)),
+    ("ledger", ("ledger",)),
+    ("unibet", ("unibet",)),
+    ("airbnb", ("airbnb",)),
+    ("bybit", ("bybit",)),
+    ("stake", ("stake.com", "stake")),
+    ("wise", ("transferwise", "wise.")),
+    ("okx", ("okx",)),
+    ("joko", ("joko",)),
+)
+
+
 def _classify(title: str, content: str, link: str) -> str | None:
     blob = f"{title} {content} {link}".lower()
-    for prog in WANTED + (
-        "gemini",
-        "bybit",
-        "swissborg",
-        "airbnb",
-        "joko",
-        "ledger",
-        "revolut",
-        "widilo",
-        "unibet",
-        "vinted",
-        "boursobank",
-        "ebuyclub",
-    ):
-        if prog in blob:
+    for prog, keys in _BRANDS:
+        if any(k in blob for k in keys):
             return prog
-    if "transferwise" in blob:
-        return "wise"
     return None
 
 
@@ -117,33 +129,81 @@ async def _wait_account(page) -> bool:
     return False
 
 
+async def _eids_on_page(page) -> list[str]:
+    hrefs = await page.evaluate(
+        """
+        () => Array.from(document.querySelectorAll('a[href]'))
+          .map(a => a.href || '')
+          .filter(h => /eid=\\d+/.test(h) && h.includes('add-referral-code'))
+        """
+    )
+    eids = []
+    for h in hrefs or []:
+        m = re.search(r"[?&]eid=(\d+)", h)
+        if m and m.group(1) not in eids:
+            eids.append(m.group(1))
+    return eids
+
+
 async def _collect_eids(page) -> list[str]:
-    for url in (
+    eids: list[str] = []
+    start_urls = (
         ACCOUNT,
-        "https://www.referralcode.tv/my-account/",
+        "https://www.referralcode.tv/my-account/?tab=listings&paged=2",
+        "https://www.referralcode.tv/my-account/?tab=listings&page=2",
+        "https://www.referralcode.tv/my-account/?dashboard=listings&paged=2",
         "https://referralcode.tv/my-account/?tab=listings",
-    ):
+    )
+    for url in start_urls:
         try:
             await page.goto(url, wait_until="domcontentloaded", timeout=60000)
             await asyncio.sleep(1.2)
         except Exception:
             continue
-        hrefs = await page.evaluate(
-            """
-            () => Array.from(document.querySelectorAll('a[href]'))
-              .map(a => a.href || '')
-              .filter(h => /eid=\\d+/.test(h) && h.includes('add-referral-code'))
-            """
-        )
-        eids = []
-        for h in hrefs or []:
-            m = re.search(r"[?&]eid=(\d+)", h)
-            if m and m.group(1) not in eids:
-                eids.append(m.group(1))
-        if eids:
-            print(f"EIDs trouvés ({len(eids)}) sur {page.url}")
-            return eids
-    return []
+        found = await _eids_on_page(page)
+        for eid in found:
+            if eid not in eids:
+                eids.append(eid)
+        print(f"  page {page.url} → +{len(found)} (total {len(eids)})")
+
+    # Pagination / next on the listings dashboard (never Boost).
+    await page.goto(ACCOUNT, wait_until="domcontentloaded", timeout=60000)
+    await asyncio.sleep(1.0)
+    for _ in range(4):
+        clicked = False
+        for sel in (
+            "a.page-numbers.next",
+            "a[rel='next']",
+            "a:has-text('Next')",
+            "a:has-text('»')",
+            ".pagination a.next",
+            "a.page-numbers:has-text('2')",
+            "a.page-numbers:has-text('3')",
+        ):
+            loc = page.locator(sel).first
+            try:
+                if await loc.count() and await loc.is_visible():
+                    label = ((await loc.inner_text()) or "").lower()
+                    if "boost" in label or "add" in label:
+                        continue
+                    await loc.click()
+                    await asyncio.sleep(1.4)
+                    clicked = True
+                    break
+            except Exception:
+                continue
+        if not clicked:
+            break
+        found = await _eids_on_page(page)
+        before = len(eids)
+        for eid in found:
+            if eid not in eids:
+                eids.append(eid)
+        print(f"  after next → +{len(eids) - before} (total {len(eids)})")
+        if len(eids) >= 23:
+            break
+    print(f"EIDs uniques: {len(eids)}")
+    return eids
 
 
 async def _read_edit(page, eid: str) -> dict:

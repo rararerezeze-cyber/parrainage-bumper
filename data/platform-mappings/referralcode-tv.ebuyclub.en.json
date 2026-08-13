@@ -24,7 +24,7 @@
     "conditions": "cond"
   },
   "announcement_url": "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-ebuyclub-referral-offer-e5-welcome-bonus-%e2%ad%90%ef%b8%8f-join-ebuyclub-a-cashback-platform-that-lets-you-earn-money-while-shopping-online/?__sid=23055",
-  "edit_url": null,
+  "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23055",
   "platform_values": {
     "personal_code": "adrien891000",
     "personal_link": "https://www.ebuyclub.com/inscription?parrain=hazofr",
@@ -41,5 +41,7 @@
     "personal_link": "offers_json_then_operator",
     "referee_reward": "offers_json_then_official",
     "announcement_text": "platform_target_only"
-  }
+  },
+  "edit_url_source": "headed_readonly_eid",
+  "platform_offer_id": "23055"
 }

@@ -1,0 +1,4 @@
+🔗 Link: {{PERSONAL_LINK}} 🎟️ Code: {{PERSONAL_CODE}}
+
+🔗 Link: stake.com/?c={{PERSONAL_CODE}}
+🎟️ Code: {{PERSONAL_CODE}}
