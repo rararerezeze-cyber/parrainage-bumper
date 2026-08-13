@@ -27,7 +27,7 @@ Resume point for the next Codex session. Reconstruct from this file + git + stat
 | super-parrain | CANARY_READY + CANARY_PENDING + SYNC_VERIFIED_NO_SAFE_DIFF | NO_SAFE_DIFF | CANARY_ONLY | Scheduled canary `50877ed` SUCCESS. `changed_fields=none`. No login/save. Not WRITE_VERIFIED. Bumper remains SKIP. Sequence-cleared. |
 | parrainage-co | CANARY_READY + SYNC_VERIFIED_NO_SAFE_DIFF | NO_SAFE_DIFF | CANARY_ONLY | Public `offers/113735` already has operator values. Dry-run empty. No fake write. |
 | code-parrainage | CANARY_READY | DOM_BLOCKED | CANARY_ONLY | Slider captcha on auth read. Dry-run vs mapping empty. Not SYNC. Skipped so later REAL_SAFE_DIFF can run. |
-| 1parrainage | CANARY_READY | public REAL_SAFE_DIFF / live DOM_BLOCKED | CANARY_ONLY | Public still `4jdp7sea` vs operator `s5qudqe4`. Official login is `#_username`/`#_password`. Two live canaries (`31681603602`, `31682885152`) STOP: fields not visible in GH Actions headless. **No save. Do not retry automatically.** |
+| 1parrainage | CANARY_READY | public REAL_SAFE_DIFF / live not WRITE_VERIFIED | CANARY_ONLY | Headed login OK → `/espace_parrain/`. Official fields `#_username`/`#_password` visible locally even in Chrome headless. Edit URL 100408 not yet mapped. No save. Next: one headed session to find edit + targeted link replace. |
 | referralcodes | CANARY_READY + SYNC_VERIFIED_NO_SAFE_DIFF | NO_SAFE_DIFF | CANARY_ONLY | Native `$200 in Crypto` + `cpbrgddy`. Do not overwrite EN with FR 200 €. |
 | referralcode-tv | CANARY_READY | auth+edit proven | CANARY_ONLY | Run `31682310236`: login OK, `add-referral-code/?eid=` is the content edit form (post_content/code/buy_link). Boost `#cliccami` ≠ edit. No Kraken listing — no live write. |
 | referraldrop | AUTH_BLOCKED_GOOGLE | — | AUTH_BLOCKED | Google Sign-In. No OAuth bypass. Stay blocked. |
@@ -86,7 +86,7 @@ Writers live under `platforms/<id>/writer.py`. Historical `bumper.py` CONFIG mus
 
 ## Remaining human actions
 
-1. **1Parrainage login** — public HTML has `#_username` / `#_password` on `/login`. GitHub Actions headless never sees them as visible (CMP / bot wall). Confirm `ONEPARRAINAGE_*` in a real browser, then one `activation_canary.yml` `platform=1parrainage execute=true` to write only `4jdp7sea` → `s5qudqe4`.
+1. **1Parrainage headed canary** — `python -u tools/local_headed_1parrainage.py --execute` then login in the Chrome window. Edit URL 100408 still unknown. Only then targeted `4jdp7sea` → `s5qudqe4`. Local Chrome headless already sees `#_username`; GH Actions Chromium did not.
 2. **Code-Parrainage slider** — no bypass. Retry only when the historical slider solver succeeds.
 3. **Do not re-enable Super historical bumper** until a Super content WRITE_VERIFIED (not 1P).
 4. **ReferralCode.tv** — first content canary only after a Kraken listing exists. Boost ≠ edit.

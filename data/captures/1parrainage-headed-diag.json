@@ -1,0 +1,82 @@
+{
+  "at": "2026-08-13T09:15:38.750907+00:00",
+  "headed": true,
+  "stealth": false,
+  "captcha_solver": false,
+  "offer_id": "100408",
+  "old_link": "https://invite.kraken.com/JDNW/4jdp7sea",
+  "new_link": "https://invite.kraken.com/JDNW/s5qudqe4",
+  "execute": true,
+  "plan_changed_fields": {
+    "personal_link": {
+      "old": "https://invite.kraken.com/JDNW/4jdp7sea",
+      "new": "https://invite.kraken.com/JDNW/s5qudqe4"
+    }
+  },
+  "structure_preserved_plan": true,
+  "login_page": {
+    "url": "https://www.1parrainage.com/login",
+    "title": "Parrainage, Code Promo, Cashback et Réductions",
+    "visible_inputs": [
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "cat",
+        "id": "inlineCheckbox1",
+        "placeholder": null,
+        "visible": true
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "cat",
+        "id": "inlineCheckbox2",
+        "placeholder": null,
+        "visible": true
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "name": "texte",
+        "id": "typeahead",
+        "placeholder": "Rechercher une \"offre\" ou un \"parrain\"",
+        "visible": true
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "name": "_username",
+        "id": "_username",
+        "placeholder": "Email",
+        "visible": true
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "name": "_remember_me",
+        "id": "remember_me",
+        "placeholder": null,
+        "visible": true
+      },
+      {
+        "tag": "input",
+        "type": "submit",
+        "name": "submit",
+        "id": null,
+        "placeholder": null,
+        "visible": true
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "name": "email",
+        "id": "email",
+        "placeholder": "Votre email*",
+        "visible": true
+      }
+    ]
+  },
+  "headed_login": "manual",
+  "authenticated": false,
+  "error": "manual_login_timeout_or_challenge"
+}

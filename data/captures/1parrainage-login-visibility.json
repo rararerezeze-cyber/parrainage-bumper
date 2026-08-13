@@ -1,0 +1,70 @@
+{
+  "headless": {
+    "url": "https://www.1parrainage.com/login",
+    "title": "Parrainage, Code Promo, Cashback et Réductions",
+    "username": {
+      "present": true,
+      "visible_css": true,
+      "w": 540,
+      "h": 35,
+      "playwright_box": true
+    },
+    "password": {
+      "present": true,
+      "visible_css": true,
+      "w": 540,
+      "h": 35,
+      "playwright_box": true
+    },
+    "newsletter_email": {
+      "present": true,
+      "visible_css": true,
+      "w": 288,
+      "h": 35,
+      "playwright_box": true
+    },
+    "submit": {
+      "present": true,
+      "visible_css": true,
+      "w": 540,
+      "h": 36,
+      "playwright_box": true
+    },
+    "body_sample": "PROFITEZ DES PROMOS DE PARRAINAGES, AVEC NOS MISES EN RELATION PARRAINS FILLEULS !\nOFFRE\nPARRAIN\n Se connecter S'inscrire\nCONNECTEZ-VOUS À VOTRE COMPTE\n Se Rappeler De Moi\nMot de passe oublié ?\nPas encore de compte ? S'inscrire\nUNE OFFRE DE PARRAINAGE N'EXISTE PAS ?\n\nVous constatez qu'une offre de parrainage n'existe pas encore sur 1parrainage.com ?\nContactez-nous avec un maximum d'informations po",
+    "headless": true
+  },
+  "headed_chrome": {
+    "url": "https://www.1parrainage.com/login",
+    "title": "Parrainage, Code Promo, Cashback et Réductions",
+    "username": {
+      "present": true,
+      "visible_css": true,
+      "w": 540,
+      "h": 35,
+      "playwright_box": true
+    },
+    "password": {
+      "present": true,
+      "visible_css": true,
+      "w": 540,
+      "h": 35,
+      "playwright_box": true
+    },
+    "newsletter_email": {
+      "present": true,
+      "visible_css": true,
+      "w": 288.65625,
+      "h": 35,
+      "playwright_box": true
+    },
+    "submit": {
+      "present": true,
+      "visible_css": true,
+      "w": 540,
+      "h": 35.333335876464844,
+      "playwright_box": true
+    },
+    "body_sample": "PROFITEZ DES PROMOS DE PARRAINAGES, AVEC NOS MISES EN RELATION PARRAINS FILLEULS !\nOFFRE\nPARRAIN\n Se connecter S'inscrire\nCONNECTEZ-VOUS À VOTRE COMPTE\n Se Rappeler De Moi\nMot de passe oublié ?\nPas encore de compte ? S'inscrire\nUNE OFFRE DE PARRAINAGE N'EXISTE PAS ?\n\nVous constatez qu'une offre de parrainage n'existe pas encore sur 1parrainage.com ?\nContactez-nous avec un maximum d'informations po",
+    "headless": false
+  }
+}

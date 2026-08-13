@@ -46,6 +46,9 @@ KNOWN_PATHS = {
 }
 
 MEMBER_CANDIDATES = (
+    f"{BASE}/espace_parrain/",
+    f"{BASE}/espace_parrain/annonces/",
+    f"{BASE}/espace_parrain/offres/",
     f"{BASE}/espace_membre.php",
     f"{BASE}/espace-parrain",
     f"{BASE}/mes-annonces.php",
@@ -253,6 +256,21 @@ async def _login(page, cfg: dict) -> None:
     await page.goto(LOGIN_URL, wait_until="domcontentloaded", timeout=60000)
     await bumper.human_sleep(1.0, 2.0)
     await _detect_challenge(page)
+    # Consent banners can cover #_username in Linux headless (visible locally).
+    for sel in (
+        "#didomi-notice-agree-button",
+        'button:has-text("Tout accepter")',
+        'button:has-text("Accept all")',
+        'button:has-text("J\'accepte")',
+    ):
+        try:
+            loc = page.locator(sel).first
+            if await loc.count() and await loc.is_visible():
+                await loc.click(timeout=2000)
+                await bumper.human_sleep(0.4, 0.8)
+                break
+        except Exception:
+            continue
     if "/login" not in page.url and "connexion" not in page.url.lower():
         # already a session? confirm not bounced
         log.info("not on /login after goto — checking session")
@@ -596,10 +614,14 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
                 "--no-sandbox",
                 "--disable-dev-shm-usage",
                 "--lang=fr-FR",
-                "--disable-blink-features=AutomationControlled",
+                "--window-size=1280,720",
             ],
         )
         ctx = await bumper.new_context(browser)
+        try:
+            await ctx.set_viewport_size({"width": 1280, "height": 720})
+        except Exception:
+            pass
         page = await ctx.new_page()
         try:
             steps.append("login")

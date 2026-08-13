@@ -17,3 +17,5 @@ data/captures/referralcodes-next-data.json
 data/captures/write-run-*/
 debug_*.png
 debug_*.json
+.local-auth/
+*.storage-state.json
