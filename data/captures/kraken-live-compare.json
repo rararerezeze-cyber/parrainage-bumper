@@ -1,0 +1,48 @@
+{
+  "at": "2026-08-13T08:06:31.058012+00:00",
+  "live": false,
+  "expected": {
+    "personal_code": "cpbrgddy",
+    "personal_link": "https://invite.kraken.com/JDNW/s5qudqe4",
+    "referee_reward": "200 € en cryptomonnaies"
+  },
+  "forbidden_must_not_publish": [
+    "4hpz4gdy",
+    "proinvite.kraken.com",
+    "20 € en Bitcoin",
+    "20€ en Bitcoin"
+  ],
+  "platforms": [
+    {
+      "platform": "parrainage-co",
+      "ok": false,
+      "error": "cannot import name '_cfg' from 'platforms.parrainage_co.writer' (/home/runner/work/parrainage-bumper/parrainage-bumper/platforms/parrainage_co/writer.py)",
+      "class": "DOM_BLOCKED"
+    },
+    {
+      "platform": "code-parrainage",
+      "ok": false,
+      "error": "slider captcha non resolu (pas de contournement anti-bot)",
+      "class": "DOM_BLOCKED"
+    },
+    {
+      "platform": "1parrainage",
+      "ok": false,
+      "error": "login 1parrainage echoue (invalid credentials?)",
+      "class": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "referralcodes",
+      "ok": true,
+      "method": "public_profile",
+      "url": "https://referralcodes.com/TheSuperReff",
+      "observed": {
+        "personal_code": "cpbrgddy",
+        "personal_link": null,
+        "referee_reward": null
+      },
+      "class": "REAL_SAFE_DIFF"
+    }
+  ],
+  "first_real_safe_diff": "referralcodes"
+}
