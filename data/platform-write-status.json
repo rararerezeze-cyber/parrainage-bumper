@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-08-13T10:32:53.339624+00:00",
+  "updated_at": "2026-08-13T11:29:23.307333+00:00",
   "note": "Strict write readiness. WRITE_VERIFIED requires full post-verify evidence. Telegram live writes only for WRITE_VERIFIED platforms.",
   "write_verified_count": 1,
   "write_verified_ratio": "1/7",
@@ -37,15 +37,22 @@
     "code-parrainage": {
       "status": "CANARY_READY",
       "canary_program": "kraken",
-      "notes": "CANARY_READY: login (slider solver as historical bumper) + edit + save + reread account (public if URL). Kraken first. Not WRITE_VERIFIED until post_match.",
-      "last_compare_class": "DOM_BLOCKED",
-      "last_compare_at": "2026-08-13T08:17:27.405521+00:00",
-      "last_compare_note": "slider captcha non resolu (pas de contournement). Dry-run vs mapping has no field diff. Not SYNC (no live reread). Not WRITE_VERIFIED."
+      "notes": "GH 31695046367: historical bumper.solve_slider OK (captcha_valide=true). Auth reread Kraken already cpbrgddy / s5qudqe4 / 200 EUR. Not WRITE_VERIFIED (no save).",
+      "last_compare_class": "NO_SAFE_DIFF",
+      "last_compare_at": "2026-08-13T11:29:23.291254+00:00",
+      "last_compare_note": "slider solver shared with bumper succeeded; account reread matches OPERATOR_VALIDATED",
+      "content_sync": "SYNC_VERIFIED_NO_SAFE_DIFF",
+      "sync_verified_at": "2026-08-13T11:29:23.277779+00:00",
+      "last_compare_observed": {
+        "personal_code": "cpbrgddy",
+        "personal_link": "https://invite.kraken.com/JDNW/s5qudqe4",
+        "referee_reward": "200 € en cryptomonnaies"
+      }
     },
     "1parrainage": {
       "status": "WRITE_VERIFIED",
       "canary_program": "kraken",
-      "notes": "WRITE_VERIFIED (local headed Chrome): CKEditor presentation link-only 4jdp7sea -> s5qudqe4, Envoyer on form[action*=parrainages/edit/2541207], account+public reread post_match. Code/reward unchanged. GH Actions headless login still unproven. No Boost/Remonter. Telegram LIVE_UPDATE allowed for this platform only.",
+      "notes": "WRITE_VERIFIED (headed Envoyer). GH 31695046367 headless login+edit PROVEN: /espace_parrain + CKEditor edit/2541207, s5qudqe4 present, save_clicked=false. PC-off read/edit path yes. No GH live save yet.",
       "last_compare_class": "NO_SAFE_DIFF",
       "last_compare_at": "2026-08-13T10:32:53.322453+00:00",
       "last_compare_note": "headed canary Envoyer + independent public reread: s5qudqe4 present, 4jdp7sea absent, cpbrgddy + 200 EUR unchanged",
@@ -78,7 +85,10 @@
         "recorded_at": "2026-08-13T10:29:40.550997+00:00",
         "source": "local_headed_1parrainage"
       },
-      "content_sync": "SYNC_VERIFIED_NO_SAFE_DIFF"
+      "content_sync": "SYNC_VERIFIED_NO_SAFE_DIFF",
+      "gh_headless_login": "PROVEN",
+      "gh_headless_edit": "PROVEN",
+      "gh_headless_save": "NOT_RUN"
     },
     "referralcodes": {
       "status": "CANARY_READY",

@@ -1,10 +1,10 @@
 {
   "platform": "code-parrainage",
-  "program": "kraken",
+  "program": "vinted",
   "language": "fr",
   "sync_mode": "SAFE_AUTO",
   "template_status": "ready",
-  "golden_file": "kraken.fr.golden.txt",
+  "golden_file": "vinted.fr.golden.txt",
   "mutable_fields": [
     "personal_code",
     "personal_link",
@@ -24,18 +24,18 @@
     "conditions": "cond"
   },
   "announcement_url": null,
-  "edit_url": "https://code-parrainage.net/annonce/84601",
+  "edit_url": "https://code-parrainage.net/annonce/58869",
   "platform_values": {
-    "personal_code": "cpbrgddy",
-    "personal_link": "https://invite.kraken.com/JDNW/s5qudqe4",
-    "referee_reward": "200 € en cryptomonnaies"
+    "personal_code": "weeew89",
+    "personal_link": "https://www.vinted.fr/invite/weeew89",
+    "referee_reward": "inscription via mon lien de parrainage ✅"
   },
   "confidences": {
     "personal_code": "high",
     "personal_link": "high",
     "referee_reward": "high"
   },
-  "notes": "auth_edit_url=https://code-parrainage.net/annonce/84601; chars=869",
+  "notes": "auth_edit_url=https://code-parrainage.net/annonce/58869; chars=1035",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",

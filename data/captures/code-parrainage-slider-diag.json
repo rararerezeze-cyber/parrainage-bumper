@@ -1,0 +1,10 @@
+{
+  "present": true,
+  "canvas_count": 2,
+  "target_x": 181,
+  "drag_px": 161,
+  "captcha_valide": "true",
+  "widget_gone": null,
+  "ok": true,
+  "note": "existing solver only — no bypass, no extra attempts on same puzzle"
+}

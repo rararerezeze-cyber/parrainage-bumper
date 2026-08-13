@@ -113,5 +113,6 @@ jobs:
             echo "No capture files to commit"
           else
             git commit -m "chore(capture): AUTH READ-ONLY account capture artifacts"
+            git pull --rebase origin "${GITHUB_REF_NAME}" || git pull --rebase origin HEAD
             git push
           fi

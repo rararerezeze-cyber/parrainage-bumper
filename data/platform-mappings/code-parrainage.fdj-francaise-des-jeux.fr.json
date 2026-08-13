@@ -1,12 +1,11 @@
 {
   "platform": "code-parrainage",
-  "program": "kraken",
+  "program": "fdj-francaise-des-jeux",
   "language": "fr",
-  "sync_mode": "SAFE_AUTO",
+  "sync_mode": "REVIEW",
   "template_status": "ready",
-  "golden_file": "kraken.fr.golden.txt",
+  "golden_file": "fdj-francaise-des-jeux.fr.golden.txt",
   "mutable_fields": [
-    "personal_code",
     "personal_link",
     "referee_reward"
   ],
@@ -24,18 +23,16 @@
     "conditions": "cond"
   },
   "announcement_url": null,
-  "edit_url": "https://code-parrainage.net/annonce/84601",
+  "edit_url": "https://code-parrainage.net/annonce/83441",
   "platform_values": {
-    "personal_code": "cpbrgddy",
-    "personal_link": "https://invite.kraken.com/JDNW/s5qudqe4",
-    "referee_reward": "200 € en cryptomonnaies"
+    "personal_link": "https://www.fdj.fr/inscription/fdj?campaign=codeparrain&parrain=D169E-65BB3-4BEED",
+    "referee_reward": "1. Crée un compte FDJ via le lien ci-dessus"
   },
   "confidences": {
-    "personal_code": "high",
     "personal_link": "high",
-    "referee_reward": "high"
+    "referee_reward": "medium"
   },
-  "notes": "auth_edit_url=https://code-parrainage.net/annonce/84601; chars=869",
+  "notes": "bonus extrait du texte plateforme (confiance moyenne); auth_edit_url=https://code-parrainage.net/annonce/83441; chars=1219",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",
