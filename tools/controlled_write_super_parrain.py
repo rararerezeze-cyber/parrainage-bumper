@@ -33,6 +33,11 @@ def main() -> int:
     parser.add_argument("--language", default="fr")
     parser.add_argument("--execute", action="store_true")
     parser.add_argument(
+        "--inspect",
+        action="store_true",
+        help="Login + open Mes annonces form, no fill, no Enregistrer.",
+    )
+    parser.add_argument(
         "--force",
         action="store_true",
         help="Confirme l'intention d'ecrire. NE contourne PAS le cooldown plateforme.",
@@ -82,6 +87,32 @@ def main() -> int:
     eligible, nxt, hours = is_eligible()
     print(f"\ncooldown_eligible={eligible} next_eligible_at={nxt.isoformat()} hours_remaining={hours:.2f}")
     print("note: --force ne contourne jamais le cooldown Super-Parrain")
+
+    if args.inspect:
+        result = asyncio.run(execute_write(plan, dry_run=True, inspect_only=True))
+        path = OUT_DIR / f"write-{plan.platform}-{plan.program}-inspect.json"
+        OUT_DIR.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            json.dumps(
+                {
+                    "inspect": True,
+                    "save_clicked": False,
+                    "ok": result.ok,
+                    "error": result.error,
+                    "edit_url": result.edit_url,
+                    "steps": result.steps,
+                    "changed_fields": plan.changed_fields,
+                    "structure_preserved": plan.structure_preserved,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        print(f"\n[inspect only] save_clicked=false {path}")
+        print(f"ok={result.ok} edit_url={result.edit_url} error={result.error}")
+        return 0 if result.ok else 1
 
     if not args.execute:
         result = asyncio.run(execute_write(plan, dry_run=True))

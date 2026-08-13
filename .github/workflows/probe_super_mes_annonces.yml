@@ -1,0 +1,37 @@
+name: Probe Super Mes annonces (READ-ONLY)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: super-mes-annonces-readonly
+  cancel-in-progress: false
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+      - name: READ-ONLY Mes annonces discovery
+        env:
+          SUPER_PARRAIN_EMAIL: ${{ secrets.SUPER_PARRAIN_EMAIL }}
+          SUPER_PARRAIN_PASSWORD: ${{ secrets.SUPER_PARRAIN_PASSWORD }}
+          AUTOFRESH_LIVE_WRITES: "0"
+        run: python -u tools/probe_super_parrain_mes_annonces.py
+      - name: Upload discovery
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: super-mes-annonces-discovery
+          retention-days: 14
+          path: |
+            data/captures/super-poulpeo-mes-annonces-discovery.json
+            data/captures/debug-super-poulpeo-mes-annonces.png
+          if-no-files-found: warn

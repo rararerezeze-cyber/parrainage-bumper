@@ -20,6 +20,12 @@ if str(_ROOT / "tools") not in sys.path:
 from lib.http_fetch import fetch_text
 from lib.offers import OffersRepository
 from lib.renderer import MappingRepository, Renderer, TemplateRepository
+from lib.super_parrain_resource import (
+    HARD_STOP_WRONG_RESOURCE,
+    assert_announcement_edit_url,
+    assert_not_codes_promo_form,
+    classify_edit_url,
+)
 from lib.template_builder import extract_values_via_template, structure_preserved_via_markers
 import capture_super_parrain as csp
 
@@ -38,6 +44,7 @@ class WritePlan:
     program: str
     language: str
     announcement_url: str
+    edit_url: str | None
     historical: str
     rendered: str
     variables: dict[str, str | None]
@@ -116,6 +123,7 @@ def build_write_plan(
         program=program,
         language=language,
         announcement_url=url,
+        edit_url=mapping.edit_url,
         historical=historical,
         rendered=rendered,
         variables=variables,
@@ -130,6 +138,7 @@ def plan_report_lines(plan: WritePlan) -> list[str]:
     lines = [
         f"WRITE PLAN {plan.platform}/{plan.program}.{plan.language}",
         f"URL: {plan.announcement_url}",
+        f"EDIT: {plan.edit_url}",
         f"Structure preserved (only mutable vars): {plan.structure_preserved}",
         "Changed fields:",
     ]
@@ -187,18 +196,22 @@ async def _find_program_edit_url(
     base: str,
     program: str,
     announcement_url: str | None = None,
+    preferred_edit_url: str | None = None,
 ) -> str:
-    """Trouve l'URL d'edition du programme cible (annonces > codes-promo)."""
+    """Mes annonces edit only. codes-promo is a hard reject."""
     bumper_mod = _bumper()
     needle = (program or "").strip().lower()
     if not needle:
         raise RuntimeError("program manquant pour trouver l'URL d'edition")
+
+    if preferred_edit_url:
+        assert_announcement_edit_url(preferred_edit_url)
+        return preferred_edit_url
+
     candidates_pages = [
         f"{base}/tableau-de-bord/annonces",
         f"{base}/tableau-de-bord/mes-annonces",
         f"{base}/tableau-de-bord/parrainages",
-        f"{base}/tableau-de-bord",
-        f"{base}/tableau-de-bord/codes-promo",
     ]
     ranked: list[tuple[int, str]] = []
     for url in candidates_pages:
@@ -220,11 +233,12 @@ async def _find_program_edit_url(
                 const label = ((a.innerText || a.textContent || '') + ' ' + href).toLowerCase();
                 if (!href) continue;
                 if (href.includes('boost') || href.includes('supprim') || href.includes('delete')) continue;
+                if (href.includes('/codes-promo/')) continue;
                 const isEdit = href.includes('/edit') || href.includes('modifier')
                   || label.includes('modifier') || label.includes('éditer') || label.includes('editer');
                 if (!isEdit) continue;
                 const isTarget = label.includes(needle) || href.includes(needle);
-                out.push({href, isTarget, isCodesPromo: href.includes('codes-promo')});
+                out.push({href, isTarget});
               }
               return out;
             }
@@ -232,42 +246,15 @@ async def _find_program_edit_url(
             needle,
         )
         for h in hrefs:
+            href = h.get("href") or ""
             if not h.get("isTarget"):
                 continue
-            score = 0
-            if not h.get("isCodesPromo"):
+            if classify_edit_url(href) == "CODES_PROMO" or "/codes-promo/" in href.lower():
+                raise RuntimeError(f"{HARD_STOP_WRONG_RESOURCE}: codes-promo url={href}")
+            score = 5
+            if "annonce" in href:
                 score += 10
-            if "annonce" in h["href"]:
-                score += 5
-            ranked.append((score, h["href"]))
-
-        pair = await page.evaluate(
-            """
-            (needle) => {
-              const rows = Array.from(document.querySelectorAll('tr, .card, li, article, .list-item, .row'));
-              for (const row of rows) {
-                const t = (row.innerText || '').toLowerCase();
-                if (!t.includes(needle)) continue;
-                const a = row.querySelector('a[href*="edit"], a[href*="modifier"]');
-                if (a && a.href) return a.href;
-              }
-              return null;
-            }
-            """,
-            needle,
-        )
-        if pair:
-            score = 10 if "codes-promo" not in pair else 1
-            ranked.append((score, pair))
-
-    if ranked:
-        ranked.sort(key=lambda x: -x[0])
-        chosen = ranked[0][1]
-        if needle not in chosen.lower():
-            raise RuntimeError(
-                f"STOP unexpected edit URL for {program}: {chosen} — refuse other listing"
-            )
-        return chosen
+            ranked.append((score, href))
 
     public = announcement_url or f"{base}/offres/{needle}/parrainage-{needle}/annonces/adrien-b-8"
     try:
@@ -282,6 +269,7 @@ async def _find_program_edit_url(
               const a = Array.from(document.querySelectorAll('a[href]')).find(x => {
                 const t = (x.innerText||'').toLowerCase();
                 const h = x.href || '';
+                if ((h || '').includes('/codes-promo/')) return false;
                 return t.includes('modifier') || t.includes('éditer') || t.includes('editer')
                   || h.includes('edit') || h.includes('modifier');
               });
@@ -290,20 +278,22 @@ async def _find_program_edit_url(
             """
         )
         if edit:
-            if needle not in edit.lower() and needle not in (await page.inner_text("body")).lower():
-                raise RuntimeError(
-                    f"STOP unexpected DOM: edit {edit} is not {program}"
-                )
-            return edit
+            if "/codes-promo/" in edit.lower():
+                raise RuntimeError(f"{HARD_STOP_WRONG_RESOURCE}: codes-promo url={edit}")
+            ranked.append((20, edit))
     except RuntimeError:
         raise
     except Exception:
         pass
 
-    raise RuntimeError(
-        f"URL d'edition {program} introuvable (contenu). "
-        "Le lien codes-promo/edit est le flux remontee et peut etre bloque 24h."
-    )
+    if not ranked:
+        raise RuntimeError(
+            f"URL d'edition Mes annonces introuvable pour {program}. "
+            f"{HARD_STOP_WRONG_RESOURCE}: refusing codes-promo fallback"
+        )
+    ranked.sort(key=lambda x: -x[0])
+    chosen = ranked[0][1]
+    return assert_announcement_edit_url(chosen)
 
 
 async def _dismiss_blocking_modals(page) -> list[str]:
@@ -371,9 +361,13 @@ async def _dump_form_debug(page, path: str) -> dict[str, Any]:
 
 
 async def _fill_announcement_body(page, text: str, *, code: str | None = None, link: str | None = None) -> str:
-    """Remplit le corps d'annonce. Gere textarea, contenteditable, editeurs iframe, champs code/lien."""
+    """Remplit le corps d'annonce Mes annonces. Refuse codes-promo avant tout fill."""
     await _dismiss_blocking_modals(page)
     debug = await _dump_form_debug(page, "debug_super_write_form.json")
+    form_names = [str((i or {}).get("name") or "") for i in (debug.get("inputs") or [])]
+    form_names.append(str(debug.get("url") or page.url or ""))
+    assert_not_codes_promo_form(url=page.url, form_names=form_names, html=debug.get("bodyPreview"))
+    assert_announcement_edit_url(page.url)
 
     # 1) textareas classiques
     info = await page.evaluate(
@@ -389,9 +383,16 @@ async def _fill_announcement_body(page, text: str, *, code: str | None = None, l
         best = max(info, key=lambda x: x["len"])
         for cand in info:
             n = (cand.get("name") or cand.get("id") or "").lower()
-            if any(k in n for k in ("message", "description", "contenu", "texte", "annonce", "body", "content")):
+            if "edit_code_promo_by_user_form" in n or "condition" in n:
+                continue
+            if any(k in n for k in ("message", "contenu", "texte", "annonce", "body", "presentation")):
                 best = cand
                 break
+        best_name = (best.get("name") or best.get("id") or "").lower()
+        if "edit_code_promo_by_user_form" in best_name:
+            raise RuntimeError(
+                f"{HARD_STOP_WRONG_RESOURCE}: refusing textarea {best.get('name')}"
+            )
         idx = best["i"]
         loc = page.locator("textarea").nth(idx)
         await loc.wait_for(state="visible", timeout=15000)
@@ -449,46 +450,10 @@ async def _fill_announcement_body(page, text: str, *, code: str | None = None, l
         except Exception:
             continue
 
-    # 4) Fallback: discrete code/title/link inputs (Super-Parrain codes-promo table)
-    filled_parts = []
-    if code:
-        for sel in (
-            'input[name*="code" i]',
-            'input[id*="code" i]',
-            'input[placeholder*="code" i]',
-        ):
-            loc = page.locator(sel).first
-            try:
-                if await loc.count() and await loc.is_visible():
-                    await loc.fill(code)
-                    filled_parts.append(f"code:{sel}")
-                    break
-            except Exception:
-                continue
-    if link:
-        for sel in (
-            'input[name*="lien" i]',
-            'input[name*="link" i]',
-            'input[name*="url" i]',
-            'input[id*="lien" i]',
-            'input[id*="link" i]',
-        ):
-            loc = page.locator(sel).first
-            try:
-                if await loc.count() and await loc.is_visible():
-                    await loc.fill(link)
-                    filled_parts.append(f"link:{sel}")
-                    break
-            except Exception:
-                continue
-
-    if filled_parts:
-        return "fields:" + ",".join(filled_parts)
-
-    # Helpful error with page context
     preview = (debug.get("bodyPreview") or "")[:300].replace("\n", " ")
     raise RuntimeError(
-        "Aucun champ d'edition de texte trouve sur la page. "
+        f"{HARD_STOP_WRONG_RESOURCE}: no Mes annonces body field "
+        f"(refusing codes-promo / discrete fallback). "
         f"url={debug.get('url')} inputs={len(debug.get('inputs') or [])} "
         f"iframes={len(debug.get('iframes') or [])} body={preview!r}"
     )
@@ -536,7 +501,9 @@ def _reread_public(url: str) -> str:
     return text
 
 
-async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult:
+async def execute_write(
+    plan: WritePlan, *, dry_run: bool = True, inspect_only: bool = False
+) -> WriteResult:
     steps: list[str] = []
     from lib.phase import content_write_allowed, phase_name
 
@@ -557,15 +524,18 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
             post_publish_text=plan.historical,
         )
 
-    if dry_run or not content_write_allowed("super-parrain"):
+    if dry_run and not inspect_only:
         return WriteResult(
             ok=True,
             plan=plan,
-            steps=[
-                "dry-run only — aucune publication"
-                if dry_run
-                else f"LIVE_DISABLED ({phase_name()}) — need CANARY_READY/WRITE_VERIFIED"
-            ],
+            steps=["dry-run only — aucune publication"],
+            post_match=None,
+        )
+    if not inspect_only and not content_write_allowed("super-parrain"):
+        return WriteResult(
+            ok=True,
+            plan=plan,
+            steps=[f"LIVE_DISABLED ({phase_name()}) — need CANARY_READY/WRITE_VERIFIED"],
             post_match=None,
         )
 
@@ -600,10 +570,17 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
             await _login_super(page, cfg)
             steps.append("find_edit_url")
             edit_url = await _find_program_edit_url(
-                page, cfg["url"], plan.program, plan.announcement_url
+                page,
+                cfg["url"],
+                plan.program,
+                plan.announcement_url,
+                preferred_edit_url=plan.edit_url,
             )
             steps.append(f"edit_url={edit_url}")
-            if plan.program.lower() not in (edit_url or "").lower():
+            assert_announcement_edit_url(edit_url)
+            if plan.program.lower() not in (edit_url or "").lower() and plan.program.lower() not in (
+                plan.announcement_url or ""
+            ).lower():
                 return WriteResult(
                     ok=False,
                     plan=plan,
@@ -632,10 +609,11 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
             # Detect 24h remontee lock before filling
             dismiss_notes = await _dismiss_blocking_modals(page)
             steps.extend(dismiss_notes)
-            body_now = (await page.inner_text("body")).lower()
-            if "moins de 24" in body_now or (
-                "24h" in body_now and "réessayer" in body_now
-            ) or ("24h" in body_now and "reessayer" in body_now):
+            body_now = await page.inner_text("body")
+            body_low = body_now.lower()
+            if "moins de 24" in body_low or (
+                "24h" in body_low and "réessayer" in body_low
+            ) or ("24h" in body_low and "reessayer" in body_low):
                 return WriteResult(
                     ok=False,
                     plan=plan,
@@ -646,6 +624,42 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
                         "sans risquer le flux bump. Reessayer apres le delai 24h."
                     ),
                     steps=steps + ["blocked_24h"],
+                )
+
+            form_dump = await _dump_form_debug(page, "debug_super_write_form.json")
+            form_names = [str((i or {}).get("name") or "") for i in (form_dump.get("inputs") or [])]
+            assert_not_codes_promo_form(
+                url=page.url, form_names=form_names, html=form_dump.get("bodyPreview")
+            )
+            if plan.program == "poulpeo":
+                from lib.super_parrain_resource import poulpeo_pre_save_assertions
+
+                chk = poulpeo_pre_save_assertions(
+                    page_url=page.url,
+                    page_text=body_now,
+                    public_listing=plan.announcement_url,
+                    rendered=plan.rendered,
+                    historical=plan.historical,
+                )
+                steps.append(f"poulpeo_pre_save={chk}")
+                if not chk["ok"]:
+                    return WriteResult(
+                        ok=False,
+                        plan=plan,
+                        edit_url=edit_url,
+                        error=f"STOP pre-save assertions failed: {chk['errors']}",
+                        steps=steps,
+                    )
+
+            if inspect_only:
+                steps.append("inspect_only — no fill, no Enregistrer")
+                return WriteResult(
+                    ok=True,
+                    plan=plan,
+                    edit_url=edit_url,
+                    account_reread_text=body_now,
+                    steps=steps,
+                    post_match=None,
                 )
 
             steps.append("fill_body")
