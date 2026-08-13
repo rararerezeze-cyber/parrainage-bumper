@@ -132,32 +132,26 @@ async def _page_values(page) -> dict:
 
 
 async def _locate_link_field(page) -> dict | None:
-    return await page.evaluate(
-        """
-        (oldLink, newLink) => {
-          const els = Array.from(document.querySelectorAll('textarea, input'));
-          for (let i = 0; i < els.length; i++) {
-            const el = els[i];
-            const v = el.value || '';
-            if (v.includes(oldLink) || v.includes(newLink)) {
-              return {
-                index: i,
-                tag: el.tagName.toLowerCase(),
-                type: el.type || null,
-                name: el.name || null,
-                id: el.id || null,
-                value: v,
-                has_old: v.includes(oldLink),
-                has_new: v.includes(newLink),
-              };
-            }
-          }
-          return null;
+    loc = page.locator("textarea, input:not([type='password']):not([type='hidden'])")
+    n = await loc.count()
+    for i in range(n):
+        el = loc.nth(i)
+        try:
+            v = await el.input_value()
+        except Exception:
+            continue
+        if OLD_LINK not in v and NEW_LINK not in v:
+            continue
+        return {
+            "index": i,
+            "name": await el.get_attribute("name"),
+            "id": await el.get_attribute("id"),
+            "type": await el.get_attribute("type"),
+            "value": v,
+            "has_old": OLD_LINK in v,
+            "has_new": NEW_LINK in v,
         }
-        """,
-        OLD_LINK,
-        NEW_LINK,
-    )
+    return None
 
 
 async def _find_edit_same_session(page, report: dict) -> str | None:
@@ -259,28 +253,18 @@ async def _find_edit_same_session(page, report: dict) -> str | None:
 
 
 async def _set_link_only(page, field: dict) -> None:
-    ok = await page.evaluate(
-        """
-        (info, oldLink, newLink) => {
-          const els = Array.from(document.querySelectorAll('textarea, input'));
-          const el = els[info.index];
-          if (!el) return false;
-          const v = el.value || '';
-          if (!v.includes(oldLink) || v.includes(newLink)) return false;
-          const next = v.split(oldLink).join(newLink);
-          if (next === v) return false;
-          el.focus();
-          el.value = next;
-          el.dispatchEvent(new Event('input', {bubbles: true}));
-          el.dispatchEvent(new Event('change', {bubbles: true}));
-          return el.value.includes(newLink) && !el.value.includes(oldLink);
-        }
-        """,
-        field,
-        OLD_LINK,
-        NEW_LINK,
+    loc = page.locator("textarea, input:not([type='password']):not([type='hidden'])").nth(
+        int(field["index"])
     )
-    if not ok:
+    v = await loc.input_value()
+    if OLD_LINK not in v or NEW_LINK in v:
+        raise RuntimeError("targeted replace failed — STOP no save")
+    nxt = v.replace(OLD_LINK, NEW_LINK)
+    if nxt == v:
+        raise RuntimeError("targeted replace failed — STOP no save")
+    await loc.fill(nxt)
+    got = await loc.input_value()
+    if NEW_LINK not in got or OLD_LINK in got:
         raise RuntimeError("targeted replace failed — STOP no save")
 
 
