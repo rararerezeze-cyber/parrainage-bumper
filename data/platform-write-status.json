@@ -95,7 +95,10 @@
     "referralcode-tv": {
       "status": "CANARY_READY",
       "canary_program": "kraken",
-      "notes": "CANARY_READY: auth ok (31682310236) + real edit form add-referral-code/?eid= with post_content/code/buy_link. Boost #cliccami is not content edit. No Kraken listing on the account — first content canary waits for a real listing. Not WRITE_VERIFIED."
+      "notes": "KRAKEN_EXISTS (referralcode-tv-raw.txt: Kraken Referral Bonus – Up to $200 in Crypto). EID_NOT_YET_RESOLVED — do not create a listing; resolve EID read-only later. AUTH_EDIT_PATH_PROVEN (31682310236): add-referral-code/?eid= with post_content/code/buy_link. Boost #cliccami is not content edit. Not WRITE_VERIFIED. No live write.",
+      "kraken_listing": "KRAKEN_EXISTS",
+      "eid_status": "EID_NOT_YET_RESOLVED",
+      "auth_edit_path": "AUTH_EDIT_PATH_PROVEN"
     },
     "referraldrop": {
       "status": "AUTH_BLOCKED_GOOGLE",

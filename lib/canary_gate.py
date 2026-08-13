@@ -175,8 +175,13 @@ def may_execute_canary(platform: str, *, for_super: bool = False) -> dict[str, A
 
     if plat == "referralcode-tv":
         # Auth + add-referral-code/?eid= edit form proven (run 31682310236).
-        # Boost #cliccami is not content edit. No Kraken listing exists yet.
-        out["error"] = "RCTV_NO_KRAKEN_LISTING"
+        # Boost #cliccami is not content edit. Kraken listing EXISTS on the
+        # account (data/captures/referralcode-tv-raw.txt) but the Kraken EID
+        # is not resolved. Do not create a listing. No live write until EID.
+        out["error"] = "RCTV_EID_NOT_YET_RESOLVED"
+        out["kraken"] = "KRAKEN_EXISTS"
+        out["eid"] = "EID_NOT_YET_RESOLVED"
+        out["auth_edit"] = "AUTH_EDIT_PATH_PROVEN"
         out["edit_form"] = "https://referralcode.tv/add-referral-code/?eid="
         return out
 

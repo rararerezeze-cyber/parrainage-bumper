@@ -1,0 +1,3916 @@
+{
+  "schema": "AUTOFRESH_FINAL_READONLY_AUDIT",
+  "live_write": false,
+  "inventories": {
+    "super-parrain": {
+      "count": 35,
+      "identified_programs": [
+        "acheel",
+        "airbnb",
+        "betclic",
+        "binance",
+        "bitstack",
+        "boursobank",
+        "bybit",
+        "coinbase",
+        "deblock",
+        "ebuyclub",
+        "fdj-francaise-des-jeux",
+        "finary",
+        "gemini",
+        "heetch",
+        "igraal",
+        "joko",
+        "kraken",
+        "ledger",
+        "lolivier",
+        "nrj-mobile",
+        "okx",
+        "omio",
+        "paypal",
+        "plum",
+        "poulpeo",
+        "revolut",
+        "swissborg",
+        "totalenergies",
+        "traderepublic",
+        "unibet",
+        "vinted",
+        "whatnot",
+        "widilo",
+        "winamax",
+        "wise"
+      ],
+      "source": "super-parrain-report.json (ok + URL slugs)"
+    },
+    "parrainage-co": {
+      "count": 26,
+      "identified_programs": [
+        "acheel",
+        "betclic",
+        "bitstack",
+        "boursobank",
+        "bybit",
+        "coinbase",
+        "ebuyclub",
+        "gemini",
+        "igraal",
+        "joko",
+        "kraken",
+        "ledger",
+        "nrj-mobile",
+        "okx",
+        "plum",
+        "poulpeo",
+        "revolut",
+        "robinhood",
+        "swissborg",
+        "totalenergies",
+        "traderepublic",
+        "unibet",
+        "vinted",
+        "whatnot",
+        "widilo",
+        "winamax"
+      ],
+      "source": "parrainage-co-capture-report.json"
+    },
+    "code-parrainage": {
+      "count": 24,
+      "identified_programs": [
+        "airbnb",
+        "betclic",
+        "binance",
+        "bitstack",
+        "bybit",
+        "coinbase",
+        "deblock",
+        "ebuyclub",
+        "heetch",
+        "igraal",
+        "joko",
+        "kraken",
+        "ledger",
+        "paypal",
+        "poulpeo",
+        "revolut",
+        "robinhood",
+        "swissborg",
+        "totalenergies",
+        "traderepublic",
+        "unibet",
+        "widilo",
+        "winamax",
+        "wise"
+      ],
+      "source": "platform-mappings (auth inventory; no public profile)"
+    },
+    "referralcode-tv": {
+      "count": 23,
+      "identified_programs": [
+        "airbnb",
+        "boursobank",
+        "bybit",
+        "ebuyclub",
+        "gemini",
+        "joko",
+        "kraken",
+        "ledger",
+        "okx",
+        "paypal",
+        "revolut",
+        "robinhood",
+        "stake",
+        "swissborg",
+        "unibet",
+        "whatnot",
+        "widilo",
+        "wise"
+      ],
+      "source": "referralcode-tv-raw.txt + edit-map auth (23 live)",
+      "identified": 18,
+      "unidentified": 5,
+      "auth_snippet": "My Referral Codes 23",
+      "kraken": "KRAKEN_EXISTS"
+    },
+    "referralcodes": {
+      "count": 9,
+      "identified_programs": [
+        "airbnb",
+        "coinbase",
+        "heetch",
+        "joko",
+        "kraken",
+        "omio",
+        "unibet",
+        "widilo",
+        "wise"
+      ],
+      "source": "mappings + TheSuperReff.html (public; official import path)"
+    },
+    "referraldrop": {
+      "count": 8,
+      "identified_programs": [
+        "airbnb",
+        "bybit",
+        "gemini",
+        "igraal",
+        "okx",
+        "robinhood",
+        "vinted",
+        "whatnot"
+      ],
+      "source": "mappings (public profile only; AUTH_BLOCKED_GOOGLE)"
+    },
+    "1parrainage": {
+      "count": 41,
+      "identified_programs": [
+        "acheel",
+        "airbnb",
+        "betclic",
+        "binance",
+        "bitget",
+        "bitstack",
+        "boursobank",
+        "bybit",
+        "coinbase",
+        "deblock",
+        "ebuyclub",
+        "fdj-francaise-des-jeux",
+        "finary",
+        "gemini",
+        "heetch",
+        "igraal",
+        "joko",
+        "kraken",
+        "ledger",
+        "lolivier",
+        "nrj-mobile",
+        "okx",
+        "omio",
+        "parionssport",
+        "paypal",
+        "plum",
+        "poulpeo",
+        "revolut",
+        "robinhood",
+        "swissborg",
+        "totalenergies",
+        "traderepublic",
+        "ubereats",
+        "unibet",
+        "vinted",
+        "whatnot",
+        "widilo",
+        "winamax"
+      ],
+      "source": "1parrainage-full-inventory.json",
+      "duplicates": [
+        "boursobank",
+        "airbnb",
+        "lolivier"
+      ],
+      "unmapped_brands": [
+        {
+          "brand": "coupon promotionnel Bitget",
+          "program": "bitget",
+          "offer_id": "100873"
+        },
+        {
+          "brand": "coupon promotionnel Uber eats",
+          "program": "ubereats",
+          "offer_id": null
+        }
+      ]
+    }
+  },
+  "class_counts": {
+    "READY": 128,
+    "CANONICAL_ONLY": 80,
+    "SYNC": 3,
+    "STALE_MAPPING": 1,
+    "DOM_BLOCKED": 1,
+    "MISSING_MAPPING": 6,
+    "ACCOUNT_ONLY": 3,
+    "MANUAL_WRITE": 9,
+    "AUTH_BLOCKED": 38
+  },
+  "rows": [
+    {
+      "platform": "super-parrain",
+      "program": "acheel",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "airbnb",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "betclic",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "binance",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "bitstack",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "boursobank",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "bybit",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "coinbase",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "deblock",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "ebuyclub",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "fdj-francaise-des-jeux",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "finary",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "gemini",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "grass",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "super-parrain",
+      "program": "heetch",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "igraal",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "joko",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "kraken",
+      "class": "SYNC",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "ledger",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "lolivier",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "nrj-mobile",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "okx",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "omio",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "parionssport",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "super-parrain",
+      "program": "paypal",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "plum",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "poulpeo",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "revolut",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "robinhood",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "super-parrain",
+      "program": "swissborg",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "totalenergies",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "traderepublic",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "unibet",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "vinted",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "whatnot",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "widilo",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "winamax",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "wise",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "acheel",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://parrainage.co/account/offers/edit/92118"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "airbnb",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "betclic",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://parrainage.co/account/offers/edit/75172"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "binance",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "bitstack",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://parrainage.co/account/offers/edit/114464"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "boursobank",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://parrainage.co/account/offers/edit/75195"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "bybit",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://parrainage.co/account/offers/edit/127408"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "coinbase",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://parrainage.co/account/offers/edit/76562"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "deblock",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "ebuyclub",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://parrainage.co/account/offers/edit/84358"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "fdj-francaise-des-jeux",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "finary",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "gemini",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://parrainage.co/account/offers/edit/115388"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "grass",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "heetch",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "igraal",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://parrainage.co/account/offers/edit/75178"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "joko",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://parrainage.co/account/offers/edit/86502"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "kraken",
+      "class": "SYNC",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://parrainage.co/account/offers/edit/113735"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "ledger",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://parrainage.co/account/offers/edit/115693"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "lolivier",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "nrj-mobile",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://parrainage.co/account/offers/edit/125100"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "okx",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://parrainage.co/account/offers/edit/123892"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "omio",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "parionssport",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "paypal",
+      "class": "STALE_MAPPING",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "stale_mapping",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "plum",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://parrainage.co/account/offers/edit/122884"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "poulpeo",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://parrainage.co/account/offers/edit/84354"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "revolut",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://parrainage.co/account/offers/edit/76563"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "robinhood",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://parrainage.co/account/offers/edit/115110"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "swissborg",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://parrainage.co/account/offers/edit/114509"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "totalenergies",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://parrainage.co/account/offers/edit/110585"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "traderepublic",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://parrainage.co/account/offers/edit/75174"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "unibet",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://parrainage.co/account/offers/edit/75173"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "vinted",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://parrainage.co/account/offers/edit/118536"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "whatnot",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://parrainage.co/account/offers/edit/125961"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "widilo",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://parrainage.co/account/offers/edit/109021"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "winamax",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://parrainage.co/account/offers/edit/75175"
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "wise",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "acheel",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "airbnb",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "betclic",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "binance",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "bitstack",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "boursobank",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "bybit",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "coinbase",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "deblock",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "ebuyclub",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "fdj-francaise-des-jeux",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "finary",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "gemini",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "grass",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "heetch",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "igraal",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "joko",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "kraken",
+      "class": "DOM_BLOCKED",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://code-parrainage.net/modif/84601"
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "ledger",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "lolivier",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "nrj-mobile",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "okx",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "omio",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "parionssport",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "paypal",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "plum",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "poulpeo",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "revolut",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "robinhood",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "swissborg",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "totalenergies",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "traderepublic",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "unibet",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "vinted",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "whatnot",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "widilo",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "winamax",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "wise",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "acheel",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "airbnb",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "betclic",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "binance",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "bitstack",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "boursobank",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "bybit",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "coinbase",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "deblock",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "ebuyclub",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "fdj-francaise-des-jeux",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "finary",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "gemini",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "grass",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "heetch",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "igraal",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "joko",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "kraken",
+      "class": "MISSING_MAPPING",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": false,
+      "mapping_quality": null,
+      "template": {
+        "golden": false,
+        "template": false,
+        "meta": false
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "ledger",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "lolivier",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "nrj-mobile",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "okx",
+      "class": "MISSING_MAPPING",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": false,
+      "mapping_quality": null,
+      "template": {
+        "golden": false,
+        "template": false,
+        "meta": false
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "omio",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "parionssport",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "paypal",
+      "class": "MISSING_MAPPING",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": false,
+      "mapping_quality": null,
+      "template": {
+        "golden": false,
+        "template": false,
+        "meta": false
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "plum",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "poulpeo",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "revolut",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "robinhood",
+      "class": "MISSING_MAPPING",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": false,
+      "mapping_quality": null,
+      "template": {
+        "golden": false,
+        "template": false,
+        "meta": false
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "stake",
+      "class": "ACCOUNT_ONLY",
+      "on_account": true,
+      "in_offers": false,
+      "mapping": false,
+      "mapping_quality": null,
+      "template": {
+        "golden": false,
+        "template": false,
+        "meta": false
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "swissborg",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "totalenergies",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "traderepublic",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "unibet",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "vinted",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "whatnot",
+      "class": "MISSING_MAPPING",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": false,
+      "mapping_quality": null,
+      "template": {
+        "golden": false,
+        "template": false,
+        "meta": false
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "widilo",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "winamax",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "wise",
+      "class": "MISSING_MAPPING",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": false,
+      "mapping_quality": null,
+      "template": {
+        "golden": false,
+        "template": false,
+        "meta": false
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcodes",
+      "program": "acheel",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "MANUAL_WRITE"
+    },
+    {
+      "platform": "referralcodes",
+      "program": "airbnb",
+      "class": "MANUAL_WRITE",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "manual_write",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "MANUAL_WRITE",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcodes",
+      "program": "betclic",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "MANUAL_WRITE"
+    },
+    {
+      "platform": "referralcodes",
+      "program": "binance",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "MANUAL_WRITE"
+    },
+    {
+      "platform": "referralcodes",
+      "program": "bitstack",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "MANUAL_WRITE"
+    },
+    {
+      "platform": "referralcodes",
+      "program": "boursobank",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "MANUAL_WRITE"
+    },
+    {
+      "platform": "referralcodes",
+      "program": "bybit",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "MANUAL_WRITE"
+    },
+    {
+      "platform": "referralcodes",
+      "program": "coinbase",
+      "class": "MANUAL_WRITE",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "manual_write",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "MANUAL_WRITE",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcodes",
+      "program": "deblock",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "MANUAL_WRITE"
+    },
+    {
+      "platform": "referralcodes",
+      "program": "ebuyclub",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "MANUAL_WRITE"
+    },
+    {
+      "platform": "referralcodes",
+      "program": "fdj-francaise-des-jeux",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "MANUAL_WRITE"
+    },
+    {
+      "platform": "referralcodes",
+      "program": "finary",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "MANUAL_WRITE"
+    },
+    {
+      "platform": "referralcodes",
+      "program": "gemini",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "MANUAL_WRITE"
+    },
+    {
+      "platform": "referralcodes",
+      "program": "grass",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "MANUAL_WRITE"
+    },
+    {
+      "platform": "referralcodes",
+      "program": "heetch",
+      "class": "MANUAL_WRITE",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "manual_write",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "MANUAL_WRITE",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcodes",
+      "program": "igraal",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "MANUAL_WRITE"
+    },
+    {
+      "platform": "referralcodes",
+      "program": "joko",
+      "class": "MANUAL_WRITE",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "manual_write",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "MANUAL_WRITE",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcodes",
+      "program": "kraken",
+      "class": "MANUAL_WRITE",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "manual_write",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "MANUAL_WRITE",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcodes",
+      "program": "ledger",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "MANUAL_WRITE"
+    },
+    {
+      "platform": "referralcodes",
+      "program": "lolivier",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "MANUAL_WRITE"
+    },
+    {
+      "platform": "referralcodes",
+      "program": "nrj-mobile",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "MANUAL_WRITE"
+    },
+    {
+      "platform": "referralcodes",
+      "program": "okx",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "MANUAL_WRITE"
+    },
+    {
+      "platform": "referralcodes",
+      "program": "omio",
+      "class": "MANUAL_WRITE",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "manual_write",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "MANUAL_WRITE",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcodes",
+      "program": "parionssport",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "MANUAL_WRITE"
+    },
+    {
+      "platform": "referralcodes",
+      "program": "paypal",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "MANUAL_WRITE"
+    },
+    {
+      "platform": "referralcodes",
+      "program": "plum",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "MANUAL_WRITE"
+    },
+    {
+      "platform": "referralcodes",
+      "program": "poulpeo",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "MANUAL_WRITE"
+    },
+    {
+      "platform": "referralcodes",
+      "program": "revolut",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "MANUAL_WRITE"
+    },
+    {
+      "platform": "referralcodes",
+      "program": "robinhood",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "MANUAL_WRITE"
+    },
+    {
+      "platform": "referralcodes",
+      "program": "swissborg",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "MANUAL_WRITE"
+    },
+    {
+      "platform": "referralcodes",
+      "program": "totalenergies",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "MANUAL_WRITE"
+    },
+    {
+      "platform": "referralcodes",
+      "program": "traderepublic",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "MANUAL_WRITE"
+    },
+    {
+      "platform": "referralcodes",
+      "program": "unibet",
+      "class": "MANUAL_WRITE",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "manual_write",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "MANUAL_WRITE",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcodes",
+      "program": "vinted",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "MANUAL_WRITE"
+    },
+    {
+      "platform": "referralcodes",
+      "program": "whatnot",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "MANUAL_WRITE"
+    },
+    {
+      "platform": "referralcodes",
+      "program": "widilo",
+      "class": "MANUAL_WRITE",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "manual_write",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "MANUAL_WRITE",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcodes",
+      "program": "winamax",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "MANUAL_WRITE"
+    },
+    {
+      "platform": "referralcodes",
+      "program": "wise",
+      "class": "MANUAL_WRITE",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "manual_write",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "MANUAL_WRITE",
+      "edit_url": null
+    },
+    {
+      "platform": "referraldrop",
+      "program": "acheel",
+      "class": "AUTH_BLOCKED",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "referraldrop",
+      "program": "airbnb",
+      "class": "AUTH_BLOCKED",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "manual_write",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "AUTH_BLOCKED",
+      "edit_url": null
+    },
+    {
+      "platform": "referraldrop",
+      "program": "betclic",
+      "class": "AUTH_BLOCKED",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "referraldrop",
+      "program": "binance",
+      "class": "AUTH_BLOCKED",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "referraldrop",
+      "program": "bitstack",
+      "class": "AUTH_BLOCKED",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "referraldrop",
+      "program": "boursobank",
+      "class": "AUTH_BLOCKED",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "referraldrop",
+      "program": "bybit",
+      "class": "AUTH_BLOCKED",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "manual_write",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "AUTH_BLOCKED",
+      "edit_url": null
+    },
+    {
+      "platform": "referraldrop",
+      "program": "coinbase",
+      "class": "AUTH_BLOCKED",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "referraldrop",
+      "program": "deblock",
+      "class": "AUTH_BLOCKED",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "referraldrop",
+      "program": "ebuyclub",
+      "class": "AUTH_BLOCKED",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "referraldrop",
+      "program": "fdj-francaise-des-jeux",
+      "class": "AUTH_BLOCKED",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "referraldrop",
+      "program": "finary",
+      "class": "AUTH_BLOCKED",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "referraldrop",
+      "program": "gemini",
+      "class": "AUTH_BLOCKED",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "manual_write",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "AUTH_BLOCKED",
+      "edit_url": null
+    },
+    {
+      "platform": "referraldrop",
+      "program": "grass",
+      "class": "AUTH_BLOCKED",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "referraldrop",
+      "program": "heetch",
+      "class": "AUTH_BLOCKED",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "referraldrop",
+      "program": "igraal",
+      "class": "AUTH_BLOCKED",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "manual_write",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "AUTH_BLOCKED",
+      "edit_url": null
+    },
+    {
+      "platform": "referraldrop",
+      "program": "joko",
+      "class": "AUTH_BLOCKED",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "referraldrop",
+      "program": "kraken",
+      "class": "AUTH_BLOCKED",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "referraldrop",
+      "program": "ledger",
+      "class": "AUTH_BLOCKED",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "referraldrop",
+      "program": "lolivier",
+      "class": "AUTH_BLOCKED",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "referraldrop",
+      "program": "nrj-mobile",
+      "class": "AUTH_BLOCKED",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "referraldrop",
+      "program": "okx",
+      "class": "AUTH_BLOCKED",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "manual_write",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "AUTH_BLOCKED",
+      "edit_url": null
+    },
+    {
+      "platform": "referraldrop",
+      "program": "omio",
+      "class": "AUTH_BLOCKED",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "referraldrop",
+      "program": "parionssport",
+      "class": "AUTH_BLOCKED",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "referraldrop",
+      "program": "paypal",
+      "class": "AUTH_BLOCKED",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "referraldrop",
+      "program": "plum",
+      "class": "AUTH_BLOCKED",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "referraldrop",
+      "program": "poulpeo",
+      "class": "AUTH_BLOCKED",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "referraldrop",
+      "program": "revolut",
+      "class": "AUTH_BLOCKED",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "referraldrop",
+      "program": "robinhood",
+      "class": "AUTH_BLOCKED",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "manual_write",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "AUTH_BLOCKED",
+      "edit_url": null
+    },
+    {
+      "platform": "referraldrop",
+      "program": "swissborg",
+      "class": "AUTH_BLOCKED",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "referraldrop",
+      "program": "totalenergies",
+      "class": "AUTH_BLOCKED",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "referraldrop",
+      "program": "traderepublic",
+      "class": "AUTH_BLOCKED",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "referraldrop",
+      "program": "unibet",
+      "class": "AUTH_BLOCKED",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "referraldrop",
+      "program": "vinted",
+      "class": "AUTH_BLOCKED",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "manual_write",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "AUTH_BLOCKED",
+      "edit_url": null
+    },
+    {
+      "platform": "referraldrop",
+      "program": "whatnot",
+      "class": "AUTH_BLOCKED",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "manual_write",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "AUTH_BLOCKED",
+      "edit_url": null
+    },
+    {
+      "platform": "referraldrop",
+      "program": "widilo",
+      "class": "AUTH_BLOCKED",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "referraldrop",
+      "program": "winamax",
+      "class": "AUTH_BLOCKED",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "referraldrop",
+      "program": "wise",
+      "class": "AUTH_BLOCKED",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "AUTH_BLOCKED"
+    },
+    {
+      "platform": "1parrainage",
+      "program": "acheel",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "airbnb",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "betclic",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "binance",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "bitget",
+      "class": "ACCOUNT_ONLY",
+      "on_account": true,
+      "in_offers": false,
+      "mapping": false,
+      "mapping_quality": null,
+      "template": {
+        "golden": false,
+        "template": false,
+        "meta": false
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "bitstack",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "boursobank",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "bybit",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "coinbase",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "deblock",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "ebuyclub",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "fdj-francaise-des-jeux",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "finary",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "gemini",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "grass",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    },
+    {
+      "platform": "1parrainage",
+      "program": "heetch",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "igraal",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "joko",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "kraken",
+      "class": "SYNC",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://www.1parrainage.com/espace_parrain/parrainages/edit/2541207/"
+    },
+    {
+      "platform": "1parrainage",
+      "program": "ledger",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "lolivier",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "nrj-mobile",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "okx",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "omio",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "parionssport",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "paypal",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "plum",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "poulpeo",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "revolut",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "robinhood",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "swissborg",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "totalenergies",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "traderepublic",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "ubereats",
+      "class": "ACCOUNT_ONLY",
+      "on_account": true,
+      "in_offers": false,
+      "mapping": false,
+      "mapping_quality": null,
+      "template": {
+        "golden": false,
+        "template": false,
+        "meta": false
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "unibet",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "vinted",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "whatnot",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "widilo",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "winamax",
+      "class": "READY",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "1parrainage",
+      "program": "wise",
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": false,
+      "writer": "WRITER_PRESENT"
+    }
+  ],
+  "missing_mapping": [
+    {
+      "platform": "referralcode-tv",
+      "program": "kraken",
+      "class": "MISSING_MAPPING",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": false,
+      "mapping_quality": null,
+      "template": {
+        "golden": false,
+        "template": false,
+        "meta": false
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "okx",
+      "class": "MISSING_MAPPING",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": false,
+      "mapping_quality": null,
+      "template": {
+        "golden": false,
+        "template": false,
+        "meta": false
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "paypal",
+      "class": "MISSING_MAPPING",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": false,
+      "mapping_quality": null,
+      "template": {
+        "golden": false,
+        "template": false,
+        "meta": false
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "robinhood",
+      "class": "MISSING_MAPPING",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": false,
+      "mapping_quality": null,
+      "template": {
+        "golden": false,
+        "template": false,
+        "meta": false
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "whatnot",
+      "class": "MISSING_MAPPING",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": false,
+      "mapping_quality": null,
+      "template": {
+        "golden": false,
+        "template": false,
+        "meta": false
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    },
+    {
+      "platform": "referralcode-tv",
+      "program": "wise",
+      "class": "MISSING_MAPPING",
+      "on_account": true,
+      "in_offers": true,
+      "mapping": false,
+      "mapping_quality": null,
+      "template": {
+        "golden": false,
+        "template": false,
+        "meta": false
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    }
+  ],
+  "stale_mapping": [
+    {
+      "platform": "parrainage-co",
+      "program": "paypal",
+      "class": "STALE_MAPPING",
+      "on_account": false,
+      "in_offers": true,
+      "mapping": true,
+      "mapping_quality": "stale_mapping",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": null
+    }
+  ],
+  "real_safe_diffs": [],
+  "summary": {
+    "total_account_announcements": 166,
+    "fully_mapped": 149,
+    "missing_mapping": 6,
+    "stale_mapping": 1,
+    "real_safe_diffs": 0,
+    "manual_only": 9,
+    "blocked": 39,
+    "write_verified_platforms": [
+      "1parrainage"
+    ],
+    "live_capable_platforms": [
+      "1parrainage"
+    ],
+    "write_verified_count": "1/7"
+  },
+  "remaining_work": [
+    "1parrainage: GH headless login still unproven (not PC-off)",
+    "super-parrain: CANARY_PENDING, bumper SKIP until WRITE_VERIFIED",
+    "code-parrainage: DOM_BLOCKED slider, no bypass",
+    "referralcode-tv: resolve Kraken EID read-only (KRAKEN_EXISTS)",
+    "referraldrop: AUTH_BLOCKED_GOOGLE",
+    "map ACCOUNT_ONLY (bitget, ubereats, rctv extras) only after offers.json entries",
+    "no second canary until operator agrees"
+  ]
+}

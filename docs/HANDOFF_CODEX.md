@@ -27,12 +27,12 @@ Resume point for the next Codex session. Reconstruct from this file + git + stat
 | super-parrain | CANARY_READY + CANARY_PENDING + SYNC_VERIFIED_NO_SAFE_DIFF | NO_SAFE_DIFF | CANARY_ONLY | Scheduled canary `50877ed` SUCCESS. `changed_fields=none`. No login/save. Not WRITE_VERIFIED. Bumper remains SKIP. Sequence-cleared. |
 | parrainage-co | CANARY_READY + SYNC_VERIFIED_NO_SAFE_DIFF | NO_SAFE_DIFF | CANARY_ONLY | Public `offers/113735` already has operator values. Dry-run empty. No fake write. |
 | code-parrainage | CANARY_READY | DOM_BLOCKED | CANARY_ONLY | Slider captcha on auth read. Dry-run vs mapping empty. Not SYNC. Skipped so later REAL_SAFE_DIFF can run. |
-| 1parrainage | CANARY_READY | public REAL_SAFE_DIFF / live not WRITE_VERIFIED | CANARY_ONLY | Headed login OK → `/espace_parrain/`. Official fields `#_username`/`#_password` visible locally even in Chrome headless. Edit URL 100408 not yet mapped. No save. Next: one headed session to find edit + targeted link replace. |
+| 1parrainage | WRITE_VERIFIED | NO_SAFE_DIFF | LIVE_UPDATE | Headed canary `a9369a9`: Envoyer on `edit/2541207`, public `s5qudqe4`, old `4jdp7sea` gone. Telegram live this platform only. GH headless login still unproven. |
 | referralcodes | CANARY_READY + SYNC_VERIFIED_NO_SAFE_DIFF | NO_SAFE_DIFF | CANARY_ONLY | Native `$200 in Crypto` + `cpbrgddy`. Do not overwrite EN with FR 200 €. |
-| referralcode-tv | CANARY_READY | auth+edit proven | CANARY_ONLY | Run `31682310236`: login OK, `add-referral-code/?eid=` is the content edit form (post_content/code/buy_link). Boost `#cliccami` ≠ edit. No Kraken listing — no live write. |
+| referralcode-tv | CANARY_READY | KRAKEN_EXISTS / EID_NOT_YET_RESOLVED / AUTH_EDIT_PATH_PROVEN | CANARY_ONLY | `referralcode-tv-raw.txt` has Kraken (`⭐️ Kraken Referral Bonus – Up to $200 in Crypto`). Do not create. Resolve EID read-only later. Edit form `add-referral-code/?eid=` proven. Boost `#cliccami` ≠ edit. |
 | referraldrop | AUTH_BLOCKED_GOOGLE | — | AUTH_BLOCKED | Google Sign-In. No OAuth bypass. Stay blocked. |
 
-- WRITE_VERIFIED: **0/7** (un vrai diff 1P existe, write bloqué par DOM login headless)
+- WRITE_VERIFIED: **1/7** (`1parrainage` only). Telegram live_capable = YES for 1P only.
 - Super sequence-cleared: **YES** (SYNC, not WRITE_VERIFIED)
 - Hermes / SHADOW / rollback / multiprogram: READY
 - Operator Kraken lock: `cpbrgddy` / `https://invite.kraken.com/JDNW/s5qudqe4` / `200 € en cryptomonnaies`. Never publish `4hpz4gdy` / proinvite / 20 € Bitcoin.
@@ -44,7 +44,7 @@ Resume point for the next Codex session. Reconstruct from this file + git + stat
 | HISTORICAL_BUMPERS_OK | **YES** (`bump_autres.yml` intact; Super bumper SKIP while pending) |
 | SUPER_SYNC_SAFE | **YES** |
 | ALL_POSSIBLE_WRITERS_CANARY_READY | **YES** (ReferralDrop stays AUTH_BLOCKED_GOOGLE) |
-| AT_LEAST_ONE_REAL_WRITE_VERIFIED | **NO** (1P REAL_SAFE_DIFF exists; login DOM not visible in Actions) |
+| AT_LEAST_ONE_REAL_WRITE_VERIFIED | **YES** (`1parrainage` headed Envoyer, public reread) |
 | MULTIPROGRAM_READY | **YES** |
 | HERMES_PRODUCTION_READY | **YES** |
 | MONITOR_SHADOW_READY | **YES** |
@@ -68,9 +68,9 @@ Content canaries (strict sequence, never parallel):
   1. Super-Parrain     activation_canary.yml (05:37 UTC, owns cooldown) — DONE NO_SAFE_DIFF
   2. parrainage-co     Super sequence-cleared — DONE NO_SAFE_DIFF (public)
   3. code-parrainage   DOM_BLOCKED this cycle (slider) — skipped, not WRITE_VERIFIED
-  4. 1parrainage       public REAL_SAFE_DIFF — live STOP unexpected_dom /login (no save)
+  4. 1parrainage       WRITE_VERIFIED (headed Envoyer). GH headless still unproven.
   5. referralcodes     NO_SAFE_DIFF native $200 — do not execute FR import
-  6. referralcode-tv   CANARY_READY (edit form proven). No Kraken listing. No live write this cycle.
+  6. referralcode-tv   KRAKEN_EXISTS + EID_NOT_YET_RESOLVED. No create. No live write.
 
   python tools/activation_orchestrator.py next-executable
   python tools/activation_orchestrator.py canary --platform <next>
