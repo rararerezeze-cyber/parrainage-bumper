@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
-"""Live writes ONLY for platforms with strict WRITE_VERIFIED status.
+"""Hermes writer dispatch — PC_OFF_READY on real SAFE_DIFF only.
 
-Telegram path:
-  - WRITE_VERIFIED → may update
-  - CANARY_READY / WRITE_PREPARED → plan only (use tools/*_canary.py for promotion)
-
-Never promotes to WRITE_VERIFIED without full post-verify evidence.
+Never auto-dispatches HUMAN_SAVE_REQUIRED / NEVER_AUTO_COMMIT /
+AUTH_BLOCKED_MANUAL / Super SKIP / cookie-session platforms.
+Empty changed_fields = NO_SAFE_DIFF (no fake write).
 """
 from __future__ import annotations
 
@@ -23,8 +21,19 @@ from lib.paths import MAPPINGS_DIR
 from lib.write_status import (
     STATUS_WRITE_VERIFIED,
     get_platform_status,
-    is_telegram_live_capable,
+    human_local_command,
+    may_auto_execute_on_safe_diff,
+    runtime_route,
     summary as write_summary,
+)
+
+AUTO_SAFE_DIFF_PLATFORMS = ("1parrainage", "code-parrainage")
+NEVER_AUTO_DISPATCH = (
+    "referralcode-tv",
+    "referralcodes",
+    "referraldrop",
+    "super-parrain",
+    "parrainage-co",
 )
 
 
@@ -36,7 +45,24 @@ def _mapping_write_status(platform: str, program: str, language: str = "fr") -> 
     return data.get("write_status")
 
 
+def _skip_route(platform: str) -> dict:
+    route = runtime_route(platform)
+    out = {
+        "platform": platform,
+        "skipped": True,
+        "reason": route,
+        "route": route,
+        "status": get_platform_status(platform),
+    }
+    cmd = human_local_command(platform)
+    if cmd:
+        out["human_command"] = cmd
+    return out
+
+
 def _try_super_parrain(program: str) -> dict:
+    if not may_auto_execute_on_safe_diff("super-parrain"):
+        return _skip_route("super-parrain")
     st = get_platform_status("super-parrain")
     if st != STATUS_WRITE_VERIFIED:
         return {
@@ -44,12 +70,6 @@ def _try_super_parrain(program: str) -> dict:
             "skipped": True,
             "reason": f"status={st} (need WRITE_VERIFIED for telegram live; use canary tool)",
             "status": st,
-        }
-    if not is_telegram_live_capable("super-parrain"):
-        return {
-            "platform": "super-parrain",
-            "skipped": True,
-            "reason": "not_telegram_live_capable",
         }
 
     from platforms.super_parrain.writer import build_write_plan, execute_write
@@ -97,17 +117,10 @@ def _try_super_parrain(program: str) -> dict:
 
 
 def _try_platform_if_verified(platform: str, program: str, language: str = "fr") -> dict:
-    st = get_platform_status(platform)
-    if st != STATUS_WRITE_VERIFIED:
-        return {
-            "platform": platform,
-            "skipped": True,
-            "reason": f"status={st} (PLAN_ONLY until WRITE_VERIFIED)",
-            "status": st,
-        }
-    # Import platform writer dynamically when verified
+    if not may_auto_execute_on_safe_diff(platform):
+        return _skip_route(platform)
+    # Import platform writer dynamically when PC_OFF_READY
     writers = {
-        "parrainage-co": "platforms.parrainage_co.writer",
         "code-parrainage": "platforms.code_parrainage.writer",
         "1parrainage": "platforms.oneparrainage.writer",
     }
@@ -132,14 +145,20 @@ def _try_platform_if_verified(platform: str, program: str, language: str = "fr")
     if not getattr(plan, "structure_preserved", True):
         return {"platform": platform, "ok": False, "error": "structure_not_preserved"}
     if not getattr(plan, "changed_fields", None):
-        return {"platform": platform, "ok": True, "note": "noop"}
+        return {
+            "platform": platform,
+            "ok": True,
+            "note": "NO_SAFE_DIFF",
+            "route": runtime_route(platform),
+        }
     result = asyncio.run(execute(plan, dry_run=False))
     return {
         "platform": platform,
         "ok": getattr(result, "ok", False),
         "post_match": getattr(result, "post_match", None),
         "error": getattr(result, "error", None),
-        "action": "UPDATED_VERIFIED" if getattr(result, "ok", False) else "FAILED",
+        "route": runtime_route(platform),
+        "action": "UPDATED" if getattr(result, "ok", False) else "FAILED",
     }
 
 
@@ -151,21 +170,28 @@ def main() -> int:
     args = ap.parse_args()
 
     ws = write_summary()
-    print(f"WRITE_VERIFIED={ws.get('WRITE_VERIFIED')} live_capable={ws.get('telegram_live_capable')}")
+    print(
+        f"WRITE_VERIFIED={ws.get('WRITE_VERIFIED')} "
+        f"auto_safe_diff={ws.get('telegram_live_capable')}"
+    )
 
     reports: list[dict] = []
-    if args.plan_only or not ws.get("write_verified_count"):
+    if args.plan_only:
         reports.append(
             {
-                "note": "no_write_verified_platforms_or_plan_only",
+                "note": "plan_only",
                 "WRITE_VERIFIED": ws.get("WRITE_VERIFIED"),
                 "platforms": ws.get("platforms"),
             }
         )
     else:
         reports.append(_try_super_parrain(args.program))
-        for plat in ("parrainage-co", "code-parrainage", "1parrainage"):
+        for plat in AUTO_SAFE_DIFF_PLATFORMS:
             reports.append(_try_platform_if_verified(plat, args.program))
+        for plat in NEVER_AUTO_DISPATCH:
+            if plat == "super-parrain":
+                continue
+            reports.append(_skip_route(plat))
 
     out = ROOT / "data" / "captures" / "verified-writers-report.json"
     out.parent.mkdir(parents=True, exist_ok=True)

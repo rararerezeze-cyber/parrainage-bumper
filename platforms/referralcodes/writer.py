@@ -116,6 +116,15 @@ def execute_write(program: str = "kraken", *, dry_run: bool = True) -> dict[str,
             "plan": plan,
             "steps": ["circuit"],
         }
+    if not dry_run:
+        return {
+            "ok": False,
+            "live": False,
+            "error": "NEVER_AUTO_COMMIT: IMPORT_UI_BETA_NOT_PROVEN — no auto-Commit",
+            "autonomy": "IMPORT_UI_BETA_NOT_PROVEN",
+            "plan": plan,
+            "steps": ["blocked_never_auto_commit"],
+        }
     if dry_run or not content_write_allowed("referralcodes"):
         return {
             "ok": True,

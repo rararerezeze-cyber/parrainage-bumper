@@ -26,7 +26,8 @@ def test_super_parrain_is_canary_ready_not_verified(status_path):
     assert ws.get_platform_status("super-parrain") == ws.STATUS_CANARY_READY
     assert ws.is_write_verified("super-parrain") is False
     assert ws.is_telegram_live_capable("super-parrain") is False
-    assert ws.telegram_action_for_platform("super-parrain") == "CANARY_ONLY"
+    assert ws.telegram_action_for_platform("super-parrain") == ws.ROUTE_CANARY_PENDING_SKIP
+    assert ws.may_auto_execute_on_safe_diff("super-parrain") is False
 
 
 def test_cannot_mark_verified_without_evidence(status_path):
@@ -64,16 +65,16 @@ def test_mark_verified_with_full_evidence(status_path, monkeypatch, tmp_path):
     )
     assert r["ok"] is True
     assert ws.is_write_verified("super-parrain")
-    assert ws.is_telegram_live_capable("super-parrain")
+    assert ws.is_telegram_live_capable("super-parrain") is False
     s = ws.summary()
     assert s["write_verified_count"] == 1
-    assert "super-parrain" in s["telegram_live_capable"]
+    assert "super-parrain" not in s["telegram_live_capable"]
     assert s["WRITE_VERIFIED"] == "1/7"
 
 
 def test_referraldrop_auth_blocked(status_path):
     assert ws.get_platform_status("referraldrop") == ws.STATUS_AUTH_BLOCKED_MANUAL
-    assert ws.telegram_action_for_platform("referraldrop") == "AUTH_BLOCKED"
+    assert ws.telegram_action_for_platform("referraldrop") == ws.ROUTE_AUTH_BLOCKED_MANUAL
     assert ws.autonomy_class("referraldrop") == ws.AUTONOMY_AUTH_BLOCKED_MANUAL
 
 
@@ -97,8 +98,10 @@ def test_rctv_write_verified_is_not_telegram_live(status_path, monkeypatch, tmp_
     ws.save_write_status(data)
     assert ws.is_write_verified("referralcode-tv")
     assert ws.is_telegram_live_capable("referralcode-tv") is False
-    assert ws.telegram_action_for_platform("referralcode-tv") == ws.AUTONOMY_HUMAN_SAVE_REQUIRED
+    assert ws.telegram_action_for_platform("referralcode-tv") == ws.ROUTE_HUMAN_SAVE_REQUIRED
     assert "referralcode-tv" not in ws.summary()["telegram_live_capable"]
+    assert ws.may_auto_execute_on_safe_diff("referralcode-tv") is False
+    assert ws.human_local_command("referralcode-tv") == "python -u tools/local_headed_rctv_canary.py"
 
 
 def test_count_starts_at_zero(status_path):

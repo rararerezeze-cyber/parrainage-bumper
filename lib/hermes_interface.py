@@ -19,7 +19,14 @@ from lib.offers import OffersRepository
 from lib.operator_overrides import OperatorOverrideStore
 from lib.operator_plan import format_plan_report, plan_program_impact
 from lib.paths import DATA_DIR, OPERATOR_OVERRIDES_PATH
-from lib.write_status import summary as write_summary
+from lib.write_status import (
+    ALL_PLATFORMS,
+    ROUTE_AUTO_ON_SAFE_DIFF,
+    ROUTE_HUMAN_SAVE_REQUIRED,
+    human_local_command,
+    runtime_route,
+    summary as write_summary,
+)
 
 # Import command pipeline without circular CLI issues
 from tools.telegram_update import apply_operator_command, parse_message
@@ -279,6 +286,7 @@ def run_autofresh_command(
         base["result"] = {"action": "dry_run", "note": "persist=false"}
         base["plan"] = plan_data
         base["platforms"] = _platform_rows(plan_data)
+        base["routing"] = routing_summary(base["platforms"])
         base["write_status"] = write_summary()
         base["human_summary"] = format_plan_report(
             parsed.get("program") or "",
@@ -394,6 +402,7 @@ def _run_autofresh_command_locked(
         )
     base["plan"] = plan_data
     base["platforms"] = _platform_rows(plan_data)
+    base["routing"] = routing_summary(base["platforms"])
     base["write_status"] = write_summary()
 
     writers_report: dict[str, Any] | None = None
@@ -455,6 +464,18 @@ def _run_autofresh_command_locked(
     )
     if parsed.get("action") == "status" and isinstance(result, dict):
         human += "\n\n" + json.dumps(result.get("status"), ensure_ascii=False, indent=2)
+    human_lines: list[str] = []
+    for row in base.get("platforms") or []:
+        if row.get("route") != ROUTE_HUMAN_SAVE_REQUIRED:
+            continue
+        if not (row.get("changed_fields") or row.get("status") == "pending_update"):
+            continue
+        cmd = row.get("human_command") or human_local_command(str(row.get("platform") or ""))
+        human_lines.append(
+            f"HUMAN_SAVE_REQUIRED {row.get('platform')}: do not auto-save. {cmd}"
+        )
+    if human_lines:
+        human += "\n\n" + "\n".join(human_lines)
     base["human_summary"] = human
     base["idempotency_key"] = _idempotency_key(command, parsed, result)
     base["ok"] = len(base["errors"]) == 0 and bool(base.get("persist_confirmed", True))
@@ -487,30 +508,90 @@ def _run_autofresh_command_locked(
 def _platform_rows(plan_data: dict[str, Any]) -> list[dict[str, Any]]:
     rows = []
     for p in plan_data.get("platforms") or []:
+        plat = p.get("platform")
+        route = p.get("route") or runtime_route(str(plat or ""))
+        pending = bool(p.get("changed_fields")) and p.get("status") == "pending_update"
         rows.append(
             {
-                "platform": p.get("platform"),
+                "platform": plat,
                 "status": p.get("status"),
                 "write_mode": p.get("write_mode"),
-                "can_auto_write": p.get("can_auto_write"),
+                "route": route,
+                "can_auto_write": bool(
+                    p.get("can_auto_write")
+                    and route == ROUTE_AUTO_ON_SAFE_DIFF
+                    and pending
+                ),
                 "changed_fields": p.get("changed_fields") or {},
                 "error": p.get("error"),
+                "human_command": p.get("human_command") or human_local_command(str(plat or "")),
             }
         )
-    # Ensure all known platforms appear via write_status if missing from plan
     if not rows:
         for p in write_summary().get("platforms") or []:
+            plat = p.get("platform")
+            route = p.get("route") or runtime_route(str(plat or ""))
             rows.append(
                 {
-                    "platform": p.get("platform"),
+                    "platform": plat,
                     "status": p.get("status"),
                     "write_mode": p.get("status"),
-                    "can_auto_write": p.get("telegram_action") == "LIVE_UPDATE",
+                    "route": route,
+                    "can_auto_write": False,
                     "changed_fields": {},
                     "telegram_action": p.get("telegram_action"),
+                    "human_command": human_local_command(str(plat or "")),
                 }
             )
     return rows
+
+
+def routing_summary(rows: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+    """Machine-readable Monitor→Hermes dispatch classes. No live write."""
+    automatic: list[str] = []
+    human: list[dict[str, str]] = []
+    blocked: list[str] = []
+    seen: set[str] = set()
+    for row in rows or []:
+        plat = str(row.get("platform") or "")
+        if not plat:
+            continue
+        seen.add(plat)
+        route = str(row.get("route") or runtime_route(plat))
+        if route == ROUTE_AUTO_ON_SAFE_DIFF:
+            automatic.append(plat)
+        elif route == ROUTE_HUMAN_SAVE_REQUIRED:
+            human.append(
+                {
+                    "platform": plat,
+                    "route": route,
+                    "command": str(row.get("human_command") or human_local_command(plat) or ""),
+                }
+            )
+        else:
+            blocked.append(plat)
+    for plat in ALL_PLATFORMS:
+        if plat in seen:
+            continue
+        route = runtime_route(plat)
+        if route == ROUTE_AUTO_ON_SAFE_DIFF:
+            automatic.append(plat)
+        elif route == ROUTE_HUMAN_SAVE_REQUIRED:
+            human.append(
+                {
+                    "platform": plat,
+                    "route": route,
+                    "command": human_local_command(plat) or "",
+                }
+            )
+        else:
+            blocked.append(plat)
+    return {
+        "automatic_safe_diff_targets": automatic,
+        "human_routed_targets": human,
+        "blocked_targets": blocked,
+        "monitor": "OBSERVATION_ONLY",
+    }
 
 
 def save_result(payload: dict[str, Any], path: Path | None = None) -> Path:

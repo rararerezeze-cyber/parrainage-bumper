@@ -60,6 +60,13 @@ def test_command_to_json_status():
     assert r["monitor"] == "OBSERVATION_ONLY"
     assert "WRITE_VERIFIED" in (r.get("write_status") or {})
     assert r.get("errors") == []
+    assert r.get("routing")
+    assert "1parrainage" in r["routing"]["automatic_safe_diff_targets"]
+    assert any(h.get("platform") == "referralcode-tv" for h in r["routing"]["human_routed_targets"])
+    assert "super-parrain" in r["routing"]["blocked_targets"]
+    assert "referraldrop" in r["routing"]["blocked_targets"]
+    assert "parrainage-co" in r["routing"]["blocked_targets"]
+    assert "referralcodes" in r["routing"]["blocked_targets"]
 
 
 def test_global_override_and_plan_modes():
@@ -74,10 +81,14 @@ def test_global_override_and_plan_modes():
     # platform rows distinguish prepared vs verified
     modes = {p.get("write_mode") or p.get("status") for p in r.get("platforms") or []}
     assert modes  # non-empty
-    # no live writers when none verified
+    # human / blocked platforms never auto-dispatch
     for p in r.get("platforms") or []:
-        if p.get("write_mode") != "WRITE_VERIFIED":
+        if p.get("platform") not in {"1parrainage", "code-parrainage"}:
             assert p.get("can_auto_write") in (False, None)
+    assert r.get("routing")
+    assert "1parrainage" in (r["routing"].get("automatic_safe_diff_targets") or [])
+    human_plats = {h.get("platform") for h in r["routing"].get("human_routed_targets") or []}
+    assert "referralcode-tv" in human_plats
 
 
 def test_platform_override():

@@ -13,16 +13,19 @@ from lib.operator_overrides import (
     apply_effective_to_offer,
     resolve_effective_value,
 )
-from lib.phase import live_writes_enabled, phase_name
+from lib.phase import phase_name
 from lib.renderer import MappingRepository, Renderer, TemplateRepository
 from lib.template_builder import extract_values_via_template
 from lib.write_status import (
     STATUS_AUTH_BLOCKED,
+    STATUS_AUTH_BLOCKED_MANUAL,
     STATUS_CANARY_READY,
     STATUS_WRITE_PREPARED,
     STATUS_WRITE_VERIFIED,
     get_platform_status,
-    is_telegram_live_capable,
+    human_local_command,
+    may_auto_execute_on_safe_diff,
+    runtime_route,
     telegram_action_for_platform,
 )
 from platforms.registry import platform_capability
@@ -35,8 +38,8 @@ def platform_write_mode(platform: str) -> str:
         return STATUS_WRITE_VERIFIED
     if st == STATUS_CANARY_READY:
         return STATUS_CANARY_READY
-    if st == STATUS_AUTH_BLOCKED:
-        return STATUS_AUTH_BLOCKED
+    if st in {STATUS_AUTH_BLOCKED, STATUS_AUTH_BLOCKED_MANUAL}:
+        return st
     if st == STATUS_WRITE_PREPARED:
         return STATUS_WRITE_PREPARED
     return st or STATUS_WRITE_PREPARED
@@ -53,6 +56,8 @@ class PlatformImpact:
     changed_fields: dict[str, dict[str, str | None]] = field(default_factory=dict)
     field_sources: dict[str, str] = field(default_factory=dict)
     error: str | None = None
+    route: str = ""
+    human_command: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -65,6 +70,8 @@ class PlatformImpact:
             "changed_fields": self.changed_fields,
             "field_sources": self.field_sources,
             "error": self.error,
+            "route": self.route,
+            "human_command": self.human_command,
         }
 
 
@@ -131,8 +138,9 @@ def plan_program_impact(
         if platform_filter and ref.platform != platform_filter:
             continue
         write_mode = platform_write_mode(ref.platform)
-        # Telegram live only if WRITE_VERIFIED (strict)
-        can_auto = is_telegram_live_capable(ref.platform) and live_writes_enabled(ref.platform)
+        route = runtime_route(ref.platform)
+        can_auto = may_auto_execute_on_safe_diff(ref.platform)
+        human_cmd = human_local_command(ref.platform)
         tg_action = telegram_action_for_platform(ref.platform)
 
         try:
@@ -147,6 +155,8 @@ def plan_program_impact(
                     write_mode=write_mode,
                     can_auto_write=False,
                     error=str(exc),
+                    route=route,
+                    human_command=human_cmd,
                 )
             )
             continue
@@ -161,6 +171,8 @@ def plan_program_impact(
                     write_mode=write_mode,
                     can_auto_write=False,
                     error="template_absent",
+                    route=route,
+                    human_command=human_cmd,
                 )
             )
             continue
@@ -202,7 +214,7 @@ def plan_program_impact(
 
             status = "in_sync" if not changed else "pending_update"
             cap = platform_capability(ref.platform)
-            if write_mode == STATUS_AUTH_BLOCKED:
+            if write_mode in {STATUS_AUTH_BLOCKED, STATUS_AUTH_BLOCKED_MANUAL}:
                 status = "auth_blocked" if status == "pending_update" else status
             elif cap == "MANUAL" and write_mode not in {
                 STATUS_WRITE_PREPARED,
@@ -222,7 +234,13 @@ def plan_program_impact(
                     can_auto_write=bool(can_auto and status == "pending_update"),
                     changed_fields=changed,
                     field_sources=field_sources,
-                    error=None if tg_action != "AUTH_BLOCKED" else "auth_blocked_google",
+                    error=(
+                        None
+                        if route != "AUTH_BLOCKED_MANUAL"
+                        else "auth_blocked_manual"
+                    ),
+                    route=route,
+                    human_command=human_cmd,
                 )
             )
         except Exception as exc:  # noqa: BLE001
@@ -235,6 +253,8 @@ def plan_program_impact(
                     write_mode=write_mode,
                     can_auto_write=False,
                     error=str(exc),
+                    route=route,
+                    human_command=human_cmd,
                 )
             )
 
@@ -338,6 +358,9 @@ def format_plan_report(
         f"WRITE_VERIFIED: {ws.get('WRITE_VERIFIED')} | "
         f"Telegram live-capable: {len(ws.get('telegram_live_capable') or [])}/7"
     )
-    lines.append("Live Telegram updates ONLY for WRITE_VERIFIED. Others = PLAN_ONLY.")
+    lines.append(
+        "Auto writers ONLY on PC_OFF_READY + real SAFE_DIFF "
+        "(1parrainage, code-parrainage). Human platforms never auto-dispatch."
+    )
     lines.append("Monitor remains OBSERVATION_ONLY (no auto-accept).")
     return "\n".join(lines)

@@ -1,0 +1,16 @@
+{
+  "from_head": "29f3b92",
+  "live_write": false,
+  "fake_diff": false,
+  "monitor": "OBSERVATION_ONLY",
+  "1parrainage": "PC_OFF_READY / AUTO_ON_SAFE_DIFF — not proven GH headless save",
+  "code_parrainage": "PC_OFF_READY / AUTO_ON_SAFE_DIFF — slider writer ready, not WRITE_VERIFIED",
+  "parrainage_co": "COOKIE_SESSION_NOT_PC_OFF — writer exists; RM cookie expires or Turnstile; never auto",
+  "rctv": "HUMAN_SAVE_REQUIRED — Hermes asks for python -u tools/local_headed_rctv_canary.py",
+  "referralcodes": "NEVER_AUTO_COMMIT / IMPORT_UI_BETA_NOT_PROVEN",
+  "referraldrop": "AUTH_BLOCKED_MANUAL",
+  "super_parrain": "CANARY_PENDING_SKIP",
+  "automatic_safe_diff_targets": ["1parrainage", "code-parrainage"],
+  "human_routed_targets": ["referralcode-tv"],
+  "blocked_targets": ["super-parrain", "parrainage-co", "referralcodes", "referraldrop"]
+}

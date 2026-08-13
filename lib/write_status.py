@@ -32,12 +32,26 @@ STATUS_AUTH_BLOCKED_MANUAL = "AUTH_BLOCKED_MANUAL"
 STATUS_MANUAL_ONLY = "MANUAL_ONLY"
 STATUS_FAILED = "CANARY_FAILED"
 
-# Autonomy classes (do not replace status). WRITE_VERIFIED ≠ unattended.
+# Autonomy classes (do not replace status). WRITE_VERIFIED ≠ unattended write.
 AUTONOMY_FULLY_UNATTENDED = "FULLY_UNATTENDED"
 AUTONOMY_PC_OFF_READY = "PC_OFF_READY"
 AUTONOMY_HUMAN_SAVE_REQUIRED = "HUMAN_SAVE_REQUIRED"
 AUTONOMY_IMPORT_UI_BETA_NOT_PROVEN = "IMPORT_UI_BETA_NOT_PROVEN"
 AUTONOMY_AUTH_BLOCKED_MANUAL = "AUTH_BLOCKED_MANUAL"
+AUTONOMY_COOKIE_SESSION_NOT_PC_OFF = "COOKIE_SESSION_NOT_PC_OFF"
+AUTONOMY_CANARY_PENDING_SKIP = "CANARY_PENDING_SKIP"
+
+# Runtime routes (Monitor → Hermes → writer). Human routes never auto-dispatch.
+ROUTE_AUTO_ON_SAFE_DIFF = "AUTO_ON_SAFE_DIFF"
+ROUTE_HUMAN_SAVE_REQUIRED = "HUMAN_SAVE_REQUIRED"
+ROUTE_NEVER_AUTO_COMMIT = "NEVER_AUTO_COMMIT"
+ROUTE_AUTH_BLOCKED_MANUAL = "AUTH_BLOCKED_MANUAL"
+ROUTE_CANARY_PENDING_SKIP = "CANARY_PENDING_SKIP"
+ROUTE_COOKIE_SESSION_NOT_PC_OFF = "COOKIE_SESSION_NOT_PC_OFF"
+
+HUMAN_LOCAL_COMMANDS = {
+    "referralcode-tv": "python -u tools/local_headed_rctv_canary.py",
+}
 
 # Content-sync flag (does NOT replace status). Super-Parrain after honest no-diff canary.
 CONTENT_SYNC_VERIFIED_NO_SAFE_DIFF = "SYNC_VERIFIED_NO_SAFE_DIFF"
@@ -64,6 +78,7 @@ DEFAULT_STATUS: dict[str, dict[str, Any]] = {
         "status": STATUS_CANARY_READY,
         "canary_program": "kraken",
         "runtime_mode": "CANARY_PENDING",
+        "autonomy": AUTONOMY_CANARY_PENDING_SKIP,
         "notes": (
             "CANARY_PENDING: historical bumper blocked until content WRITE_VERIFIED. "
             "SYNC_VERIFIED_NO_SAFE_DIFF (if set) unblocks later platform canaries "
@@ -74,9 +89,10 @@ DEFAULT_STATUS: dict[str, dict[str, Any]] = {
     "parrainage-co": {
         "status": STATUS_CANARY_READY,
         "canary_program": "kraken",
+        "autonomy": AUTONOMY_COOKIE_SESSION_NOT_PC_OFF,
         "notes": (
-            "CANARY_READY: login/edit/save/reread pipeline ready (controlled_write_parrainage_co). "
-            "Not WRITE_VERIFIED until live post_match canary."
+            "Writer exists but auth is remember-me cookie (expires) or password+Turnstile. "
+            "Not durable PC-off. Never auto-dispatch."
         ),
     },
     "code-parrainage": {
@@ -173,7 +189,7 @@ def save_write_status(data: dict[str, Any]) -> Path:
     data["telegram_live_capable"] = [
         p
         for p, meta in (data.get("platforms") or {}).items()
-        if _meta_telegram_live(meta or {})
+        if _meta_auto_on_safe_diff(p, meta or {})
     ]
     data["write_verified_ratio"] = f"{data['write_verified_count']}/7"
     STATUS_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -297,15 +313,14 @@ def get_platform_meta(platform: str) -> dict[str, Any]:
     return dict((data.get("platforms") or {}).get(platform.strip().lower()) or {})
 
 
-def _meta_telegram_live(meta: dict[str, Any]) -> bool:
-    """WRITE_VERIFIED is not enough: captcha/human save stays off Telegram live."""
-    if (meta or {}).get("status") != STATUS_WRITE_VERIFIED:
+def _meta_auto_on_safe_diff(platform: str, meta: dict[str, Any]) -> bool:
+    """PC_OFF_READY only. WRITE_VERIFIED is not unattended-proof. Super never auto."""
+    plat = (platform or "").strip().lower()
+    if plat == "super-parrain":
         return False
     if (meta or {}).get("save_requires_captcha"):
         return False
-    if (meta or {}).get("autonomy") == AUTONOMY_HUMAN_SAVE_REQUIRED:
-        return False
-    return True
+    return (meta or {}).get("autonomy") == AUTONOMY_PC_OFF_READY
 
 
 def save_requires_human(platform: str) -> bool:
@@ -326,14 +341,52 @@ def autonomy_class(platform: str) -> str:
     st = str(meta.get("status") or "")
     if st in {STATUS_AUTH_BLOCKED, STATUS_AUTH_BLOCKED_MANUAL}:
         return AUTONOMY_AUTH_BLOCKED_MANUAL
-    if st == STATUS_WRITE_VERIFIED:
-        return AUTONOMY_FULLY_UNATTENDED
-    return AUTONOMY_PC_OFF_READY if st == STATUS_CANARY_READY else "NOT_PROVEN"
+    plat = platform.strip().lower()
+    if plat == "super-parrain":
+        return AUTONOMY_CANARY_PENDING_SKIP
+    if plat == "parrainage-co":
+        return AUTONOMY_COOKIE_SESSION_NOT_PC_OFF
+    if plat in {"1parrainage", "code-parrainage"}:
+        return AUTONOMY_PC_OFF_READY
+    return "NOT_PROVEN"
+
+
+def runtime_route(platform: str) -> str:
+    """Monitor → Hermes → writer dispatch class."""
+    plat = (platform or "").strip().lower()
+    if plat == "super-parrain":
+        return ROUTE_CANARY_PENDING_SKIP
+    auto = autonomy_class(plat)
+    if auto == AUTONOMY_PC_OFF_READY:
+        return ROUTE_AUTO_ON_SAFE_DIFF
+    if auto == AUTONOMY_HUMAN_SAVE_REQUIRED:
+        return ROUTE_HUMAN_SAVE_REQUIRED
+    if auto == AUTONOMY_IMPORT_UI_BETA_NOT_PROVEN:
+        return ROUTE_NEVER_AUTO_COMMIT
+    if auto in {AUTONOMY_AUTH_BLOCKED_MANUAL, STATUS_AUTH_BLOCKED}:
+        return ROUTE_AUTH_BLOCKED_MANUAL
+    if auto == AUTONOMY_COOKIE_SESSION_NOT_PC_OFF or plat == "parrainage-co":
+        return ROUTE_COOKIE_SESSION_NOT_PC_OFF
+    return ROUTE_CANARY_PENDING_SKIP
+
+
+def may_auto_execute_on_safe_diff(platform: str) -> bool:
+    """True only for PC_OFF_READY writers. Empty changed_fields stays NO_SAFE_DIFF."""
+    return runtime_route(platform) == ROUTE_AUTO_ON_SAFE_DIFF
+
+
+def human_local_command(platform: str) -> str | None:
+    if runtime_route(platform) != ROUTE_HUMAN_SAVE_REQUIRED:
+        return None
+    return HUMAN_LOCAL_COMMANDS.get(
+        platform.strip().lower(),
+        "headed local save required — no GH auto-save",
+    )
 
 
 def is_telegram_live_capable(platform: str) -> bool:
-    """Unattended Telegram field updates only — not HUMAN_SAVE_REQUIRED."""
-    return _meta_telegram_live(get_platform_meta(platform))
+    """Alias: may auto-dispatch writer on a real SAFE_DIFF. Not proven unattended."""
+    return may_auto_execute_on_safe_diff(platform)
 
 
 def is_canary_ready(platform: str) -> bool:
@@ -341,20 +394,8 @@ def is_canary_ready(platform: str) -> bool:
 
 
 def telegram_action_for_platform(platform: str) -> str:
-    """What Telegram path may do on this platform."""
-    meta = get_platform_meta(platform)
-    st = str(meta.get("status") or STATUS_UNPREPARED)
-    if save_requires_human(platform):
-        return AUTONOMY_HUMAN_SAVE_REQUIRED
-    if st == STATUS_WRITE_VERIFIED:
-        return "LIVE_UPDATE"
-    if st == STATUS_CANARY_READY:
-        return "CANARY_ONLY"  # explicit canary tool, not bulk telegram auto
-    if st in {STATUS_AUTH_BLOCKED, STATUS_AUTH_BLOCKED_MANUAL}:
-        return "AUTH_BLOCKED"
-    if st == STATUS_WRITE_PREPARED:
-        return "PLAN_ONLY"
-    return "PLAN_ONLY"
+    """What Hermes/Telegram may do on this platform."""
+    return runtime_route(platform)
 
 
 def mark_canary_ready(platform: str, *, canary_program: str = "kraken", notes: str | None = None) -> None:
@@ -463,6 +504,7 @@ def summary() -> dict[str, Any]:
                 "status": st,
                 "telegram_action": telegram_action_for_platform(pid),
                 "autonomy": autonomy_class(pid),
+                "route": runtime_route(pid),
                 "canary_program": meta.get("canary_program"),
                 "notes": meta.get("notes"),
                 "last_write_verified_at": meta.get("last_write_verified_at"),
@@ -488,22 +530,42 @@ def format_telegram_platform_lines(plan_platforms: list[dict[str, Any]] | None =
         action = telegram_action_for_platform(pid)
         imp = impacts.get(pid) or {}
         ch = imp.get("changed_fields") or {}
-        if action == AUTONOMY_HUMAN_SAVE_REQUIRED:
+        if action == ROUTE_HUMAN_SAVE_REQUIRED:
             label = "HUMAN_SAVE_REQUIRED"
-        elif st == STATUS_WRITE_VERIFIED and imp.get("status") == "pending_update":
-            label = "UPDATED + VERIFIED" if action == "LIVE_UPDATE" else "PLAN (verified)"
-        elif st == STATUS_WRITE_VERIFIED and imp.get("status") == "in_sync":
-            label = "IN_SYNC + VERIFIED"
-        elif st == STATUS_CANARY_READY:
-            label = "CANARY_READY / PLAN_ONLY"
-        elif st in {STATUS_AUTH_BLOCKED, STATUS_AUTH_BLOCKED_MANUAL}:
+            cmd = human_local_command(pid)
+            if cmd and ch:
+                extra_cmd = f" | {cmd}"
+            else:
+                extra_cmd = ""
+        elif action == ROUTE_AUTO_ON_SAFE_DIFF and imp.get("status") == "pending_update":
+            label = "AUTO_ON_SAFE_DIFF"
+            extra_cmd = ""
+        elif action == ROUTE_AUTO_ON_SAFE_DIFF:
+            label = "PC_OFF_READY"
+            extra_cmd = ""
+        elif action == ROUTE_NEVER_AUTO_COMMIT:
+            label = "NEVER_AUTO_COMMIT"
+            extra_cmd = ""
+        elif action == ROUTE_CANARY_PENDING_SKIP:
+            label = "SKIP"
+            extra_cmd = ""
+        elif action == ROUTE_COOKIE_SESSION_NOT_PC_OFF:
+            label = "COOKIE_SESSION"
+            extra_cmd = ""
+        elif action == ROUTE_AUTH_BLOCKED_MANUAL or st in {
+            STATUS_AUTH_BLOCKED,
+            STATUS_AUTH_BLOCKED_MANUAL,
+        }:
             label = "AUTH_BLOCKED"
+            extra_cmd = ""
         elif st == STATUS_WRITE_PREPARED:
             label = "PLAN_ONLY"
+            extra_cmd = ""
         else:
             label = st
+            extra_cmd = ""
         extra = ""
         if ch:
             extra = " " + ",".join(list(ch.keys())[:3])
-        lines.append(f"  {pid:18} {label}{extra}")
+        lines.append(f"  {pid:18} {label}{extra}{extra_cmd}")
     return lines

@@ -144,6 +144,11 @@ def dry_run_report(program: str = "kraken", language: str = "fr") -> dict[str, A
         "pipeline": ["login", "edit", "save", "reread_account", "reread_public"],
         "live": False,
         "canary_ready_gate": content_write_allowed("parrainage-co"),
+        "autonomy": "COOKIE_SESSION_NOT_PC_OFF",
+        "note": (
+            "READ-ONLY class: writer exists but auth is RM cookie (expires) "
+            "or password+Turnstile. Not durable PC-off. Never auto-dispatch."
+        ),
     }
 
 
