@@ -1,0 +1,15 @@
+{
+  "from_head": "f1391d8",
+  "pco_run": "31706455905",
+  "rcodes_run": "31706463195",
+  "parrainage_co": "PC_OFF_READY / AUTO_ON_SAFE_DIFF",
+  "parrainage_co_gh_login": "PROVEN password+bumper.solve_turnstile cookie_used=false",
+  "parrainage_co_edit_access": "PROVEN edit/113735 textarea + cpbrgddy/s5qudqe4 save_clicked=false",
+  "parrainage_co_pc_off_ready": true,
+  "referralcodes_validate": "OK valid=1 shop_id=4769 Kraken draft_id=124 commit=false",
+  "referralcodes_existing_detected": "shop catalog match only",
+  "referralcodes_update_or_duplicate": "SHOP_MATCHED_UPDATE_UNKNOWN",
+  "referralcodes_pc_off_possible": false,
+  "referraldrop_password_same_account_possible": "UNPROVEN for this Google-only account",
+  "referraldrop_final_status": "AUTH_BLOCKED_MANUAL"
+}

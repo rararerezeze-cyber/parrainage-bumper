@@ -38,13 +38,15 @@
     ]
   },
   "classify": {
-    "existing_detected": false,
-    "update_or_duplicate": "VALIDATE_ERROR",
+    "existing_detected": true,
+    "update_or_duplicate": "SHOP_MATCHED_UPDATE_UNKNOWN",
+    "shop_ids": [4769],
+    "draft_id": 124,
     "signals": {
-      "update": false,
-      "duplicate": false,
-      "create": false,
-      "error": true
+      "shop_matched": true,
+      "listing_update_proven": false,
+      "duplicate_proven": false,
+      "error": false
     }
   },
   "commit_clicked": false,

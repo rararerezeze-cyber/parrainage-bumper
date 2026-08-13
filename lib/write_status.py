@@ -89,10 +89,10 @@ DEFAULT_STATUS: dict[str, dict[str, Any]] = {
     "parrainage-co": {
         "status": STATUS_CANARY_READY,
         "canary_program": "kraken",
-        "autonomy": AUTONOMY_COOKIE_SESSION_NOT_PC_OFF,
+        "autonomy": AUTONOMY_PC_OFF_READY,
         "notes": (
-            "Writer reuses bumper.smart_login_parrainage / solve_turnstile. "
-            "PC_OFF_READY only after GH READ-ONLY login+edit proof."
+            "PC_OFF_READY: bumper.smart_login_parrainage + solve_turnstile. "
+            "RM cookie optional. Auto only on a real SAFE_DIFF."
         ),
     },
     "code-parrainage": {
@@ -345,7 +345,7 @@ def autonomy_class(platform: str) -> str:
     if plat == "super-parrain":
         return AUTONOMY_CANARY_PENDING_SKIP
     if plat == "parrainage-co":
-        return AUTONOMY_COOKIE_SESSION_NOT_PC_OFF
+        return AUTONOMY_PC_OFF_READY
     if plat in {"1parrainage", "code-parrainage"}:
         return AUTONOMY_PC_OFF_READY
     return "NOT_PROVEN"

@@ -20,8 +20,10 @@ from tools.run_verified_writers import AUTO_SAFE_DIFF_PLATFORMS, NEVER_AUTO_DISP
 def test_pc_off_ready_auto_only_on_safe_diff(status_path=None):
     assert runtime_route("1parrainage") == ROUTE_AUTO_ON_SAFE_DIFF
     assert runtime_route("code-parrainage") == ROUTE_AUTO_ON_SAFE_DIFF
+    assert runtime_route("parrainage-co") == ROUTE_AUTO_ON_SAFE_DIFF
     assert may_auto_execute_on_safe_diff("1parrainage") is True
     assert may_auto_execute_on_safe_diff("code-parrainage") is True
+    assert may_auto_execute_on_safe_diff("parrainage-co") is True
 
 
 def test_human_and_blocked_never_auto():
@@ -34,9 +36,8 @@ def test_human_and_blocked_never_auto():
     assert may_auto_execute_on_safe_diff("referraldrop") is False
     assert runtime_route("super-parrain") == ROUTE_CANARY_PENDING_SKIP
     assert may_auto_execute_on_safe_diff("super-parrain") is False
-    assert runtime_route("parrainage-co") == ROUTE_COOKIE_SESSION_NOT_PC_OFF
-    assert may_auto_execute_on_safe_diff("parrainage-co") is False
-    # candidate for auto after GH login+edit proof; currently skipped
+    assert runtime_route("parrainage-co") == ROUTE_AUTO_ON_SAFE_DIFF
+    assert may_auto_execute_on_safe_diff("parrainage-co") is True
 
 
 def test_writers_refuse_human_and_commit():
@@ -54,7 +55,7 @@ def test_dispatch_lists_do_not_include_humans():
     assert "referraldrop" not in AUTO_SAFE_DIFF_PLATFORMS
     assert "super-parrain" not in AUTO_SAFE_DIFF_PLATFORMS
     assert "parrainage-co" in AUTO_SAFE_DIFF_PLATFORMS
-    assert may_auto_execute_on_safe_diff("parrainage-co") is False
+    assert may_auto_execute_on_safe_diff("parrainage-co") is True
     for plat in NEVER_AUTO_DISPATCH:
         skip = _skip_route(plat)
         assert skip["skipped"] is True

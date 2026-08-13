@@ -54,17 +54,40 @@ def _kraken_item() -> dict:
     }
 
 
-def _classify_result(text: str) -> dict:
+def _classify_result(text: str, parsed: dict | None = None) -> dict:
+    """Official #agent-import-result has shop_id + errors[]. That is shop match, not listing UPDATE."""
+    if isinstance(parsed, dict):
+        items = parsed.get("items") or []
+        summary = parsed.get("summary") or {}
+        item_errors = [e for it in items for e in (it.get("errors") or [])]
+        shop_ids = [it.get("shop_id") for it in items if it.get("shop_id")]
+        invalid = int(summary.get("invalid") or 0)
+        if item_errors or invalid:
+            kind = "VALIDATE_ERROR"
+        elif shop_ids:
+            kind = "SHOP_MATCHED_UPDATE_UNKNOWN"
+        else:
+            kind = "UNKNOWN"
+        return {
+            "existing_detected": bool(shop_ids),
+            "update_or_duplicate": kind,
+            "shop_ids": shop_ids,
+            "draft_id": parsed.get("draft_id"),
+            "signals": {
+                "shop_matched": bool(shop_ids),
+                "listing_update_proven": False,
+                "duplicate_proven": False,
+                "error": bool(item_errors or invalid),
+            },
+        }
     low = (text or "").lower()
     update = any(
         x in low
-        for x in ("update", "updated", "already exists", "match", "matched", "overwrite", "replace")
+        for x in ("update existing", "updated listing", "already exists", "overwrite", "replace listing")
     )
-    duplicate = any(
-        x in low for x in ("duplicate", "duplicat", "already listed", "conflict", "two listings")
-    )
-    create = any(x in low for x in ("create", "new item", "will add", "insert"))
-    error = any(x in low for x in ("error", "invalid", "fail", "must include"))
+    duplicate = any(x in low for x in ("duplicate", "already listed", "conflict"))
+    create = any(x in low for x in ("will add", "new listing", "create listing"))
+    error = any(x in low for x in ("error:", "invalid", "must include"))
     if error:
         kind = "VALIDATE_ERROR"
     elif update and not duplicate:
@@ -187,9 +210,7 @@ async def main() -> int:
             steps.append("validated")
             report["agent_import_result_text"] = result_text[:8000]
             report["agent_import_result_json"] = script_json
-            report["classify"] = _classify_result(
-                json.dumps(script_json, ensure_ascii=False) if script_json else result_text
-            )
+            report["classify"] = _classify_result(result_text, script_json)
             report["commit_clicked"] = False
             report["ok"] = True
             report["steps"] = steps

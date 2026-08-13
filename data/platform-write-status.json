@@ -1,10 +1,11 @@
 {
   "version": 1,
-  "updated_at": "2026-08-13T13:14:01.538685+00:00",
+  "updated_at": "2026-08-13T13:52:33.577754+00:00",
   "note": "Strict write readiness. WRITE_VERIFIED requires full post-verify evidence. Telegram live writes only for WRITE_VERIFIED platforms.",
   "write_verified_count": 2,
   "write_verified_ratio": "2/7",
   "telegram_live_capable": [
+    "parrainage-co",
     "code-parrainage",
     "1parrainage"
   ],
@@ -24,8 +25,11 @@
     "parrainage-co": {
       "status": "CANARY_READY",
       "canary_program": "kraken",
-      "autonomy": "COOKIE_SESSION_NOT_PC_OFF",
-      "notes": "Writer exists (cookie RM or password+Turnstile). Cookie expires — not durable PC-off. Never auto-dispatch. Kraken already operator-matched. No fake write.",
+      "autonomy": "PC_OFF_READY",
+      "notes": "GH 31706455905: password+bumper.solve_turnstile login PROVEN, edit/113735 PROVEN, cookie_used=false, save_clicked=false. Auto only on real SAFE_DIFF.",
+      "gh_headless_login": "PROVEN",
+      "gh_headless_edit": "PROVEN",
+      "gh_headless_save": "NOT_RUN",
       "content_sync": "SYNC_VERIFIED_NO_SAFE_DIFF",
       "sync_verified_at": "2026-08-13T08:17:27.339300+00:00",
       "last_compare_class": "NO_SAFE_DIFF",
@@ -99,7 +103,7 @@
       "status": "CANARY_READY",
       "canary_program": "kraken",
       "autonomy": "IMPORT_UI_BETA_NOT_PROVEN",
-      "notes": "Official Agent Import is beta UI (Validate then Commit). Direct API is future. Durable unattended R/W NOT_PROVEN. Keep native $200 in Crypto — do not overwrite with FR 200 €. Not WRITE_VERIFIED.",
+      "notes": "GH 31706463195 VALIDATE ONLY: login OK, shop_id=4769 Kraken valid, draft_id=124, commit=false. Official result matches shop catalog — does NOT prove listing UPDATE vs DUPLICATE. Not PC_OFF_READY. Keep native $200.",
       "prefer": "official_import",
       "import_ui": "https://referralcodes.com/profile/import/agent",
       "content_sync": "SYNC_VERIFIED_NO_SAFE_DIFF",
