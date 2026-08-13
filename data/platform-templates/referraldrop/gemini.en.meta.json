@@ -1,0 +1,23 @@
+{
+  "platform": "referraldrop",
+  "program": "gemini",
+  "language": "en",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": "https://referraldrop.com/en/drop/gemini",
+  "mutable_fields": [
+    "personal_link"
+  ],
+  "platform_values": {
+    "personal_link": "https://www.gemini.com/share/maavan7t7"
+  },
+  "confidences": {
+    "personal_link": "medium"
+  },
+  "notes": [
+    "lien plateforme != offers.json",
+    "bonus non marque (ambigu / non trouve) — texte laisse fixe",
+    "public capture only; AUTH_BLOCKED_GOOGLE"
+  ]
+}

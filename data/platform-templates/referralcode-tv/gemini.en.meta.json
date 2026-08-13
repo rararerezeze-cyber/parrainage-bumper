@@ -1,0 +1,23 @@
+{
+  "platform": "referralcode-tv",
+  "program": "gemini",
+  "language": "en",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-gemini-referral-offer-50-in-crypto-of-your-choice-%e2%ad%90%ef%b8%8f-join-gemini-a-regulated-and-secure-crypto-exchange-platform/?__sid=23028",
+  "mutable_fields": [
+    "personal_code"
+  ],
+  "platform_values": {
+    "personal_code": "wd8yn943e"
+  },
+  "confidences": {
+    "personal_code": "high"
+  },
+  "notes": [
+    "lien offers.json non trouve dans le texte",
+    "bonus non marque (ambigu / non trouve) — texte laisse fixe",
+    "public author capture; distinct from referralcodes.com"
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "at": "2026-08-13T08:17:27+00:00",
+  "live": false,
+  "expected": {
+    "personal_code": "cpbrgddy",
+    "personal_link": "https://invite.kraken.com/JDNW/s5qudqe4",
+    "referee_reward": "200 € en cryptomonnaies"
+  },
+  "forbidden_must_not_publish": [
+    "4hpz4gdy",
+    "proinvite.kraken.com",
+    "20 € en Bitcoin",
+    "20€ en Bitcoin"
+  ],
+  "platforms": [
+    {
+      "platform": "parrainage-co",
+      "ok": true,
+      "method": "public_announcement",
+      "url": "https://parrainage.co/offers/113735",
+      "observed": {
+        "personal_code": "cpbrgddy",
+        "personal_link": "https://invite.kraken.com/JDNW/s5qudqe4",
+        "referee_reward": "200 € en cryptomonnaies"
+      },
+      "class": "NO_SAFE_DIFF",
+      "note": "Public offer already matches OPERATOR_VALIDATED. Dry-run changed_fields none. Auth compare import bug fixed but a second login is not required to classify."
+    },
+    {
+      "platform": "code-parrainage",
+      "ok": false,
+      "error": "slider captcha non resolu (pas de contournement anti-bot)",
+      "class": "DOM_BLOCKED",
+      "note": "Dry-run vs mapping has no field diff. No public URL. Not SYNC without live reread."
+    },
+    {
+      "platform": "1parrainage",
+      "ok": true,
+      "method": "public_list",
+      "url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100408",
+      "observed": {
+        "personal_code": "cpbrgddy",
+        "personal_link": "https://invite.kraken.com/JDNW/4jdp7sea",
+        "referee_reward": "200 € en cryptomonnaies"
+      },
+      "class": "REAL_SAFE_DIFF",
+      "note": "Only personal_link differs (4jdp7sea -> s5qudqe4). Code and reward already correct. Previous auth compare login failed — one live canary may retry."
+    },
+    {
+      "platform": "referralcodes",
+      "ok": true,
+      "method": "public_profile",
+      "url": "https://referralcodes.com/TheSuperReff",
+      "observed": {
+        "personal_code": "cpbrgddy",
+        "personal_link": null,
+        "referee_reward": "$200 in Crypto"
+      },
+      "class": "NO_SAFE_DIFF",
+      "note": "Public card already shows native $200 in Crypto + cpbrgddy. Do not overwrite native EN style with FR 200 € text."
+    }
+  ],
+  "first_real_safe_diff": "1parrainage",
+  "super_parrain": {
+    "class": "NO_SAFE_DIFF",
+    "content_sync": "SYNC_VERIFIED_NO_SAFE_DIFF",
+    "write_verified": false,
+    "source": "scheduled canary 50877ed"
+  }
+}

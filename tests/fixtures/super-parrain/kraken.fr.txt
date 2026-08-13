@@ -1,0 +1,7 @@
+🔥 Obtiens {{REFEREE_REWARD}} avec mon code {{PERSONAL_CODE}} 🔥
+
+Inscris-toi grace a mon lien :
+{{PERSONAL_LINK}}
+
+Conditions :
+{{CONDITIONS}}

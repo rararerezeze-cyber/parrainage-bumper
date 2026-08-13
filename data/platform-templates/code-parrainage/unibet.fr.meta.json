@@ -1,0 +1,25 @@
+{
+  "platform": "code-parrainage",
+  "program": "unibet",
+  "language": "fr",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": "https://code-parrainage.net/modif/58865",
+  "mutable_fields": [
+    "personal_link",
+    "referee_reward"
+  ],
+  "platform_values": {
+    "personal_link": "https://www.unibet.fr/inscription/?campaign=280526&parrain=03356181D410779A",
+    "referee_reward": "100€ premier pari remboursé ✅"
+  },
+  "confidences": {
+    "personal_link": "medium",
+    "referee_reward": "medium"
+  },
+  "notes": [
+    "lien plateforme != offers.json",
+    "bonus extrait du texte plateforme (confiance moyenne)"
+  ]
+}

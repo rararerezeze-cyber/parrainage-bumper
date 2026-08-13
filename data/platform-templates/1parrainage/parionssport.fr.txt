@@ -1,0 +1,19 @@
+>
+
+259 parrain(s)
+
+Publiée le 02-01-2026
+
+30 € pour vous et jusqu’à 130 € de bonus
+
+Bonus : {{REFEREE_REWARD}}
+
+Lien de parrainage :
+{{PERSONAL_LINK}}
+
+Étapes à suivre pour
+...
+
+J’en profite
+
+<img loading="lazy" class="img-responsive" width="115" border="0" height="38" src='/uploads/leslogos/finary.jpg'

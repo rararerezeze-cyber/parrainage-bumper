@@ -1,0 +1,22 @@
+{
+  "execute": false,
+  "ok": true,
+  "changed_fields": {
+    "personal_link": {
+      "old": "https://invite.kraken.com/JDNW/4jdp7sea",
+      "new": "https://invite.kraken.com/JDNW/s5qudqe4"
+    }
+  },
+  "structure_preserved": true,
+  "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100408",
+  "edit_url": null,
+  "platform_offer_id": "100408",
+  "pipeline": [
+    "login",
+    "edit",
+    "save",
+    "reread_account",
+    "reread_public"
+  ],
+  "live": false
+}

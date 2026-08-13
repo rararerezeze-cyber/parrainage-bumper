@@ -1,0 +1,61 @@
+{
+  "platform": "referralcodes",
+  "method": "official_agent_import",
+  "prefer": [
+    "Agent Import JSON/CSV",
+    "future API",
+    "no browser CAPTCHA bypass"
+  ],
+  "docs": "https://referralcodes.com/agents",
+  "import_ui": "https://referralcodes.com/profile/import/agent",
+  "schema_version": "1.0",
+  "write_mode": "CANARY_READY",
+  "live": false,
+  "content_write_allowed": true,
+  "phase": "VALIDATION_LIVE",
+  "validation_ok": true,
+  "validation_errors": [],
+  "payload": {
+    "version": "1.0",
+    "items": [
+      {
+        "shop": "kraken",
+        "discount": "200 € en cryptomonnaies",
+        "url": "https://invite.kraken.com/JDNW/s5qudqe4",
+        "code": "cpbrgddy",
+        "description": "Autofresh canary/import for kraken"
+      }
+    ]
+  },
+  "programs": [
+    {
+      "program": "kraken",
+      "status": "ok",
+      "errors": [],
+      "item": {
+        "shop": "kraken",
+        "discount": "200 € en cryptomonnaies",
+        "url": "https://invite.kraken.com/JDNW/s5qudqe4",
+        "code": "cpbrgddy",
+        "description": "Autofresh canary/import for kraken"
+      },
+      "announcement_url": "https://referralcodes.com/TheSuperReff",
+      "source": "mapping+offers"
+    }
+  ],
+  "pending_updates": 1,
+  "artifacts": {
+    "json": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\captures\\referralcodes-agent-import-kraken.json",
+    "csv": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\captures\\referralcodes-agent-import-kraken.csv",
+    "report": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\captures\\referralcodes-agent-import-kraken-report.json",
+    "validation_ok": true
+  },
+  "blocker_to_write_verified": "Live step remaining: login REFERRALCODES_* → open import UI → Validate → Commit one canary item → reread profile post_match",
+  "canary_steps": [
+    "python tools/prepare_referralcodes_agent_import.py --program kraken",
+    "Open https://referralcodes.com/profile/import/agent (authenticated)",
+    "Paste JSON → Validate → read #agent-import-result",
+    "Commit if ok → reread public profile",
+    "mark_write_verified only with post_match evidence"
+  ]
+}

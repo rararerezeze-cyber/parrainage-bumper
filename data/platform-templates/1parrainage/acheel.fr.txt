@@ -1,0 +1,15 @@
+Offre spéciale : {{REFEREE_REWARD}}
+
+Profitez d’1 mois gratuit en saisissant le code de parrainage lors de votre inscription.
+
+Code parrainage :
+{{PERSONAL_CODE}}
+
+Étapes à suivre pour bénéficier de l’offre :
+
+Rendez-vous sur la page d’inscription du s
+...
+
+J’en profite
+
+<img loading="lazy" class="img-responsive" width="115" border="0" height="38" src='/uploads/leslogos/nrjmobile.gif'

@@ -1,0 +1,53 @@
+{
+  "platform": "1parrainage",
+  "program": "ebuyclub",
+  "language": "fr",
+  "sync_mode": "REVIEW",
+  "template_status": "ready",
+  "golden_file": "ebuyclub.fr.golden.txt",
+  "mutable_fields": [
+    "personal_link",
+    "referee_reward"
+  ],
+  "markers": {
+    "personal_code": "{{PERSONAL_CODE}}",
+    "personal_link": "{{PERSONAL_LINK}}",
+    "referee_reward": "{{REFEREE_REWARD}}",
+    "referrer_reward": "{{REFERRER_REWARD}}",
+    "conditions": "{{CONDITIONS}}"
+  },
+  "offer_fields": {
+    "personal_code": "code",
+    "personal_link": "link",
+    "referee_reward": "reward",
+    "conditions": "cond"
+  },
+  "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=85",
+  "edit_url": null,
+  "platform_values": {
+    "personal_link": "https://www.ebuyclub.com/?parrain=adrien891000",
+    "referee_reward": "5 € de bienvenue crédités dès votre inscription via le lien de parrainage"
+  },
+  "confidences": {
+    "personal_link": "high",
+    "referee_reward": "medium"
+  },
+  "notes": "bonus extrait du texte plateforme (confiance moyenne); native style only — no emoji reinjection; list_brand=coupon promotionnel Ebuyclub",
+  "source_of_truth": {
+    "personal_code": "offers_json_then_operator",
+    "personal_link": "offers_json_then_operator",
+    "referee_reward": "offers_json_then_official",
+    "announcement_text": "platform_target_only"
+  },
+  "quality": "native_list_full_inventory",
+  "style_policy": "native_platform_style_only",
+  "platform_offer_id": "85",
+  "occurrences": [
+    {
+      "offer_id": "85",
+      "brand": "coupon promotionnel Ebuyclub",
+      "chars": 416
+    }
+  ],
+  "occurrence_count": 1
+}

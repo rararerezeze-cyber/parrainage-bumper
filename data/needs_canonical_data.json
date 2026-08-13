@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "source_profile": "https://www.super-parrain.com/users/adrien-b-8",
+  "count": 2,
+  "items": [
+    {
+      "name": "Bitget",
+      "program_key": "bitget",
+      "url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100873",
+      "platform": "1parrainage",
+      "language": "fr",
+      "status": "needs_canonical_data",
+      "reason": "present on 1parrainage list but no offers.json entry — no auto invent",
+      "notes": [
+        "strict inventory 2026-08-12"
+      ]
+    },
+    {
+      "name": "Uber Eats",
+      "program_key": "ubereats",
+      "url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php",
+      "platform": "1parrainage",
+      "language": "fr",
+      "status": "needs_canonical_data",
+      "reason": "present on 1parrainage list but no offers.json entry — no auto invent",
+      "notes": [
+        "strict inventory 2026-08-12"
+      ]
+    }
+  ]
+}

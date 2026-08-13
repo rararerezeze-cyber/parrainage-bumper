@@ -1,0 +1,297 @@
+{
+  "at": "2026-08-12T23:16:27.870200+00:00",
+  "live": false,
+  "super_pass": false,
+  "next_executable": null,
+  "one_at_a_time": true,
+  "sequence": [
+    "parrainage-co",
+    "code-parrainage",
+    "1parrainage",
+    "referralcodes"
+  ],
+  "rule": "After Super WRITE_VERIFIED, fire exactly one platform: the first not-yet WRITE_VERIFIED whose predecessor PASSed. Never two sessions. Never skip.",
+  "packs": [
+    {
+      "platform": "parrainage-co",
+      "program": "kraken",
+      "status": "CANARY_READY",
+      "predecessor": "super-parrain",
+      "successor": "code-parrainage",
+      "secrets": [
+        "PARRAINAGE_CO_RM_COOKIE",
+        "PARRAINAGE_CO_EMAIL",
+        "PARRAINAGE_CO_PASSWORD"
+      ],
+      "tool": "tools/controlled_write_parrainage_co.py",
+      "cli_plan": "python tools/controlled_write_parrainage_co.py --program kraken",
+      "cli_execute_after_gates": "python tools/controlled_write_parrainage_co.py --program kraken --execute --force",
+      "workflow": "activation_canary.yml",
+      "pipeline": [
+        "login",
+        "edit",
+        "save",
+        "reread_account",
+        "reread_public"
+      ],
+      "snapshot_on_execute": true,
+      "rollback": "lib.safety.rollback_snapshot after failed live",
+      "circuit_breakers": true,
+      "one_at_a_time": true,
+      "requires_super_pass": true,
+      "requires_predecessor_pass": false,
+      "checks": {
+        "status_canary_ready": true,
+        "controlled_write_tool": true,
+        "predecessor_defined": true,
+        "circuit_closed": true,
+        "kraken_plan_ok": true,
+        "structure_or_schema_ok": true,
+        "pipeline_documented": true
+      },
+      "plan": {
+        "structure_preserved": true,
+        "validation_ok": null,
+        "changed_fields": {
+          "personal_code": {
+            "old": "cpbrgddy",
+            "new": "4hpz4gdy"
+          },
+          "personal_link": {
+            "old": "https://invite.kraken.com/JDNW/s5qudqe4",
+            "new": "https://proinvite.kraken.com/9f1e/lqbuov8u"
+          },
+          "referee_reward": {
+            "old": "200 € en cryptomonnaies",
+            "new": "20 € en Bitcoin selon l’offre"
+          }
+        },
+        "announcement_url": "https://parrainage.co/offers/113735",
+        "edit_url": "https://parrainage.co/account/offers/edit/113735",
+        "action": "WOULD_UPDATE",
+        "live": false
+      },
+      "EXECUTABLE_AFTER_SUPER_PASS": "YES",
+      "live": false,
+      "at": "2026-08-12T23:16:27.766943+00:00"
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "kraken",
+      "status": "CANARY_READY",
+      "predecessor": "parrainage-co",
+      "successor": "1parrainage",
+      "secrets": [
+        "CODE_PARRAINAGE_EMAIL",
+        "CODE_PARRAINAGE_PASSWORD"
+      ],
+      "tool": "tools/controlled_write_code_parrainage.py",
+      "cli_plan": "python tools/controlled_write_code_parrainage.py --program kraken",
+      "cli_execute_after_gates": "python tools/controlled_write_code_parrainage.py --program kraken --execute --force",
+      "workflow": "activation_canary.yml",
+      "pipeline": [
+        "login",
+        "edit",
+        "save",
+        "reread_account",
+        "reread_public_if_any"
+      ],
+      "snapshot_on_execute": true,
+      "rollback": "lib.safety.rollback_snapshot after failed live",
+      "circuit_breakers": true,
+      "one_at_a_time": true,
+      "requires_super_pass": true,
+      "requires_predecessor_pass": true,
+      "checks": {
+        "status_canary_ready": true,
+        "controlled_write_tool": true,
+        "predecessor_defined": true,
+        "circuit_closed": true,
+        "kraken_plan_ok": true,
+        "structure_or_schema_ok": true,
+        "pipeline_documented": true
+      },
+      "plan": {
+        "structure_preserved": true,
+        "validation_ok": null,
+        "changed_fields": {
+          "personal_code": {
+            "old": "cpbrgddy",
+            "new": "4hpz4gdy"
+          },
+          "personal_link": {
+            "old": "https://invite.kraken.com/JDNW/s5qudqe4",
+            "new": "https://proinvite.kraken.com/9f1e/lqbuov8u"
+          },
+          "referee_reward": {
+            "old": "200 € en cryptomonnaies",
+            "new": "20 € en Bitcoin selon l’offre"
+          }
+        },
+        "announcement_url": null,
+        "edit_url": "https://code-parrainage.net/modif/84601",
+        "action": "WOULD_UPDATE",
+        "live": false
+      },
+      "EXECUTABLE_AFTER_SUPER_PASS": "YES",
+      "live": false,
+      "at": "2026-08-12T23:16:27.791493+00:00"
+    },
+    {
+      "platform": "1parrainage",
+      "program": "kraken",
+      "status": "CANARY_READY",
+      "predecessor": "code-parrainage",
+      "successor": "referralcodes",
+      "secrets": [
+        "ONEPARRAINAGE_EMAIL",
+        "ONEPARRAINAGE_PASSWORD"
+      ],
+      "tool": "tools/controlled_write_1parrainage.py",
+      "cli_plan": "python tools/controlled_write_1parrainage.py --program kraken",
+      "cli_execute_after_gates": "python tools/controlled_write_1parrainage.py --program kraken --execute --force",
+      "workflow": "activation_canary.yml",
+      "pipeline": [
+        "login",
+        "edit",
+        "save",
+        "reread_account",
+        "reread_public"
+      ],
+      "snapshot_on_execute": true,
+      "rollback": "lib.safety.rollback_snapshot after failed live",
+      "circuit_breakers": true,
+      "one_at_a_time": true,
+      "requires_super_pass": true,
+      "requires_predecessor_pass": true,
+      "checks": {
+        "status_canary_ready": true,
+        "controlled_write_tool": true,
+        "predecessor_defined": true,
+        "circuit_closed": true,
+        "kraken_plan_ok": true,
+        "structure_or_schema_ok": true,
+        "pipeline_documented": true
+      },
+      "plan": {
+        "structure_preserved": true,
+        "validation_ok": null,
+        "changed_fields": {
+          "personal_code": {
+            "old": "cpbrgddy",
+            "new": "4hpz4gdy"
+          },
+          "personal_link": {
+            "old": "https://invite.kraken.com/JDNW/4jdp7sea",
+            "new": "https://proinvite.kraken.com/9f1e/lqbuov8u"
+          },
+          "referee_reward": {
+            "old": "200 € en cryptomonnaies",
+            "new": "20 € en Bitcoin selon l’offre"
+          }
+        },
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100408",
+        "edit_url": null,
+        "action": "WOULD_UPDATE",
+        "live": false
+      },
+      "EXECUTABLE_AFTER_SUPER_PASS": "YES",
+      "live": false,
+      "at": "2026-08-12T23:16:27.806771+00:00"
+    },
+    {
+      "platform": "referralcodes",
+      "program": "kraken",
+      "status": "CANARY_READY",
+      "predecessor": "1parrainage",
+      "successor": "referralcode-tv",
+      "secrets": [
+        "REFERRALCODES_EMAIL",
+        "REFERRALCODES_PASSWORD"
+      ],
+      "tool": "tools/controlled_write_referralcodes.py",
+      "cli_plan": "python tools/controlled_write_referralcodes.py --program kraken",
+      "cli_execute_after_gates": "python tools/controlled_write_referralcodes.py --program kraken --execute --force",
+      "workflow": "activation_canary.yml",
+      "pipeline": [
+        "login_email_password",
+        "open_agent_import",
+        "paste_kraken_json",
+        "validate",
+        "commit",
+        "reread_public_profile"
+      ],
+      "snapshot_on_execute": true,
+      "rollback": "lib.safety.rollback_snapshot after failed live",
+      "circuit_breakers": true,
+      "one_at_a_time": true,
+      "requires_super_pass": true,
+      "requires_predecessor_pass": true,
+      "checks": {
+        "status_canary_ready": true,
+        "controlled_write_tool": true,
+        "predecessor_defined": true,
+        "circuit_closed": true,
+        "kraken_plan_ok": true,
+        "structure_or_schema_ok": true,
+        "pipeline_documented": true
+      },
+      "plan": {
+        "structure_preserved": null,
+        "validation_ok": true,
+        "changed_fields": null,
+        "announcement_url": null,
+        "edit_url": "https://referralcodes.com/profile/import/agent",
+        "action": null,
+        "live": false
+      },
+      "EXECUTABLE_AFTER_SUPER_PASS": "YES",
+      "live": false,
+      "at": "2026-08-12T23:16:27.858210+00:00"
+    }
+  ],
+  "referralcode_tv": {
+    "platform": "referralcode-tv",
+    "program": "kraken",
+    "status": "WRITE_PREPARED",
+    "predecessor": "referralcodes",
+    "successor": null,
+    "secrets": [
+      "REFERRALCODE_EMAIL",
+      "REFERRALCODE_PASSWORD"
+    ],
+    "tool": "tools/probe_referralcode_tv_edit.py",
+    "cli_plan": "python tools/probe_referralcode_tv_edit.py --program kraken",
+    "cli_execute_after_gates": "python tools/probe_referralcode_tv_edit.py --program kraken --execute --force",
+    "workflow": "activation_canary.yml",
+    "pipeline": [],
+    "snapshot_on_execute": true,
+    "rollback": "lib.safety.rollback_snapshot after failed live",
+    "circuit_breakers": true,
+    "one_at_a_time": true,
+    "requires_super_pass": true,
+    "requires_predecessor_pass": true,
+    "checks": {
+      "status_canary_ready": false,
+      "controlled_write_tool": true,
+      "predecessor_defined": true,
+      "circuit_closed": true,
+      "kraken_plan_ok": true,
+      "structure_or_schema_ok": false,
+      "pipeline_documented": false
+    },
+    "plan": {
+      "structure_preserved": null,
+      "validation_ok": null,
+      "changed_fields": null,
+      "announcement_url": null,
+      "edit_url": null,
+      "action": null,
+      "live": false
+    },
+    "EXECUTABLE_AFTER_SUPER_PASS": "NO",
+    "live": false,
+    "at": "2026-08-12T23:16:27.869208+00:00"
+  },
+  "POST_SUPER_CANARIES_ARMED": "YES"
+}

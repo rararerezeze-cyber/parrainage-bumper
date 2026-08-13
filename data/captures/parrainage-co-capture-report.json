@@ -1,0 +1,615 @@
+{
+  "platform": "parrainage-co",
+  "mode": "PUBLIC_RECAPTURE_READ_ONLY",
+  "profile": "https://parrainage.co/user/adrien89",
+  "profile_offer_count": 26,
+  "captured": [
+    {
+      "offer_id": "75172",
+      "url": "https://parrainage.co/offers/75172",
+      "brand": "Betclic",
+      "program": "betclic",
+      "body_len": 1156,
+      "site_code_widget": "AD89AW2M",
+      "status": "OK",
+      "structure_reason": "ok",
+      "mutable_fields": [
+        "personal_code",
+        "referee_reward"
+      ],
+      "paths": {
+        "golden": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\betclic.fr.golden.txt",
+        "template": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\betclic.fr.txt",
+        "mapping": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-mappings\\parrainage-co.betclic.fr.json",
+        "meta": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\betclic.fr.meta.json"
+      }
+    },
+    {
+      "offer_id": "75195",
+      "url": "https://parrainage.co/offers/75195",
+      "brand": "BoursoBank",
+      "program": "boursobank",
+      "body_len": 2292,
+      "site_code_widget": "ADBE5645",
+      "status": "OK",
+      "structure_reason": "ok",
+      "mutable_fields": [
+        "personal_link"
+      ],
+      "paths": {
+        "golden": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\boursobank.fr.golden.txt",
+        "template": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\boursobank.fr.txt",
+        "mapping": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-mappings\\parrainage-co.boursobank.fr.json",
+        "meta": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\boursobank.fr.meta.json"
+      }
+    },
+    {
+      "offer_id": "76562",
+      "url": "https://parrainage.co/offers/76562",
+      "brand": "Coinbase",
+      "program": "coinbase",
+      "body_len": 1164,
+      "site_code_widget": "8T83ZPS",
+      "status": "OK",
+      "structure_reason": "ok",
+      "mutable_fields": [
+        "personal_code",
+        "personal_link",
+        "referee_reward"
+      ],
+      "paths": {
+        "golden": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\coinbase.fr.golden.txt",
+        "template": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\coinbase.fr.txt",
+        "mapping": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-mappings\\parrainage-co.coinbase.fr.json",
+        "meta": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\coinbase.fr.meta.json"
+      }
+    },
+    {
+      "offer_id": "84358",
+      "url": "https://parrainage.co/offers/84358",
+      "brand": "Ebuyclub",
+      "program": "ebuyclub",
+      "body_len": 778,
+      "site_code_widget": "adrien891000",
+      "status": "OK",
+      "structure_reason": "ok",
+      "mutable_fields": [
+        "personal_link",
+        "referee_reward"
+      ],
+      "paths": {
+        "golden": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\ebuyclub.fr.golden.txt",
+        "template": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\ebuyclub.fr.txt",
+        "mapping": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-mappings\\parrainage-co.ebuyclub.fr.json",
+        "meta": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\ebuyclub.fr.meta.json"
+      }
+    },
+    {
+      "offer_id": "75178",
+      "url": "https://parrainage.co/offers/75178",
+      "brand": "iGraal",
+      "program": "igraal",
+      "body_len": 838,
+      "site_code_widget": "AG_608d8f9aded43",
+      "status": "OK",
+      "structure_reason": "ok",
+      "mutable_fields": [
+        "personal_link",
+        "referee_reward"
+      ],
+      "paths": {
+        "golden": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\igraal.fr.golden.txt",
+        "template": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\igraal.fr.txt",
+        "mapping": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-mappings\\parrainage-co.igraal.fr.json",
+        "meta": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\igraal.fr.meta.json"
+      }
+    },
+    {
+      "offer_id": "84354",
+      "url": "https://parrainage.co/offers/84354",
+      "brand": "Poulpeo",
+      "program": "poulpeo",
+      "body_len": 630,
+      "site_code_widget": "4KD2ab",
+      "status": "OK",
+      "structure_reason": "ok",
+      "mutable_fields": [
+        "personal_code",
+        "referee_reward"
+      ],
+      "paths": {
+        "golden": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\poulpeo.fr.golden.txt",
+        "template": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\poulpeo.fr.txt",
+        "mapping": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-mappings\\parrainage-co.poulpeo.fr.json",
+        "meta": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\poulpeo.fr.meta.json"
+      }
+    },
+    {
+      "offer_id": "76563",
+      "url": "https://parrainage.co/offers/76563",
+      "brand": "Revolut",
+      "program": "revolut",
+      "body_len": 1084,
+      "site_code_widget": "adrienhcos",
+      "status": "OK",
+      "structure_reason": "ok",
+      "mutable_fields": [
+        "personal_link",
+        "referee_reward"
+      ],
+      "paths": {
+        "golden": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\revolut.fr.golden.txt",
+        "template": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\revolut.fr.txt",
+        "mapping": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-mappings\\parrainage-co.revolut.fr.json",
+        "meta": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\revolut.fr.meta.json"
+      }
+    },
+    {
+      "offer_id": "110585",
+      "url": "https://parrainage.co/offers/110585",
+      "brand": "TotalEnergies",
+      "program": "totalenergies",
+      "body_len": 1216,
+      "site_code_widget": "114052844",
+      "status": "OK",
+      "structure_reason": "ok",
+      "mutable_fields": [
+        "personal_code",
+        "personal_link"
+      ],
+      "paths": {
+        "golden": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\totalenergies.fr.golden.txt",
+        "template": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\totalenergies.fr.txt",
+        "mapping": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-mappings\\parrainage-co.totalenergies.fr.json",
+        "meta": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\totalenergies.fr.meta.json"
+      }
+    },
+    {
+      "offer_id": "75173",
+      "url": "https://parrainage.co/offers/75173",
+      "brand": "Unibet",
+      "program": "unibet",
+      "body_len": 1849,
+      "site_code_widget": "03356181D410779A",
+      "status": "OK",
+      "structure_reason": "ok",
+      "mutable_fields": [
+        "personal_link",
+        "referee_reward"
+      ],
+      "paths": {
+        "golden": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\unibet.fr.golden.txt",
+        "template": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\unibet.fr.txt",
+        "mapping": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-mappings\\parrainage-co.unibet.fr.json",
+        "meta": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\unibet.fr.meta.json"
+      }
+    },
+    {
+      "offer_id": "118536",
+      "url": "https://parrainage.co/offers/118536",
+      "brand": "Vinted",
+      "program": "vinted",
+      "body_len": 1377,
+      "site_code_widget": "weeew89",
+      "status": "NEEDS_CANONICAL",
+      "detected": {
+        "personal_link": "https://www.vinted.fr/invite/weeew89",
+        "referee_reward": "inscription via mon lien de parrainage ✅",
+        "personal_code": "weeew89"
+      }
+    },
+    {
+      "offer_id": "75175",
+      "url": "https://parrainage.co/offers/75175",
+      "brand": "Winamax",
+      "program": "winamax",
+      "body_len": 1748,
+      "site_code_widget": "AD8RAY",
+      "status": "OK",
+      "structure_reason": "ok",
+      "mutable_fields": [
+        "personal_code",
+        "referee_reward"
+      ],
+      "paths": {
+        "golden": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\winamax.fr.golden.txt",
+        "template": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\winamax.fr.txt",
+        "mapping": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-mappings\\parrainage-co.winamax.fr.json",
+        "meta": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\winamax.fr.meta.json"
+      }
+    },
+    {
+      "offer_id": "125100",
+      "url": "https://parrainage.co/offers/125100",
+      "brand": "NRJ Mobile",
+      "program": "nrj-mobile",
+      "body_len": 1470,
+      "site_code_widget": "1yzORChP",
+      "status": "NEEDS_CANONICAL",
+      "detected": {
+        "personal_link": "https://aklam.io/1yzORChP",
+        "referee_reward": "10 € pour vous + 10 € pour votre filleul après 2 mois d’abonnement validés",
+        "personal_code": "1yzORChP"
+      }
+    },
+    {
+      "offer_id": "114509",
+      "url": "https://parrainage.co/offers/114509",
+      "brand": "SWISSBORG",
+      "program": "swissborg",
+      "body_len": 902,
+      "site_code_widget": "adrienOCZI39JF",
+      "status": "OK",
+      "structure_reason": "ok",
+      "mutable_fields": [
+        "personal_link",
+        "referee_reward"
+      ],
+      "paths": {
+        "golden": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\swissborg.fr.golden.txt",
+        "template": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\swissborg.fr.txt",
+        "mapping": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-mappings\\parrainage-co.swissborg.fr.json",
+        "meta": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\swissborg.fr.meta.json"
+      }
+    },
+    {
+      "offer_id": "123892",
+      "url": "https://parrainage.co/offers/123892",
+      "brand": "Okx (ex OKEx)",
+      "program": "okx",
+      "body_len": 1566,
+      "site_code_widget": "28947271",
+      "status": "NEEDS_CANONICAL",
+      "detected": {
+        "personal_code": "28947271",
+        "personal_link": "https://my.okx.com/fr-fr/join/28947271"
+      }
+    },
+    {
+      "offer_id": "75174",
+      "url": "https://parrainage.co/offers/75174",
+      "brand": "Trade Republic",
+      "program": "traderepublic",
+      "body_len": 1463,
+      "site_code_widget": "s931znqx",
+      "status": "OK",
+      "structure_reason": "ok",
+      "mutable_fields": [
+        "personal_code",
+        "personal_link"
+      ],
+      "paths": {
+        "golden": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\traderepublic.fr.golden.txt",
+        "template": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\traderepublic.fr.txt",
+        "mapping": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-mappings\\parrainage-co.traderepublic.fr.json",
+        "meta": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\traderepublic.fr.meta.json"
+      }
+    },
+    {
+      "offer_id": "86502",
+      "url": "https://parrainage.co/offers/86502",
+      "brand": "Joko",
+      "program": "joko",
+      "body_len": 652,
+      "site_code_widget": "stxzzb",
+      "status": "OK",
+      "structure_reason": "ok",
+      "mutable_fields": [
+        "personal_code",
+        "referee_reward"
+      ],
+      "paths": {
+        "golden": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\joko.fr.golden.txt",
+        "template": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\joko.fr.txt",
+        "mapping": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-mappings\\parrainage-co.joko.fr.json",
+        "meta": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\joko.fr.meta.json"
+      }
+    },
+    {
+      "offer_id": "109021",
+      "url": "https://parrainage.co/offers/109021",
+      "brand": "Widilo",
+      "program": "widilo",
+      "body_len": 1214,
+      "site_code_widget": "NGA684",
+      "status": "OK",
+      "structure_reason": "ok",
+      "mutable_fields": [
+        "personal_link",
+        "referee_reward"
+      ],
+      "paths": {
+        "golden": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\widilo.fr.golden.txt",
+        "template": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\widilo.fr.txt",
+        "mapping": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-mappings\\parrainage-co.widilo.fr.json",
+        "meta": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\widilo.fr.meta.json"
+      }
+    },
+    {
+      "offer_id": "127408",
+      "url": "https://parrainage.co/offers/127408",
+      "brand": "Bybit",
+      "program": "bybit",
+      "body_len": 847,
+      "site_code_widget": "YQ6B3O2",
+      "status": "OK",
+      "structure_reason": "ok",
+      "mutable_fields": [
+        "personal_code",
+        "personal_link"
+      ],
+      "paths": {
+        "golden": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\bybit.fr.golden.txt",
+        "template": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\bybit.fr.txt",
+        "mapping": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-mappings\\parrainage-co.bybit.fr.json",
+        "meta": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\bybit.fr.meta.json"
+      }
+    },
+    {
+      "offer_id": "115693",
+      "url": "https://parrainage.co/offers/115693",
+      "brand": "Ledger",
+      "program": "ledger",
+      "body_len": 1650,
+      "site_code_widget": "20DA401DG841C",
+      "status": "OK",
+      "structure_reason": "ok",
+      "mutable_fields": [
+        "personal_code",
+        "personal_link",
+        "referee_reward"
+      ],
+      "paths": {
+        "golden": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\ledger.fr.golden.txt",
+        "template": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\ledger.fr.txt",
+        "mapping": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-mappings\\parrainage-co.ledger.fr.json",
+        "meta": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\ledger.fr.meta.json"
+      }
+    },
+    {
+      "offer_id": "113735",
+      "url": "https://parrainage.co/offers/113735",
+      "brand": "Kraken",
+      "program": "kraken",
+      "body_len": 756,
+      "site_code_widget": "cpbrgddy",
+      "status": "OK",
+      "structure_reason": "ok",
+      "mutable_fields": [
+        "personal_code",
+        "personal_link",
+        "referee_reward"
+      ],
+      "paths": {
+        "golden": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\kraken.fr.golden.txt",
+        "template": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\kraken.fr.txt",
+        "mapping": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-mappings\\parrainage-co.kraken.fr.json",
+        "meta": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\kraken.fr.meta.json"
+      }
+    },
+    {
+      "offer_id": "115388",
+      "url": "https://parrainage.co/offers/115388",
+      "brand": "Gemini",
+      "program": "gemini",
+      "body_len": 1726,
+      "site_code_widget": "wd8yn943e",
+      "status": "OK",
+      "structure_reason": "ok",
+      "mutable_fields": [
+        "personal_code",
+        "personal_link",
+        "referee_reward"
+      ],
+      "paths": {
+        "golden": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\gemini.fr.golden.txt",
+        "template": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\gemini.fr.txt",
+        "mapping": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-mappings\\parrainage-co.gemini.fr.json",
+        "meta": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\gemini.fr.meta.json"
+      }
+    },
+    {
+      "offer_id": "92118",
+      "url": "https://parrainage.co/offers/92118",
+      "brand": "Acheel",
+      "program": "acheel",
+      "body_len": 1210,
+      "site_code_widget": "ADBE5645",
+      "status": "OK",
+      "structure_reason": "ok",
+      "mutable_fields": [
+        "personal_code",
+        "referee_reward"
+      ],
+      "paths": {
+        "golden": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\acheel.fr.golden.txt",
+        "template": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\acheel.fr.txt",
+        "mapping": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-mappings\\parrainage-co.acheel.fr.json",
+        "meta": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\acheel.fr.meta.json"
+      }
+    },
+    {
+      "offer_id": "114464",
+      "url": "https://parrainage.co/offers/114464",
+      "brand": "Bitstack",
+      "program": "bitstack",
+      "body_len": 850,
+      "site_code_widget": "2ggoINn50hMn0zYayaTS2IxyLEt",
+      "status": "OK",
+      "structure_reason": "ok",
+      "mutable_fields": [
+        "personal_link",
+        "referee_reward"
+      ],
+      "paths": {
+        "golden": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\bitstack.fr.golden.txt",
+        "template": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\bitstack.fr.txt",
+        "mapping": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-mappings\\parrainage-co.bitstack.fr.json",
+        "meta": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\bitstack.fr.meta.json"
+      }
+    },
+    {
+      "offer_id": "122884",
+      "url": "https://parrainage.co/offers/122884",
+      "brand": "Plum",
+      "program": "plum",
+      "body_len": 1003,
+      "site_code_widget": "Kt8HyIuJ7V",
+      "status": "NEEDS_CANONICAL",
+      "detected": {
+        "personal_code": "Kt8HyIuJ7V",
+        "personal_link": "https://withplum.com/referral?referralCode=Kt8HyIuJ7V",
+        "referee_reward": "10 € offerts après inscription et premier dépôt"
+      }
+    },
+    {
+      "offer_id": "125961",
+      "url": "https://parrainage.co/offers/125961",
+      "brand": "Whatnot",
+      "program": "whatnot",
+      "body_len": 610,
+      "site_code_widget": null,
+      "status": "NEEDS_CANONICAL",
+      "detected": {}
+    },
+    {
+      "offer_id": "115110",
+      "url": "https://parrainage.co/offers/115110",
+      "brand": "Robinhood",
+      "program": "robinhood",
+      "body_len": 1207,
+      "site_code_widget": "adrienb-999a02",
+      "status": "OK",
+      "structure_reason": "ok",
+      "mutable_fields": [
+        "personal_link",
+        "referee_reward"
+      ],
+      "paths": {
+        "golden": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\robinhood.fr.golden.txt",
+        "template": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\robinhood.fr.txt",
+        "mapping": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-mappings\\parrainage-co.robinhood.fr.json",
+        "meta": "C:\\Users\\adrie\\Documents\\Codex\\2026-08-09\\referenced-chatgpt-conversation-this-is-an-2\\work\\parrainage-bumper\\data\\platform-templates\\parrainage-co\\robinhood.fr.meta.json"
+      }
+    }
+  ],
+  "status_counts": {
+    "OK": 21,
+    "NEEDS_CANONICAL": 5
+  },
+  "mappings_after": 22,
+  "structure_checks": [
+    {
+      "program": "acheel",
+      "ok": true,
+      "reason": "ok"
+    },
+    {
+      "program": "betclic",
+      "ok": true,
+      "reason": "ok"
+    },
+    {
+      "program": "bitstack",
+      "ok": true,
+      "reason": "ok"
+    },
+    {
+      "program": "boursobank",
+      "ok": true,
+      "reason": "ok"
+    },
+    {
+      "program": "bybit",
+      "ok": true,
+      "reason": "ok"
+    },
+    {
+      "program": "coinbase",
+      "ok": true,
+      "reason": "ok"
+    },
+    {
+      "program": "ebuyclub",
+      "ok": true,
+      "reason": "ok"
+    },
+    {
+      "program": "gemini",
+      "ok": true,
+      "reason": "ok"
+    },
+    {
+      "program": "igraal",
+      "ok": true,
+      "reason": "ok"
+    },
+    {
+      "program": "joko",
+      "ok": true,
+      "reason": "ok"
+    },
+    {
+      "program": "kraken",
+      "ok": true,
+      "reason": "ok"
+    },
+    {
+      "program": "ledger",
+      "ok": true,
+      "reason": "ok"
+    },
+    {
+      "program": "paypal",
+      "ok": true,
+      "reason": "ok"
+    },
+    {
+      "program": "poulpeo",
+      "ok": true,
+      "reason": "ok"
+    },
+    {
+      "program": "revolut",
+      "ok": true,
+      "reason": "ok"
+    },
+    {
+      "program": "robinhood",
+      "ok": true,
+      "reason": "ok"
+    },
+    {
+      "program": "swissborg",
+      "ok": true,
+      "reason": "ok"
+    },
+    {
+      "program": "totalenergies",
+      "ok": true,
+      "reason": "ok"
+    },
+    {
+      "program": "traderepublic",
+      "ok": true,
+      "reason": "ok"
+    },
+    {
+      "program": "unibet",
+      "ok": true,
+      "reason": "ok"
+    },
+    {
+      "program": "widilo",
+      "ok": true,
+      "reason": "ok"
+    },
+    {
+      "program": "winamax",
+      "ok": true,
+      "reason": "ok"
+    }
+  ],
+  "structure_ok_count": 22,
+  "structure_fail": []
+}

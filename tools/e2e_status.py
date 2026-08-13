@@ -49,6 +49,16 @@ def main() -> int:
         "platforms": ws.get("platforms"),
         "by_status": ws.get("by_status"),
         "HERMES_AUTOFRESH_INTERFACE_READY": "YES" if hermes_ready and ov_ok else "NO",
+        "HERMES_PRODUCTION_READY": (
+            "YES"
+            if hermes_ready
+            and ov_ok
+            and (ROOT / "lib" / "safety.py").exists()
+            else "NO"
+        ),
+        "MONITOR_SHADOW_READY": (
+            "YES" if (ROOT / "lib" / "monitor" / "shadow.py").exists() else "NO"
+        ),
         "END_TO_END_OPERATOR_READY": (
             "YES"
             if hermes_ready and ov_ok and (ws.get("write_verified_count") or 0) >= 1
@@ -63,10 +73,38 @@ def main() -> int:
     }
     if (ws.get("write_verified_count") or 0) < 1:
         report["blockers_to_ready"].append(
-            "No WRITE_VERIFIED platform yet — Super-Parrain is CANARY_READY until real post-verify canary"
+            "No WRITE_VERIFIED platform yet — run live canaries (Super-Parrain then parrainage-co / code-parrainage) with post_match"
         )
     if not hermes_ready:
         report["blockers_to_ready"].append("Hermes interface files incomplete")
+    blocked = {"AUTH_BLOCKED_GOOGLE", "AUTH_BLOCKED"}
+    non_blocked = [
+        p for p in (ws.get("platforms") or []) if p.get("status") not in blocked
+    ]
+    all_canary = all(
+        p.get("status") in {"CANARY_READY", "WRITE_VERIFIED"} for p in non_blocked
+    )
+    report["ALL_NON_BLOCKED_PLATFORMS_CANARY_READY"] = "YES" if all_canary else "NO"
+    mp = ROOT / "data" / "captures" / "multiprogram-dry-run.json"
+    if mp.exists():
+        try:
+            report["MULTIPROGRAM_DRY_RUN_READY"] = json.loads(
+                mp.read_text(encoding="utf-8")
+            ).get("MULTIPROGRAM_DRY_RUN_READY", "NO")
+        except Exception:
+            report["MULTIPROGRAM_DRY_RUN_READY"] = "NO"
+    else:
+        report["MULTIPROGRAM_DRY_RUN_READY"] = "NO"
+    packs = ROOT / "data" / "captures" / "post-super-canary-packs.json"
+    if packs.exists():
+        try:
+            report["POST_SUPER_CANARIES_ARMED"] = json.loads(
+                packs.read_text(encoding="utf-8")
+            ).get("POST_SUPER_CANARIES_ARMED", "NO")
+        except Exception:
+            report["POST_SUPER_CANARIES_ARMED"] = "NO"
+    else:
+        report["POST_SUPER_CANARIES_ARMED"] = "NO"
 
     out = ROOT / "data" / "captures" / "e2e-status.json"
     out.parent.mkdir(parents=True, exist_ok=True)

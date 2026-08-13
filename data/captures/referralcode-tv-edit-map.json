@@ -1,0 +1,639 @@
+{
+  "platform": "referralcode-tv",
+  "public": {
+    "mode": "public",
+    "author": "https://www.referralcode.tv/author/thesuperreff/",
+    "listing_count": 12,
+    "brand_count": 24,
+    "listings_sample": [
+      "https://www.referralcode.tv/referral-code/%e2%9a%a1%ef%b8%8f-offre-parrainage-joko-5e-offerts-des-votre-premiere-utilisation-%e2%9a%a1-%e2%9a%a1-bonus-5e-credites-a-linscription-via-mon-lien-ou-code-parrainage-%e2%9c%85/?__sid=23052",
+      "https://www.referralcode.tv/referral-code/%e2%9a%a1%ef%b8%8f-vinted-referral-offer-easy-signup-secure-buying-selling-%e2%9a%a1%ef%b8%8f-join-vinted-the-leading-marketplace-for-second-hand-fashion/?__sid=23046",
+      "https://www.referralcode.tv/referral-code/%e2%9a%a1%ef%b8%8f-widilo-signup-bonus-up-to-e6-free-%e2%9a%a1%ef%b8%8f-get-cashback-rewards-just-for-signing-up-and-installing-the-extension/?__sid=23043",
+      "https://www.referralcode.tv/referral-code/%e2%9a%a1-okx-referral-bonus-up-to-250-in-bitcoin-%e2%9a%a1-join-okx-a-global-crypto-exchange-offering-trading-earn-products-and-advanced-tools/?__sid=23010",
+      "https://www.referralcode.tv/referral-code/%e2%9a%bd%ef%b8%8f-special-world-cup-offer-exclusive-referral-bonus-%e2%ad%90%ef%b8%8f-get-up-to-e150-in-bonuses-when-signing-up-through-my-referral-link/?__sid=23040",
+      "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-bybit-referral-offer-up-to-30-welcome-bonus-%e2%ad%90%ef%b8%8f-join-bybit-one-of-the-leading-global-crypto-exchanges/?__sid=23025",
+      "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-ebuyclub-referral-offer-e5-welcome-bonus-%e2%ad%90%ef%b8%8f-join-ebuyclub-a-cashback-platform-that-lets-you-earn-money-while-shopping-online/?__sid=23055",
+      "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-gemini-referral-offer-50-in-crypto-of-your-choice-%e2%ad%90%ef%b8%8f-join-gemini-a-regulated-and-secure-crypto-exchange-platform/?__sid=23028",
+      "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-jusqua-200-e-offerts-en-ce-moment-%e2%ad%90%ef%b8%8f/?__sid=23070",
+      "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-ledger-referral-offer-20-in-bitcoin-bonus-%e2%ad%90%ef%b8%8f-protect-your-crypto-with-ledger-the-worlds-leading-hardware-wallet-%e2%b8%bb-%f0%9f%8e%81-bonus/?__sid=23021",
+      "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-revolut-referral-offer-up-to-200-bonus-%e2%ad%90%ef%b8%8f-join-revolut-a-leading-global-banking-and-finance-app/?__sid=23058",
+      "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-swissborg-referral-offer-up-to-50-in-bitcoin-%e2%ad%90%ef%b8%8f-join-swissborg-a-secure-and-beginner-friendly-crypto-investment-app/?__sid=23017"
+    ],
+    "brands_sample": [
+      "https://www.referralcode.tv/brand/boursobank-referral-codes/",
+      "https://www.referralcode.tv/brand/boursobank-referral-codes/?__sid=23070",
+      "https://www.referralcode.tv/brand/bybit-referral-codes/",
+      "https://www.referralcode.tv/brand/bybit-referral-codes/?__sid=23025",
+      "https://www.referralcode.tv/brand/ebuy-club-referral-codes/",
+      "https://www.referralcode.tv/brand/ebuy-club-referral-codes/?__sid=23055",
+      "https://www.referralcode.tv/brand/gemini-referral-codes/",
+      "https://www.referralcode.tv/brand/gemini-referral-codes/?__sid=23028",
+      "https://www.referralcode.tv/brand/joko-referral-codes/",
+      "https://www.referralcode.tv/brand/joko-referral-codes/?__sid=23052",
+      "https://www.referralcode.tv/brand/ledger-referral-codes/",
+      "https://www.referralcode.tv/brand/ledger-referral-codes/?__sid=23021",
+      "https://www.referralcode.tv/brand/okx-referral-codes/",
+      "https://www.referralcode.tv/brand/okx-referral-codes/?__sid=23010",
+      "https://www.referralcode.tv/brand/revolut-referral-codes/",
+      "https://www.referralcode.tv/brand/revolut-referral-codes/?__sid=23058",
+      "https://www.referralcode.tv/brand/swissborg-wealth-referral-codes/",
+      "https://www.referralcode.tv/brand/swissborg-wealth-referral-codes/?__sid=23017",
+      "https://www.referralcode.tv/brand/unibet-referral-codes/",
+      "https://www.referralcode.tv/brand/unibet-referral-codes/?__sid=23040",
+      "https://www.referralcode.tv/brand/vinted-referral-codes/",
+      "https://www.referralcode.tv/brand/vinted-referral-codes/?__sid=23046",
+      "https://www.referralcode.tv/brand/widilo-referral-codes/",
+      "https://www.referralcode.tv/brand/widilo-referral-codes/?__sid=23043"
+    ],
+    "sid_map_count": 12,
+    "mappings": [
+      {
+        "program": "airbnb",
+        "announcement_url": "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-airbnb-referral-offer-up-to-40-discount-10-experience-credit-%e2%ad%90%ef%b8%8f-get-discounts-on-your-first-airbnb-booking-or-experience/?__sid=23037",
+        "edit_url": null,
+        "sid": "23037"
+      },
+      {
+        "program": "boursobank",
+        "announcement_url": "https://www.referralcode.tv/brand/boursobank-referral-codes/",
+        "edit_url": null,
+        "sid": null
+      },
+      {
+        "program": "bybit",
+        "announcement_url": "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-bybit-referral-offer-up-to-30-welcome-bonus-%e2%ad%90%ef%b8%8f-join-bybit-one-of-the-leading-global-crypto-exchanges/?__sid=23025",
+        "edit_url": null,
+        "sid": "23025"
+      },
+      {
+        "program": "ebuyclub",
+        "announcement_url": "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-ebuyclub-referral-offer-e5-welcome-bonus-%e2%ad%90%ef%b8%8f-join-ebuyclub-a-cashback-platform-that-lets-you-earn-money-while-shopping-online/?__sid=23055",
+        "edit_url": null,
+        "sid": "23055"
+      },
+      {
+        "program": "gemini",
+        "announcement_url": "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-gemini-referral-offer-50-in-crypto-of-your-choice-%e2%ad%90%ef%b8%8f-join-gemini-a-regulated-and-secure-crypto-exchange-platform/?__sid=23028",
+        "edit_url": null,
+        "sid": "23028"
+      },
+      {
+        "program": "joko",
+        "announcement_url": "https://www.referralcode.tv/referral-code/%e2%9a%a1%ef%b8%8f-offre-parrainage-joko-5e-offerts-des-votre-premiere-utilisation-%e2%9a%a1-%e2%9a%a1-bonus-5e-credites-a-linscription-via-mon-lien-ou-code-parrainage-%e2%9c%85/?__sid=23052",
+        "edit_url": null,
+        "sid": "23052"
+      },
+      {
+        "program": "ledger",
+        "announcement_url": "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-ledger-referral-offer-20-in-bitcoin-bonus-%e2%ad%90%ef%b8%8f-protect-your-crypto-with-ledger-the-worlds-leading-hardware-wallet-%e2%b8%bb-%f0%9f%8e%81-bonus/?__sid=23021",
+        "edit_url": null,
+        "sid": "23021"
+      },
+      {
+        "program": "revolut",
+        "announcement_url": "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-revolut-referral-offer-up-to-200-bonus-%e2%ad%90%ef%b8%8f-join-revolut-a-leading-global-banking-and-finance-app/?__sid=23058",
+        "edit_url": null,
+        "sid": "23058"
+      },
+      {
+        "program": "swissborg",
+        "announcement_url": "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-swissborg-referral-offer-up-to-50-in-bitcoin-%e2%ad%90%ef%b8%8f-join-swissborg-a-secure-and-beginner-friendly-crypto-investment-app/?__sid=23017",
+        "edit_url": null,
+        "sid": "23017"
+      },
+      {
+        "program": "unibet",
+        "announcement_url": "https://www.referralcode.tv/brand/unibet-referral-codes/",
+        "edit_url": null,
+        "sid": null
+      },
+      {
+        "program": "widilo",
+        "announcement_url": "https://www.referralcode.tv/referral-code/%e2%9a%a1%ef%b8%8f-widilo-signup-bonus-up-to-e6-free-%e2%9a%a1%ef%b8%8f-get-cashback-rewards-just-for-signing-up-and-installing-the-extension/?__sid=23043",
+        "edit_url": null,
+        "sid": "23043"
+      }
+    ],
+    "edit_discovery_hypothesis": [
+      "Public author page exposes listing URLs + __sid, NOT edit forms",
+      "Authenticated edit lives under my-account listings (Listeo-style)",
+      "After login: /my-account/?tab=listings → links containing edit / modifier",
+      "Fallback: listing dashboard card actions (Edit Listing)",
+      "add-referral-code/ is CREATE only — never use for update canary"
+    ],
+    "auth_probe_required": true,
+    "secrets": [
+      "REFERRALCODE_EMAIL",
+      "REFERRALCODE_PASSWORD"
+    ],
+    "known_from_bumper": {
+      "login": "https://www.referralcode.tv/login/",
+      "listings": "https://www.referralcode.tv/my-account/?tab=listings",
+      "boost_button": "#cliccami (bump only — not content edit)"
+    }
+  },
+  "auth": {
+    "mode": "auth",
+    "ok": true,
+    "login": "ok",
+    "pages": [
+      {
+        "url": "https://www.referralcode.tv/my-account/?tab=listings",
+        "final_url": "https://www.referralcode.tv/my-account/?tab=listings",
+        "body_len": 2914,
+        "edit_candidates": [
+          {
+            "href": "https://referralcode.tv/add-referral-code/?eid=23043",
+            "label": "edit code https://referralcode.tv/add-referral-code/?eid=23043"
+          },
+          {
+            "href": "https://referralcode.tv/add-referral-code/?eid=23076",
+            "label": "edit code https://referralcode.tv/add-referral-code/?eid=23076"
+          },
+          {
+            "href": "https://referralcode.tv/add-referral-code/?eid=23073",
+            "label": "edit code https://referralcode.tv/add-referral-code/?eid=23073"
+          },
+          {
+            "href": "https://referralcode.tv/add-referral-code/?eid=23070",
+            "label": "edit code https://referralcode.tv/add-referral-code/?eid=23070"
+          },
+          {
+            "href": "https://referralcode.tv/add-referral-code/?eid=23067",
+            "label": "edit code https://referralcode.tv/add-referral-code/?eid=23067"
+          },
+          {
+            "href": "https://referralcode.tv/add-referral-code/?eid=23064",
+            "label": "edit code https://referralcode.tv/add-referral-code/?eid=23064"
+          },
+          {
+            "href": "https://referralcode.tv/add-referral-code/?eid=23061",
+            "label": "edit code https://referralcode.tv/add-referral-code/?eid=23061"
+          },
+          {
+            "href": "https://referralcode.tv/add-referral-code/?eid=23058",
+            "label": "edit code https://referralcode.tv/add-referral-code/?eid=23058"
+          },
+          {
+            "href": "https://referralcode.tv/add-referral-code/?eid=23055",
+            "label": "edit code https://referralcode.tv/add-referral-code/?eid=23055"
+          },
+          {
+            "href": "https://www.referralcode.tv/referral-code/%e2%9a%a1%ef%b8%8f-offre-parrainage-joko-5e-offerts-des-votre-premiere-utilisation-%e2%9a%a1-%e2%9a%a1-bonus-5e-credites-a-linscription-via-mon-lien-ou-code-parrainage-%e2%9c%85/?__sid=23052",
+            "label": "⚡️ offre parrainage joko – 5€ offerts dès votre première utilisation ⚡ ⚡ bonus : 5€ crédités à l’ins"
+          },
+          {
+            "href": "https://referralcode.tv/add-referral-code/?eid=23052",
+            "label": "edit code https://referralcode.tv/add-referral-code/?eid=23052"
+          },
+          {
+            "href": "https://referralcode.tv/add-referral-code/?eid=23049",
+            "label": "edit code https://referralcode.tv/add-referral-code/?eid=23049"
+          },
+          {
+            "href": "https://referralcode.tv/add-referral-code/?eid=23046",
+            "label": "edit code https://referralcode.tv/add-referral-code/?eid=23046"
+          }
+        ],
+        "has_cliccami": true,
+        "snippet": "Home\nContact Us\nMy Account\nLogout\nReferralCode\nAbout us\nBrands\nReferral Codes\n \nTheSuperReff\nAgency • rararerezeze@gmail.com\nAdd Referral code\nLogout\nDashboard\nHere you'll find your account overview, recent account notices and alerts.\nMy Referral Codes 23\nHere you can view, manage and upgrade your existing codes & links.\nSettings\nContact details, email, password and other account details can be found here.\nMy Referral Codes\nLive (23)\nPending (0)\nPending Approval (0)\nWaiting Payment (0)\nExpired ("
+      },
+      {
+        "url": "https://www.referralcode.tv/my-account/",
+        "final_url": "https://www.referralcode.tv/my-account/",
+        "body_len": 1114,
+        "edit_candidates": [],
+        "has_cliccami": false,
+        "snippet": "Home\nContact Us\nMy Account\nLogout\nReferralCode\nAbout us\nBrands\nReferral Codes\n \nTheSuperReff\nAgency • rararerezeze@gmail.com\nAdd Referral code\nLogout\nDashboard\nHere you'll find your account overview, recent account notices and alerts.\nMy Referral Codes 23\nHere you can view, manage and upgrade your existing codes & links.\nSettings\nContact details, email, password and other account details can be found here.\nWelcome Back\n\nHere's an overview of your account.\n\n Boost your codes\nMy Username\nTheSuperR"
+      },
+      {
+        "url": "https://www.referralcode.tv/my-account/?tab=dashboard",
+        "final_url": "https://www.referralcode.tv/my-account/?tab=dashboard",
+        "body_len": 1114,
+        "edit_candidates": [],
+        "has_cliccami": false,
+        "snippet": "Home\nContact Us\nMy Account\nLogout\nReferralCode\nAbout us\nBrands\nReferral Codes\n \nTheSuperReff\nAgency • rararerezeze@gmail.com\nAdd Referral code\nLogout\nDashboard\nHere you'll find your account overview, recent account notices and alerts.\nMy Referral Codes 23\nHere you can view, manage and upgrade your existing codes & links.\nSettings\nContact details, email, password and other account details can be found here.\nWelcome Back\n\nHere's an overview of your account.\n\n Boost your codes\nMy Username\nTheSuperR"
+      },
+      {
+        "url": "https://www.referralcode.tv/my-account/?dashboard=listings",
+        "final_url": "https://www.referralcode.tv/my-account/?dashboard=listings",
+        "body_len": 1114,
+        "edit_candidates": [],
+        "has_cliccami": false,
+        "snippet": "Home\nContact Us\nMy Account\nLogout\nReferralCode\nAbout us\nBrands\nReferral Codes\n \nTheSuperReff\nAgency • rararerezeze@gmail.com\nAdd Referral code\nLogout\nDashboard\nHere you'll find your account overview, recent account notices and alerts.\nMy Referral Codes 23\nHere you can view, manage and upgrade your existing codes & links.\nSettings\nContact details, email, password and other account details can be found here.\nWelcome Back\n\nHere's an overview of your account.\n\n Boost your codes\nMy Username\nTheSuperR"
+      }
+    ],
+    "edit_urls": [
+      "https://referralcode.tv/add-referral-code/?eid=23043",
+      "https://referralcode.tv/add-referral-code/?eid=23076",
+      "https://referralcode.tv/add-referral-code/?eid=23073",
+      "https://referralcode.tv/add-referral-code/?eid=23070",
+      "https://referralcode.tv/add-referral-code/?eid=23067",
+      "https://referralcode.tv/add-referral-code/?eid=23064",
+      "https://referralcode.tv/add-referral-code/?eid=23061",
+      "https://referralcode.tv/add-referral-code/?eid=23058",
+      "https://referralcode.tv/add-referral-code/?eid=23055",
+      "https://www.referralcode.tv/referral-code/%e2%9a%a1%ef%b8%8f-offre-parrainage-joko-5e-offerts-des-votre-premiere-utilisation-%e2%9a%a1-%e2%9a%a1-bonus-5e-credites-a-linscription-via-mon-lien-ou-code-parrainage-%e2%9c%85/?__sid=23052",
+      "https://referralcode.tv/add-referral-code/?eid=23052",
+      "https://referralcode.tv/add-referral-code/?eid=23049",
+      "https://referralcode.tv/add-referral-code/?eid=23046"
+    ],
+    "errors": [],
+    "login_landed": "https://www.referralcode.tv/my-account/?l=en_US",
+    "field_probes": [
+      {
+        "url": "https://www.referralcode.tv/add-referral-code/?eid=23043",
+        "textareas": [
+          {
+            "name": "form[post_content]",
+            "len": 727
+          },
+          {
+            "name": "g-recaptcha-response",
+            "len": 0
+          }
+        ],
+        "inputs": [
+          {
+            "name": "s  Store name or keyword..",
+            "value_len": 0
+          },
+          {
+            "name": "s  Store name or keyword..",
+            "value_len": 0
+          },
+          {
+            "name": "form[post_title] form_post_title eg. Save 10% at BestBuy.com",
+            "value_len": 113
+          },
+          {
+            "name": "form[post_tags]",
+            "value_len": 0
+          },
+          {
+            "name": "",
+            "value_len": 0
+          },
+          {
+            "name": "1786609934372117-tokenfield",
+            "value_len": 0
+          },
+          {
+            "name": "custom[code] field-code",
+            "value_len": 6
+          },
+          {
+            "name": "custom[buy_link] field-buy_link",
+            "value_len": 30
+          }
+        ],
+        "contenteditable": false,
+        "title": "Add Referral code - Referral Codes"
+      },
+      {
+        "url": "https://www.referralcode.tv/add-referral-code/?eid=23076",
+        "textareas": [
+          {
+            "name": "form[post_content]",
+            "len": 50
+          },
+          {
+            "name": "g-recaptcha-response",
+            "len": 0
+          }
+        ],
+        "inputs": [
+          {
+            "name": "s  Store name or keyword..",
+            "value_len": 0
+          },
+          {
+            "name": "s  Store name or keyword..",
+            "value_len": 0
+          },
+          {
+            "name": "form[post_title] form_post_title eg. Save 10% at BestBuy.com",
+            "value_len": 57
+          },
+          {
+            "name": "form[post_tags]",
+            "value_len": 0
+          },
+          {
+            "name": "",
+            "value_len": 0
+          },
+          {
+            "name": "1786609940514111-tokenfield",
+            "value_len": 0
+          },
+          {
+            "name": "custom[code] field-code",
+            "value_len": 8
+          },
+          {
+            "name": "custom[buy_link] field-buy_link",
+            "value_len": 29
+          }
+        ],
+        "contenteditable": false,
+        "title": "Add Referral code - Referral Codes"
+      },
+      {
+        "url": "https://www.referralcode.tv/add-referral-code/?eid=23073",
+        "textareas": [
+          {
+            "name": "form[post_content]",
+            "len": 1125
+          },
+          {
+            "name": "g-recaptcha-response",
+            "len": 0
+          }
+        ],
+        "inputs": [
+          {
+            "name": "s  Store name or keyword..",
+            "value_len": 0
+          },
+          {
+            "name": "s  Store name or keyword..",
+            "value_len": 0
+          },
+          {
+            "name": "form[post_title] form_post_title eg. Save 10% at BestBuy.com",
+            "value_len": 150
+          },
+          {
+            "name": "form[post_tags]",
+            "value_len": 0
+          },
+          {
+            "name": "",
+            "value_len": 0
+          },
+          {
+            "name": "1786609945010198-tokenfield",
+            "value_len": 0
+          },
+          {
+            "name": "custom[code] field-code",
+            "value_len": 14
+          },
+          {
+            "name": "custom[buy_link] field-buy_link",
+            "value_len": 51
+          }
+        ],
+        "contenteditable": false,
+        "title": "Add Referral code - Referral Codes"
+      },
+      {
+        "url": "https://www.referralcode.tv/add-referral-code/?eid=23070",
+        "textareas": [
+          {
+            "name": "form[post_content]",
+            "len": 1790
+          },
+          {
+            "name": "g-recaptcha-response",
+            "len": 0
+          }
+        ],
+        "inputs": [
+          {
+            "name": "s  Store name or keyword..",
+            "value_len": 0
+          },
+          {
+            "name": "s  Store name or keyword..",
+            "value_len": 0
+          },
+          {
+            "name": "form[post_title] form_post_title eg. Save 10% at BestBuy.com",
+            "value_len": 40
+          },
+          {
+            "name": "form[post_tags]",
+            "value_len": 0
+          },
+          {
+            "name": "",
+            "value_len": 0
+          },
+          {
+            "name": "1786609951127163-tokenfield",
+            "value_len": 0
+          },
+          {
+            "name": "custom[code] field-code",
+            "value_len": 8
+          },
+          {
+            "name": "custom[buy_link] field-buy_link",
+            "value_len": 29
+          }
+        ],
+        "contenteditable": false,
+        "title": "Add Referral code - Referral Codes"
+      },
+      {
+        "url": "https://www.referralcode.tv/add-referral-code/?eid=23067",
+        "textareas": [
+          {
+            "name": "form[post_content]",
+            "len": 818
+          },
+          {
+            "name": "g-recaptcha-response",
+            "len": 0
+          }
+        ],
+        "inputs": [
+          {
+            "name": "s  Store name or keyword..",
+            "value_len": 0
+          },
+          {
+            "name": "s  Store name or keyword..",
+            "value_len": 0
+          },
+          {
+            "name": "form[post_title] form_post_title eg. Save 10% at BestBuy.com",
+            "value_len": 61
+          },
+          {
+            "name": "form[post_tags]",
+            "value_len": 0
+          },
+          {
+            "name": "",
+            "value_len": 0
+          },
+          {
+            "name": "1786609955726189-tokenfield",
+            "value_len": 0
+          },
+          {
+            "name": "custom[code] field-code",
+            "value_len": 16
+          },
+          {
+            "name": "custom[buy_link] field-buy_link",
+            "value_len": 57
+          }
+        ],
+        "contenteditable": false,
+        "title": "Add Referral code - Referral Codes"
+      },
+      {
+        "url": "https://www.referralcode.tv/add-referral-code/?eid=23064",
+        "textareas": [
+          {
+            "name": "form[post_content]",
+            "len": 705
+          },
+          {
+            "name": "g-recaptcha-response",
+            "len": 0
+          }
+        ],
+        "inputs": [
+          {
+            "name": "s  Store name or keyword..",
+            "value_len": 0
+          },
+          {
+            "name": "s  Store name or keyword..",
+            "value_len": 0
+          },
+          {
+            "name": "form[post_title] form_post_title eg. Save 10% at BestBuy.com",
+            "value_len": 130
+          },
+          {
+            "name": "form[post_tags]",
+            "value_len": 0
+          },
+          {
+            "name": "",
+            "value_len": 0
+          },
+          {
+            "name": "1786609960000190-tokenfield",
+            "value_len": 0
+          },
+          {
+            "name": "custom[code] field-code",
+            "value_len": 6
+          },
+          {
+            "name": "custom[buy_link] field-buy_link",
+            "value_len": 88
+          }
+        ],
+        "contenteditable": false,
+        "title": "Add Referral code - Referral Codes"
+      },
+      {
+        "url": "https://www.referralcode.tv/add-referral-code/?eid=23061",
+        "textareas": [
+          {
+            "name": "form[post_content]",
+            "len": 610
+          },
+          {
+            "name": "g-recaptcha-response",
+            "len": 0
+          }
+        ],
+        "inputs": [
+          {
+            "name": "s  Store name or keyword..",
+            "value_len": 0
+          },
+          {
+            "name": "s  Store name or keyword..",
+            "value_len": 0
+          },
+          {
+            "name": "form[post_title] form_post_title eg. Save 10% at BestBuy.com",
+            "value_len": 88
+          },
+          {
+            "name": "form[post_tags]",
+            "value_len": 0
+          },
+          {
+            "name": "",
+            "value_len": 0
+          },
+          {
+            "name": "1786609965611165-tokenfield",
+            "value_len": 0
+          },
+          {
+            "name": "custom[code] field-code",
+            "value_len": 0
+          },
+          {
+            "name": "custom[buy_link] field-buy_link",
+            "value_len": 20
+          }
+        ],
+        "contenteditable": false,
+        "title": "Add Referral code - Referral Codes"
+      },
+      {
+        "url": "https://www.referralcode.tv/add-referral-code/?eid=23058",
+        "textareas": [
+          {
+            "name": "form[post_content]",
+            "len": 1100
+          },
+          {
+            "name": "g-recaptcha-response",
+            "len": 0
+          }
+        ],
+        "inputs": [
+          {
+            "name": "s  Store name or keyword..",
+            "value_len": 0
+          },
+          {
+            "name": "s  Store name or keyword..",
+            "value_len": 0
+          },
+          {
+            "name": "form[post_title] form_post_title eg. Save 10% at BestBuy.com",
+            "value_len": 104
+          },
+          {
+            "name": "form[post_tags]",
+            "value_len": 0
+          },
+          {
+            "name": "",
+            "value_len": 0
+          },
+          {
+            "name": "1786609969525120-tokenfield",
+            "value_len": 0
+          },
+          {
+            "name": "custom[code] field-code",
+            "value_len": 10
+          },
+          {
+            "name": "custom[buy_link] field-buy_link",
+            "value_len": 81
+          }
+        ],
+        "contenteditable": false,
+        "title": "Add Referral code - Referral Codes"
+      }
+    ],
+    "conclusion": "EDIT_URLS_FOUND"
+  }
+}

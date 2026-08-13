@@ -1,0 +1,62 @@
+{
+  "platform": "referraldrop",
+  "auth_status": "AUTH_BLOCKED_GOOGLE",
+  "read": "READ_PUBLIC_OK",
+  "write_mode": "MANUAL_WRITE",
+  "live": false,
+  "notes": [
+    "Google Sign-In only; password reset broken; no OAuth bypass.",
+    "Public profile inventory only until Google session available as secret.",
+    "BASE_READY compatible with AUTH_BLOCKED_GOOGLE."
+  ],
+  "programs": [
+    {
+      "program": "airbnb",
+      "announcement_url": "https://referraldrop.com/en/drop/airbnb",
+      "quality": "lien offers.json non trouve dans le texte; bonus non marque (ambigu / non trouve) — texte laisse fixe; public capture only; AUTH_BLOCKED_GOOGLE; public capture only; AUTH_BLOCKED_GOOGLE",
+      "action": "MANUAL_WRITE_ONLY"
+    },
+    {
+      "program": "bybit",
+      "announcement_url": "https://referraldrop.com/en/drop/bybit",
+      "quality": "bonus non marque (ambigu / non trouve) — texte laisse fixe; public capture only; AUTH_BLOCKED_GOOGLE; public capture only; AUTH_BLOCKED_GOOGLE",
+      "action": "MANUAL_WRITE_ONLY"
+    },
+    {
+      "program": "gemini",
+      "announcement_url": "https://referraldrop.com/en/drop/gemini",
+      "quality": "lien plateforme != offers.json; bonus non marque (ambigu / non trouve) — texte laisse fixe; public capture only; AUTH_BLOCKED_GOOGLE; public capture only; AUTH_BLOCKED_GOOGLE",
+      "action": "MANUAL_WRITE_ONLY"
+    },
+    {
+      "program": "igraal",
+      "announcement_url": "https://referraldrop.com/en/drop/igraal",
+      "quality": "lien plateforme != offers.json; bonus non marque (ambigu / non trouve) — texte laisse fixe; public capture only; AUTH_BLOCKED_GOOGLE; public capture only; AUTH_BLOCKED_GOOGLE",
+      "action": "MANUAL_WRITE_ONLY"
+    },
+    {
+      "program": "okx",
+      "announcement_url": "https://referraldrop.com/en/drop/okx",
+      "quality": "lien plateforme != offers.json; bonus non marque (ambigu / non trouve) — texte laisse fixe; public capture only; AUTH_BLOCKED_GOOGLE; public capture only; AUTH_BLOCKED_GOOGLE",
+      "action": "MANUAL_WRITE_ONLY"
+    },
+    {
+      "program": "robinhood",
+      "announcement_url": "https://referraldrop.com/en/drop/robinhood",
+      "quality": "lien plateforme != offers.json; bonus non marque (ambigu / non trouve) — texte laisse fixe; public capture only; AUTH_BLOCKED_GOOGLE; public capture only; AUTH_BLOCKED_GOOGLE",
+      "action": "MANUAL_WRITE_ONLY"
+    },
+    {
+      "program": "vinted",
+      "announcement_url": "https://referraldrop.com/en/drop/vinted",
+      "quality": "lien plateforme != offers.json; bonus non marque (ambigu / non trouve) — texte laisse fixe; public capture only; AUTH_BLOCKED_GOOGLE; public capture only; AUTH_BLOCKED_GOOGLE",
+      "action": "MANUAL_WRITE_ONLY"
+    },
+    {
+      "program": "whatnot",
+      "announcement_url": "https://referraldrop.com/en/drop/whatnot",
+      "quality": "lien plateforme != offers.json; bonus non marque (ambigu / non trouve) — texte laisse fixe; public capture only; AUTH_BLOCKED_GOOGLE; public capture only; AUTH_BLOCKED_GOOGLE",
+      "action": "MANUAL_WRITE_ONLY"
+    }
+  ]
+}

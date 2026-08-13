@@ -1,0 +1,39 @@
+{
+  "at": "2026-08-12T21:12:08.452549+00:00",
+  "last_super_run": "2026-08-12T05:37:10.549152+00:00",
+  "next_eligible_at": "2026-08-13T05:37:10.549152+00:00",
+  "target_slot": "2026-08-13T05:37:10+00:00",
+  "hours_remaining": 8.42,
+  "eligible_now": false,
+  "write_verified": false,
+  "canary_pending": true,
+  "runtime_mode": "CANARY_PENDING",
+  "historical_decide": {
+    "runtime_mode": "CANARY_PENDING",
+    "canary_pending": true,
+    "next_eligible_at": "2026-08-13T05:37:10.549152+00:00",
+    "hours_remaining": 8.42,
+    "pending_count": 1,
+    "pending_programs": [
+      "kraken"
+    ],
+    "activation_canary_owns_save": true,
+    "action": "skip",
+    "reason": "canary_pending_cooldown",
+    "skip_bump": true,
+    "run_precheck": false,
+    "run_bump": false,
+    "run_canary": false,
+    "eligible_now": false,
+    "note": "bump_super_parrain.yml SKIP while CANARY_PENDING. Only activation_canary.yml may live-save (Kraken content canary). After post_match=true → WRITE_VERIFIED → NORMAL_BUMP re-enabled."
+  },
+  "eligible_at_slot_plus_5s": true,
+  "historical_still_skip_at_slot": true,
+  "workflow_checks": {
+    "shared_concurrency": true,
+    "bump_has_no_execute_canary": true,
+    "bump_forces_skip": true
+  },
+  "ok": true,
+  "errors": []
+}

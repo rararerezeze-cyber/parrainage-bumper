@@ -1,0 +1,11 @@
+Offre Parrainage Gemini – {{REFEREE_REWARD}}
+
+Bonus : {{REFEREE_REWARD}} après votre premier achat ou échange éligible
+Profitez d’un bonus de bienvenue en vous inscrivant via le lien de parrainage.
+
+Code parrain : wd
+...
+
+J’en profite
+
+<img loading="lazy" class="img-responsive" width="115" border="0" height="38" src='/uploads/leslogos/omio.jpg'

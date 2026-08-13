@@ -1,0 +1,6 @@
+name = "autofresh-telegram"
+main = "worker.js"
+compatibility_date = "2026-01-01"
+
+# Secrets via: wrangler secret put TELEGRAM_BOT_TOKEN etc.
+# Never commit secret values.

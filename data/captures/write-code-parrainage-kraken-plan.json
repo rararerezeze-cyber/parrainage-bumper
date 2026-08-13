@@ -1,0 +1,18 @@
+{
+  "execute": false,
+  "ok": true,
+  "changed_fields": {},
+  "structure_preserved": true,
+  "announcement_url": null,
+  "edit_url": "https://code-parrainage.net/modif/84601",
+  "pipeline": [
+    "login",
+    "edit",
+    "save",
+    "reread_account",
+    "reread_public_if_any"
+  ],
+  "steps": [
+    "noop"
+  ]
+}

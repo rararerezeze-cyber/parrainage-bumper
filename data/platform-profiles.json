@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "note": "Profils/emails publics uniquement. Mots de passe exclusivement via GitHub Secrets.",
+  "platforms": {
+    "super-parrain": {
+      "domain": "super-parrain.com",
+      "profile_url": "https://www.super-parrain.com/users/adrien-b-8",
+      "account_email": "adrien891000@gmail.com",
+      "secrets": ["SUPER_PARRAIN_EMAIL", "SUPER_PARRAIN_PASSWORD"],
+      "public_capture": true,
+      "auth_capture": true
+    },
+    "parrainage-co": {
+      "domain": "parrainage.co",
+      "profile_url": "https://parrainage.co/user/adrien89",
+      "account_email": "adrien891000@gmail.com",
+      "secrets": ["PARRAINAGE_CO_EMAIL", "PARRAINAGE_CO_PASSWORD", "PARRAINAGE_CO_RM_COOKIE"],
+      "public_capture": true,
+      "auth_capture": true
+    },
+    "code-parrainage": {
+      "domain": "code-parrainage.net",
+      "profile_url": null,
+      "account_email": "adrien891000@gmail.com",
+      "secrets": ["CODE_PARRAINAGE_EMAIL", "CODE_PARRAINAGE_PASSWORD"],
+      "public_capture": false,
+      "auth_capture": true,
+      "notes": "Pas de profil public exploitable — capture via moncompte authentifie"
+    },
+    "referralcode-tv": {
+      "domain": "referralcode.tv",
+      "profile_url": "https://www.referralcode.tv/author/thesuperreff/",
+      "account_email": "rararerezeze@gmail.com",
+      "secrets": ["REFERRALCODE_EMAIL", "REFERRALCODE_PASSWORD"],
+      "public_capture": true,
+      "auth_capture": true,
+      "notes": "DISTINCT de referralcodes.com — secrets REFERRALCODE_* (sans S)"
+    },
+    "referralcodes": {
+      "domain": "referralcodes.com",
+      "profile_url": "https://referralcodes.com/TheSuperReff",
+      "account_email": "rararerezeze@gmail.com",
+      "secrets": ["REFERRALCODES_EMAIL", "REFERRALCODES_PASSWORD"],
+      "public_capture": true,
+      "auth_capture": true,
+      "prefer_official_import": true,
+      "notes": "DISTINCT de referralcode.tv — secrets REFERRALCODES_* (avec S). Priorite Agent Import/API/JSON/CSV officiel avant Playwright login."
+    },
+    "referraldrop": {
+      "domain": "referraldrop.com",
+      "profile_url": "https://referraldrop.com/en/user/TheSuperPenguins",
+      "account_email": null,
+      "secrets": [],
+      "public_capture": true,
+      "auth_capture": false,
+      "auth_status": "AUTH_BLOCKED_GOOGLE",
+      "notes": "Compte Google Sign-In; reset password casse. Capture publique seulement."
+    },
+    "1parrainage": {
+      "domain": "1parrainage.com",
+      "profile_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php",
+      "account_email": "adrien891000@gmail.com",
+      "secrets": ["ONEPARRAINAGE_EMAIL", "ONEPARRAINAGE_PASSWORD"],
+      "public_capture": true,
+      "auth_capture": true,
+      "notes": "Style natif (emojis/typo souvent perdus) = golden. Ne pas reforcer le style Super-Parrain."
+    }
+  }
+}

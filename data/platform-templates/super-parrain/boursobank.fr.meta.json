@@ -1,0 +1,25 @@
+{
+  "platform": "super-parrain",
+  "program": "boursobank",
+  "language": "fr",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": "https://www.super-parrain.com/offres/boursobank-1/parrainage-boursobank-1/annonces/adrien-b-8",
+  "mutable_fields": [
+    "personal_code",
+    "personal_link"
+  ],
+  "platform_values": {
+    "personal_code": "ADBE5645",
+    "personal_link": "https://bour.so/p/cdRUvTEbxaf"
+  },
+  "confidences": {
+    "personal_code": "high",
+    "personal_link": "medium"
+  },
+  "notes": [
+    "lien plateforme != offers.json",
+    "bonus non marque (ambigu / non trouve) — texte laisse fixe"
+  ]
+}

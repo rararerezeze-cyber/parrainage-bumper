@@ -1,0 +1,481 @@
+{
+  "schema_version": 1,
+  "ok": true,
+  "action": "autofresh",
+  "command": "Kraken status",
+  "correlation_id": null,
+  "at": "2026-08-12T20:57:14.482071+00:00",
+  "monitor": "OBSERVATION_ONLY",
+  "mode": "HERMES_OPERATOR",
+  "errors": [],
+  "auth": {
+    "ok": true,
+    "source": "hermes",
+    "identity": "hermes-test",
+    "method": "github_actions"
+  },
+  "parsed": {
+    "action": "status",
+    "program": "kraken",
+    "offer_name": "Kraken",
+    "platform": null,
+    "field": null,
+    "value": null
+  },
+  "result": {
+    "action": "status",
+    "status": {
+      "program": "kraken",
+      "overrides": [],
+      "fields": {
+        "personal_code": {
+          "effective": "4hpz4gdy",
+          "source": "CANONICAL_DEFAULT",
+          "canonical": "4hpz4gdy"
+        },
+        "personal_link": {
+          "effective": "https://proinvite.kraken.com/9f1e/lqbuov8u",
+          "source": "CANONICAL_DEFAULT",
+          "canonical": "https://proinvite.kraken.com/9f1e/lqbuov8u"
+        },
+        "referee_reward": {
+          "effective": "20 € en Bitcoin selon l’offre",
+          "source": "CANONICAL_DEFAULT",
+          "canonical": "20 € en Bitcoin selon l’offre"
+        },
+        "conditions": {
+          "effective": "Kraken indique généralement un bonus équivalent à 20 € en Bitcoin pour la France, après dépôt et volume de trading réalisés sous 30 jours. Les seuils exacts restent affichés dans l'application et le versement peut prendre jusqu'à 21 jours.",
+          "source": "CANONICAL_DEFAULT",
+          "canonical": "Kraken indique généralement un bonus équivalent à 20 € en Bitcoin pour la France, après dépôt et volume de trading réalisés sous 30 jours. Les seuils exacts restent affichés dans l'application et le versement peut prendre jusqu'à 21 jours."
+        },
+        "title": {
+          "effective": "Kraken",
+          "source": "CANONICAL_DEFAULT",
+          "canonical": "Kraken"
+        }
+      }
+    }
+  },
+  "plan": {
+    "program": "kraken",
+    "phase": "VALIDATION_LIVE",
+    "effective_global": {
+      "code": "4hpz4gdy",
+      "link": "https://proinvite.kraken.com/9f1e/lqbuov8u",
+      "reward": "20 € en Bitcoin selon l’offre",
+      "cond": "Kraken indique généralement un bonus équivalent à 20 € en Bitcoin pour la France, après dépôt et volume de trading réalisés sous 30 jours. Les seuils exacts restent affichés dans l'application et le versement peut prendre jusqu'à 21 jours.",
+      "name": "Kraken"
+    },
+    "global_fields": {
+      "personal_code": {
+        "old": "4hpz4gdy",
+        "effective": "4hpz4gdy",
+        "source": "CANONICAL_DEFAULT"
+      },
+      "personal_link": {
+        "old": "https://proinvite.kraken.com/9f1e/lqbuov8u",
+        "effective": "https://proinvite.kraken.com/9f1e/lqbuov8u",
+        "source": "CANONICAL_DEFAULT"
+      },
+      "referee_reward": {
+        "old": "20 € en Bitcoin selon l’offre",
+        "effective": "20 € en Bitcoin selon l’offre",
+        "source": "CANONICAL_DEFAULT"
+      },
+      "conditions": {
+        "old": "Kraken indique généralement un bonus équivalent à 20 € en Bitcoin pour la France, après dépôt et volume de trading réalisés sous 30 jours. Les seuils exacts restent affichés dans l'application et le versement peut prendre jusqu'à 21 jours.",
+        "effective": "Kraken indique généralement un bonus équivalent à 20 € en Bitcoin pour la France, après dépôt et volume de trading réalisés sous 30 jours. Les seuils exacts restent affichés dans l'application et le versement peut prendre jusqu'à 21 jours.",
+        "source": "CANONICAL_DEFAULT"
+      }
+    },
+    "platforms": [
+      {
+        "platform": "1parrainage",
+        "program": "kraken",
+        "language": "fr",
+        "status": "pending_update",
+        "write_mode": "WRITE_PREPARED",
+        "can_auto_write": false,
+        "changed_fields": {
+          "personal_code": {
+            "old": null,
+            "new": "4hpz4gdy"
+          },
+          "personal_link": {
+            "old": null,
+            "new": "https://proinvite.kraken.com/9f1e/lqbuov8u"
+          },
+          "referee_reward": {
+            "old": "200 € en cryptomonnaies",
+            "new": "20 € en Bitcoin selon l’offre"
+          }
+        },
+        "field_sources": {
+          "personal_code": "CANONICAL_DEFAULT",
+          "personal_link": "CANONICAL_DEFAULT",
+          "referee_reward": "CANONICAL_DEFAULT"
+        },
+        "error": null
+      },
+      {
+        "platform": "code-parrainage",
+        "program": "kraken",
+        "language": "fr",
+        "status": "pending_update",
+        "write_mode": "WRITE_PREPARED",
+        "can_auto_write": false,
+        "changed_fields": {
+          "personal_code": {
+            "old": null,
+            "new": "4hpz4gdy"
+          },
+          "personal_link": {
+            "old": null,
+            "new": "https://proinvite.kraken.com/9f1e/lqbuov8u"
+          },
+          "referee_reward": {
+            "old": "200 € en cryptomonnaies",
+            "new": "20 € en Bitcoin selon l’offre"
+          }
+        },
+        "field_sources": {
+          "personal_code": "CANONICAL_DEFAULT",
+          "personal_link": "CANONICAL_DEFAULT",
+          "referee_reward": "CANONICAL_DEFAULT"
+        },
+        "error": null
+      },
+      {
+        "platform": "parrainage-co",
+        "program": "kraken",
+        "language": "fr",
+        "status": "pending_update",
+        "write_mode": "WRITE_PREPARED",
+        "can_auto_write": false,
+        "changed_fields": {
+          "personal_code": {
+            "old": null,
+            "new": "4hpz4gdy"
+          },
+          "personal_link": {
+            "old": null,
+            "new": "https://proinvite.kraken.com/9f1e/lqbuov8u"
+          },
+          "referee_reward": {
+            "old": "200 € en cryptomonnaies",
+            "new": "20 € en Bitcoin selon l’offre"
+          }
+        },
+        "field_sources": {
+          "personal_code": "CANONICAL_DEFAULT",
+          "personal_link": "CANONICAL_DEFAULT",
+          "referee_reward": "CANONICAL_DEFAULT"
+        },
+        "error": null
+      },
+      {
+        "platform": "referralcodes",
+        "program": "kraken",
+        "language": "en",
+        "status": "pending_update",
+        "write_mode": "WRITE_PREPARED",
+        "can_auto_write": false,
+        "changed_fields": {
+          "referee_reward": {
+            "old": "\\u2b50\\ufe0f $200 in Crypto \\u2b50\\ufe0f",
+            "new": "20 € en Bitcoin selon l’offre"
+          }
+        },
+        "field_sources": {
+          "referee_reward": "CANONICAL_DEFAULT"
+        },
+        "error": null
+      },
+      {
+        "platform": "super-parrain",
+        "program": "kraken",
+        "language": "fr",
+        "status": "pending_update",
+        "write_mode": "CANARY_READY",
+        "can_auto_write": false,
+        "changed_fields": {
+          "personal_code": {
+            "old": null,
+            "new": "4hpz4gdy"
+          },
+          "personal_link": {
+            "old": null,
+            "new": "https://proinvite.kraken.com/9f1e/lqbuov8u"
+          },
+          "referee_reward": {
+            "old": "200 € en cryptomonnaies",
+            "new": "20 € en Bitcoin selon l’offre"
+          }
+        },
+        "field_sources": {
+          "personal_code": "CANONICAL_DEFAULT",
+          "personal_link": "CANONICAL_DEFAULT",
+          "referee_reward": "CANONICAL_DEFAULT"
+        },
+        "error": null
+      }
+    ],
+    "summary": {
+      "platforms_mapped": 5,
+      "pending_update": 5,
+      "in_sync": 0,
+      "auto_capable_labels": 5,
+      "write_verified_live": 0,
+      "WRITE_VERIFIED": "0/7",
+      "telegram_live_capable": []
+    },
+    "write_status": {
+      "WRITE_VERIFIED": "0/7",
+      "write_verified_count": 0,
+      "telegram_live_capable": [],
+      "telegram_live_capable_count": 0,
+      "by_status": {
+        "CANARY_READY": 1,
+        "WRITE_PREPARED": 5,
+        "AUTH_BLOCKED_GOOGLE": 1
+      },
+      "platforms": [
+        {
+          "platform": "super-parrain",
+          "status": "CANARY_READY",
+          "telegram_action": "CANARY_ONLY",
+          "canary_program": "kraken",
+          "notes": "Writer + post-verify + cooldown ready. Not WRITE_VERIFIED until real auth edit + submit + reread + field post-match.",
+          "last_write_verified_at": null
+        },
+        {
+          "platform": "parrainage-co",
+          "status": "WRITE_PREPARED",
+          "telegram_action": "PLAN_ONLY",
+          "canary_program": "kraken",
+          "notes": "Controlled writer exists; needs one successful canary with post-verify.",
+          "last_write_verified_at": null
+        },
+        {
+          "platform": "code-parrainage",
+          "status": "WRITE_PREPARED",
+          "telegram_action": "PLAN_ONLY",
+          "canary_program": "kraken",
+          "notes": "Templates/mappings ready; live edit canary not completed.",
+          "last_write_verified_at": null
+        },
+        {
+          "platform": "1parrainage",
+          "status": "WRITE_PREPARED",
+          "telegram_action": "PLAN_ONLY",
+          "canary_program": "kraken",
+          "notes": "Templates/mappings ready; live edit canary not completed.",
+          "last_write_verified_at": null
+        },
+        {
+          "platform": "referralcodes",
+          "status": "WRITE_PREPARED",
+          "telegram_action": "PLAN_ONLY",
+          "canary_program": "kraken",
+          "notes": "Official Agent Import preferred. WRITE_VERIFIED only after schema validation + single canary import + reread post-match.",
+          "last_write_verified_at": null
+        },
+        {
+          "platform": "referralcode-tv",
+          "status": "WRITE_PREPARED",
+          "telegram_action": "PLAN_ONLY",
+          "canary_program": "kraken",
+          "notes": "Sequential browser writer prepared. WRITE_VERIFIED only after auth/edit with REFERRALCODE_* + post-verify. No CAPTCHA bypass.",
+          "last_write_verified_at": null
+        },
+        {
+          "platform": "referraldrop",
+          "status": "AUTH_BLOCKED_GOOGLE",
+          "telegram_action": "AUTH_BLOCKED",
+          "canary_program": null,
+          "notes": "Google Sign-In required. No OAuth bypass. May remain non-automated if legitimate durable automation is impossible.",
+          "last_write_verified_at": null
+        }
+      ],
+      "updated_at": "2026-08-12T20:57:14.352514+00:00"
+    },
+    "observation_only_default": true,
+    "monitor_mode": "OBSERVATION_ONLY"
+  },
+  "platforms": [
+    {
+      "platform": "1parrainage",
+      "status": "pending_update",
+      "write_mode": "WRITE_PREPARED",
+      "can_auto_write": false,
+      "changed_fields": {
+        "personal_code": {
+          "old": null,
+          "new": "4hpz4gdy"
+        },
+        "personal_link": {
+          "old": null,
+          "new": "https://proinvite.kraken.com/9f1e/lqbuov8u"
+        },
+        "referee_reward": {
+          "old": "200 € en cryptomonnaies",
+          "new": "20 € en Bitcoin selon l’offre"
+        }
+      },
+      "error": null
+    },
+    {
+      "platform": "code-parrainage",
+      "status": "pending_update",
+      "write_mode": "WRITE_PREPARED",
+      "can_auto_write": false,
+      "changed_fields": {
+        "personal_code": {
+          "old": null,
+          "new": "4hpz4gdy"
+        },
+        "personal_link": {
+          "old": null,
+          "new": "https://proinvite.kraken.com/9f1e/lqbuov8u"
+        },
+        "referee_reward": {
+          "old": "200 € en cryptomonnaies",
+          "new": "20 € en Bitcoin selon l’offre"
+        }
+      },
+      "error": null
+    },
+    {
+      "platform": "parrainage-co",
+      "status": "pending_update",
+      "write_mode": "WRITE_PREPARED",
+      "can_auto_write": false,
+      "changed_fields": {
+        "personal_code": {
+          "old": null,
+          "new": "4hpz4gdy"
+        },
+        "personal_link": {
+          "old": null,
+          "new": "https://proinvite.kraken.com/9f1e/lqbuov8u"
+        },
+        "referee_reward": {
+          "old": "200 € en cryptomonnaies",
+          "new": "20 € en Bitcoin selon l’offre"
+        }
+      },
+      "error": null
+    },
+    {
+      "platform": "referralcodes",
+      "status": "pending_update",
+      "write_mode": "WRITE_PREPARED",
+      "can_auto_write": false,
+      "changed_fields": {
+        "referee_reward": {
+          "old": "\\u2b50\\ufe0f $200 in Crypto \\u2b50\\ufe0f",
+          "new": "20 € en Bitcoin selon l’offre"
+        }
+      },
+      "error": null
+    },
+    {
+      "platform": "super-parrain",
+      "status": "pending_update",
+      "write_mode": "CANARY_READY",
+      "can_auto_write": false,
+      "changed_fields": {
+        "personal_code": {
+          "old": null,
+          "new": "4hpz4gdy"
+        },
+        "personal_link": {
+          "old": null,
+          "new": "https://proinvite.kraken.com/9f1e/lqbuov8u"
+        },
+        "referee_reward": {
+          "old": "200 € en cryptomonnaies",
+          "new": "20 € en Bitcoin selon l’offre"
+        }
+      },
+      "error": null
+    }
+  ],
+  "write_status": {
+    "WRITE_VERIFIED": "0/7",
+    "write_verified_count": 0,
+    "telegram_live_capable": [],
+    "telegram_live_capable_count": 0,
+    "by_status": {
+      "CANARY_READY": 1,
+      "WRITE_PREPARED": 5,
+      "AUTH_BLOCKED_GOOGLE": 1
+    },
+    "platforms": [
+      {
+        "platform": "super-parrain",
+        "status": "CANARY_READY",
+        "telegram_action": "CANARY_ONLY",
+        "canary_program": "kraken",
+        "notes": "Writer + post-verify + cooldown ready. Not WRITE_VERIFIED until real auth edit + submit + reread + field post-match.",
+        "last_write_verified_at": null
+      },
+      {
+        "platform": "parrainage-co",
+        "status": "WRITE_PREPARED",
+        "telegram_action": "PLAN_ONLY",
+        "canary_program": "kraken",
+        "notes": "Controlled writer exists; needs one successful canary with post-verify.",
+        "last_write_verified_at": null
+      },
+      {
+        "platform": "code-parrainage",
+        "status": "WRITE_PREPARED",
+        "telegram_action": "PLAN_ONLY",
+        "canary_program": "kraken",
+        "notes": "Templates/mappings ready; live edit canary not completed.",
+        "last_write_verified_at": null
+      },
+      {
+        "platform": "1parrainage",
+        "status": "WRITE_PREPARED",
+        "telegram_action": "PLAN_ONLY",
+        "canary_program": "kraken",
+        "notes": "Templates/mappings ready; live edit canary not completed.",
+        "last_write_verified_at": null
+      },
+      {
+        "platform": "referralcodes",
+        "status": "WRITE_PREPARED",
+        "telegram_action": "PLAN_ONLY",
+        "canary_program": "kraken",
+        "notes": "Official Agent Import preferred. WRITE_VERIFIED only after schema validation + single canary import + reread post-match.",
+        "last_write_verified_at": null
+      },
+      {
+        "platform": "referralcode-tv",
+        "status": "WRITE_PREPARED",
+        "telegram_action": "PLAN_ONLY",
+        "canary_program": "kraken",
+        "notes": "Sequential browser writer prepared. WRITE_VERIFIED only after auth/edit with REFERRALCODE_* + post-verify. No CAPTCHA bypass.",
+        "last_write_verified_at": null
+      },
+      {
+        "platform": "referraldrop",
+        "status": "AUTH_BLOCKED_GOOGLE",
+        "telegram_action": "AUTH_BLOCKED",
+        "canary_program": null,
+        "notes": "Google Sign-In required. No OAuth bypass. May remain non-automated if legitimate durable automation is impossible.",
+        "last_write_verified_at": null
+      }
+    ],
+    "updated_at": "2026-08-12T20:57:14.494122+00:00"
+  },
+  "writers": null,
+  "human_summary": "kraken status (GLOBAL)\n\nCross-platform impact:\n  1parrainage        pending_update   WRITE_PREPARED               personal_code: None→'4hpz4gdy' | personal_link: None→'https://proinvite.kraken.com/9f1e/lqbuov8u' | referee_reward: '200 € en cryptomonnaies'→'20 € en Bitcoin selon l’offre'\n  code-parrainage    pending_update   WRITE_PREPARED               personal_code: None→'4hpz4gdy' | personal_link: None→'https://proinvite.kraken.com/9f1e/lqbuov8u' | referee_reward: '200 € en cryptomonnaies'→'20 € en Bitcoin selon l’offre'\n  parrainage-co      pending_update   WRITE_PREPARED               personal_code: None→'4hpz4gdy' | personal_link: None→'https://proinvite.kraken.com/9f1e/lqbuov8u' | referee_reward: '200 € en cryptomonnaies'→'20 € en Bitcoin selon l’offre'\n  referralcodes      pending_update   WRITE_PREPARED               referee_reward: '\\\\u2b50\\\\ufe0f $200 in Crypto \\\\u2b50\\\\ufe0f'→'20 € en Bitcoin selon l’offre'\n  super-parrain      pending_update   CANARY_READY                 personal_code: None→'4hpz4gdy' | personal_link: None→'https://proinvite.kraken.com/9f1e/lqbuov8u' | referee_reward: '200 € en cryptomonnaies'→'20 € en Bitcoin selon l’offre'\n\nWrite readiness (strict):\n  super-parrain      CANARY_READY / PLAN_ONLY personal_code,personal_link,referee_reward\n  parrainage-co      PLAN_ONLY personal_code,personal_link,referee_reward\n  code-parrainage    PLAN_ONLY personal_code,personal_link,referee_reward\n  1parrainage        PLAN_ONLY personal_code,personal_link,referee_reward\n  referralcodes      PLAN_ONLY referee_reward\n  referralcode-tv    PLAN_ONLY\n  referraldrop       AUTH_BLOCKED\n\nMapped: 5 | pending: 5 | in_sync: 0\nWRITE_VERIFIED: 0/7 | Telegram live-capable: 0/7\nLive Telegram updates ONLY for WRITE_VERIFIED. Others = PLAN_ONLY.\nMonitor remains OBSERVATION_ONLY (no auto-accept).\n\n{\n  \"program\": \"kraken\",\n  \"overrides\": [],\n  \"fields\": {\n    \"personal_code\": {\n      \"effective\": \"4hpz4gdy\",\n      \"source\": \"CANONICAL_DEFAULT\",\n      \"canonical\": \"4hpz4gdy\"\n    },\n    \"personal_link\": {\n      \"effective\": \"https://proinvite.kraken.com/9f1e/lqbuov8u\",\n      \"source\": \"CANONICAL_DEFAULT\",\n      \"canonical\": \"https://proinvite.kraken.com/9f1e/lqbuov8u\"\n    },\n    \"referee_reward\": {\n      \"effective\": \"20 € en Bitcoin selon l’offre\",\n      \"source\": \"CANONICAL_DEFAULT\",\n      \"canonical\": \"20 € en Bitcoin selon l’offre\"\n    },\n    \"conditions\": {\n      \"effective\": \"Kraken indique généralement un bonus équivalent à 20 € en Bitcoin pour la France, après dépôt et volume de trading réalisés sous 30 jours. Les seuils exacts restent affichés dans l'application et le versement peut prendre jusqu'à 21 jours.\",\n      \"source\": \"CANONICAL_DEFAULT\",\n      \"canonical\": \"Kraken indique généralement un bonus équivalent à 20 € en Bitcoin pour la France, après dépôt et volume de trading réalisés sous 30 jours. Les seuils exacts restent affichés dans l'application et le versement peut prendre jusqu'à 21 jours.\"\n    },\n    \"title\": {\n      \"effective\": \"Kraken\",\n      \"source\": \"CANONICAL_DEFAULT\",\n      \"canonical\": \"Kraken\"\n    }\n  }\n}",
+  "idempotency_key": "90cfe3c8d787c92fec6c9de7",
+  "artifacts": {
+    "overrides_path": "/home/runner/work/parrainage-bumper/parrainage-bumper/data/operator-overrides.json",
+    "result_path": "/home/runner/work/parrainage-bumper/parrainage-bumper/data/captures/hermes-last-result.json"
+  }
+}

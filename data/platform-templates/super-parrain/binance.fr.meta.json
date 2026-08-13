@@ -1,0 +1,25 @@
+{
+  "platform": "super-parrain",
+  "program": "binance",
+  "language": "fr",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": "https://www.super-parrain.com/offres/binance-1/parrainage-binance-1/annonces/adrien-b-8",
+  "mutable_fields": [
+    "personal_code",
+    "personal_link"
+  ],
+  "platform_values": {
+    "personal_code": "451859119",
+    "personal_link": "https://www.binance.com/activity/referral-entry/CPA?ref=CPA_005OB3BF01"
+  },
+  "confidences": {
+    "personal_code": "high",
+    "personal_link": "medium"
+  },
+  "notes": [
+    "lien plateforme != offers.json",
+    "bonus non marque (ambigu / non trouve) — texte laisse fixe"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "platform": "referralcode-tv",
+  "write_mode": "WRITE_PREPARED",
+  "method": "authenticated_browser_sequential",
+  "live": false,
+  "known_paths": {
+    "login": "https://www.referralcode.tv/login/",
+    "listings": "https://www.referralcode.tv/my-account/?tab=listings",
+    "my_account": "https://www.referralcode.tv/my-account/",
+    "author_public": "https://www.referralcode.tv/author/thesuperreff/",
+    "add_listing": "https://www.referralcode.tv/add-referral-code/",
+    "boost_only": "#cliccami"
+  },
+  "programs": [],
+  "notes": [
+    "Distinct from referralcodes.com — secrets REFERRALCODE_EMAIL/PASSWORD.",
+    "Phase=VALIDATION_LIVE content_write_allowed=False",
+    "Auth edit URLs not yet proven. Run: python tools/probe_referralcode_tv_edit.py --auth",
+    "Public author listings mapped: 12 (not edit forms)"
+  ],
+  "pending_updates": 0,
+  "edit_map_present": true,
+  "auth_edit_urls": [],
+  "blocker_to_write_verified": "Authenticated edit URL not proven — run probe_referralcode_tv_edit.py --auth",
+  "pre_canary_checklist": [
+    "python tools/probe_referralcode_tv_edit.py --public",
+    "python tools/probe_referralcode_tv_edit.py --auth  # with REFERRALCODE_*",
+    "Confirm edit form fields (textarea/code/link) in field_probes",
+    "Wire edit_url into mapping for canary program",
+    "controlled canary (no #cliccami boost during content write)"
+  ]
+}

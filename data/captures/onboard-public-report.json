@@ -1,0 +1,134 @@
+{
+  "1parrainage": {
+    "platform": "1parrainage",
+    "items": [
+      {
+        "program": "unibet",
+        "status": "ok",
+        "mutable": [],
+        "chars": 43,
+        "url": "https://www.1parrainage.com/offre_parrainage_Unibet-Sport.php"
+      },
+      {
+        "program": "okx",
+        "status": "ok",
+        "mutable": [],
+        "chars": 42,
+        "url": "https://www.1parrainage.com/offre_parrainage_OKX.php"
+      },
+      {
+        "program": "kraken",
+        "status": "ok",
+        "mutable": [],
+        "chars": 52,
+        "url": "https://www.1parrainage.com/offre_parrainage_Kraken.php"
+      },
+      {
+        "program": "deblock",
+        "status": "ok",
+        "mutable": [],
+        "chars": 54,
+        "url": "https://www.1parrainage.com/offre_parrainage_deblock.php"
+      },
+      {
+        "program": "fdj-francaise-des-jeux",
+        "status": "ok",
+        "mutable": [],
+        "chars": 47,
+        "url": "https://www.1parrainage.com/offre_parrainage_francaise-des-jeux-FDJ.php"
+      },
+      {
+        "program": "paypal",
+        "status": "ok",
+        "mutable": [],
+        "chars": 44,
+        "url": "https://www.1parrainage.com/offre_parrainage_Paypal.php"
+      },
+      {
+        "program": "lolivier",
+        "status": "ok",
+        "mutable": [],
+        "chars": 53,
+        "url": "https://www.1parrainage.com/offre_parrainage_L-olivier-assurance.php"
+      }
+    ],
+    "errors": []
+  },
+  "referraldrop": {
+    "platform": "referraldrop",
+    "items": [
+      {
+        "program": "okx",
+        "status": "ok",
+        "mutable": [
+          "personal_link"
+        ],
+        "chars": 5000,
+        "url": "https://referraldrop.com/en/drop/okx"
+      },
+      {
+        "program": "whatnot",
+        "status": "ok",
+        "mutable": [
+          "personal_link"
+        ],
+        "chars": 5000,
+        "url": "https://referraldrop.com/en/drop/whatnot"
+      },
+      {
+        "program": "vinted",
+        "status": "ok",
+        "mutable": [
+          "personal_link"
+        ],
+        "chars": 5000,
+        "url": "https://referraldrop.com/en/drop/vinted"
+      },
+      {
+        "program": "gemini",
+        "status": "ok",
+        "mutable": [
+          "personal_link"
+        ],
+        "chars": 5000,
+        "url": "https://referraldrop.com/en/drop/gemini"
+      },
+      {
+        "program": "robinhood",
+        "status": "ok",
+        "mutable": [
+          "personal_link"
+        ],
+        "chars": 5000,
+        "url": "https://referraldrop.com/en/drop/robinhood"
+      },
+      {
+        "program": "bybit",
+        "status": "ok",
+        "mutable": [
+          "personal_link"
+        ],
+        "chars": 5000,
+        "url": "https://referraldrop.com/en/drop/bybit"
+      },
+      {
+        "program": "igraal",
+        "status": "ok",
+        "mutable": [
+          "personal_link"
+        ],
+        "chars": 5000,
+        "url": "https://referraldrop.com/en/drop/igraal"
+      },
+      {
+        "program": "airbnb",
+        "status": "ok",
+        "mutable": [],
+        "chars": 5000,
+        "url": "https://referraldrop.com/en/drop/airbnb"
+      }
+    ],
+    "errors": [],
+    "auth_status": "AUTH_BLOCKED_GOOGLE"
+  }
+}

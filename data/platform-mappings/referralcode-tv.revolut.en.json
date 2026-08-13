@@ -1,0 +1,39 @@
+{
+  "platform": "referralcode-tv",
+  "program": "revolut",
+  "language": "en",
+  "sync_mode": "REVIEW",
+  "template_status": "ready",
+  "golden_file": "revolut.en.golden.txt",
+  "mutable_fields": [
+    "referee_reward"
+  ],
+  "markers": {
+    "personal_code": "{{PERSONAL_CODE}}",
+    "personal_link": "{{PERSONAL_LINK}}",
+    "referee_reward": "{{REFEREE_REWARD}}",
+    "referrer_reward": "{{REFERRER_REWARD}}",
+    "conditions": "{{CONDITIONS}}"
+  },
+  "offer_fields": {
+    "personal_code": "code",
+    "personal_link": "link",
+    "referee_reward": "reward",
+    "conditions": "cond"
+  },
+  "announcement_url": "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-revolut-referral-offer-up-to-200-bonus-%e2%ad%90%ef%b8%8f-join-revolut-a-leading-global-banking-and-finance-app/?__sid=23058",
+  "edit_url": null,
+  "platform_values": {
+    "referee_reward": "$10 to $200 cash reward (varies depending on ongoing campaigns)"
+  },
+  "confidences": {
+    "referee_reward": "medium"
+  },
+  "notes": "lien offers.json non trouve dans le texte; bonus extrait du texte plateforme (confiance moyenne); public author capture; distinct from referralcodes.com; public author capture; distinct from referralcodes.com",
+  "source_of_truth": {
+    "personal_code": "offers_json_then_operator",
+    "personal_link": "offers_json_then_operator",
+    "referee_reward": "offers_json_then_official",
+    "announcement_text": "platform_target_only"
+  }
+}

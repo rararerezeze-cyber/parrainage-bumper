@@ -1,0 +1,25 @@
+{
+  "platform": "super-parrain",
+  "program": "paypal",
+  "language": "fr",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": "https://www.super-parrain.com/offres/paypal/parrainage-paypal/annonces/adrien-b-8",
+  "mutable_fields": [
+    "personal_link",
+    "referee_reward"
+  ],
+  "platform_values": {
+    "personal_link": "https://py.pl/DZfFM",
+    "referee_reward": "10 € offerts !"
+  },
+  "confidences": {
+    "personal_link": "medium",
+    "referee_reward": "medium"
+  },
+  "notes": [
+    "lien plateforme != offers.json",
+    "bonus extrait du texte plateforme (confiance moyenne)"
+  ]
+}

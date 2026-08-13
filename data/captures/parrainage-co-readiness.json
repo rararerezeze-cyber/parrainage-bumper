@@ -1,0 +1,813 @@
+{
+  "platform": "parrainage-co",
+  "mode": "READ_ONLY_READINESS",
+  "profile_url": "https://parrainage.co/user/adrien89",
+  "mappings": 22,
+  "profile_offer_links": 26,
+  "on_profile_not_mapped": [
+    "118536",
+    "122884",
+    "123892",
+    "125100",
+    "125961"
+  ],
+  "mapped_not_on_profile": [],
+  "render_ok": 20,
+  "structure_ok": 20,
+  "needs_update": 17,
+  "golden_match_public": 16,
+  "public_fetch_ok": 22,
+  "blockers": [
+    {
+      "program": "boursobank",
+      "url": "https://parrainage.co/offers/75195",
+      "mutable_fields": [
+        "personal_code",
+        "personal_link"
+      ],
+      "sync_mode": "REVIEW",
+      "golden_len": 4277,
+      "render_ok": false,
+      "render_error": "Valeur manquante pour champ mutable personal_code",
+      "structure_preserved": null,
+      "needs_update": null,
+      "public_fetch_ok": true,
+      "public_body_len": 0,
+      "golden_lines_in_public": true,
+      "golden_match_public": true,
+      "public_body_empty": true,
+      "public_has_platform_code": true,
+      "public_has_platform_link": true
+    },
+    {
+      "program": "gemini",
+      "url": "https://parrainage.co/offers/115388",
+      "mutable_fields": [
+        "personal_code",
+        "personal_link",
+        "referee_reward"
+      ],
+      "sync_mode": "REVIEW",
+      "golden_len": 3647,
+      "render_ok": true,
+      "structure_preserved": true,
+      "changed_fields": [
+        "personal_link",
+        "referee_reward"
+      ],
+      "needs_update": true,
+      "public_fetch_ok": true,
+      "public_body_len": 0,
+      "golden_lines_in_public": false,
+      "golden_missing_lines": [
+        "1. Créez un compte Gemini via le lien ci-dessus",
+        "2. Si demandé, renseignez le code parrain : wd8yn943e (sinon, il est prérempli v",
+        "3. Vérifiez votre identité (KYC)",
+        "4. Déposez des fonds ou achetez de la crypto par carte/virement",
+        "5. Réalisez votre premier achat/échange éligible dans la période indiquée par l’"
+      ],
+      "golden_match_public": false,
+      "public_body_empty": true,
+      "public_has_platform_code": true,
+      "public_has_platform_link": true
+    },
+    {
+      "program": "ledger",
+      "url": "https://parrainage.co/offers/115693",
+      "mutable_fields": [
+        "personal_code",
+        "personal_link",
+        "referee_reward"
+      ],
+      "sync_mode": "REVIEW",
+      "golden_len": 3556,
+      "render_ok": true,
+      "structure_preserved": true,
+      "changed_fields": [
+        "referee_reward"
+      ],
+      "needs_update": true,
+      "public_fetch_ok": true,
+      "public_body_len": 0,
+      "golden_lines_in_public": false,
+      "golden_missing_lines": [
+        "1. Créez un compte Ledger via le lien ci-dessus",
+        "2. Vérifiez que le code parrain est bien appliqué : 20DA401DG841C",
+        "3. Passez commande d’un produit Ledger éligible (Nano X, Nano S Plus, etc.)",
+        "4. Activez et configurez votre wallet Ledger",
+        "5. Le bonus en Bitcoin (20 $) sera crédité automatiquement sur votre compte Ledg"
+      ],
+      "golden_match_public": false,
+      "public_body_empty": true,
+      "public_has_platform_code": true,
+      "public_has_platform_link": true
+    },
+    {
+      "program": "paypal",
+      "url": "https://parrainage.co/account/offers/edit/75178",
+      "mutable_fields": [
+        "personal_link",
+        "referee_reward"
+      ],
+      "sync_mode": "REVIEW",
+      "golden_len": 197,
+      "render_ok": true,
+      "structure_preserved": true,
+      "changed_fields": [
+        "personal_link",
+        "referee_reward"
+      ],
+      "needs_update": true,
+      "public_fetch_ok": true,
+      "public_body_len": 0,
+      "golden_lines_in_public": false,
+      "golden_missing_lines": [
+        "⚡️ Offre Parrainage iGraal – 15 € offerts ⚡",
+        "⚡ Bonus : 15 € offers sur votre compte iGraal m via mon lien ✅",
+        "⭐️ Lien de parrainage :",
+        "➡️ https://fr.igraal.com/parrainage?parrain=AG_608d8f9aded43"
+      ],
+      "golden_match_public": false,
+      "public_body_empty": true,
+      "public_has_platform_code": false,
+      "public_has_platform_link": false,
+      "bad_announcement_url": true
+    },
+    {
+      "program": "robinhood",
+      "url": "https://parrainage.co/offers/115110",
+      "mutable_fields": [
+        "personal_link",
+        "referee_reward"
+      ],
+      "sync_mode": "REVIEW",
+      "golden_len": 1228,
+      "render_ok": true,
+      "structure_preserved": true,
+      "changed_fields": [
+        "referee_reward"
+      ],
+      "needs_update": true,
+      "public_fetch_ok": true,
+      "public_body_len": 11804,
+      "golden_lines_in_public": false,
+      "golden_missing_lines": [
+        "1. Cliquez sur le lien de parrainage pour créer votre compte.",
+        "2. Vérifiez votre identité (KYC) et activez la double authentification (2FA).",
+        "3. Déposez au moins 50 € sur votre compte.",
+        "4. Tradez au moins une cryptomonnaie.",
+        "5. Recevez automatiquement 50 € en crypto dans votre portefeuille Robinhood."
+      ],
+      "golden_match_public": false,
+      "public_has_platform_code": false,
+      "public_has_platform_link": true
+    },
+    {
+      "program": "totalenergies",
+      "url": "https://parrainage.co/offers/110585",
+      "mutable_fields": [
+        "personal_code",
+        "personal_link"
+      ],
+      "sync_mode": "REVIEW",
+      "golden_len": 3156,
+      "render_ok": true,
+      "structure_preserved": true,
+      "changed_fields": [
+        "personal_link"
+      ],
+      "needs_update": true,
+      "public_fetch_ok": true,
+      "public_body_len": 0,
+      "golden_lines_in_public": false,
+      "golden_missing_lines": [
+        "1. Inscrivez-vous sur le site Total Energies",
+        "2. Lors de votre inscription, renseignez le code parrain 114052844",
+        "3. Votre prime de 50€ sera automatiquement déduite de votre première facture"
+      ],
+      "golden_match_public": false,
+      "public_body_empty": true,
+      "public_has_platform_code": true,
+      "public_has_platform_link": true
+    },
+    {
+      "program": "widilo",
+      "url": "https://parrainage.co/offers/109021",
+      "mutable_fields": [
+        "personal_code",
+        "personal_link",
+        "referee_reward"
+      ],
+      "sync_mode": "REVIEW",
+      "golden_len": 3103,
+      "render_ok": true,
+      "structure_preserved": true,
+      "changed_fields": [
+        "referee_reward"
+      ],
+      "needs_update": true,
+      "public_fetch_ok": true,
+      "public_body_len": 0,
+      "golden_lines_in_public": false,
+      "golden_missing_lines": [
+        "1. Inscrivez-vous via le lien de parrainage ci-dessus pour recevoir 5 €",
+        "2. Installez l’extension Widilo sur votre navigateur pour obtenir 1€ supplémenta",
+        "3. Le total de 6 € sera crédité automatiquement sur votre compte"
+      ],
+      "golden_match_public": false,
+      "public_body_empty": true,
+      "public_has_platform_code": true,
+      "public_has_platform_link": true
+    },
+    {
+      "program": "winamax",
+      "url": "https://parrainage.co/offers/75175",
+      "mutable_fields": [
+        "personal_code",
+        "personal_link",
+        "referee_reward"
+      ],
+      "sync_mode": "REVIEW",
+      "golden_len": 3675,
+      "render_ok": false,
+      "render_error": "Valeur manquante pour champ mutable personal_link",
+      "structure_preserved": null,
+      "needs_update": null,
+      "public_fetch_ok": true,
+      "public_body_len": 0,
+      "golden_lines_in_public": true,
+      "golden_match_public": true,
+      "public_body_empty": true,
+      "public_has_platform_code": true,
+      "public_has_platform_link": true
+    }
+  ],
+  "programs": [
+    {
+      "program": "acheel",
+      "url": "https://parrainage.co/offers/92118",
+      "mutable_fields": [
+        "personal_code",
+        "referee_reward"
+      ],
+      "sync_mode": "SAFE_AUTO",
+      "golden_len": 3123,
+      "render_ok": true,
+      "structure_preserved": true,
+      "changed_fields": [],
+      "needs_update": false,
+      "public_fetch_ok": true,
+      "public_body_len": 0,
+      "golden_lines_in_public": true,
+      "golden_match_public": true,
+      "public_body_empty": true,
+      "public_has_platform_code": true,
+      "public_has_platform_link": false
+    },
+    {
+      "program": "betclic",
+      "url": "https://parrainage.co/offers/75172",
+      "mutable_fields": [
+        "personal_code",
+        "referee_reward"
+      ],
+      "sync_mode": "REVIEW",
+      "golden_len": 1183,
+      "render_ok": true,
+      "structure_preserved": true,
+      "changed_fields": [
+        "referee_reward"
+      ],
+      "needs_update": true,
+      "public_fetch_ok": true,
+      "public_body_len": 11775,
+      "golden_lines_in_public": true,
+      "golden_match_public": true,
+      "public_has_platform_code": true,
+      "public_has_platform_link": false
+    },
+    {
+      "program": "bitstack",
+      "url": "https://parrainage.co/offers/114464",
+      "mutable_fields": [
+        "personal_link",
+        "referee_reward"
+      ],
+      "sync_mode": "REVIEW",
+      "golden_len": 872,
+      "render_ok": true,
+      "structure_preserved": true,
+      "changed_fields": [
+        "referee_reward"
+      ],
+      "needs_update": true,
+      "public_fetch_ok": true,
+      "public_body_len": 11485,
+      "golden_lines_in_public": true,
+      "golden_match_public": true,
+      "public_has_platform_code": false,
+      "public_has_platform_link": true
+    },
+    {
+      "program": "boursobank",
+      "url": "https://parrainage.co/offers/75195",
+      "mutable_fields": [
+        "personal_code",
+        "personal_link"
+      ],
+      "sync_mode": "REVIEW",
+      "golden_len": 4277,
+      "render_ok": false,
+      "render_error": "Valeur manquante pour champ mutable personal_code",
+      "structure_preserved": null,
+      "needs_update": null,
+      "public_fetch_ok": true,
+      "public_body_len": 0,
+      "golden_lines_in_public": true,
+      "golden_match_public": true,
+      "public_body_empty": true,
+      "public_has_platform_code": true,
+      "public_has_platform_link": true
+    },
+    {
+      "program": "bybit",
+      "url": "https://parrainage.co/offers/127408",
+      "mutable_fields": [
+        "personal_code",
+        "personal_link"
+      ],
+      "sync_mode": "SAFE_AUTO",
+      "golden_len": 871,
+      "render_ok": true,
+      "structure_preserved": true,
+      "changed_fields": [],
+      "needs_update": false,
+      "public_fetch_ok": true,
+      "public_body_len": 11270,
+      "golden_lines_in_public": true,
+      "golden_match_public": true,
+      "public_has_platform_code": true,
+      "public_has_platform_link": true
+    },
+    {
+      "program": "coinbase",
+      "url": "https://parrainage.co/offers/76562",
+      "mutable_fields": [
+        "personal_code",
+        "personal_link",
+        "referee_reward"
+      ],
+      "sync_mode": "REVIEW",
+      "golden_len": 1188,
+      "render_ok": true,
+      "structure_preserved": true,
+      "changed_fields": [
+        "referee_reward"
+      ],
+      "needs_update": true,
+      "public_fetch_ok": true,
+      "public_body_len": 11788,
+      "golden_lines_in_public": true,
+      "golden_match_public": true,
+      "public_has_platform_code": true,
+      "public_has_platform_link": true
+    },
+    {
+      "program": "ebuyclub",
+      "url": "https://parrainage.co/offers/84358",
+      "mutable_fields": [
+        "personal_link",
+        "referee_reward"
+      ],
+      "sync_mode": "REVIEW",
+      "golden_len": 227,
+      "render_ok": true,
+      "structure_preserved": true,
+      "changed_fields": [
+        "referee_reward"
+      ],
+      "needs_update": true,
+      "public_fetch_ok": true,
+      "public_body_len": 0,
+      "golden_lines_in_public": true,
+      "golden_match_public": true,
+      "public_body_empty": true,
+      "public_has_platform_code": false,
+      "public_has_platform_link": true
+    },
+    {
+      "program": "gemini",
+      "url": "https://parrainage.co/offers/115388",
+      "mutable_fields": [
+        "personal_code",
+        "personal_link",
+        "referee_reward"
+      ],
+      "sync_mode": "REVIEW",
+      "golden_len": 3647,
+      "render_ok": true,
+      "structure_preserved": true,
+      "changed_fields": [
+        "personal_link",
+        "referee_reward"
+      ],
+      "needs_update": true,
+      "public_fetch_ok": true,
+      "public_body_len": 0,
+      "golden_lines_in_public": false,
+      "golden_missing_lines": [
+        "1. Créez un compte Gemini via le lien ci-dessus",
+        "2. Si demandé, renseignez le code parrain : wd8yn943e (sinon, il est prérempli v",
+        "3. Vérifiez votre identité (KYC)",
+        "4. Déposez des fonds ou achetez de la crypto par carte/virement",
+        "5. Réalisez votre premier achat/échange éligible dans la période indiquée par l’"
+      ],
+      "golden_match_public": false,
+      "public_body_empty": true,
+      "public_has_platform_code": true,
+      "public_has_platform_link": true
+    },
+    {
+      "program": "igraal",
+      "url": "https://parrainage.co/offers/75178",
+      "mutable_fields": [
+        "personal_link",
+        "referee_reward"
+      ],
+      "sync_mode": "REVIEW",
+      "golden_len": 205,
+      "render_ok": true,
+      "structure_preserved": true,
+      "changed_fields": [
+        "personal_link",
+        "referee_reward"
+      ],
+      "needs_update": true,
+      "public_fetch_ok": true,
+      "public_body_len": 0,
+      "golden_lines_in_public": true,
+      "golden_match_public": true,
+      "public_body_empty": true,
+      "public_has_platform_code": false,
+      "public_has_platform_link": true
+    },
+    {
+      "program": "joko",
+      "url": "https://parrainage.co/offers/86502",
+      "mutable_fields": [
+        "personal_code",
+        "referee_reward"
+      ],
+      "sync_mode": "REVIEW",
+      "golden_len": 674,
+      "render_ok": true,
+      "structure_preserved": true,
+      "changed_fields": [
+        "referee_reward"
+      ],
+      "needs_update": true,
+      "public_fetch_ok": true,
+      "public_body_len": 0,
+      "golden_lines_in_public": true,
+      "golden_match_public": true,
+      "public_body_empty": true,
+      "public_has_platform_code": true,
+      "public_has_platform_link": false
+    },
+    {
+      "program": "kraken",
+      "url": "https://parrainage.co/offers/113735",
+      "mutable_fields": [
+        "personal_code",
+        "personal_link",
+        "referee_reward"
+      ],
+      "sync_mode": "REVIEW",
+      "golden_len": 786,
+      "render_ok": true,
+      "structure_preserved": true,
+      "changed_fields": [
+        "personal_code",
+        "personal_link",
+        "referee_reward"
+      ],
+      "needs_update": true,
+      "public_fetch_ok": true,
+      "public_body_len": 11382,
+      "golden_lines_in_public": true,
+      "golden_match_public": true,
+      "public_has_platform_code": true,
+      "public_has_platform_link": true
+    },
+    {
+      "program": "ledger",
+      "url": "https://parrainage.co/offers/115693",
+      "mutable_fields": [
+        "personal_code",
+        "personal_link",
+        "referee_reward"
+      ],
+      "sync_mode": "REVIEW",
+      "golden_len": 3556,
+      "render_ok": true,
+      "structure_preserved": true,
+      "changed_fields": [
+        "referee_reward"
+      ],
+      "needs_update": true,
+      "public_fetch_ok": true,
+      "public_body_len": 0,
+      "golden_lines_in_public": false,
+      "golden_missing_lines": [
+        "1. Créez un compte Ledger via le lien ci-dessus",
+        "2. Vérifiez que le code parrain est bien appliqué : 20DA401DG841C",
+        "3. Passez commande d’un produit Ledger éligible (Nano X, Nano S Plus, etc.)",
+        "4. Activez et configurez votre wallet Ledger",
+        "5. Le bonus en Bitcoin (20 $) sera crédité automatiquement sur votre compte Ledg"
+      ],
+      "golden_match_public": false,
+      "public_body_empty": true,
+      "public_has_platform_code": true,
+      "public_has_platform_link": true
+    },
+    {
+      "program": "paypal",
+      "url": "https://parrainage.co/account/offers/edit/75178",
+      "mutable_fields": [
+        "personal_link",
+        "referee_reward"
+      ],
+      "sync_mode": "REVIEW",
+      "golden_len": 197,
+      "render_ok": true,
+      "structure_preserved": true,
+      "changed_fields": [
+        "personal_link",
+        "referee_reward"
+      ],
+      "needs_update": true,
+      "public_fetch_ok": true,
+      "public_body_len": 0,
+      "golden_lines_in_public": false,
+      "golden_missing_lines": [
+        "⚡️ Offre Parrainage iGraal – 15 € offerts ⚡",
+        "⚡ Bonus : 15 € offers sur votre compte iGraal m via mon lien ✅",
+        "⭐️ Lien de parrainage :",
+        "➡️ https://fr.igraal.com/parrainage?parrain=AG_608d8f9aded43"
+      ],
+      "golden_match_public": false,
+      "public_body_empty": true,
+      "public_has_platform_code": false,
+      "public_has_platform_link": false,
+      "bad_announcement_url": true
+    },
+    {
+      "program": "poulpeo",
+      "url": "https://parrainage.co/offers/84354",
+      "mutable_fields": [
+        "personal_code",
+        "referee_reward"
+      ],
+      "sync_mode": "REVIEW",
+      "golden_len": 650,
+      "render_ok": true,
+      "structure_preserved": true,
+      "changed_fields": [
+        "referee_reward"
+      ],
+      "needs_update": true,
+      "public_fetch_ok": true,
+      "public_body_len": 0,
+      "golden_lines_in_public": true,
+      "golden_match_public": true,
+      "public_body_empty": true,
+      "public_has_platform_code": true,
+      "public_has_platform_link": false
+    },
+    {
+      "program": "revolut",
+      "url": "https://parrainage.co/offers/76563",
+      "mutable_fields": [
+        "personal_link",
+        "referee_reward"
+      ],
+      "sync_mode": "REVIEW",
+      "golden_len": 1108,
+      "render_ok": true,
+      "structure_preserved": true,
+      "changed_fields": [
+        "personal_link",
+        "referee_reward"
+      ],
+      "needs_update": true,
+      "public_fetch_ok": true,
+      "public_body_len": 11689,
+      "golden_lines_in_public": true,
+      "golden_match_public": true,
+      "public_has_platform_code": false,
+      "public_has_platform_link": true
+    },
+    {
+      "program": "robinhood",
+      "url": "https://parrainage.co/offers/115110",
+      "mutable_fields": [
+        "personal_link",
+        "referee_reward"
+      ],
+      "sync_mode": "REVIEW",
+      "golden_len": 1228,
+      "render_ok": true,
+      "structure_preserved": true,
+      "changed_fields": [
+        "referee_reward"
+      ],
+      "needs_update": true,
+      "public_fetch_ok": true,
+      "public_body_len": 11804,
+      "golden_lines_in_public": false,
+      "golden_missing_lines": [
+        "1. Cliquez sur le lien de parrainage pour créer votre compte.",
+        "2. Vérifiez votre identité (KYC) et activez la double authentification (2FA).",
+        "3. Déposez au moins 50 € sur votre compte.",
+        "4. Tradez au moins une cryptomonnaie.",
+        "5. Recevez automatiquement 50 € en crypto dans votre portefeuille Robinhood."
+      ],
+      "golden_match_public": false,
+      "public_has_platform_code": false,
+      "public_has_platform_link": true
+    },
+    {
+      "program": "swissborg",
+      "url": "https://parrainage.co/offers/114509",
+      "mutable_fields": [
+        "personal_link",
+        "referee_reward"
+      ],
+      "sync_mode": "REVIEW",
+      "golden_len": 283,
+      "render_ok": true,
+      "structure_preserved": true,
+      "changed_fields": [
+        "personal_link",
+        "referee_reward"
+      ],
+      "needs_update": true,
+      "public_fetch_ok": true,
+      "public_body_len": 0,
+      "golden_lines_in_public": true,
+      "golden_match_public": true,
+      "public_body_empty": true,
+      "public_has_platform_code": false,
+      "public_has_platform_link": true
+    },
+    {
+      "program": "totalenergies",
+      "url": "https://parrainage.co/offers/110585",
+      "mutable_fields": [
+        "personal_code",
+        "personal_link"
+      ],
+      "sync_mode": "REVIEW",
+      "golden_len": 3156,
+      "render_ok": true,
+      "structure_preserved": true,
+      "changed_fields": [
+        "personal_link"
+      ],
+      "needs_update": true,
+      "public_fetch_ok": true,
+      "public_body_len": 0,
+      "golden_lines_in_public": false,
+      "golden_missing_lines": [
+        "1. Inscrivez-vous sur le site Total Energies",
+        "2. Lors de votre inscription, renseignez le code parrain 114052844",
+        "3. Votre prime de 50€ sera automatiquement déduite de votre première facture"
+      ],
+      "golden_match_public": false,
+      "public_body_empty": true,
+      "public_has_platform_code": true,
+      "public_has_platform_link": true
+    },
+    {
+      "program": "traderepublic",
+      "url": "https://parrainage.co/offers/75174",
+      "mutable_fields": [
+        "personal_code",
+        "personal_link"
+      ],
+      "sync_mode": "SAFE_AUTO",
+      "golden_len": 1497,
+      "render_ok": true,
+      "structure_preserved": true,
+      "changed_fields": [],
+      "needs_update": false,
+      "public_fetch_ok": true,
+      "public_body_len": 12146,
+      "golden_lines_in_public": true,
+      "golden_match_public": true,
+      "public_has_platform_code": true,
+      "public_has_platform_link": true
+    },
+    {
+      "program": "unibet",
+      "url": "https://parrainage.co/offers/75173",
+      "mutable_fields": [
+        "personal_link",
+        "referee_reward"
+      ],
+      "sync_mode": "REVIEW",
+      "golden_len": 3798,
+      "render_ok": true,
+      "structure_preserved": true,
+      "changed_fields": [
+        "personal_link",
+        "referee_reward"
+      ],
+      "needs_update": true,
+      "public_fetch_ok": true,
+      "public_body_len": 0,
+      "golden_lines_in_public": true,
+      "golden_match_public": true,
+      "public_body_empty": true,
+      "public_has_platform_code": false,
+      "public_has_platform_link": true
+    },
+    {
+      "program": "widilo",
+      "url": "https://parrainage.co/offers/109021",
+      "mutable_fields": [
+        "personal_code",
+        "personal_link",
+        "referee_reward"
+      ],
+      "sync_mode": "REVIEW",
+      "golden_len": 3103,
+      "render_ok": true,
+      "structure_preserved": true,
+      "changed_fields": [
+        "referee_reward"
+      ],
+      "needs_update": true,
+      "public_fetch_ok": true,
+      "public_body_len": 0,
+      "golden_lines_in_public": false,
+      "golden_missing_lines": [
+        "1. Inscrivez-vous via le lien de parrainage ci-dessus pour recevoir 5 €",
+        "2. Installez l’extension Widilo sur votre navigateur pour obtenir 1€ supplémenta",
+        "3. Le total de 6 € sera crédité automatiquement sur votre compte"
+      ],
+      "golden_match_public": false,
+      "public_body_empty": true,
+      "public_has_platform_code": true,
+      "public_has_platform_link": true
+    },
+    {
+      "program": "winamax",
+      "url": "https://parrainage.co/offers/75175",
+      "mutable_fields": [
+        "personal_code",
+        "personal_link",
+        "referee_reward"
+      ],
+      "sync_mode": "REVIEW",
+      "golden_len": 3675,
+      "render_ok": false,
+      "render_error": "Valeur manquante pour champ mutable personal_link",
+      "structure_preserved": null,
+      "needs_update": null,
+      "public_fetch_ok": true,
+      "public_body_len": 0,
+      "golden_lines_in_public": true,
+      "golden_match_public": true,
+      "public_body_empty": true,
+      "public_has_platform_code": true,
+      "public_has_platform_link": true
+    }
+  ],
+  "writer_exists": true,
+  "known_data_gaps": {
+    "offers_missing_code": [
+      "boursobank"
+    ],
+    "offers_missing_link": [
+      "winamax"
+    ],
+    "bad_announcement_url": [
+      "paypal"
+    ],
+    "on_profile_unmapped_programs": [
+      "vinted (118536)",
+      "plum (122884)",
+      "okx (123892)",
+      "nrj-mobile (125100)",
+      "whatnot (125961)"
+    ]
+  },
+  "next_after_super_parrain": [
+    "fix paypal announcement_url (currently account/edit of another offer)",
+    "fix offers.json: boursobank.code, winamax.link",
+    "optionally onboard 5 profile-only offers if in offers.json later",
+    "canary Kraken only (same vertical method as Super-Parrain)",
+    "post-verify then progressive rollout"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "platform": "1parrainage",
+  "program": "nrj-mobile",
+  "language": "fr",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=9",
+  "mutable_fields": [
+    "referee_reward"
+  ],
+  "platform_values": {
+    "referee_reward": "10 € pour vous + 10 € pour votre filleul après 2 mois d’abonnement validés"
+  },
+  "confidences": {
+    "referee_reward": "high"
+  },
+  "notes": [
+    "lien offers.json non trouve dans le texte"
+  ]
+}

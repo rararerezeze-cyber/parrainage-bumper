@@ -1,0 +1,25 @@
+{
+  "platform": "super-parrain",
+  "program": "airbnb",
+  "language": "fr",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": "https://www.super-parrain.com/offres/airbnb-1/parrainage-airbnb-hotes/annonces/adrien-b-8",
+  "mutable_fields": [
+    "personal_code",
+    "personal_link"
+  ],
+  "platform_values": {
+    "personal_code": "adrienb12398",
+    "personal_link": "https://www.airbnb.fr/rp/adrienb12398?p=stay"
+  },
+  "confidences": {
+    "personal_code": "high",
+    "personal_link": "medium"
+  },
+  "notes": [
+    "lien plateforme != offers.json",
+    "bonus non marque (ambigu / non trouve) — texte laisse fixe"
+  ]
+}

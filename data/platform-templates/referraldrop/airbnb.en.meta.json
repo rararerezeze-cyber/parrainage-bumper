@@ -1,0 +1,17 @@
+{
+  "platform": "referraldrop",
+  "program": "airbnb",
+  "language": "en",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": "https://referraldrop.com/en/drop/airbnb",
+  "mutable_fields": [],
+  "platform_values": {},
+  "confidences": {},
+  "notes": [
+    "lien offers.json non trouve dans le texte",
+    "bonus non marque (ambigu / non trouve) — texte laisse fixe",
+    "public capture only; AUTH_BLOCKED_GOOGLE"
+  ]
+}

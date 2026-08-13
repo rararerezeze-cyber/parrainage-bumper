@@ -1,0 +1,213 @@
+{
+  "platform": "1parrainage",
+  "public": {
+    "mode": "public",
+    "login_url": "https://www.1parrainage.com/login",
+    "login_http": 200,
+    "login_has_email_field": true,
+    "login_has_password_field": true,
+    "public_list": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php",
+    "list_http": 200,
+    "list_offer_id_count": 52,
+    "mappings": [
+      {
+        "program": "acheel",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=101006",
+        "edit_url": null
+      },
+      {
+        "program": "airbnb",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=1487",
+        "edit_url": null
+      },
+      {
+        "program": "betclic",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=205",
+        "edit_url": null
+      },
+      {
+        "program": "binance",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=1082",
+        "edit_url": null
+      },
+      {
+        "program": "bitstack",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100956",
+        "edit_url": null
+      },
+      {
+        "program": "boursobank",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=79",
+        "edit_url": null
+      },
+      {
+        "program": "bybit",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100415",
+        "edit_url": null
+      },
+      {
+        "program": "coinbase",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=862",
+        "edit_url": null
+      },
+      {
+        "program": "deblock",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=101211",
+        "edit_url": null
+      },
+      {
+        "program": "ebuyclub",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=85",
+        "edit_url": null
+      },
+      {
+        "program": "fdj-francaise-des-jeux",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=68",
+        "edit_url": null
+      },
+      {
+        "program": "finary",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100577",
+        "edit_url": null
+      },
+      {
+        "program": "gemini",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100548",
+        "edit_url": null
+      },
+      {
+        "program": "heetch",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=765",
+        "edit_url": null
+      },
+      {
+        "program": "igraal",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=84",
+        "edit_url": null
+      },
+      {
+        "program": "joko",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=1703",
+        "edit_url": null
+      },
+      {
+        "program": "kraken",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100408",
+        "edit_url": null
+      },
+      {
+        "program": "ledger",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=1337",
+        "edit_url": null
+      },
+      {
+        "program": "lolivier",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=988",
+        "edit_url": null
+      },
+      {
+        "program": "nrj-mobile",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=9",
+        "edit_url": null
+      },
+      {
+        "program": "okx",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100373",
+        "edit_url": null
+      },
+      {
+        "program": "omio",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=1948",
+        "edit_url": null
+      },
+      {
+        "program": "parionssport",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=750",
+        "edit_url": null
+      },
+      {
+        "program": "paypal",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100019",
+        "edit_url": null
+      },
+      {
+        "program": "plum",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=101381",
+        "edit_url": null
+      },
+      {
+        "program": "poulpeo",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=501",
+        "edit_url": null
+      },
+      {
+        "program": "revolut",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=1021",
+        "edit_url": null
+      },
+      {
+        "program": "robinhood",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100066",
+        "edit_url": null
+      },
+      {
+        "program": "swissborg",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100172",
+        "edit_url": null
+      },
+      {
+        "program": "totalenergies",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=31",
+        "edit_url": null
+      },
+      {
+        "program": "traderepublic",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100428",
+        "edit_url": null
+      },
+      {
+        "program": "unibet",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=217",
+        "edit_url": null
+      },
+      {
+        "program": "vinted",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=910",
+        "edit_url": null
+      },
+      {
+        "program": "whatnot",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=101206",
+        "edit_url": null
+      },
+      {
+        "program": "widilo",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100051",
+        "edit_url": null
+      },
+      {
+        "program": "winamax",
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=400",
+        "edit_url": null
+      }
+    ],
+    "auth_probe_required": true,
+    "secrets": [
+      "ONEPARRAINAGE_EMAIL",
+      "ONEPARRAINAGE_PASSWORD"
+    ],
+    "edit_discovery_hypothesis": [
+      "Public /login is the real login (connexion.php is 404)",
+      "Public list exposes offer ids via parrain_definit.php?id_par=98906&id=N",
+      "Authenticated edit lives in member area after /login (espace parrain)",
+      "Never click Boost / Remonter — content edit only"
+    ],
+    "stop_on": [
+      "403",
+      "429",
+      "CAPTCHA",
+      "auth",
+      "unexpected_dom"
+    ]
+  }
+}

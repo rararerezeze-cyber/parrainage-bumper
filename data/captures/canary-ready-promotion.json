@@ -1,0 +1,27 @@
+[
+  {
+    "platform": "1parrainage",
+    "program": "kraken",
+    "status_now": "WRITE_PREPARED",
+    "checks": {
+      "structure_preserved": true,
+      "has_edit_or_announcement_url": true,
+      "controlled_write_tool": true,
+      "live_pipeline_implemented": true,
+      "dry_run_report": true
+    },
+    "ok": true,
+    "secrets_needed": [
+      "ONEPARRAINAGE_EMAIL",
+      "ONEPARRAINAGE_PASSWORD"
+    ],
+    "changed_fields": [
+      "personal_code",
+      "personal_link",
+      "referee_reward"
+    ],
+    "edit_url": null,
+    "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100408",
+    "notes": "CANARY_READY: login /login + edit + save + reread account/public list. Native style only. Kraken first (offer_id=100408). Not WRITE_VERIFIED until post_match. No Boost/Remonter. Stop on 403/429/CAPTCHA/auth/unexpected DOM."
+  }
+]

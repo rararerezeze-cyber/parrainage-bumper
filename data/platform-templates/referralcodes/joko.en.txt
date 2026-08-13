@@ -1,0 +1,2 @@
+ReferralCodes — Joko
+Bonus: {{REFEREE_REWARD}}

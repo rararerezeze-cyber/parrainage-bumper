@@ -1,0 +1,98 @@
+{
+  "promoted": [
+    {
+      "program": "fdj-francaise-des-jeux",
+      "action": "created",
+      "code": null,
+      "link": "https://www.fdj.fr/inscription/fdj?campaign=codeparrain&parrain=D169E-65BB3-4BEED"
+    },
+    {
+      "program": "fdj-francaise-des-jeux",
+      "platform": "super-parrain",
+      "action": "mapping_built"
+    },
+    {
+      "program": "nrj-mobile",
+      "action": "created",
+      "code": null,
+      "link": "https://aklam.io/1yzORChP"
+    },
+    {
+      "program": "nrj-mobile",
+      "platform": "super-parrain",
+      "action": "mapping_built"
+    },
+    {
+      "program": "nrj-mobile",
+      "platform": "parrainage-co",
+      "action": "mapping_built"
+    },
+    {
+      "program": "okx",
+      "action": "created",
+      "code": "28947271",
+      "link": "https://my.okx.com/fr-fr/join/28947271"
+    },
+    {
+      "program": "okx",
+      "platform": "super-parrain",
+      "action": "mapping_built"
+    },
+    {
+      "program": "okx",
+      "platform": "parrainage-co",
+      "action": "mapping_built"
+    },
+    {
+      "program": "plum",
+      "action": "created",
+      "code": "Kt8HyIuJ7V",
+      "link": "https://withplum.com/referral?referralCode=Kt8HyIuJ7V"
+    },
+    {
+      "program": "plum",
+      "platform": "super-parrain",
+      "action": "mapping_built"
+    },
+    {
+      "program": "plum",
+      "platform": "parrainage-co",
+      "action": "mapping_built"
+    },
+    {
+      "program": "vinted",
+      "action": "created",
+      "code": "weeew89",
+      "link": "https://www.vinted.fr/invite/weeew89"
+    },
+    {
+      "program": "vinted",
+      "platform": "super-parrain",
+      "action": "mapping_built"
+    },
+    {
+      "program": "vinted",
+      "platform": "parrainage-co",
+      "action": "mapping_built"
+    },
+    {
+      "program": "whatnot",
+      "action": "created",
+      "code": null,
+      "link": "https://www.whatnot.com/invite/user_48570"
+    },
+    {
+      "program": "whatnot",
+      "platform": "super-parrain",
+      "action": "mapping_built"
+    },
+    {
+      "program": "whatnot",
+      "platform": "parrainage-co",
+      "action": "mapping_built"
+    }
+  ],
+  "skipped": [],
+  "offers_count": 38,
+  "ncd_remaining": 0
+}

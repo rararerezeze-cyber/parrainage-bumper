@@ -1,0 +1,37 @@
+{
+  "docs": "https://referralcodes.com/agents",
+  "import_ui": "https://referralcodes.com/profile/import/agent",
+  "schema_version": "1.0",
+  "validation_ok": true,
+  "validation_errors": [],
+  "item_count": 1,
+  "valid_items": 1,
+  "meta": [
+    {
+      "program": "kraken",
+      "status": "ok",
+      "errors": [],
+      "item": {
+        "shop": "kraken",
+        "discount": "200 € en cryptomonnaies",
+        "url": "https://invite.kraken.com/JDNW/s5qudqe4",
+        "code": "cpbrgddy",
+        "description": "Autofresh canary/import for kraken"
+      },
+      "announcement_url": "https://referralcodes.com/TheSuperReff",
+      "source": "mapping+offers"
+    }
+  ],
+  "workflow": [
+    "1. Review generated JSON/CSV",
+    "2. Login with REFERRALCODES_EMAIL/PASSWORD",
+    "3. Open https://referralcodes.com/profile/import/agent",
+    "4. Paste JSON → Validate (read #agent-import-result)",
+    "5. Commit only if validation succeeds",
+    "6. Reread public profile → mark WRITE_VERIFIED if post_match"
+  ],
+  "paths": {
+    "json": "referralcodes-agent-import-kraken.json",
+    "csv": "referralcodes-agent-import-kraken.csv"
+  }
+}

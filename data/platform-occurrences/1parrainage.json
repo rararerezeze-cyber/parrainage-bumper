@@ -1,0 +1,327 @@
+{
+  "platform": "1parrainage",
+  "source": "list_public",
+  "programs": {
+    "whatnot": [
+      {
+        "offer_id": "101206",
+        "brand": "coupon promotionnel whatnot",
+        "chars": 395
+      }
+    ],
+    "boursobank": [
+      {
+        "offer_id": "79",
+        "brand": "coupon promotionnel Boursorama Banque",
+        "chars": 408
+      },
+      {
+        "offer_id": "95",
+        "brand": "coupon promotionnel Boursobank",
+        "chars": 401
+      }
+    ],
+    "plum": [
+      {
+        "offer_id": "101381",
+        "brand": "coupon promotionnel plum",
+        "chars": 412
+      }
+    ],
+    "winamax": [
+      {
+        "offer_id": "400",
+        "brand": "coupon promotionnel Winamax",
+        "chars": 400
+      }
+    ],
+    "unibet": [
+      {
+        "offer_id": "217",
+        "brand": "coupon promotionnel Unibet Sport",
+        "chars": 381
+      }
+    ],
+    "acheel": [
+      {
+        "offer_id": "101006",
+        "brand": "coupon promotionnel acheel",
+        "chars": 415
+      }
+    ],
+    "nrj-mobile": [
+      {
+        "offer_id": "9",
+        "brand": "coupon promotionnel NRJ Mobile",
+        "chars": 407
+      }
+    ],
+    "revolut": [
+      {
+        "offer_id": "1021",
+        "brand": "coupon promotionnel Revolut",
+        "chars": 433
+      }
+    ],
+    "traderepublic": [
+      {
+        "offer_id": "100428",
+        "brand": "coupon promotionnel Trade Republic",
+        "chars": 410
+      }
+    ],
+    "okx": [
+      {
+        "offer_id": "100373",
+        "brand": "coupon promotionnel OKX",
+        "chars": 433
+      }
+    ],
+    "totalenergies": [
+      {
+        "offer_id": "31",
+        "brand": "coupon promotionnel Totalenergies",
+        "chars": 422
+      }
+    ],
+    "kraken": [
+      {
+        "offer_id": "100408",
+        "brand": "coupon promotionnel Kraken",
+        "chars": 407
+      }
+    ],
+    "igraal": [
+      {
+        "offer_id": "84",
+        "brand": "coupon promotionnel Igraal",
+        "chars": 441
+      }
+    ],
+    "swissborg": [
+      {
+        "offer_id": "100172",
+        "brand": "coupon promotionnel SwissBorg",
+        "chars": 394
+      }
+    ],
+    "robinhood": [
+      {
+        "offer_id": "100066",
+        "brand": "coupon promotionnel Robinhood",
+        "chars": 428
+      }
+    ],
+    "gemini": [
+      {
+        "offer_id": "100548",
+        "brand": "coupon promotionnel Gemini",
+        "chars": 433
+      }
+    ],
+    "omio": [
+      {
+        "offer_id": "1948",
+        "brand": "coupon promotionnel Omio",
+        "chars": 418
+      }
+    ],
+    "deblock": [
+      {
+        "offer_id": "101211",
+        "brand": "coupon promotionnel deblock",
+        "chars": 388
+      }
+    ],
+    "fdj-francaise-des-jeux": [
+      {
+        "offer_id": "68",
+        "brand": "coupon promotionnel francaise des jeux FDJ",
+        "chars": 412
+      }
+    ],
+    "bybit": [
+      {
+        "offer_id": "100415",
+        "brand": "coupon promotionnel Bybit",
+        "chars": 435
+      }
+    ],
+    "ledger": [
+      {
+        "offer_id": "1337",
+        "brand": "coupon promotionnel Ledger Wallet",
+        "chars": 430
+      }
+    ],
+    "heetch": [
+      {
+        "offer_id": "765",
+        "brand": "coupon promotionnel Heetch",
+        "chars": 406
+      }
+    ],
+    "bitstack": [
+      {
+        "offer_id": "100956",
+        "brand": "coupon promotionnel Bitstack",
+        "chars": 428
+      }
+    ],
+    "parionssport": [
+      {
+        "offer_id": "750",
+        "brand": "coupon promotionnel Parions Sport",
+        "chars": 414
+      }
+    ],
+    "finary": [
+      {
+        "offer_id": "100577",
+        "brand": "coupon promotionnel Finary",
+        "chars": 443
+      }
+    ],
+    "airbnb": [
+      {
+        "offer_id": "1487",
+        "brand": "coupon promotionnel AirBnB Hote",
+        "chars": 404
+      },
+      {
+        "offer_id": "256",
+        "brand": "coupon promotionnel AirBnB",
+        "chars": 405
+      }
+    ],
+    "widilo": [
+      {
+        "offer_id": "100051",
+        "brand": "coupon promotionnel Widilo",
+        "chars": 394
+      }
+    ],
+    "binance": [
+      {
+        "offer_id": "1082",
+        "brand": "coupon promotionnel Binance",
+        "chars": 443
+      }
+    ],
+    "coinbase": [
+      {
+        "offer_id": "862",
+        "brand": "coupon promotionnel Coinbase",
+        "chars": 415
+      }
+    ],
+    "paypal": [
+      {
+        "offer_id": "100019",
+        "brand": "coupon promotionnel Paypal",
+        "chars": 424
+      }
+    ],
+    "ebuyclub": [
+      {
+        "offer_id": "85",
+        "brand": "coupon promotionnel Ebuyclub",
+        "chars": 416
+      }
+    ],
+    "joko": [
+      {
+        "offer_id": "1703",
+        "brand": "coupon promotionnel Joko",
+        "chars": 395
+      }
+    ],
+    "poulpeo": [
+      {
+        "offer_id": "501",
+        "brand": "coupon promotionnel poulpeo",
+        "chars": 418
+      }
+    ],
+    "ubereats": [
+      {
+        "offer_id": "775",
+        "brand": "coupon promotionnel Uber eats",
+        "chars": 407
+      }
+    ],
+    "vinted": [
+      {
+        "offer_id": "910",
+        "brand": "coupon promotionnel Vinted",
+        "chars": 441
+      }
+    ],
+    "betclic": [
+      {
+        "offer_id": "205",
+        "brand": "coupon promotionnel Betclic",
+        "chars": 403
+      }
+    ],
+    "lolivier": [
+      {
+        "offer_id": "988",
+        "brand": "coupon promotionnel L olivier assurance",
+        "chars": 420
+      },
+      {
+        "offer_id": "100960",
+        "brand": "coupon promotionnel l Olivier Assurance Habitation",
+        "chars": 574
+      }
+    ]
+  },
+  "multi_occurrence_programs": {
+    "boursobank": [
+      {
+        "offer_id": "79",
+        "brand": "coupon promotionnel Boursorama Banque",
+        "chars": 408
+      },
+      {
+        "offer_id": "95",
+        "brand": "coupon promotionnel Boursobank",
+        "chars": 401
+      }
+    ],
+    "airbnb": [
+      {
+        "offer_id": "1487",
+        "brand": "coupon promotionnel AirBnB Hote",
+        "chars": 404
+      },
+      {
+        "offer_id": "256",
+        "brand": "coupon promotionnel AirBnB",
+        "chars": 405
+      }
+    ],
+    "lolivier": [
+      {
+        "offer_id": "988",
+        "brand": "coupon promotionnel L olivier assurance",
+        "chars": 420
+      },
+      {
+        "offer_id": "100960",
+        "brand": "coupon promotionnel l Olivier Assurance Habitation",
+        "chars": 574
+      }
+    ]
+  },
+  "unmapped": [
+    {
+      "offer_id": "100873",
+      "brand": "coupon promotionnel Bitget",
+      "chars": 408
+    }
+  ],
+  "total_occurrences": 40,
+  "unique_programs_mapped": 37
+}

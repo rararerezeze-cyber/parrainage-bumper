@@ -1,0 +1,111 @@
+kraken status (GLOBAL)
+
+Cross-platform impact:
+  1parrainage        pending_update   WRITE_PREPARED               personal_code: None→'4hpz4gdy' | personal_link: None→'https://proinvite.kraken.com/9f1e/lqbuov8u' | referee_reward: '200 € en cryptomonnaies'→'20 € en Bitcoin selon l’offre'
+  code-parrainage    pending_update   WRITE_PREPARED               personal_code: None→'4hpz4gdy' | personal_link: None→'https://proinvite.kraken.com/9f1e/lqbuov8u' | referee_reward: '200 € en cryptomonnaies'→'20 € en Bitcoin selon l’offre'
+  parrainage-co      pending_update   WRITE_PREPARED               personal_code: None→'4hpz4gdy' | personal_link: None→'https://proinvite.kraken.com/9f1e/lqbuov8u' | referee_reward: '200 € en cryptomonnaies'→'20 € en Bitcoin selon l’offre'
+  referralcodes      pending_update   WRITE_PREPARED               referee_reward: '\\u2b50\\ufe0f $200 in Crypto \\u2b50\\ufe0f'→'20 € en Bitcoin selon l’offre'
+  super-parrain      pending_update   CANARY_READY                 personal_code: None→'4hpz4gdy' | personal_link: None→'https://proinvite.kraken.com/9f1e/lqbuov8u' | referee_reward: '200 € en cryptomonnaies'→'20 € en Bitcoin selon l’offre'
+
+Write readiness (strict):
+  super-parrain      CANARY_READY / PLAN_ONLY personal_code,personal_link,referee_reward
+  parrainage-co      PLAN_ONLY personal_code,personal_link,referee_reward
+  code-parrainage    PLAN_ONLY personal_code,personal_link,referee_reward
+  1parrainage        PLAN_ONLY personal_code,personal_link,referee_reward
+  referralcodes      PLAN_ONLY referee_reward
+  referralcode-tv    PLAN_ONLY
+  referraldrop       AUTH_BLOCKED
+
+Mapped: 5 | pending: 5 | in_sync: 0
+WRITE_VERIFIED: 0/7 | Telegram live-capable: 0/7
+Live Telegram updates ONLY for WRITE_VERIFIED. Others = PLAN_ONLY.
+Monitor remains OBSERVATION_ONLY (no auto-accept).
+
+{
+  "program": "kraken",
+  "overrides": [],
+  "fields": {
+    "personal_code": {
+      "effective": "4hpz4gdy",
+      "source": "CANONICAL_DEFAULT",
+      "canonical": "4hpz4gdy"
+    },
+    "personal_link": {
+      "effective": "https://proinvite.kraken.com/9f1e/lqbuov8u",
+      "source": "CANONICAL_DEFAULT",
+      "canonical": "https://proinvite.kraken.com/9f1e/lqbuov8u"
+    },
+    "referee_reward": {
+      "effective": "20 € en Bitcoin selon l’offre",
+      "source": "CANONICAL_DEFAULT",
+      "canonical": "20 € en Bitcoin selon l’offre"
+    },
+    "conditions": {
+      "effective": "Kraken indique généralement un bonus équivalent à 20 € en Bitcoin pour la France, après dépôt et volume de trading réalisés sous 30 jours. Les seuils exacts restent affichés dans l'application et le versement peut prendre jusqu'à 21 jours.",
+      "source": "CANONICAL_DEFAULT",
+      "canonical": "Kraken indique généralement un bonus équivalent à 20 € en Bitcoin pour la France, après dépôt et volume de trading réalisés sous 30 jours. Les seuils exacts restent affichés dans l'application et le versement peut prendre jusqu'à 21 jours."
+    },
+    "title": {
+      "effective": "Kraken",
+      "source": "CANONICAL_DEFAULT",
+      "canonical": "Kraken"
+    }
+  }
+}
+
+{
+  "at": "2026-08-12T20:49:13.523344+00:00",
+  "message": "Kraken status",
+  "parsed": {
+    "action": "status",
+    "program": "kraken",
+    "offer_name": "Kraken",
+    "platform": null,
+    "field": null,
+    "value": null
+  },
+  "result": {
+    "action": "status",
+    "status": {
+      "program": "kraken",
+      "overrides": [],
+      "fields": {
+        "personal_code": {
+          "effective": "4hpz4gdy",
+          "source": "CANONICAL_DEFAULT",
+          "canonical": "4hpz4gdy"
+        },
+        "personal_link": {
+          "effective": "https://proinvite.kraken.com/9f1e/lqbuov8u",
+          "source": "CANONICAL_DEFAULT",
+          "canonical": "https://proinvite.kraken.com/9f1e/lqbuov8u"
+        },
+        "referee_reward": {
+          "effective": "20 € en Bitcoin selon l’offre",
+          "source": "CANONICAL_DEFAULT",
+          "canonical": "20 € en Bitcoin selon l’offre"
+        },
+        "conditions": {
+          "effective": "Kraken indique généralement un bonus équivalent à 20 € en Bitcoin pour la France, après dépôt et volume de trading réalisés sous 30 jours. Les seuils exacts restent affichés dans l'application et le versement peut prendre jusqu'à 21 jours.",
+          "source": "CANONICAL_DEFAULT",
+          "canonical": "Kraken indique généralement un bonus équivalent à 20 € en Bitcoin pour la France, après dépôt et volume de trading réalisés sous 30 jours. Les seuils exacts restent affichés dans l'application et le versement peut prendre jusqu'à 21 jours."
+        },
+        "title": {
+          "effective": "Kraken",
+          "source": "CANONICAL_DEFAULT",
+          "canonical": "Kraken"
+        }
+      }
+    }
+  },
+  "plan_summary": {
+    "platforms_mapped": 5,
+    "pending_update": 5,
+    "in_sync": 0,
+    "auto_capable_labels": 5,
+    "write_verified_live": 0,
+    "WRITE_VERIFIED": "0/7",
+    "telegram_live_capable": []
+  },
+  "mode": "FULL_OPERATOR_CONTROL"
+}

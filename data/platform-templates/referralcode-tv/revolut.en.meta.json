@@ -1,0 +1,23 @@
+{
+  "platform": "referralcode-tv",
+  "program": "revolut",
+  "language": "en",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-revolut-referral-offer-up-to-200-bonus-%e2%ad%90%ef%b8%8f-join-revolut-a-leading-global-banking-and-finance-app/?__sid=23058",
+  "mutable_fields": [
+    "referee_reward"
+  ],
+  "platform_values": {
+    "referee_reward": "$10 to $200 cash reward (varies depending on ongoing campaigns)"
+  },
+  "confidences": {
+    "referee_reward": "medium"
+  },
+  "notes": [
+    "lien offers.json non trouve dans le texte",
+    "bonus extrait du texte plateforme (confiance moyenne)",
+    "public author capture; distinct from referralcodes.com"
+  ]
+}

@@ -1,11 +1,15 @@
-﻿name: Capture READ-ONLY (no bump)
+name: Capture READ-ONLY (no bump)
 on:
   workflow_dispatch:
     inputs:
       sites:
-        description: "parrainage,code,referralcode"
+        description: "parrainage,code,referralcode (tv only — NOT referralcodes.com). Prefer single site for focused runs."
         required: false
-        default: "parrainage,code,referralcode"
+        default: "parrainage"
+      mode:
+        description: "capture | compare-kraken (read-only live vs OPERATOR_VALIDATED)"
+        required: false
+        default: "capture"
 permissions:
   contents: write
 concurrency:
@@ -14,7 +18,7 @@ concurrency:
 jobs:
   capture:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 50
     steps:
       - uses: actions/checkout@v4
         with:
@@ -34,24 +38,71 @@ jobs:
           PARRAINAGE_CO_EMAIL: ${{ secrets.PARRAINAGE_CO_EMAIL }}
           PARRAINAGE_CO_PASSWORD: ${{ secrets.PARRAINAGE_CO_PASSWORD }}
           PARRAINAGE_CO_RM_COOKIE: ${{ secrets.PARRAINAGE_CO_RM_COOKIE }}
+          # ReferralCode.tv (NO S)
           REFERRALCODE_EMAIL: ${{ secrets.REFERRALCODE_EMAIL }}
           REFERRALCODE_PASSWORD: ${{ secrets.REFERRALCODE_PASSWORD }}
+          # Available for future dedicated scripts — not mixed with tv
+          REFERRALCODES_EMAIL: ${{ secrets.REFERRALCODES_EMAIL }}
+          REFERRALCODES_PASSWORD: ${{ secrets.REFERRALCODES_PASSWORD }}
+          ONEPARRAINAGE_EMAIL: ${{ secrets.ONEPARRAINAGE_EMAIL }}
+          ONEPARRAINAGE_PASSWORD: ${{ secrets.ONEPARRAINAGE_PASSWORD }}
+          AUTOFRESH_PHASE: "BASE"
+          AUTOFRESH_LIVE_WRITES: "0"
         run: |
-          python tools/capture_auth_readonly.py --sites "${{ github.event.inputs.sites || 'parrainage,code,referralcode' }}"
-      - name: Inventory Super-Parrain needs_canonical_data
-        run: python tools/inventory_needs_canonical.py
+          SITES="${{ github.event.inputs.sites }}"
+          if [ -z "$SITES" ]; then SITES=code; fi
+          echo "sites=$SITES"
+          # Presence only — never print secret values
+          python - <<'PY'
+          import os
+          for k in ("PARRAINAGE_CO_EMAIL","PARRAINAGE_CO_PASSWORD","PARRAINAGE_CO_RM_COOKIE",
+                    "CODE_PARRAINAGE_EMAIL","REFERRALCODE_EMAIL","ONEPARRAINAGE_EMAIL","REFERRALCODES_EMAIL"):
+              v=os.environ.get(k) or ""
+              print(f"{k}: {'yes' if v else 'no'} len={len(v)}")
+          PY
+          MODE="${{ github.event.inputs.mode }}"
+          if [ -z "$MODE" ]; then MODE=capture; fi
+          if [ "$MODE" = "compare-kraken" ]; then
+            PLATS="$SITES"
+            if [ "$PLATS" = "parrainage" ] || [ -z "$PLATS" ]; then
+              PLATS="parrainage-co,code-parrainage,1parrainage,referralcodes"
+            fi
+            python tools/compare_kraken_readonly.py --platforms "$PLATS"
+            exit 0
+          fi
+          python tools/capture_auth_readonly.py --sites "$SITES"
+          # Extra READ-ONLY edit probes (never save)
+          if echo "$SITES" | grep -q referralcode; then
+            python tools/probe_referralcode_tv_edit.py --public --auth || true
+          fi
+          if echo "$SITES" | grep -q oneparrainage; then
+            python tools/probe_1parrainage_edit.py --public --auth || true
+          fi
+      - name: Guard — no auth storage-state in workspace
+        if: always()
+        run: |
+          # Never persist browser auth state (anti-leak + policy)
+          if find . -type f \( -name 'storage-state*.json' -o -name '*cookies*.json' -o -path '*/.auth/*' \) 2>/dev/null | grep -q .; then
+            echo "FORBIDDEN: auth storage-state/cookies found — refusing upload"
+            find . -type f \( -name 'storage-state*.json' -o -name '*cookies*.json' -o -path '*/.auth/*' \) -print
+            exit 1
+          fi
+          echo "OK: no storage-state artifacts"
       - name: Upload capture artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: capture-readonly
           retention-days: 7
+          # Explicit: no storage-state, no cookies, no .auth
           path: |
             data/captures/
             data/platform-mappings/
             data/platform-templates/
             data/needs_canonical_data.json
             data/orphans/
+            debug_*.png
+          if-no-files-found: ignore
       - name: Commit capture results on branch
         if: success()
         run: |
@@ -61,6 +112,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No capture files to commit"
           else
-            git commit -m "chore(capture): READ-ONLY multi-site capture artifacts"
+            git commit -m "chore(capture): AUTH READ-ONLY account capture artifacts"
             git push
           fi

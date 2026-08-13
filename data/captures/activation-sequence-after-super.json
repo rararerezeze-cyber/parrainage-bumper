@@ -1,0 +1,15 @@
+{
+  "result": "SUPER_PENDING",
+  "super_parrain": "CANARY_READY",
+  "next": "super-parrain",
+  "next_executable": null,
+  "one_at_a_time": true,
+  "live": false,
+  "armed": [
+    "parrainage-co",
+    "code-parrainage",
+    "1parrainage",
+    "referralcodes"
+  ],
+  "note": "Sequence armed. After Super WRITE_VERIFIED fire only parrainage-co, then wait for its PASS, then the next."
+}

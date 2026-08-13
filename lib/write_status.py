@@ -31,6 +31,15 @@ STATUS_AUTH_BLOCKED = "AUTH_BLOCKED_GOOGLE"
 STATUS_MANUAL_ONLY = "MANUAL_ONLY"
 STATUS_FAILED = "CANARY_FAILED"
 
+# Content-sync flag (does NOT replace status). Super-Parrain after honest no-diff canary.
+CONTENT_SYNC_VERIFIED_NO_SAFE_DIFF = "SYNC_VERIFIED_NO_SAFE_DIFF"
+
+# Last live/public compare class (does NOT replace status).
+COMPARE_NO_SAFE_DIFF = "NO_SAFE_DIFF"
+COMPARE_REAL_SAFE_DIFF = "REAL_SAFE_DIFF"
+COMPARE_AUTH_BLOCKED = "AUTH_BLOCKED"
+COMPARE_DOM_BLOCKED = "DOM_BLOCKED"
+
 ALL_PLATFORMS = (
     "super-parrain",
     "parrainage-co",
@@ -48,40 +57,53 @@ DEFAULT_STATUS: dict[str, dict[str, Any]] = {
         "canary_program": "kraken",
         "runtime_mode": "CANARY_PENDING",
         "notes": (
-            "CANARY_PENDING: historical bumper blocked until content canary WRITE_VERIFIED. "
-            "Exclusive slot for Kraken auth edit + post_match."
+            "CANARY_PENDING: historical bumper blocked until content WRITE_VERIFIED. "
+            "SYNC_VERIFIED_NO_SAFE_DIFF (if set) unblocks later platform canaries "
+            "without claiming WRITE_VERIFIED."
         ),
+        "content_sync": None,
     },
     "parrainage-co": {
-        "status": STATUS_WRITE_PREPARED,
-        "canary_program": "kraken",
-        "notes": "Controlled writer exists; needs one successful canary with post-verify.",
-    },
-    "code-parrainage": {
-        "status": STATUS_WRITE_PREPARED,
-        "canary_program": "kraken",
-        "notes": "Templates/mappings ready; live edit canary not completed.",
-    },
-    "1parrainage": {
-        "status": STATUS_WRITE_PREPARED,
-        "canary_program": "kraken",
-        "notes": "Templates/mappings ready; live edit canary not completed.",
-    },
-    "referralcodes": {
-        "status": STATUS_WRITE_PREPARED,
+        "status": STATUS_CANARY_READY,
         "canary_program": "kraken",
         "notes": (
-            "Official Agent Import preferred. WRITE_VERIFIED only after schema validation "
-            "+ single canary import + reread post-match."
+            "CANARY_READY: login/edit/save/reread pipeline ready (controlled_write_parrainage_co). "
+            "Not WRITE_VERIFIED until live post_match canary."
+        ),
+    },
+    "code-parrainage": {
+        "status": STATUS_CANARY_READY,
+        "canary_program": "kraken",
+        "notes": (
+            "CANARY_READY: login/edit/save/reread pipeline ready (controlled_write_code_parrainage). "
+            "Not WRITE_VERIFIED until live post_match canary."
+        ),
+    },
+    "1parrainage": {
+        "status": STATUS_CANARY_READY,
+        "canary_program": "kraken",
+        "notes": (
+            "CANARY_READY: login /login + edit + save + reread account/public list. "
+            "Native style only. Kraken first. Not WRITE_VERIFIED until post_match."
+        ),
+    },
+    "referralcodes": {
+        "status": STATUS_CANARY_READY,
+        "canary_program": "kraken",
+        "notes": (
+            "CANARY_READY: Agent Import schema v1.0 + login/Validate/Commit/reread path. "
+            "Kraken first. WRITE_VERIFIED after post_match. Sequential after 1Parrainage PASS."
         ),
         "prefer": "official_import",
+        "import_ui": "https://referralcodes.com/profile/import/agent",
     },
     "referralcode-tv": {
         "status": STATUS_WRITE_PREPARED,
         "canary_program": "kraken",
         "notes": (
-            "Sequential browser writer prepared. WRITE_VERIFIED only after auth/edit "
-            "with REFERRALCODE_* + post-verify. No CAPTCHA bypass."
+            "Public listings mapped; authenticated edit URL not yet proven. "
+            "Run tools/probe_referralcode_tv_edit.py --auth with REFERRALCODE_* before canary. "
+            "No CAPTCHA bypass. Boost (#cliccami) ≠ content edit."
         ),
     },
     "referraldrop": {
@@ -165,6 +187,96 @@ def get_platform_status(platform: str) -> str:
 
 def is_write_verified(platform: str) -> bool:
     return get_platform_status(platform) == STATUS_WRITE_VERIFIED
+
+
+def get_content_sync(platform: str) -> str | None:
+    data = load_write_status()
+    meta = (data.get("platforms") or {}).get(platform.strip().lower()) or {}
+    raw = meta.get("content_sync")
+    return str(raw) if raw else None
+
+
+def is_sequence_cleared(platform: str) -> bool:
+    """May later platforms proceed past this one?
+
+    WRITE_VERIFIED always clears. SYNC_VERIFIED_NO_SAFE_DIFF also clears
+    (honest no-diff, no fake write). Never implies Telegram live.
+    """
+    if is_write_verified(platform):
+        return True
+    return get_content_sync(platform) == CONTENT_SYNC_VERIFIED_NO_SAFE_DIFF
+
+
+def get_compare_class(platform: str) -> str | None:
+    data = load_write_status()
+    meta = (data.get("platforms") or {}).get(platform.strip().lower()) or {}
+    raw = meta.get("last_compare_class")
+    return str(raw) if raw else None
+
+
+def record_compare_class(
+    platform: str,
+    cls: str,
+    *,
+    note: str | None = None,
+    observed: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Record last compare class. Never promotes WRITE_VERIFIED."""
+    data = load_write_status()
+    meta = data.setdefault("platforms", {}).setdefault(platform, {})
+    meta["last_compare_class"] = cls
+    meta["last_compare_at"] = _now()
+    if note:
+        meta["last_compare_note"] = note
+    if observed is not None:
+        meta["last_compare_observed"] = observed
+    save_write_status(data)
+    return {
+        "ok": True,
+        "platform": platform,
+        "last_compare_class": cls,
+        "write_verified": meta.get("status") == STATUS_WRITE_VERIFIED,
+    }
+
+
+def is_blocked_compare(platform: str) -> bool:
+    return get_compare_class(platform) in {COMPARE_AUTH_BLOCKED, COMPARE_DOM_BLOCKED}
+
+
+def mark_sync_verified_no_safe_diff(
+    platform: str,
+    *,
+    program: str = "kraken",
+    notes: str | None = None,
+) -> dict[str, Any]:
+    """Record honest no-diff sync. Does not promote WRITE_VERIFIED."""
+    data = load_write_status()
+    meta = data.setdefault("platforms", {}).setdefault(platform, {})
+    if meta.get("status") == STATUS_WRITE_VERIFIED:
+        save_write_status(data)
+        return {"ok": True, "status": STATUS_WRITE_VERIFIED, "content_sync": meta.get("content_sync")}
+    if meta.get("status") not in {STATUS_CANARY_READY, STATUS_WRITE_PREPARED}:
+        meta["status"] = STATUS_CANARY_READY
+    meta["content_sync"] = CONTENT_SYNC_VERIFIED_NO_SAFE_DIFF
+    meta["canary_program"] = program
+    meta["sync_verified_at"] = _now()
+    if platform == "super-parrain":
+        meta["runtime_mode"] = "CANARY_PENDING"
+        meta["notes"] = notes or (
+            "CANARY_READY + SYNC_VERIFIED_NO_SAFE_DIFF: Kraken already matches "
+            "OPERATOR_VALIDATED. No fake write. Not WRITE_VERIFIED. "
+            "Historical bumper remains SKIP. Later platforms may sequence."
+        )
+    elif notes:
+        meta["notes"] = notes
+    save_write_status(data)
+    return {
+        "ok": True,
+        "platform": platform,
+        "status": meta.get("status"),
+        "content_sync": CONTENT_SYNC_VERIFIED_NO_SAFE_DIFF,
+        "write_verified": False,
+    }
 
 
 def is_telegram_live_capable(platform: str) -> bool:

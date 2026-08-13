@@ -1,0 +1,15 @@
+{
+  "execute": false,
+  "ok": true,
+  "changed_fields": {},
+  "structure_preserved": true,
+  "announcement_url": "https://parrainage.co/offers/113735",
+  "edit_url": "https://parrainage.co/account/offers/edit/113735",
+  "pipeline": [
+    "login",
+    "edit",
+    "save",
+    "reread_account",
+    "reread_public"
+  ]
+}

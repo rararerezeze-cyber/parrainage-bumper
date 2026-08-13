@@ -1,0 +1,90 @@
+{
+  "sites": {
+    "referralcode-tv": {
+      "platform": "referralcode-tv",
+      "items": [
+        {
+          "program": "airbnb",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/referralcode-tv/airbnb.en.golden.txt",
+            "template": "data/platform-templates/referralcode-tv/airbnb.en.txt",
+            "mapping": "data/platform-mappings/referralcode-tv.airbnb.en.json",
+            "meta": "data/platform-templates/referralcode-tv/airbnb.en.meta.json"
+          }
+        },
+        {
+          "program": "joko",
+          "status": "ok",
+          "mutable": [
+            "personal_code",
+            "referee_reward"
+          ],
+          "sync_mode": "REVIEW",
+          "paths": {
+            "golden": "data/platform-templates/referralcode-tv/joko.en.golden.txt",
+            "template": "data/platform-templates/referralcode-tv/joko.en.txt",
+            "mapping": "data/platform-mappings/referralcode-tv.joko.en.json",
+            "meta": "data/platform-templates/referralcode-tv/joko.en.meta.json"
+          }
+        }
+      ],
+      "errors": []
+    }
+  },
+  "missing_credentials": [],
+  "auth_policy": {
+    "session": {
+      "logins_per_platform_per_cycle": 1,
+      "reuse_browser_context": true,
+      "sequential_announcements": true,
+      "max_concurrency": 1,
+      "persist_storage_state_to_repo": false,
+      "persist_storage_state_to_artifacts": false,
+      "login_logout_per_announcement": false
+    },
+    "sources": {
+      "what_account_can_edit": [
+        "authenticated_account_or_edit_page",
+        "official_api_or_import",
+        "internal_project_data"
+      ],
+      "published_result_verify": [
+        "public_page"
+      ]
+    },
+    "cycle_flow": [
+      "AUTH_once",
+      "CAPTURE_from_account",
+      "MAPPING",
+      "DIFF",
+      "WRITE_if_needed",
+      "POST_VERIFY_public_or_auth",
+      "SESSION_END"
+    ],
+    "vertical_order": [
+      "super-parrain",
+      "parrainage-co",
+      "code-parrainage",
+      "1parrainage",
+      "referralcodes",
+      "referralcode-tv",
+      "referraldrop"
+    ],
+    "prefer_official_import": [
+      "referralcodes"
+    ],
+    "forbidden_auth_artifact_globs": [
+      "**/storage-state*.json",
+      "**/*cookies*.json",
+      "**/*auth*state*.json",
+      "**/playwright/.auth/**"
+    ]
+  },
+  "stopped_platforms": []
+}

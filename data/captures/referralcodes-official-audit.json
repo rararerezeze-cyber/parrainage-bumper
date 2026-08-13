@@ -1,0 +1,57 @@
+{
+  "platform": "referralcodes",
+  "domain": "referralcodes.com",
+  "profile_url": "https://referralcodes.com/TheSuperReff",
+  "secrets": ["REFERRALCODES_EMAIL", "REFERRALCODES_PASSWORD"],
+  "distinct_from": "referralcode.tv (REFERRALCODE_* without S)",
+  "official_channels": [
+    {
+      "name": "Agent Import (Beta)",
+      "docs": "https://referralcodes.com/agents",
+      "import_ui": "https://referralcodes.com/profile/import/agent",
+      "priority": 1,
+      "write_candidate": true,
+      "formats": ["JSON", "CSV"]
+    },
+    {
+      "name": "Data Feed API (Beta)",
+      "url": "https://referralcodes.com/data-feed",
+      "priority": 2,
+      "write_candidate": false
+    }
+  ],
+  "schema": {
+    "version": "1.0",
+    "json": {
+      "version": "1.0",
+      "items": [
+        {
+          "shop": "brand name or domain (required)",
+          "discount": "reward for the new user (required)",
+          "url": "referral link (optional)",
+          "code": "referral code (optional)",
+          "description": "optional notes"
+        }
+      ]
+    },
+    "rules": [
+      "each item must include shop + discount",
+      "each item must include at least one of url or code",
+      "validate before commit; read #agent-import-result in DOM"
+    ],
+    "csv_columns": ["shop", "discount", "url", "code", "description"]
+  },
+  "canary_payload_ready": true,
+  "canary_artifact": "data/captures/referralcodes-agent-import-kraken.json",
+  "policy": {
+    "prefer": "official_import_over_browser",
+    "browser_scrape": "only_if_official_path_insufficient",
+    "public_capture": "used_for_inventory_baseline"
+  },
+  "next_live_step": [
+    "Login with REFERRALCODES_*",
+    "Open /profile/import/agent",
+    "Paste canary JSON → Validate → Commit",
+    "Reread public profile → WRITE_VERIFIED if post_match"
+  ]
+}

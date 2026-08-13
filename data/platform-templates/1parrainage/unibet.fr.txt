@@ -1,0 +1,10 @@
+OFFRE PARRAINAGE EXCEPTIONNELLE
+
+Recevez 50 € offerts immédiatement + jusqu’à 100 € de bonus sur vos premiers paris !
+
+Bonus : {{REFEREE_REWARD}}
+...
+
+J’en profite
+
+<img loading="lazy" class="img-responsive" width="115" border="0" height="38" src='/uploads/leslogos/acheel.jpg'

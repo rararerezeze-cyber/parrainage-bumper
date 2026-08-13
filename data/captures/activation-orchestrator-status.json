@@ -1,0 +1,79 @@
+{
+  "at": "2026-08-12T23:16:31.322849+00:00",
+  "super_parrain": "CANARY_READY",
+  "super_pass": false,
+  "write_verified_count": 0,
+  "queue": [
+    {
+      "order": 1,
+      "platform": "super-parrain",
+      "status": "CANARY_READY",
+      "predecessor": null,
+      "done": false,
+      "ready_for_canary": true,
+      "may_execute_now": false,
+      "gate_error": "super_owned_by_activation_canary"
+    },
+    {
+      "order": 2,
+      "platform": "parrainage-co",
+      "status": "CANARY_READY",
+      "predecessor": "super-parrain",
+      "done": false,
+      "ready_for_canary": true,
+      "may_execute_now": false,
+      "gate_error": "SUPER_PASS_REQUIRED"
+    },
+    {
+      "order": 3,
+      "platform": "code-parrainage",
+      "status": "CANARY_READY",
+      "predecessor": "parrainage-co",
+      "done": false,
+      "ready_for_canary": true,
+      "may_execute_now": false,
+      "gate_error": "SUPER_PASS_REQUIRED"
+    },
+    {
+      "order": 4,
+      "platform": "1parrainage",
+      "status": "CANARY_READY",
+      "predecessor": "code-parrainage",
+      "done": false,
+      "ready_for_canary": true,
+      "may_execute_now": false,
+      "gate_error": "SUPER_PASS_REQUIRED"
+    },
+    {
+      "order": 5,
+      "platform": "referralcodes",
+      "status": "CANARY_READY",
+      "predecessor": "1parrainage",
+      "done": false,
+      "ready_for_canary": true,
+      "may_execute_now": false,
+      "gate_error": "SUPER_PASS_REQUIRED"
+    },
+    {
+      "order": 6,
+      "platform": "referralcode-tv",
+      "status": "WRITE_PREPARED",
+      "predecessor": "referralcodes",
+      "done": false,
+      "ready_for_canary": false,
+      "may_execute_now": false,
+      "gate_error": "not_CANARY_READY:WRITE_PREPARED"
+    }
+  ],
+  "next": "super-parrain",
+  "skipped": {
+    "referraldrop": "AUTH_BLOCKED_GOOGLE"
+  },
+  "gate": {
+    "after_super_only_for_auto_sequence": true,
+    "one_at_a_time": true,
+    "predecessor_must_pass": true,
+    "note": "Auto sequence of platforms 2+ starts only when super-parrain is WRITE_VERIFIED. Each later platform waits for the previous WRITE_VERIFIED. Never two sessions."
+  },
+  "next_executable": null
+}

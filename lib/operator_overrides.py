@@ -248,7 +248,16 @@ class OperatorOverrideStore:
             ),
             "overrides": [o.to_dict() for o in sorted(overrides, key=lambda x: x.id)],
         }
-        self.path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        text = json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
+        tmp = self.path.with_suffix(self.path.suffix + ".tmp")
+        tmp.write_text(text, encoding="utf-8")
+        tmp.replace(self.path)
+        # Persistence confirmed: re-read before callers treat save as success
+        verify = json.loads(self.path.read_text(encoding="utf-8"))
+        if not isinstance(verify, dict) or "overrides" not in verify:
+            raise RuntimeError("overrides_persist_unconfirmed")
+        if len(verify.get("overrides") or []) != len(payload["overrides"]):
+            raise RuntimeError("overrides_persist_count_mismatch")
         return self.path
 
     def upsert(

@@ -1,0 +1,29 @@
+{
+  "platform": "referralcode-tv",
+  "program": "ebuyclub",
+  "language": "en",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-ebuyclub-referral-offer-e5-welcome-bonus-%e2%ad%90%ef%b8%8f-join-ebuyclub-a-cashback-platform-that-lets-you-earn-money-while-shopping-online/?__sid=23055",
+  "mutable_fields": [
+    "personal_code",
+    "personal_link",
+    "referee_reward"
+  ],
+  "platform_values": {
+    "personal_code": "adrien891000",
+    "personal_link": "https://www.ebuyclub.com/inscription?parrain=hazofr",
+    "referee_reward": "€5 credited instantly after sign-up"
+  },
+  "confidences": {
+    "personal_code": "high",
+    "personal_link": "medium",
+    "referee_reward": "medium"
+  },
+  "notes": [
+    "lien plateforme != offers.json",
+    "bonus extrait du texte plateforme (confiance moyenne)",
+    "public author capture; distinct from referralcodes.com"
+  ]
+}

@@ -1,0 +1,2 @@
+ReferralCodes — Widilo
+Bonus: {{REFEREE_REWARD}}

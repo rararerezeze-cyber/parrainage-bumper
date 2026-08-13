@@ -1,0 +1,228 @@
+{
+  "mode": "fused_bumper_canary",
+  "decision": {
+    "action": "wait",
+    "reason": "cooldown_24h_historical_slot",
+    "next_eligible_at": "2026-08-13T05:37:10.549152+00:00",
+    "hours_remaining": 12.28,
+    "pending_count": 1,
+    "skip_bump": true,
+    "run_precheck": false,
+    "run_bump": false
+  },
+  "eligible": false,
+  "next_eligible_at": "2026-08-13T05:37:10.549152+00:00",
+  "hours_remaining": 12.28,
+  "pre_check": {
+    "programs_scanned": 29,
+    "need_update": [
+      {
+        "program": "airbnb",
+        "changed_fields": [
+          "personal_link",
+          "body"
+        ]
+      },
+      {
+        "program": "betclic",
+        "changed_fields": [
+          "referee_reward",
+          "body"
+        ]
+      },
+      {
+        "program": "binance",
+        "changed_fields": [
+          "personal_link",
+          "body"
+        ]
+      },
+      {
+        "program": "bitstack",
+        "changed_fields": [
+          "referee_reward",
+          "body"
+        ]
+      },
+      {
+        "program": "coinbase",
+        "changed_fields": [
+          "referee_reward",
+          "body"
+        ]
+      },
+      {
+        "program": "deblock",
+        "changed_fields": [
+          "referee_reward",
+          "body"
+        ]
+      },
+      {
+        "program": "ebuyclub",
+        "changed_fields": [
+          "referee_reward",
+          "body"
+        ]
+      },
+      {
+        "program": "gemini",
+        "changed_fields": [
+          "personal_link",
+          "referee_reward",
+          "body"
+        ]
+      },
+      {
+        "program": "heetch",
+        "changed_fields": [
+          "referee_reward",
+          "body"
+        ]
+      },
+      {
+        "program": "igraal",
+        "changed_fields": [
+          "personal_link",
+          "referee_reward",
+          "body"
+        ]
+      },
+      {
+        "program": "joko",
+        "changed_fields": [
+          "referee_reward",
+          "body"
+        ]
+      },
+      {
+        "program": "kraken",
+        "changed_fields": [
+          "personal_code",
+          "personal_link",
+          "referee_reward",
+          "body"
+        ]
+      },
+      {
+        "program": "ledger",
+        "changed_fields": [
+          "personal_link",
+          "referee_reward",
+          "body"
+        ]
+      },
+      {
+        "program": "omio",
+        "changed_fields": [
+          "referee_reward",
+          "body"
+        ]
+      },
+      {
+        "program": "paypal",
+        "changed_fields": [
+          "personal_link",
+          "referee_reward",
+          "body"
+        ]
+      },
+      {
+        "program": "poulpeo",
+        "changed_fields": [
+          "personal_link",
+          "referee_reward",
+          "body"
+        ]
+      },
+      {
+        "program": "revolut",
+        "changed_fields": [
+          "personal_link",
+          "referee_reward",
+          "body"
+        ]
+      },
+      {
+        "program": "swissborg",
+        "changed_fields": [
+          "personal_link",
+          "referee_reward",
+          "body"
+        ]
+      },
+      {
+        "program": "totalenergies",
+        "changed_fields": [
+          "personal_link",
+          "body"
+        ]
+      },
+      {
+        "program": "unibet",
+        "changed_fields": [
+          "personal_link",
+          "referee_reward",
+          "body"
+        ]
+      },
+      {
+        "program": "widilo",
+        "changed_fields": [
+          "referee_reward",
+          "body"
+        ]
+      },
+      {
+        "program": "wise",
+        "changed_fields": [
+          "referee_reward",
+          "body"
+        ]
+      }
+    ],
+    "need_update_count": 22,
+    "canary_need_update": [
+      {
+        "program": "kraken",
+        "changed_fields": [
+          "personal_code",
+          "personal_link",
+          "referee_reward",
+          "body"
+        ]
+      }
+    ],
+    "canary_need_update_count": 1,
+    "policy": {
+      "autofresh_enabled": true,
+      "mode": "canary",
+      "canary_programs": [
+        "kraken"
+      ],
+      "stop_flag": false
+    }
+  },
+  "policy": {
+    "autofresh_enabled": true,
+    "mode": "canary",
+    "canary_programs": [
+      "kraken"
+    ],
+    "stop_flag": false
+  },
+  "note": "Au creneau: bumper.py ouvre chaque codes-promo/edit. Canary: seul(s) ['kraken'] recoivent un prefill contenu; les autres = BUMP_ONLY. UN SEUL Enregistrer / code.",
+  "summary": {
+    "PRE_CHECK": "OK",
+    "CANARY_PROGRAMS": [
+      "kraken"
+    ],
+    "UPDATE_IF_NEEDED": "CANARY_ONLY (1 programmes)",
+    "POST_VERIFY": "DEFERRED_TO_LIVE_CANARY",
+    "BUMP_CYCLE_24H": "DRY",
+    "server_actions": 0,
+    "max_saves_if_executed": "≈N codes-promo (1 save/code fuse)",
+    "content_writes_if_executed": 1
+  },
+  "at": "2026-08-12T17:20:09.573614+00:00"
+}

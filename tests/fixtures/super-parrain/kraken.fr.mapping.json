@@ -1,0 +1,28 @@
+{
+  "platform": "super-parrain",
+  "program": "kraken",
+  "language": "fr",
+  "sync_mode": "SAFE_AUTO",
+  "template_status": "ready",
+  "mutable_fields": [
+    "personal_code",
+    "personal_link",
+    "referee_reward",
+    "conditions"
+  ],
+  "markers": {
+    "personal_code": "{{PERSONAL_CODE}}",
+    "personal_link": "{{PERSONAL_LINK}}",
+    "referee_reward": "{{REFEREE_REWARD}}",
+    "referrer_reward": "{{REFERRER_REWARD}}",
+    "conditions": "{{CONDITIONS}}",
+    "offer_end_date": "{{OFFER_END_DATE}}",
+    "bonus_special": "{{BONUS_SPECIAL}}"
+  },
+  "offer_fields": {
+    "personal_code": "code",
+    "personal_link": "link",
+    "referee_reward": "reward",
+    "conditions": "cond"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "at": "2026-08-13T08:49:08.330515+00:00",
+  "execute": true,
+  "ok": false,
+  "error": "unexpected_dom: login fields not found on /login",
+  "edit_url": null,
+  "post_match": null,
+  "steps": [
+    "login"
+  ],
+  "evidence_checks": null,
+  "changed_fields": {
+    "personal_link": {
+      "old": "https://invite.kraken.com/JDNW/4jdp7sea",
+      "new": "https://invite.kraken.com/JDNW/s5qudqe4"
+    }
+  },
+  "rendered": "Offre Parrainage Kraken – Jusqu’à 200 € offerts\nBonus : 200 € en cryptomonnaies\nRejoignez Kraken, une plateforme d’échange crypto reconnue et sécurisée.\nCode parrain : cpbrgddy\nLien : https://invite.kraken.com/JDNW/s5qudqe4\n",
+  "post_publish_text": null,
+  "account_reread_text": ""
+}

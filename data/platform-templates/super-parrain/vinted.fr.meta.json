@@ -1,0 +1,25 @@
+{
+  "platform": "super-parrain",
+  "program": "vinted",
+  "language": "fr",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": null,
+  "mutable_fields": [
+    "personal_code",
+    "personal_link",
+    "referee_reward"
+  ],
+  "platform_values": {
+    "personal_code": "weeew89",
+    "personal_link": "https://www.vinted.fr/invite/weeew89",
+    "referee_reward": "inscription via mon lien de parrainage ✅"
+  },
+  "confidences": {
+    "personal_code": "high",
+    "personal_link": "high",
+    "referee_reward": "high"
+  },
+  "notes": []
+}

@@ -1,0 +1,14 @@
+[
+  {
+    "id": 8,
+    "name": "Kraken",
+    "cat": "crypto",
+    "lk": "kraken",
+    "susp": false,
+    "reward": "20 € en Bitcoin selon l'offre",
+    "bn": 20,
+    "code": "4hpz4gdy",
+    "link": "https://proinvite.kraken.com/9f1e/lqbuov8u",
+    "cond": "Kraken indique generalement un bonus equivalent a 20 € en Bitcoin pour la France, apres depot et volume de trading realises sous 30 jours."
+  }
+]

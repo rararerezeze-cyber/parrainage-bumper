@@ -1,0 +1,24 @@
+{
+  "platform": "super-parrain",
+  "program": "traderepublic",
+  "language": "fr",
+  "status": "ready",
+  "role": "platform_target_historical_text_only",
+  "not_business_source_of_truth": true,
+  "announcement_url": "https://www.super-parrain.com/offres/trade-republic/parrainage-trade-republic/annonces/adrien-b-8",
+  "mutable_fields": [
+    "personal_code",
+    "personal_link"
+  ],
+  "platform_values": {
+    "personal_code": "s931znqx",
+    "personal_link": "https://refnocode.trade.re/s931znqx"
+  },
+  "confidences": {
+    "personal_code": "high",
+    "personal_link": "high"
+  },
+  "notes": [
+    "bonus non marque (ambigu / non trouve) — texte laisse fixe"
+  ]
+}

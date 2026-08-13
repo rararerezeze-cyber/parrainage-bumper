@@ -1,0 +1,8 @@
+Code parrain : {{PERSONAL_CODE}} (normalement pré-rempli)
+
+Avantages pour vous :
+...
+
+J’en profite
+
+<img loading="lazy" class="img-responsive" width="115" border="0" height="38" src='/uploads/leslogos/totalenergies.jpg'
