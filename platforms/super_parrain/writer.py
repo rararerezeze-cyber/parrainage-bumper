@@ -633,10 +633,20 @@ async def execute_write(
             )
             if plan.program == "poulpeo":
                 from lib.super_parrain_resource import poulpeo_pre_save_assertions
+message_loc = page.locator('textarea[name="form[message]"]')
+if await message_loc.count() != 1:
+    return WriteResult(
+        ok=False,
+        plan=plan,
+        edit_url=edit_url,
+        error=f"{HARD_STOP_WRONG_RESOURCE}: expected exactly one form[message]",
+        steps=steps,
+    )
 
+current_message = await message_loc.input_value()
                 chk = poulpeo_pre_save_assertions(
                     page_url=page.url,
-                    page_text=body_now,
+                    page_text=current_message,
                     public_listing=plan.announcement_url,
                     rendered=plan.rendered,
                     historical=plan.historical,
