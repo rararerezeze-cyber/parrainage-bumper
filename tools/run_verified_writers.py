@@ -27,13 +27,12 @@ from lib.write_status import (
     summary as write_summary,
 )
 
-AUTO_SAFE_DIFF_PLATFORMS = ("1parrainage", "code-parrainage")
+AUTO_SAFE_DIFF_PLATFORMS = ("1parrainage", "code-parrainage", "parrainage-co")
 NEVER_AUTO_DISPATCH = (
     "referralcode-tv",
     "referralcodes",
     "referraldrop",
     "super-parrain",
-    "parrainage-co",
 )
 
 
@@ -123,6 +122,7 @@ def _try_platform_if_verified(platform: str, program: str, language: str = "fr")
     writers = {
         "code-parrainage": "platforms.code_parrainage.writer",
         "1parrainage": "platforms.oneparrainage.writer",
+        "parrainage-co": "platforms.parrainage_co.writer",
     }
     mod_name = writers.get(platform)
     if not mod_name:

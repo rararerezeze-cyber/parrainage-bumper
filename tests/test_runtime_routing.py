@@ -36,6 +36,7 @@ def test_human_and_blocked_never_auto():
     assert may_auto_execute_on_safe_diff("super-parrain") is False
     assert runtime_route("parrainage-co") == ROUTE_COOKIE_SESSION_NOT_PC_OFF
     assert may_auto_execute_on_safe_diff("parrainage-co") is False
+    # candidate for auto after GH login+edit proof; currently skipped
 
 
 def test_writers_refuse_human_and_commit():
@@ -52,7 +53,8 @@ def test_dispatch_lists_do_not_include_humans():
     assert "referralcodes" not in AUTO_SAFE_DIFF_PLATFORMS
     assert "referraldrop" not in AUTO_SAFE_DIFF_PLATFORMS
     assert "super-parrain" not in AUTO_SAFE_DIFF_PLATFORMS
-    assert "parrainage-co" not in AUTO_SAFE_DIFF_PLATFORMS
+    assert "parrainage-co" in AUTO_SAFE_DIFF_PLATFORMS
+    assert may_auto_execute_on_safe_diff("parrainage-co") is False
     for plat in NEVER_AUTO_DISPATCH:
         skip = _skip_route(plat)
         assert skip["skipped"] is True

@@ -279,11 +279,8 @@ async def capture_parrainage_co(browser, offers: OffersRepository) -> dict:
                 raise RuntimeError("session requise (cookie/login manquant)")
             await page.goto(f"{cfg['url']}/account/login", wait_until="domcontentloaded", timeout=60000)
             await bumper_mod.human_sleep(1, 2)
-            # Detect challenge before password spray
-            body_probe = (await page.inner_text("body")).lower()[:2000]
-            kind = classify_auth_failure(body_probe)
-            if kind == AuthFailureKind.CAPTCHA_OR_ANTIBOT:
-                raise RuntimeError(f"captcha_or_antibot_challenge on login page")
+            # Turnstile is expected — bumper.smart_login_parrainage already
+            # calls bumper.solve_turnstile. Do not abort before that.
             ok = await bumper_mod.smart_login_parrainage(page, email, password)
             if not ok:
                 body_after = (await page.inner_text("body")).lower()[:2000]

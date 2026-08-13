@@ -144,25 +144,29 @@ def dry_run_report(program: str = "kraken", language: str = "fr") -> dict[str, A
         "pipeline": ["login", "edit", "save", "reread_account", "reread_public"],
         "live": False,
         "canary_ready_gate": content_write_allowed("parrainage-co"),
-        "autonomy": "COOKIE_SESSION_NOT_PC_OFF",
+        "autonomy": "PC_OFF_READY",
         "note": (
-            "READ-ONLY class: writer exists but auth is RM cookie (expires) "
-            "or password+Turnstile. Not durable PC-off. Never auto-dispatch."
+            "Login uses bumper.smart_login_parrainage (solve_turnstile + TWOCAPTCHA_KEY). "
+            "RM cookie is optional shortcut only. No fake write."
         ),
     }
 
 
 async def _login(page, ctx, cfg: dict) -> None:
-    """Prefer remember-me cookie (avoids Turnstile). Password path needs TWOCAPTCHA_KEY."""
+    """Durable path: email/password + bumper.smart_login_parrainage (solve_turnstile).
+
+    RM cookie is an optional shortcut if still valid. Not required.
+    Never reimplements Turnstile — bumper.solve_turnstile only.
+    """
     import os
 
     bumper = _bumper()
     rm = (cfg.get("rm_cookie") or os.environ.get("PARRAINAGE_CO_RM_COOKIE") or "").strip()
     email = cfg.get("email") or os.environ.get("PARRAINAGE_CO_EMAIL") or ""
     password = cfg.get("password") or os.environ.get("PARRAINAGE_CO_PASSWORD") or ""
+    skip_cookie = os.environ.get("PARRAINAGE_CO_FORCE_PASSWORD") == "1"
 
-    if rm:
-        # Inject on apex + www (site may set either host)
+    if rm and not skip_cookie:
         for domain in ("parrainage.co", ".parrainage.co", "www.parrainage.co"):
             try:
                 await ctx.add_cookies(
@@ -177,40 +181,29 @@ async def _login(page, ctx, cfg: dict) -> None:
                 )
             except Exception:
                 continue
-        log.info("cookie PARRAINAGE_CO_RM_COOKIE injecte (len=%s)", len(rm))
-    else:
-        log.warning("PARRAINAGE_CO_RM_COOKIE absent — password login will hit Turnstile")
+        await page.goto(
+            f"{cfg['url']}/account/offers", wait_until="domcontentloaded", timeout=60000
+        )
+        await bumper.human_sleep(1.5, 2.5)
+        if "/login" not in page.url:
+            log.info("rm cookie shortcut still valid")
+            return
+        log.info("rm cookie expired — password + bumper.solve_turnstile")
 
-    await page.goto(f"{cfg['url']}/account/offers", wait_until="domcontentloaded", timeout=60000)
-    await bumper.human_sleep(1.5, 2.5)
-    if "/login" not in page.url:
-        log.info("session cookie OK — logged in without password")
-        return
-
-    log.warning("cookie session invalide/expiree → fallback password")
     if not email or not password:
-        raise RuntimeError(
-            "AUTH_REQUIRED: PARRAINAGE_CO_RM_COOKIE expired/missing and "
-            "PARRAINAGE_CO_EMAIL/PASSWORD not set"
-        )
-    has_2captcha = bool(os.environ.get("TWOCAPTCHA_KEY"))
-    if not has_2captcha:
-        log.warning(
-            "TWOCAPTCHA_KEY missing — password login often fails on Cloudflare Turnstile"
-        )
+        raise RuntimeError("AUTH_REQUIRED: PARRAINAGE_CO_EMAIL/PASSWORD not set")
+    if not os.environ.get("TWOCAPTCHA_KEY"):
+        log.warning("TWOCAPTCHA_KEY missing — bumper.solve_turnstile will skip")
     await page.goto(f"{cfg['url']}/account/login", wait_until="domcontentloaded", timeout=60000)
     ok = await bumper.smart_login_parrainage(page, email, password)
     if not ok:
         raise RuntimeError(
-            "login parrainage.co echoue "
-            f"(cookie_invalid=true, turnstile_solver={'on' if has_2captcha else 'off'}). "
-            "Refresh GH secret PARRAINAGE_CO_RM_COOKIE (preferred) "
-            "or set TWOCAPTCHA_KEY for password+Turnstile path."
+            "login parrainage.co echoue (bumper.smart_login_parrainage / solve_turnstile)"
         )
     await page.goto(f"{cfg['url']}/account/offers", wait_until="domcontentloaded", timeout=60000)
     await bumper.human_sleep(1.5, 2.5)
     if "/login" in page.url:
-        raise RuntimeError("login parrainage.co: still on /login after password path")
+        raise RuntimeError("login parrainage.co: still on /login after password+turnstile")
 
 
 async def _resolve_edit_url(page, plan: WritePlan) -> str:
@@ -379,8 +372,9 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
             ok=True,
             plan=plan,
             steps=["noop"],
-            post_match=True,
+            post_match=None,
             post_publish_text=plan.historical,
+            error="NO_SAFE_DIFF",
             evidence_checks={
                 "authenticated": False,
                 "targeted_edit": False,

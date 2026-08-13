@@ -91,8 +91,8 @@ DEFAULT_STATUS: dict[str, dict[str, Any]] = {
         "canary_program": "kraken",
         "autonomy": AUTONOMY_COOKIE_SESSION_NOT_PC_OFF,
         "notes": (
-            "Writer exists but auth is remember-me cookie (expires) or password+Turnstile. "
-            "Not durable PC-off. Never auto-dispatch."
+            "Writer reuses bumper.smart_login_parrainage / solve_turnstile. "
+            "PC_OFF_READY only after GH READ-ONLY login+edit proof."
         ),
     },
     "code-parrainage": {
@@ -365,7 +365,7 @@ def runtime_route(platform: str) -> str:
         return ROUTE_NEVER_AUTO_COMMIT
     if auto in {AUTONOMY_AUTH_BLOCKED_MANUAL, STATUS_AUTH_BLOCKED}:
         return ROUTE_AUTH_BLOCKED_MANUAL
-    if auto == AUTONOMY_COOKIE_SESSION_NOT_PC_OFF or plat == "parrainage-co":
+    if auto == AUTONOMY_COOKIE_SESSION_NOT_PC_OFF:
         return ROUTE_COOKIE_SESSION_NOT_PC_OFF
     return ROUTE_CANARY_PENDING_SKIP
 

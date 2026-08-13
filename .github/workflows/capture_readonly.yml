@@ -56,6 +56,7 @@ jobs:
           python - <<'PY'
           import os
           for k in ("PARRAINAGE_CO_EMAIL","PARRAINAGE_CO_PASSWORD","PARRAINAGE_CO_RM_COOKIE",
+                    "TWOCAPTCHA_KEY",
                     "CODE_PARRAINAGE_EMAIL","REFERRALCODE_EMAIL","ONEPARRAINAGE_EMAIL","REFERRALCODES_EMAIL"):
               v=os.environ.get(k) or ""
               print(f"{k}: {'yes' if v else 'no'} len={len(v)}")
@@ -72,7 +73,13 @@ jobs:
           fi
           python tools/capture_auth_readonly.py --sites "$SITES"
           # Extra READ-ONLY edit probes (never save)
-          if echo "$SITES" | grep -q referralcode; then
+          if echo "$SITES" | grep -q parrainage; then
+            python tools/probe_parrainage_co_pc_off.py || true
+          fi
+          if echo "$SITES" | grep -q referralcodes; then
+            python tools/validate_referralcodes_agent_import.py || true
+          fi
+          if echo "$SITES" | grep -q referralcode && ! echo "$SITES" | grep -q referralcodes; then
             python tools/probe_referralcode_tv_edit.py --public --auth || true
           fi
           if echo "$SITES" | grep -q oneparrainage; then
