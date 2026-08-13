@@ -150,18 +150,13 @@ async def _page_snapshot(page) -> dict:
 async def _scan_scripts(page, script_urls: list[str]) -> dict:
     hits: list[dict] = []
     seen: set[str] = set()
-    for src in script_urls:
+    for src in list(script_urls or []):
         if not src or src in seen:
             continue
         seen.add(src)
         try:
-            text = await page.evaluate(
-                """async (url) => {
-                  const r = await fetch(url, {credentials: 'same-origin'});
-                  return await r.text();
-                }""",
-                src,
-            )
+            resp = await page.request.get(src)
+            text = await resp.text()
         except Exception as exc:
             hits.append({"src": src, "error": str(exc)})
             continue
@@ -189,22 +184,26 @@ async def _scan_scripts(page, script_urls: list[str]) -> dict:
                 "paths": import_paths,
             }
         )
-    inline = await page.evaluate(
-        """
-        (keys) => {
-          const out = [];
-          for (const s of document.scripts) {
-            if (s.src) continue;
-            const t = s.textContent || '';
-            const low = t.toLowerCase();
-            if (!keys.some(k => low.includes(k))) continue;
-            out.push({id: s.id || null, len: t.length, text: t.slice(0, 4000)});
-          }
-          return out;
-        }
-        """,
-        list(KEYWORDS),
-    )
+    try:
+        inline = await page.evaluate(
+            """
+            (keys) => {
+              const out = [];
+              const list = Array.from(document.scripts || []);
+              for (const s of list) {
+                if (s.src) continue;
+                const t = s.textContent || '';
+                const low = t.toLowerCase();
+                if (!keys.some(k => low.includes(k))) continue;
+                out.push({id: s.id || null, len: t.length, text: t.slice(0, 4000)});
+              }
+              return out;
+            }
+            """,
+            list(KEYWORDS),
+        )
+    except Exception as exc:
+        inline = [{"error": str(exc)}]
     return {"external": hits, "inline": inline}
 
 
@@ -271,7 +270,7 @@ async def main() -> int:
             except Exception:
                 pass
 
-        page.on("response", on_response)
+        page.on("response", lambda resp: asyncio.create_task(on_response(resp)))
         try:
             await page.goto(LOGIN, wait_until="domcontentloaded", timeout=60000)
             await bumper_mod.human_sleep(1.0, 1.6)
@@ -311,7 +310,10 @@ async def main() -> int:
                 "hidden": before.get("hidden"),
                 "scripts": before.get("scripts"),
             }
-            report["js_scan"] = await _scan_scripts(page, script_urls)
+            try:
+                report["js_scan"] = await _scan_scripts(page, script_urls)
+            except Exception as exc:
+                report["js_scan"] = {"error": str(exc)}
 
             area = page.locator("textarea").first
             if not await area.count():
