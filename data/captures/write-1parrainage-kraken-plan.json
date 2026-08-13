@@ -2,17 +2,9 @@
   "execute": false,
   "ok": true,
   "changed_fields": {
-    "personal_code": {
-      "old": "cpbrgddy",
-      "new": "4hpz4gdy"
-    },
     "personal_link": {
       "old": "https://invite.kraken.com/JDNW/4jdp7sea",
-      "new": "https://proinvite.kraken.com/9f1e/lqbuov8u"
-    },
-    "referee_reward": {
-      "old": "200 € en cryptomonnaies",
-      "new": "20 € en Bitcoin selon l’offre"
+      "new": "https://invite.kraken.com/JDNW/s5qudqe4"
     }
   },
   "structure_preserved": true,

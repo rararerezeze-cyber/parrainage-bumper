@@ -14,11 +14,14 @@ from typing import Any
 from lib.paths import DATA_DIR
 from lib.safety import is_circuit_open, live_write_blocked_reason, maybe_trip_from_error, snapshot_state
 from lib.write_status import (
+    COMPARE_DOM_BLOCKED,
     STATUS_AUTH_BLOCKED,
     STATUS_CANARY_READY,
     STATUS_WRITE_PREPARED,
     STATUS_WRITE_VERIFIED,
+    get_compare_class,
     get_platform_status,
+    is_blocked_compare,
     is_sequence_cleared,
     is_write_verified,
 )
@@ -160,9 +163,15 @@ def may_execute_canary(platform: str, *, for_super: bool = False) -> dict[str, A
 
     pred = predecessor(plat)
     if pred and not is_sequence_cleared(pred):
-        out["error"] = f"PREDECESSOR_NOT_PASS:{pred}"
-        out["predecessor_status"] = get_platform_status(pred)
-        return out
+        # Honest blocked predecessor (slider/auth) must not stall a later
+        # REAL_SAFE_DIFF after Super is sequence-cleared. Never a fake PASS.
+        if is_blocked_compare(pred) and is_sequence_cleared("super-parrain"):
+            out["predecessor_skipped"] = get_compare_class(pred)
+            out["predecessor_status"] = get_platform_status(pred)
+        else:
+            out["error"] = f"PREDECESSOR_NOT_PASS:{pred}"
+            out["predecessor_status"] = get_platform_status(pred)
+            return out
 
     if plat == "referralcode-tv":
         out["error"] = "RCTV_AUTH_EDIT_NOT_PROVEN"
@@ -185,6 +194,9 @@ def next_executable(*, for_super: bool = False) -> dict[str, Any]:
             continue
         if is_sequence_cleared(plat):
             continue
+        # Slider/DOM blocked this cycle: do not sit on it and hide later diffs.
+        if get_compare_class(plat) == COMPARE_DOM_BLOCKED:
+            continue
         gate = may_execute_canary(plat, for_super=for_super)
         return {
             "next": plat if gate.get("ok") else None,
@@ -193,6 +205,49 @@ def next_executable(*, for_super: bool = False) -> dict[str, Any]:
             "one_at_a_time": True,
         }
     return {"next": None, "candidate": None, "gate": {"ok": True, "done": True}, "one_at_a_time": True}
+
+
+def preflight_live_plan(platform: str, plan: Any, *, program: str = "kraken") -> dict[str, Any]:
+    """Refuse a live write that is empty or would republish catalog leftovers.
+
+    NO_SAFE_DIFF records SYNC_VERIFIED_NO_SAFE_DIFF (not WRITE_VERIFIED).
+    """
+    from lib.safety import abort_forbidden_publish
+    from lib.write_status import mark_sync_verified_no_safe_diff
+
+    rendered = getattr(plan, "rendered", None) or ""
+    changed = getattr(plan, "changed_fields", None) or {}
+    if isinstance(plan, dict):
+        rendered = plan.get("rendered") or json.dumps(plan.get("payload") or {}, ensure_ascii=False)
+        changed = plan.get("changed_fields") or {}
+    news = []
+    if isinstance(changed, dict):
+        for d in changed.values():
+            if isinstance(d, dict):
+                news.append(str(d.get("new") or ""))
+            else:
+                news.append(str(d or ""))
+    forbidden = abort_forbidden_publish(rendered, *news)
+    if forbidden:
+        return {
+            "ok": False,
+            "abort": True,
+            "result": "FORBIDDEN_PUBLISH",
+            "error": forbidden,
+            "changed_fields": changed,
+        }
+    if not changed:
+        rec = mark_sync_verified_no_safe_diff(platform, program=program)
+        return {
+            "ok": True,
+            "abort": True,
+            "result": "NO_SAFE_DIFF",
+            "write_status": rec.get("status"),
+            "content_sync": rec.get("content_sync"),
+            "write_verified": False,
+            "changed_fields": {},
+        }
+    return {"ok": True, "abort": False, "changed_fields": changed}
 
 
 def guard_live_execute(platform: str, *, for_super: bool = False) -> dict[str, Any]:

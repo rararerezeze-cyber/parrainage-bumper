@@ -34,6 +34,12 @@ STATUS_FAILED = "CANARY_FAILED"
 # Content-sync flag (does NOT replace status). Super-Parrain after honest no-diff canary.
 CONTENT_SYNC_VERIFIED_NO_SAFE_DIFF = "SYNC_VERIFIED_NO_SAFE_DIFF"
 
+# Last live/public compare class (does NOT replace status).
+COMPARE_NO_SAFE_DIFF = "NO_SAFE_DIFF"
+COMPARE_REAL_SAFE_DIFF = "REAL_SAFE_DIFF"
+COMPARE_AUTH_BLOCKED = "AUTH_BLOCKED"
+COMPARE_DOM_BLOCKED = "DOM_BLOCKED"
+
 ALL_PLATFORMS = (
     "super-parrain",
     "parrainage-co",
@@ -199,6 +205,42 @@ def is_sequence_cleared(platform: str) -> bool:
     if is_write_verified(platform):
         return True
     return get_content_sync(platform) == CONTENT_SYNC_VERIFIED_NO_SAFE_DIFF
+
+
+def get_compare_class(platform: str) -> str | None:
+    data = load_write_status()
+    meta = (data.get("platforms") or {}).get(platform.strip().lower()) or {}
+    raw = meta.get("last_compare_class")
+    return str(raw) if raw else None
+
+
+def record_compare_class(
+    platform: str,
+    cls: str,
+    *,
+    note: str | None = None,
+    observed: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Record last compare class. Never promotes WRITE_VERIFIED."""
+    data = load_write_status()
+    meta = data.setdefault("platforms", {}).setdefault(platform, {})
+    meta["last_compare_class"] = cls
+    meta["last_compare_at"] = _now()
+    if note:
+        meta["last_compare_note"] = note
+    if observed is not None:
+        meta["last_compare_observed"] = observed
+    save_write_status(data)
+    return {
+        "ok": True,
+        "platform": platform,
+        "last_compare_class": cls,
+        "write_verified": meta.get("status") == STATUS_WRITE_VERIFIED,
+    }
+
+
+def is_blocked_compare(platform: str) -> bool:
+    return get_compare_class(platform) in {COMPARE_AUTH_BLOCKED, COMPARE_DOM_BLOCKED}
 
 
 def mark_sync_verified_no_safe_diff(

@@ -214,3 +214,25 @@ def live_write_blocked_reason(platform: str | None = None) -> str | None:
     if open_:
         return reason
     return None
+
+
+# Catalog / monitor leftovers that must never be published again.
+FORBIDDEN_PUBLISH = (
+    "4hpz4gdy",
+    "proinvite.kraken.com",
+    "20 € en Bitcoin",
+    "20€ en Bitcoin",
+)
+
+
+def forbidden_publish_hits(*parts: str | None) -> list[str]:
+    blob = "\n".join(str(p or "") for p in parts)
+    return [tok for tok in FORBIDDEN_PUBLISH if tok in blob]
+
+
+def abort_forbidden_publish(*parts: str | None) -> str | None:
+    """Return an abort reason if any payload would republish catalog leftovers."""
+    hits = forbidden_publish_hits(*parts)
+    if not hits:
+        return None
+    return "FORBIDDEN_PUBLISH: " + ", ".join(hits)

@@ -228,7 +228,7 @@ jobs:
             GATE=$?
             set -e
             if [ "$GATE" != "0" ]; then
-              echo "WAIT: sequential gate refused $P (need Super PASS + predecessor WRITE_VERIFIED)"
+              echo "WAIT: sequential gate refused $P (need Super sequence-cleared + predecessor cleared/blocked-skip)"
               python - <<PY
           import json
           from pathlib import Path
@@ -313,6 +313,7 @@ jobs:
           git add data/platform-write-status.json data/autofresh-phase.json data/captures data/platform-mappings data/platform-templates last_super_run.txt data/pending_writes.json 2>/dev/null || true
           if git diff --cached --quiet; then echo "no commit"; else
             git commit -m "chore(activation): canary result ${{ steps.plat.outputs.platform }}"
-            git pull --rebase origin main || true
-            git push origin HEAD:main || true
+            BRANCH="${GITHUB_REF_NAME}"
+            git pull --rebase origin "$BRANCH" || true
+            git push origin "HEAD:$BRANCH" || true
           fi

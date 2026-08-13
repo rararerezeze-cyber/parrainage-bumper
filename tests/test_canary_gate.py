@@ -33,6 +33,8 @@ def test_refuses_before_super_pass(tmp_path, monkeypatch):
     monkeypatch.setattr("lib.canary_gate.is_sequence_cleared", lambda plat: False)
     monkeypatch.setattr("lib.canary_gate.get_platform_status", ws.get_platform_status)
     monkeypatch.setattr("lib.canary_gate.is_circuit_open", lambda *_a, **_k: (False, None))
+    monkeypatch.setattr("lib.canary_gate.is_blocked_compare", lambda _plat: False)
+    monkeypatch.setattr("lib.canary_gate.get_compare_class", lambda _plat: None)
 
     g = may_execute_canary("parrainage-co")
     assert g["ok"] is False
@@ -54,6 +56,8 @@ def test_one_at_a_time_after_super(tmp_path, monkeypatch):
     monkeypatch.setattr("lib.canary_gate.is_sequence_cleared", _verified)
     monkeypatch.setattr("lib.canary_gate.get_platform_status", _status)
     monkeypatch.setattr("lib.canary_gate.is_circuit_open", lambda *_a, **_k: (False, None))
+    monkeypatch.setattr("lib.canary_gate.is_blocked_compare", lambda _plat: False)
+    monkeypatch.setattr("lib.canary_gate.get_compare_class", lambda _plat: None)
 
     assert may_execute_canary("parrainage-co")["ok"] is True
     assert may_execute_canary("code-parrainage")["ok"] is False

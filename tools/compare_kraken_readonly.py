@@ -87,9 +87,6 @@ async def _compare_browser(platform: str, expected: dict[str, str]) -> dict:
 
     try:
         if platform == "parrainage-co":
-            from platforms.parrainage_co.writer import (
-                _cfg as _pco_cfg,
-            )
             from platforms.parrainage_co import writer as w
 
             # parrainage_co uses bumper CONFIG
@@ -234,6 +231,16 @@ async def _compare_browser(platform: str, expected: dict[str, str]) -> dict:
             observed = _hay_to_fields(hay, expected)
             # Public profile compare only — no login unless missing
             cls = _classify(observed, expected, error=None)
+            # Native EN "$200 in Crypto" + operator code is already published.
+            # Missing FR 200 € string is not a safe canary target.
+            native_ok = (
+                "cpbrgddy" in (hay or "")
+                and ("$200" in (hay or "") or "200 in Crypto" in (hay or ""))
+                and not any(bad in (hay or "") for bad in FORBIDDEN)
+            )
+            if native_ok:
+                cls = "NO_SAFE_DIFF"
+                observed["referee_reward"] = observed.get("referee_reward") or "$200 in Crypto"
             return {
                 "platform": platform,
                 "ok": True,
@@ -241,6 +248,12 @@ async def _compare_browser(platform: str, expected: dict[str, str]) -> dict:
                 "url": PUBLIC_PROFILE,
                 "observed": observed,
                 "class": cls,
+                "note": (
+                    "Public card already shows native $200 in Crypto + cpbrgddy. "
+                    "Do not overwrite native EN style with FR 200 € text."
+                    if native_ok
+                    else None
+                ),
             }
     except Exception as exc:
         return {

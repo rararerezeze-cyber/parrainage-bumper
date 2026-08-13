@@ -71,13 +71,35 @@ def main() -> int:
         print("--execute requiert --force", file=sys.stderr)
         return 2
 
-    from lib.canary_gate import guard_live_execute, record_live_failure, record_live_success
+    from lib.canary_gate import (
+        guard_live_execute,
+        preflight_live_plan,
+        record_live_failure,
+        record_live_success,
+    )
 
     gate = guard_live_execute("1parrainage")
     if not gate.get("ok"):
         print(f"REFUSED: {gate.get('error')}", file=sys.stderr)
         print(json.dumps(gate, ensure_ascii=False, indent=2))
         return 2
+
+    pre = preflight_live_plan("1parrainage", plan, program=args.program)
+    if pre.get("abort"):
+        path = OUT / f"write-1parrainage-{args.program}.json"
+        OUT.mkdir(parents=True, exist_ok=True)
+        payload = {
+            "at": datetime.now(timezone.utc).isoformat(),
+            "execute": True,
+            **pre,
+            "note": "No fake write. WRITE_VERIFIED requires a real targeted save.",
+        }
+        path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        print(pre.get("result") or pre.get("error"))
+        record_live_success("1parrainage") if pre.get("ok") else record_live_failure(
+            "1parrainage", pre.get("error") or "preflight"
+        )
+        return 0 if pre.get("ok") else 2
 
     print("\n=== EXECUTE REAL WRITE 1parrainage ===")
     result = asyncio.run(execute_write(plan, dry_run=False))

@@ -63,7 +63,11 @@ jobs:
           MODE="${{ github.event.inputs.mode }}"
           if [ -z "$MODE" ]; then MODE=capture; fi
           if [ "$MODE" = "compare-kraken" ]; then
-            python tools/compare_kraken_readonly.py --platforms "parrainage-co,code-parrainage,1parrainage,referralcodes"
+            PLATS="$SITES"
+            if [ "$PLATS" = "parrainage" ] || [ -z "$PLATS" ]; then
+              PLATS="parrainage-co,code-parrainage,1parrainage,referralcodes"
+            fi
+            python tools/compare_kraken_readonly.py --platforms "$PLATS"
             exit 0
           fi
           python tools/capture_auth_readonly.py --sites "$SITES"

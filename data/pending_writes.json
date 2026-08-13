@@ -7,13 +7,13 @@
       "program": "kraken",
       "language": "fr",
       "status": "pending",
-      "reason": "content_update",
+      "reason": "hermes_personal_code",
       "created_at": "2026-08-12T16:55:45.155034+00:00",
       "next_eligible_at": "2026-08-13T05:37:10.549152+00:00",
-      "hours_remaining": 6.73,
+      "hours_remaining": 0.0,
       "priority": 100,
-      "updated_at": "2026-08-12T22:53:23.568533+00:00"
+      "updated_at": "2026-08-13T08:19:30.520806+00:00"
     }
   ],
-  "updated_at": "2026-08-12T22:53:23.569529+00:00"
+  "updated_at": "2026-08-13T08:19:30.521775+00:00"
 }

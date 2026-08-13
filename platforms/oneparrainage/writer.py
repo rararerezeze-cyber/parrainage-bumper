@@ -28,7 +28,7 @@ from lib.offers import OffersRepository
 from lib.paths import mapping_path
 from lib.phase import content_write_allowed, phase_name
 from lib.renderer import MappingRepository, Renderer, TemplateRepository
-from lib.safety import live_write_blocked_reason, maybe_trip_from_error
+from lib.safety import abort_forbidden_publish, live_write_blocked_reason, maybe_trip_from_error
 from lib.template_builder import extract_values_via_template
 
 log = logging.getLogger("oneparrainage.writer")
@@ -541,8 +541,9 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
             ok=True,
             plan=plan,
             steps=["noop"],
-            post_match=True,
+            post_match=None,
             post_publish_text=plan.historical,
+            error="NO_SAFE_DIFF",
             evidence_checks={
                 "authenticated": False,
                 "targeted_edit": False,
@@ -551,6 +552,14 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
                 "expected_values_present": True,
                 "immutable_preserved": True,
             },
+        )
+    forbidden = abort_forbidden_publish(
+        plan.rendered,
+        *(str((d or {}).get("new") or "") for d in (plan.changed_fields or {}).values()),
+    )
+    if forbidden:
+        return WriteResult(
+            ok=False, plan=plan, error=forbidden, steps=["forbidden_publish"]
         )
     if dry_run or not content_write_allowed("1parrainage"):
         return WriteResult(

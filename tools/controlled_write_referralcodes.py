@@ -67,12 +67,49 @@ def main() -> int:
         return 2
 
     from lib.canary_gate import guard_live_execute, record_live_failure, record_live_success
+    from lib.safety import abort_forbidden_publish
+    from lib.write_status import mark_sync_verified_no_safe_diff
 
     gate = guard_live_execute("referralcodes")
     if not gate.get("ok"):
         print(f"REFUSED: {gate.get('error')}", file=sys.stderr)
         print(json.dumps(gate, ensure_ascii=False, indent=2))
         return 2
+
+    payload_blob = json.dumps(plan.get("payload") or {}, ensure_ascii=False)
+    forbidden = abort_forbidden_publish(payload_blob)
+    items = ((plan.get("payload") or {}).get("items") or [])
+    discount = str((items[0] or {}).get("discount") or "") if items else ""
+    # Native EN card already publishes $200 in Crypto — do not overwrite with FR 200 €.
+    if forbidden:
+        print(f"ABORT: {forbidden}", file=sys.stderr)
+        record_live_failure("referralcodes", forbidden)
+        return 2
+    if "200 €" in discount:
+        rec = mark_sync_verified_no_safe_diff(
+            "referralcodes",
+            program=args.program,
+            notes=(
+                "CANARY_READY + SYNC_VERIFIED_NO_SAFE_DIFF: public card already "
+                "shows native $200 in Crypto + cpbrgddy. Do not overwrite EN style. "
+                "Not WRITE_VERIFIED."
+            ),
+        )
+        path = OUT / f"write-referralcodes-{args.program}.json"
+        OUT.mkdir(parents=True, exist_ok=True)
+        out = {
+            "at": datetime.now(timezone.utc).isoformat(),
+            "execute": True,
+            "ok": True,
+            "result": "NO_SAFE_DIFF",
+            "write_verified": False,
+            "content_sync": rec.get("content_sync"),
+            "note": "Native $200 in Crypto already published. No FR overwrite.",
+        }
+        path.write_text(json.dumps(out, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        print("NO_SAFE_DIFF: native $200 already published — no FR overwrite")
+        record_live_success("referralcodes")
+        return 0
 
     print("\n=== EXECUTE REAL WRITE referralcodes.com Agent Import ===")
     result = execute_write(args.program, dry_run=False)

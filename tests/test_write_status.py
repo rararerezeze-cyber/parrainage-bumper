@@ -91,3 +91,28 @@ def test_sync_verified_no_safe_diff_is_not_write_verified(status_path):
     assert ws.is_sequence_cleared("super-parrain") is True
     assert ws.get_content_sync("super-parrain") == ws.CONTENT_SYNC_VERIFIED_NO_SAFE_DIFF
     assert ws.get_platform_status("super-parrain") == ws.STATUS_CANARY_READY
+
+
+def test_compare_class_does_not_write_verify(status_path):
+    r = ws.record_compare_class(
+        "code-parrainage", ws.COMPARE_DOM_BLOCKED, note="slider"
+    )
+    assert r["write_verified"] is False
+    assert ws.get_compare_class("code-parrainage") == ws.COMPARE_DOM_BLOCKED
+    assert ws.is_blocked_compare("code-parrainage") is True
+    assert ws.is_write_verified("code-parrainage") is False
+    assert ws.is_sequence_cleared("code-parrainage") is False
+
+
+def test_dom_blocked_predecessor_does_not_stall_later_real_diff(status_path):
+    from lib import canary_gate as cg
+
+    ws.mark_sync_verified_no_safe_diff("super-parrain", program="kraken")
+    ws.mark_sync_verified_no_safe_diff("parrainage-co", program="kraken")
+    ws.record_compare_class("code-parrainage", ws.COMPARE_DOM_BLOCKED, note="slider")
+    nxt = cg.next_executable()
+    assert nxt["next"] == "1parrainage"
+    gate = cg.may_execute_canary("1parrainage")
+    assert gate.get("ok") is True
+    assert gate.get("predecessor_skipped") == ws.COMPARE_DOM_BLOCKED
+    assert ws.is_write_verified("1parrainage") is False

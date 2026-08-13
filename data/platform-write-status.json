@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-08-13T08:04:15.435821+00:00",
+  "updated_at": "2026-08-13T08:19:30.607148+00:00",
   "note": "Strict write readiness. WRITE_VERIFIED requires full post-verify evidence. Telegram live writes only for WRITE_VERIFIED platforms.",
   "write_verified_count": 0,
   "write_verified_ratio": "0/7",
@@ -12,29 +12,58 @@
       "runtime_mode": "CANARY_PENDING",
       "notes": "CANARY_READY + SYNC_VERIFIED_NO_SAFE_DIFF: Kraken already matches OPERATOR_VALIDATED. No fake write. Not WRITE_VERIFIED. Historical bumper remains SKIP. Later platforms may sequence.",
       "content_sync": "SYNC_VERIFIED_NO_SAFE_DIFF",
-      "sync_verified_at": "2026-08-13T08:03:39.875092+00:00"
+      "sync_verified_at": "2026-08-13T08:03:39.875092+00:00",
+      "last_compare_class": "NO_SAFE_DIFF",
+      "last_compare_at": "2026-08-13T08:17:27.302727+00:00",
+      "last_compare_note": "scheduled canary 50877ed: changed_fields none, NO_SAFE_DIFF"
     },
     "parrainage-co": {
       "status": "CANARY_READY",
       "canary_program": "kraken",
-      "notes": "CANARY_READY: login (cookie or email/password) + edit + save + reread account/public. Kraken first. Not WRITE_VERIFIED until post_match."
+      "notes": "CANARY_READY + SYNC_VERIFIED_NO_SAFE_DIFF: public https://parrainage.co/offers/113735 already has cpbrgddy / invite.kraken.com/JDNW/s5qudqe4 / 200 € en cryptomonnaies. Dry-run changed_fields none. No fake write. Not WRITE_VERIFIED.",
+      "content_sync": "SYNC_VERIFIED_NO_SAFE_DIFF",
+      "sync_verified_at": "2026-08-13T08:17:27.339300+00:00",
+      "last_compare_class": "NO_SAFE_DIFF",
+      "last_compare_at": "2026-08-13T08:17:27.368443+00:00",
+      "last_compare_note": "public offer 113735 matches OPERATOR_VALIDATED",
+      "last_compare_observed": {
+        "personal_code": "cpbrgddy",
+        "personal_link": "https://invite.kraken.com/JDNW/s5qudqe4",
+        "referee_reward": "200 € en cryptomonnaies"
+      }
     },
     "code-parrainage": {
       "status": "CANARY_READY",
       "canary_program": "kraken",
-      "notes": "CANARY_READY: login (slider solver as historical bumper) + edit + save + reread account (public if URL). Kraken first. Not WRITE_VERIFIED until post_match."
+      "notes": "CANARY_READY: login (slider solver as historical bumper) + edit + save + reread account (public if URL). Kraken first. Not WRITE_VERIFIED until post_match.",
+      "last_compare_class": "DOM_BLOCKED",
+      "last_compare_at": "2026-08-13T08:17:27.405521+00:00",
+      "last_compare_note": "slider captcha non resolu (pas de contournement). Dry-run vs mapping has no field diff. Not SYNC (no live reread). Not WRITE_VERIFIED."
     },
     "1parrainage": {
       "status": "CANARY_READY",
       "canary_program": "kraken",
-      "notes": "CANARY_READY: login /login + edit + save + reread account/public list. Native style only. Kraken first (offer_id=100408). Not WRITE_VERIFIED until post_match. No Boost/Remonter. Stop on 403/429/CAPTCHA/auth/unexpected DOM."
+      "notes": "CANARY_READY: login /login + edit + save + reread account/public list. Native style only. Kraken first (offer_id=100408). Not WRITE_VERIFIED until post_match. No Boost/Remonter. Stop on 403/429/CAPTCHA/auth/unexpected DOM.",
+      "last_compare_class": "REAL_SAFE_DIFF",
+      "last_compare_at": "2026-08-13T08:17:27.436609+00:00",
+      "last_compare_note": "public list shows cpbrgddy + 200 € + invite .../4jdp7sea. Operator link is .../s5qudqe4. Targeted personal_link only. Login previously failed — one live canary may retry auth.",
+      "last_compare_observed": {
+        "personal_code": "cpbrgddy",
+        "personal_link": "https://invite.kraken.com/JDNW/4jdp7sea",
+        "referee_reward": "200 € en cryptomonnaies"
+      }
     },
     "referralcodes": {
       "status": "CANARY_READY",
       "canary_program": "kraken",
-      "notes": "CANARY_READY: Agent Import schema v1.0 + login/Validate/Commit/reread path. Kraken first. WRITE_VERIFIED after post_match. Sequential after 1Parrainage PASS.",
+      "notes": "CANARY_READY + SYNC_VERIFIED_NO_SAFE_DIFF: public TheSuperReff already shows native $200 in Crypto + cpbrgddy. Do not overwrite EN style with FR 200 €. Not WRITE_VERIFIED.",
       "prefer": "official_import",
-      "import_ui": "https://referralcodes.com/profile/import/agent"
+      "import_ui": "https://referralcodes.com/profile/import/agent",
+      "content_sync": "SYNC_VERIFIED_NO_SAFE_DIFF",
+      "sync_verified_at": "2026-08-13T08:17:27.475232+00:00",
+      "last_compare_class": "NO_SAFE_DIFF",
+      "last_compare_at": "2026-08-13T08:17:27.506823+00:00",
+      "last_compare_note": "native $200 in Crypto + cpbrgddy already published"
     },
     "referralcode-tv": {
       "status": "WRITE_PREPARED",

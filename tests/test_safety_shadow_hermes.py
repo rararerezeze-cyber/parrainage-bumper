@@ -6,7 +6,14 @@ import json
 from lib.hermes_interface import handle_request, run_autofresh_command
 from lib.monitor.models import Confidence, FieldChange, Observation, ObservationStatus
 from lib.monitor.shadow import SHADOW_ACCEPT, SHADOW_REJECT, SHADOW_REVIEW, decide_candidate, run_shadow
-from lib.safety import classify_stop, is_circuit_open, rollback_snapshot, snapshot_state, trip_circuit
+from lib.safety import (
+    abort_forbidden_publish,
+    classify_stop,
+    is_circuit_open,
+    rollback_snapshot,
+    snapshot_state,
+    trip_circuit,
+)
 
 
 def test_classify_stop_kinds():
@@ -14,6 +21,14 @@ def test_classify_stop_kinds():
     assert classify_stop("forbidden", status_code=403) == "403"
     assert classify_stop("Please complete the CAPTCHA") == "CAPTCHA"
     assert classify_stop("login echoue") == "auth"
+
+
+def test_abort_forbidden_catalog_leftovers():
+    assert abort_forbidden_publish("cpbrgddy", "https://invite.kraken.com/JDNW/s5qudqe4") is None
+    reason = abort_forbidden_publish("use 4hpz4gdy and 20 € en Bitcoin")
+    assert reason and "4hpz4gdy" in reason
+    assert "20 € en Bitcoin" in reason
+    assert abort_forbidden_publish("https://proinvite.kraken.com/9f1e/lqbuov8u")
 
 
 def test_circuit_and_snapshot_roundtrip(tmp_path, monkeypatch):
