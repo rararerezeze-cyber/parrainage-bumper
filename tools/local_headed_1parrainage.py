@@ -350,22 +350,39 @@ async def _click_save(page) -> str:
         )
     except Exception:
         pass
-    btn = page.locator(
-        'button:has-text("Enregistrer"), button:has-text("Sauvegarder"), '
-        'button:has-text("Mettre à jour"), button:has-text("Valider"), '
-        'input[type="submit"], button[type="submit"]'
+    # NEVER the site search form (texte_results.php). Only the announcement form.
+    form = page.locator('form[action*="parrainages/edit"]').first
+    if await form.count() == 0:
+        raise RuntimeError("unexpected_dom: formulaire parrainages/edit introuvable")
+    candidates = form.locator(
+        'input[type="submit"], button[type="submit"], '
+        'button:has-text("Valider"), button:has-text("Enregistrer"), '
+        'input[value*="Valid" i], input[value*="Enregistr" i]'
     )
-    count = await btn.count()
+    count = await candidates.count()
+    chosen = None
+    chosen_label = ""
     for i in range(count):
-        b = btn.nth(i)
-        label = ((await b.inner_text()) or (await b.get_attribute("value") or "")).lower()
-        if any(x in label for x in ("boost", "remont", "supprim", "delete", "actualis")):
+        b = candidates.nth(i)
+        label = ((await b.inner_text()) or (await b.get_attribute("value") or "")).strip()
+        low = label.lower()
+        if any(x in low for x in ("boost", "remont", "supprim", "delete", "recherch", "search")):
             continue
-        await b.click()
+        if not chosen:
+            chosen, chosen_label = b, label
+        if any(x in low for x in ("valid", "enregistr", "sauvegard")):
+            chosen, chosen_label = b, label
+            break
+    if chosen is None:
+        raise RuntimeError("unexpected_dom: bouton Valider du formulaire d'annonce introuvable")
+    print(f"click save on announcement form: {chosen_label!r}")
+    await chosen.click()
+    try:
+        await page.wait_for_load_state("networkidle", timeout=20000)
+    except Exception:
         await page.wait_for_load_state("domcontentloaded")
-        await asyncio.sleep(2.0)
-        return label.strip() or "submit"
-    raise RuntimeError("unexpected_dom: bouton Enregistrer introuvable (pas Boost/Remonter)")
+    await asyncio.sleep(2.0)
+    return chosen_label or "valider"
 
 
 async def _launch():
