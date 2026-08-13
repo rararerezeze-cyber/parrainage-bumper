@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-08-13T08:34:17.322547+00:00",
+  "updated_at": "2026-08-13T08:49:08.378188+00:00",
   "note": "Strict write readiness. WRITE_VERIFIED requires full post-verify evidence. Telegram live writes only for WRITE_VERIFIED platforms.",
   "write_verified_count": 0,
   "write_verified_ratio": "0/7",
@@ -55,7 +55,7 @@
       "last_failure": {
         "error": "unexpected_dom: login fields not found on /login",
         "program": "kraken",
-        "at": "2026-08-13T08:28:26.494376+00:00"
+        "at": "2026-08-13T08:49:08.330947+00:00"
       }
     },
     "referralcodes": {
