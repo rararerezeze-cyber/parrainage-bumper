@@ -1,21 +1,22 @@
 {
-  "at": "2026-08-13T16:12:26.475211+00:00",
+  "at": "2026-08-13T17:18:57.704914+00:00",
   "execute": true,
-  "ok": false,
-  "error": "POST-UPDATE MISMATCH: texte public != rendu attendu — STOP propagation",
-  "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-poulpeo-5eur-offerts-a-linscription/edit",
-  "post_match": false,
+  "ok": true,
+  "error": null,
+  "edit_url": "https://www.super-parrain.com/offres/poulpeo/parrainage-poulpeo/annonces/adrien-b-8/edit",
+  "post_match": true,
   "steps": [
     "login",
     "find_edit_url",
-    "edit_url=https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-poulpeo-5eur-offerts-a-linscription/edit",
+    "edit_url=https://www.super-parrain.com/offres/poulpeo/parrainage-poulpeo/annonces/adrien-b-8/edit",
+    "poulpeo_pre_save={'ok': True, 'errors': [], 'page_url': 'https://www.super-parrain.com/offres/poulpeo/parrainage-poulpeo/annonces/adrien-b-8/edit', 'public_listing': 'https://www.super-parrain.com/offres/poulpeo/parrainage-poulpeo/annonces/adrien-b-8', 'reward_5eur_on_page': 3, 'reward_3eur_rendered': 3}",
     "fill_body",
-    "filled_via=textarea[0] name=edit_code_promo_by_user_form[description]",
+    "filled_via=textarea[0] name=form[message]",
     "save",
     "saved",
     "reread_account",
     "reread_public",
-    "post_match=False"
+    "post_match=True"
   ],
   "changed_fields": {
     "referee_reward": {
@@ -26,7 +27,7 @@
   "structure_preserved": true,
   "historical": "⚡️ Offre Parrainage Poulpeo – 5€ offerts à l’inscription ⚡\n\n⚡ Bonus : 5€ de bienvenue crédités dès votre inscription via mon code parrain ✅\n\n⸻\n\n➡️ Code parrain : 4KD2ab\n\n➡️ Lien de parrainage : https://www.poulpeo.com/inscription/parrainage?sponsor_key=4KD2ab&utm_source=chatgpt.com\n\n⸻\n\n✅ Conditions pour obtenir le bonus :\n    1.    Inscrivez-vous sur Poulpeo en utilisant le code parrain ci-dessus\n    2.    Le bonus de 5€ sera automatiquement ajouté à votre compte à l’inscription\n\n⸻\n\nℹ️ À savoir :\n• Offre réservée aux nouveaux utilisateurs\n• Le bonus est valable uniquement lors de la création du compte avec le code parrain\n\n⸻\n\n⭐️ Besoin d’aide ou d’un suivi personnalisé ?\nDM-moi — je te guide étape par étape\n\n↪️ https://discord.gg/dDEMb6jEbn ↩️",
   "rendered": "⚡️ Offre Parrainage Poulpeo – 3€ offerts à l’inscription ⚡\n\n⚡ Bonus : 3€ de bienvenue crédités dès votre inscription via mon code parrain ✅\n\n⸻\n\n➡️ Code parrain : 4KD2ab\n\n➡️ Lien de parrainage : https://www.poulpeo.com/inscription/parrainage?sponsor_key=4KD2ab&utm_source=chatgpt.com\n\n⸻\n\n✅ Conditions pour obtenir le bonus :\n    1.    Inscrivez-vous sur Poulpeo en utilisant le code parrain ci-dessus\n    2.    Le bonus de 3€ sera automatiquement ajouté à votre compte à l’inscription\n\n⸻\n\nℹ️ À savoir :\n• Offre réservée aux nouveaux utilisateurs\n• Le bonus est valable uniquement lors de la création du compte avec le code parrain\n\n⸻\n\n⭐️ Besoin d’aide ou d’un suivi personnalisé ?\nDM-moi — je te guide étape par étape\n\n↪️ https://discord.gg/dDEMb6jEbn ↩️",
-  "post_publish_text": "⚡️ Offre Parrainage Poulpeo – 5€ offerts à l’inscription ⚡\n\n⚡ Bonus : 5€ de bienvenue crédités dès votre inscription via mon code parrain ✅\n\n⸻\n\n➡️ Code parrain : 4KD2ab\n\n➡️ Lien de parrainage : https://www.poulpeo.com/inscription/parrainage?sponsor_key=4KD2ab&utm_source=chatgpt.com\n\n⸻\n\n✅ Conditions pour obtenir le bonus :\n    1.    Inscrivez-vous sur Poulpeo en utilisant le code parrain ci-dessus\n    2.    Le bonus de 5€ sera automatiquement ajouté à votre compte à l’inscription\n\n⸻\n\nℹ️ À savoir :\n• Offre réservée aux nouveaux utilisateurs\n• Le bonus est valable uniquement lors de la création du compte avec le code parrain\n\n⸻\n\n⭐️ Besoin d’aide ou d’un suivi personnalisé ?\nDM-moi — je te guide étape par étape\n\n↪️ https://discord.gg/dDEMb6jEbn ↩️",
-  "account_reread_text": "Conditions pour obtenir le bonus \n1. Inscrivezvous sur Poulpeo en utilisant le code parrain cidessus\n2. Le bonus de 5€ sera automatiquement ajouté à votre compte à linscription",
-  "write_status": "FAILED"
+  "post_publish_text": "⚡️ Offre Parrainage Poulpeo – 3€ offerts à l’inscription ⚡\n\n⚡ Bonus : 3€ de bienvenue crédités dès votre inscription via mon code parrain ✅\n\n⸻\n\n➡️ Code parrain : 4KD2ab\n\n➡️ Lien de parrainage : https://www.poulpeo.com/inscription/parrainage?sponsor_key=4KD2ab&utm_source=chatgpt.com\n\n⸻\n\n✅ Conditions pour obtenir le bonus :\n    1.    Inscrivez-vous sur Poulpeo en utilisant le code parrain ci-dessus\n    2.    Le bonus de 3€ sera automatiquement ajouté à votre compte à l’inscription\n\n⸻\n\nℹ️ À savoir :\n• Offre réservée aux nouveaux utilisateurs\n• Le bonus est valable uniquement lors de la création du compte avec le code parrain\n\n⸻\n\n⭐️ Besoin d’aide ou d’un suivi personnalisé ?\nDM-moi — je te guide étape par étape\n\n↪️ https://discord.gg/dDEMb6jEbn ↩️",
+  "account_reread_text": "⚡️ Offre Parrainage Poulpeo – 3€ offerts à l’inscription ⚡\n\n⚡ Bonus : 3€ de bienvenue crédités dès votre inscription via mon code parrain ✅\n\n⸻\n\n➡️ Code parrain : 4KD2ab\n\n➡️ Lien de parrainage : https://www.poulpeo.com/inscription/parrainage?sponsor_key=4KD2ab&utm_source=chatgpt.com\n\n⸻\n\n✅ Conditions pour obtenir le bonus :\n    1.    Inscrivez-vous sur Poulpeo en utilisant le code parrain ci-dessus\n    2.    Le bonus de 3€ sera automatiquement ajouté à votre compte à l’inscription\n\n⸻\n\nℹ️ À savoir :\n• Offre réservée aux nouveaux utilisateurs\n• Le bonus est valable uniquement lors de la création du compte avec le code parrain\n\n⸻\n\n⭐️ Besoin d’aide ou d’un suivi personnalisé ?\nDM-moi — je te guide étape par étape\n\n↪️ https://discord.gg/dDEMb6jEbn ↩️",
+  "write_status": "WRITE_VERIFIED"
 }
