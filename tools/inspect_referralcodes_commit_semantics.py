@@ -240,7 +240,7 @@ async def main() -> int:
         ctx = await bumper_mod.new_context(browser)
         page = await ctx.new_page()
 
-        async def on_response(resp):
+        def on_response(resp) -> None:
             try:
                 url = resp.url
                 if not _interesting(url):
@@ -248,29 +248,26 @@ async def main() -> int:
                 method = resp.request.method
                 if method.upper() == "OPTIONS":
                     return
-                body = ""
-                try:
-                    body = await resp.text()
-                except Exception:
-                    body = ""
                 post = ""
                 try:
                     post = resp.request.post_data or ""
                 except Exception:
                     post = ""
-                rec = {
-                    "method": method,
-                    "url": url,
-                    "status": resp.status,
-                    "resource": resp.request.resource_type,
-                    "post": post[:4000],
-                    "body": body[:6000],
-                }
-                net.append(_redact(rec))
+                net.append(
+                    _redact(
+                        {
+                            "method": method,
+                            "url": url,
+                            "status": resp.status,
+                            "resource": resp.request.resource_type,
+                            "post": post[:4000],
+                        }
+                    )
+                )
             except Exception:
                 pass
 
-        page.on("response", lambda resp: asyncio.create_task(on_response(resp)))
+        page.on("response", on_response)
         try:
             await page.goto(LOGIN, wait_until="domcontentloaded", timeout=60000)
             await bumper_mod.human_sleep(1.0, 1.6)
