@@ -1,6 +1,6 @@
-⚡️ Offre Parrainage Poulpeo – 5€ offerts à l’inscription ⚡
+⚡️ Offre Parrainage Poulpeo – {{REFEREE_REWARD}} offerts à l’inscription ⚡
 
-⚡ Bonus : {{REFEREE_REWARD}}
+⚡ Bonus : {{REFEREE_REWARD}} de bienvenue crédités dès votre inscription via mon code parrain ✅
 
 ⸻
 
@@ -12,7 +12,7 @@
 
 ✅ Conditions pour obtenir le bonus :
     1.    Inscrivez-vous sur Poulpeo en utilisant le code parrain ci-dessus
-    2.    Le bonus de 5€ sera automatiquement ajouté à votre compte à l’inscription
+    2.    Le bonus de {{REFEREE_REWARD}} sera automatiquement ajouté à votre compte à l’inscription
 
 ⸻
 

@@ -3,8 +3,8 @@
   "ok": true,
   "changed_fields": {
     "referee_reward": {
-      "old": "5€ de bienvenue crédités dès votre inscription via mon code parrain ✅",
-      "new": "3€ de bienvenue crédités dès votre inscription via mon code parrain ✅"
+      "old": "5€",
+      "new": "3€"
     }
   },
   "structure_preserved": true,

@@ -94,7 +94,7 @@ def test_boursobank_simulate_only_real_native_diffs(tmp_path, monkeypatch):
         assert d["changed_fields"]["referee_reward"]["new"] == "160 €"
 
 
-def test_super_poulpeo_canary_only_reward_span():
+def test_super_poulpeo_canary_all_reward_spans_consistent():
     plan = build_write_plan(
         "super-parrain",
         "poulpeo",
@@ -104,21 +104,16 @@ def test_super_poulpeo_canary_only_reward_span():
     )
     assert plan.structure_preserved
     assert set(plan.changed_fields) == {"referee_reward"}
-    assert plan.changed_fields["referee_reward"]["old"] == (
-        "5€ de bienvenue crédités dès votre inscription via mon code parrain ✅"
-    )
-    assert plan.changed_fields["referee_reward"]["new"] == (
-        "3€ de bienvenue crédités dès votre inscription via mon code parrain ✅"
-    )
+    assert plan.changed_fields["referee_reward"]["old"] == "5€"
+    assert plan.changed_fields["referee_reward"]["new"] == "3€"
+    assert plan.historical.count("5€") == 3
+    assert plan.rendered.count("3€") == 3
+    assert plan.rendered.count("5€") == 0
     assert "4KD2ab" in plan.rendered
     assert "sponsor_key=4KD2ab" in plan.rendered
-    assert "5€ offerts à l’inscription" in plan.rendered
-    assert "Le bonus de 5€ sera automatiquement" in plan.rendered
-    assert plan.historical.count("{{") == 0
-    assert plan.rendered.count("{{") == 0
-    # only the bonus line number moves
-    assert plan.historical.replace(
-        "5€ de bienvenue crédités dès votre inscription via mon code parrain ✅",
-        "3€ de bienvenue crédités dès votre inscription via mon code parrain ✅",
-        1,
-    ) == plan.rendered
+    assert plan.variables["personal_code"] == "4KD2ab"
+    assert "sponsor_key=4KD2ab" in (plan.variables["personal_link"] or "")
+    assert "{{" not in plan.historical
+    assert "{{" not in plan.rendered
+    expected = plan.historical.replace("5€", "3€")
+    assert plan.rendered == expected
