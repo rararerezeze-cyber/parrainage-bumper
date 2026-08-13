@@ -174,15 +174,19 @@ def may_execute_canary(platform: str, *, for_super: bool = False) -> dict[str, A
             return out
 
     if plat == "referralcode-tv":
-        # Auth + add-referral-code/?eid= edit form proven (run 31682310236).
-        # Boost #cliccami is not content edit. Kraken listing EXISTS on the
-        # account (data/captures/referralcode-tv-raw.txt) but the Kraken EID
-        # is not resolved. Do not create a listing. No live write until EID.
-        out["error"] = "RCTV_EID_NOT_YET_RESOLVED"
+        # Kraken eid=23004 WRITE_VERIFIED via headed canary (captcha manual).
+        # Automated GH execute cannot solve reCAPTCHA. No second canary.
+        if is_write_verified("referralcode-tv"):
+            out["ok"] = True
+            out["note"] = "WRITE_VERIFIED; live save still requires manual captcha"
+            out["eid"] = "23004"
+            out["save"] = "SAVE_REQUIRES_CAPTCHA"
+            return out
+        out["error"] = "RCTV_SAVE_REQUIRES_CAPTCHA"
         out["kraken"] = "KRAKEN_EXISTS"
-        out["eid"] = "EID_NOT_YET_RESOLVED"
+        out["eid"] = "23004"
         out["auth_edit"] = "AUTH_EDIT_PATH_PROVEN"
-        out["edit_form"] = "https://referralcode.tv/add-referral-code/?eid="
+        out["edit_form"] = "https://www.referralcode.tv/add-referral-code/?eid=23004"
         return out
 
     out["ok"] = True

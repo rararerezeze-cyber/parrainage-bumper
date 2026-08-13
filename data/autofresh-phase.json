@@ -4,10 +4,12 @@
   "live_canary": true,
   "enabled_platforms": [
     "super-parrain",
-    "1parrainage"
+    "1parrainage",
+    "referralcode-tv"
   ],
   "write_verified": [
-    "1parrainage"
+    "1parrainage",
+    "referralcode-tv"
   ],
   "canary": {
     "platform": "super-parrain",

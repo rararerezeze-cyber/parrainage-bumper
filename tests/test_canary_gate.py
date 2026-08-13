@@ -105,14 +105,13 @@ def test_post_super_set():
     )
 
 
-def test_rctv_kraken_exists_eid_unresolved(monkeypatch):
+def test_rctv_save_requires_captcha_when_not_verified(monkeypatch):
     monkeypatch.setattr("lib.canary_gate.is_circuit_open", lambda *_a, **_k: (False, None))
     monkeypatch.setattr("lib.canary_gate.is_sequence_cleared", lambda plat: plat != "referralcode-tv")
     monkeypatch.setattr("lib.canary_gate.get_platform_status", lambda _plat: ws.STATUS_CANARY_READY)
+    monkeypatch.setattr("lib.canary_gate.is_write_verified", lambda plat: False)
     monkeypatch.setattr("lib.canary_gate.is_blocked_compare", lambda _plat: False)
     g = may_execute_canary("referralcode-tv")
     assert g["ok"] is False
-    assert g["error"] == "RCTV_EID_NOT_YET_RESOLVED"
-    assert g["kraken"] == "KRAKEN_EXISTS"
-    assert g["eid"] == "EID_NOT_YET_RESOLVED"
-    assert g["auth_edit"] == "AUTH_EDIT_PATH_PROVEN"
+    assert g["error"] == "RCTV_SAVE_REQUIRES_CAPTCHA"
+    assert g["eid"] == "23004"

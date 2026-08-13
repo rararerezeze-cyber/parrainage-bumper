@@ -28,8 +28,6 @@
   "platform_values": {
     "personal_code": "cpbrgddy",
     "personal_link": "https://invite.kraken.com/JDNW/s5qudqe4",
-    "public_body_code": "85d3qj9p",
-    "public_body_link": "https://invite.kraken.com/JDNW/2seeom3g",
     "referee_reward": "Up to $200 in crypto rewards for new users"
   },
   "confidences": {
@@ -37,7 +35,7 @@
     "personal_link": "high",
     "referee_reward": "medium"
   },
-  "notes": "eid=23004. Custom fields already operator (headed 2026-08-13). Public body still 85d3qj9p / 2seeom3g. REAL_SAFE_DIFF is description tokens only. Native EN $200. No save yet.",
+  "notes": "WRITE_VERIFIED headed 2026-08-13 eid=23004. Published cpbrgddy / s5qudqe4 / native $200. SAVE_REQUIRES_CAPTCHA.",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",

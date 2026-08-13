@@ -1,11 +1,12 @@
 {
   "version": 1,
-  "updated_at": "2026-08-13T11:29:23.307333+00:00",
+  "updated_at": "2026-08-13T12:47:36.402325+00:00",
   "note": "Strict write readiness. WRITE_VERIFIED requires full post-verify evidence. Telegram live writes only for WRITE_VERIFIED platforms.",
-  "write_verified_count": 1,
-  "write_verified_ratio": "1/7",
+  "write_verified_count": 2,
+  "write_verified_ratio": "2/7",
   "telegram_live_capable": [
-    "1parrainage"
+    "1parrainage",
+    "referralcode-tv"
   ],
   "platforms": {
     "super-parrain": {
@@ -103,19 +104,38 @@
       "last_compare_note": "native $200 in Crypto + cpbrgddy already published"
     },
     "referralcode-tv": {
-      "status": "CANARY_READY",
+      "status": "WRITE_VERIFIED",
       "canary_program": "kraken",
-      "notes": "Kraken VIEW postid/eid=23004. Observed 85d3qj9p / invite.kraken.com/JDNW/2seeom3g / $200. OPERATOR cpbrgddy / s5qudqe4. REAL_SAFE_DIFF code+link. Keep native EN $200. SAVE_REQUIRES_CAPTCHA — no bypass, no auto-save. Not WRITE_VERIFIED.",
+      "notes": "WRITE_VERIFIED headed canary eid=23004: custom code+link + EN body tokens. Account+headed View post_match. Native $200 kept. SAVE_REQUIRES_CAPTCHA — GH cannot auto-save. Anonymous HTTP may lag CDN. Telegram LIVE_UPDATE this platform. Super bumper still SKIP.",
       "kraken_listing": "KRAKEN_EXISTS",
       "eid_status": "23004",
       "auth_edit_path": "AUTH_EDIT_PATH_PROVEN",
       "save_requires_captcha": true,
-      "last_compare_class": "REAL_SAFE_DIFF",
-      "last_compare_note": "View 23004: 85d3qj9p / 2seeom3g vs operator cpbrgddy / s5qudqe4",
+      "last_compare_class": "NO_SAFE_DIFF",
+      "last_compare_note": "headed View+account: cpbrgddy / s5qudqe4 / $200; old 85d3qj9p / 2seeom3g absent",
       "last_compare_observed": {
-        "personal_code": "85d3qj9p",
-        "personal_link": "https://invite.kraken.com/JDNW/2seeom3g",
+        "personal_code": "cpbrgddy",
+        "personal_link": "https://invite.kraken.com/JDNW/s5qudqe4",
         "referee_reward": "Up to $200 in crypto"
+      },
+      "last_write_verified_at": "2026-08-13T12:47:36.402325+00:00",
+      "evidence": {
+        "program": "kraken",
+        "checks": {
+          "authenticated": true,
+          "targeted_edit": true,
+          "submit_ok": true,
+          "reread_account": true,
+          "expected_values_present": true,
+          "immutable_preserved": true
+        },
+        "post_match": true,
+        "announcement_url": "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-kraken-referral-bonus-up-to-200-in-crypto-%e2%ad%90%ef%b8%8f-join-kraken-one-of-the-most-trusted-and-secure-crypto-exchanges-worldwide/",
+        "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23004",
+        "public_reread": true,
+        "immutable_ok": true,
+        "recorded_at": "2026-08-13T12:47:36.402325+00:00",
+        "source": "local_headed_rctv_canary"
       }
     },
     "referraldrop": {
