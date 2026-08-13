@@ -1,5 +1,5 @@
 {
-  "at": "2026-08-12T22:53:31.123675+00:00",
+  "at": "2026-08-13T08:34:15.218494+00:00",
   "live": false,
   "all_programs": false,
   "platforms": [
@@ -28,7 +28,7 @@
           "program": "kraken",
           "ok": true,
           "structure_preserved": true,
-          "action": "WOULD_UPDATE",
+          "action": "NOOP",
           "error": null,
           "live": false
         }
@@ -44,7 +44,7 @@
           "program": "kraken",
           "ok": true,
           "structure_preserved": true,
-          "action": "WOULD_UPDATE",
+          "action": "NOOP",
           "error": null,
           "live": false
         }
@@ -85,7 +85,7 @@
     },
     {
       "platform": "referralcode-tv",
-      "status": "WRITE_PREPARED",
+      "status": "CANARY_READY",
       "blocked": false,
       "programs": [
         {
@@ -100,7 +100,7 @@
       "ok": true
     }
   ],
-  "ALL_NON_BLOCKED_PLATFORMS_CANARY_READY": "NO",
+  "ALL_NON_BLOCKED_PLATFORMS_CANARY_READY": "YES",
   "MULTIPROGRAM_DRY_RUN_READY": "YES",
   "note": "Dry-run only. Super-Parrain cooldown untouched. No execute."
 }

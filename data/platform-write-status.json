@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-08-13T08:29:36.794673+00:00",
+  "updated_at": "2026-08-13T08:34:17.322547+00:00",
   "note": "Strict write readiness. WRITE_VERIFIED requires full post-verify evidence. Telegram live writes only for WRITE_VERIFIED platforms.",
   "write_verified_count": 0,
   "write_verified_ratio": "0/7",
@@ -71,9 +71,9 @@
       "last_compare_note": "native $200 in Crypto + cpbrgddy already published"
     },
     "referralcode-tv": {
-      "status": "WRITE_PREPARED",
+      "status": "CANARY_READY",
       "canary_program": "kraken",
-      "notes": "Public author listings mapped (12). Authenticated edit URL not proven yet — run probe_referralcode_tv_edit.py --auth before canary. Boost #cliccami is not content edit."
+      "notes": "CANARY_READY: auth ok (31682310236) + real edit form add-referral-code/?eid= with post_content/code/buy_link. Boost #cliccami is not content edit. No Kraken listing on the account — first content canary waits for a real listing. Not WRITE_VERIFIED."
     },
     "referraldrop": {
       "status": "AUTH_BLOCKED_GOOGLE",

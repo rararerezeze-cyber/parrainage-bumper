@@ -174,7 +174,10 @@ def may_execute_canary(platform: str, *, for_super: bool = False) -> dict[str, A
             return out
 
     if plat == "referralcode-tv":
-        out["error"] = "RCTV_AUTH_EDIT_NOT_PROVEN"
+        # Auth + add-referral-code/?eid= edit form proven (run 31682310236).
+        # Boost #cliccami is not content edit. No Kraken listing exists yet.
+        out["error"] = "RCTV_NO_KRAKEN_LISTING"
+        out["edit_form"] = "https://referralcode.tv/add-referral-code/?eid="
         return out
 
     out["ok"] = True

@@ -31,7 +31,7 @@ Resume point for the next Codex session. Reconstruct from this file + git + stat
 | code-parrainage | CANARY_READY | DOM_BLOCKED | CANARY_ONLY | Slider captcha on auth read. Dry-run vs mapping empty. Not SYNC. Skipped so later REAL_SAFE_DIFF can run. |
 | 1parrainage | CANARY_READY | DOM_BLOCKED (public still REAL_SAFE_DIFF) | CANARY_ONLY | Public `4jdp7sea` → operator `s5qudqe4`. Live canary `31681603602` STOP on `unexpected_dom: login fields not found on /login`. No save. Do not retry this cycle. Template cleaned (no iGraal HTML leak). |
 | referralcodes | CANARY_READY + SYNC_VERIFIED_NO_SAFE_DIFF | NO_SAFE_DIFF | CANARY_ONLY | Native `$200 in Crypto` + `cpbrgddy`. Do not overwrite EN with FR 200 €. |
-| referralcode-tv | WRITE_PREPARED | — | PLAN_ONLY | One auth retry still pending this finalize. Boost ≠ content edit. |
+| referralcode-tv | CANARY_READY | auth+edit proven | CANARY_ONLY | Run `31682310236`: login OK, `add-referral-code/?eid=` is the content edit form (post_content/code/buy_link). Boost `#cliccami` ≠ edit. No Kraken listing — no live write. |
 | referraldrop | AUTH_BLOCKED_GOOGLE | — | AUTH_BLOCKED | Google Sign-In. No OAuth bypass. Stay blocked. |
 
 - WRITE_VERIFIED: **0/7**
@@ -46,7 +46,7 @@ Resume point for the next Codex session. Reconstruct from this file + git + stat
 
 | Flag | Value |
 |---|---|
-| ALL_NON_BLOCKED_PLATFORMS_CANARY_READY | **NO** (ReferralCode.tv still WRITE_PREPARED) |
+| ALL_NON_BLOCKED_PLATFORMS_CANARY_READY | **YES** |
 | POST_SUPER_CANARIES_ARMED | **YES** |
 | MULTIPROGRAM_DRY_RUN_READY | **YES** |
 | HERMES_PRODUCTION_READY | **YES** |
@@ -71,7 +71,7 @@ Content canaries (strict sequence, never parallel):
   3. code-parrainage   DOM_BLOCKED this cycle (slider) — skipped, not WRITE_VERIFIED
   4. 1parrainage       public REAL_SAFE_DIFF — live STOP unexpected_dom /login (no save)
   5. referralcodes     NO_SAFE_DIFF native $200 — do not execute FR import
-  6. referralcode-tv   blocked until auth/edit proven (one auth retry after 1P canary)
+  6. referralcode-tv   CANARY_READY (edit form proven). No Kraken listing. No live write this cycle.
 
   python tools/activation_orchestrator.py next-executable
   python tools/activation_orchestrator.py canary --platform <next>

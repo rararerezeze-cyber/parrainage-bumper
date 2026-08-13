@@ -54,10 +54,10 @@
     },
     {
       "platform": "referralcode-tv",
-      "status": "WRITE_PREPARED",
-      "telegram_action": "PLAN_ONLY",
+      "status": "CANARY_READY",
+      "telegram_action": "CANARY_ONLY",
       "canary_program": "kraken",
-      "notes": "Public author listings mapped (12). Authenticated edit URL not proven yet — run probe_referralcode_tv_edit.py --auth before canary. Boost #cliccami is not content edit.",
+      "notes": "CANARY_READY: auth ok (31682310236) + real edit form add-referral-code/?eid= with post_content/code/buy_link. Boost #cliccami is not content edit. No Kraken listing on the account — first content canary waits for a real listing. Not WRITE_VERIFIED.",
       "last_write_verified_at": null
     },
     {
@@ -70,8 +70,7 @@
     }
   ],
   "by_status": {
-    "CANARY_READY": 5,
-    "WRITE_PREPARED": 1,
+    "CANARY_READY": 6,
     "AUTH_BLOCKED_GOOGLE": 1
   },
   "HERMES_AUTOFRESH_INTERFACE_READY": "YES",
@@ -82,7 +81,7 @@
     "No WRITE_VERIFIED platform yet — run live canaries (Super-Parrain then parrainage-co / code-parrainage) with post_match"
   ],
   "note": "Product path: Hermes calls tools/hermes_autofresh.py or workflow hermes_operator.yml. telegram-worker is optional/test only. WRITE_VERIFIED requires real authenticated canary + post-verify.",
-  "ALL_NON_BLOCKED_PLATFORMS_CANARY_READY": "NO",
+  "ALL_NON_BLOCKED_PLATFORMS_CANARY_READY": "YES",
   "MULTIPROGRAM_DRY_RUN_READY": "YES",
   "POST_SUPER_CANARIES_ARMED": "YES"
 }
