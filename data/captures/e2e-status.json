@@ -8,14 +8,20 @@
   "telegram_worker_required": "NO",
   "telegram_worker_code_present": "YES",
   "operator_overrides_store": "PASS",
-  "WRITE_VERIFIED": "0/7",
-  "write_verified_count": 0,
-  "telegram_live_capable": [],
+  "WRITE_VERIFIED": "2/7",
+  "write_verified_count": 2,
+  "telegram_live_capable": [
+    "parrainage-co",
+    "code-parrainage",
+    "1parrainage"
+  ],
   "platforms": [
     {
       "platform": "super-parrain",
       "status": "CANARY_READY",
-      "telegram_action": "CANARY_ONLY",
+      "telegram_action": "CANARY_PENDING_SKIP",
+      "autonomy": "CANARY_PENDING_SKIP",
+      "route": "CANARY_PENDING_SKIP",
       "canary_program": "kraken",
       "notes": "CANARY_READY + SYNC_VERIFIED_NO_SAFE_DIFF: Kraken already matches OPERATOR_VALIDATED. No fake write. Not WRITE_VERIFIED. Historical bumper remains SKIP. Later platforms may sequence.",
       "last_write_verified_at": null
@@ -23,63 +29,74 @@
     {
       "platform": "parrainage-co",
       "status": "CANARY_READY",
-      "telegram_action": "CANARY_ONLY",
+      "telegram_action": "AUTO_ON_SAFE_DIFF",
+      "autonomy": "PC_OFF_READY",
+      "route": "AUTO_ON_SAFE_DIFF",
       "canary_program": "kraken",
-      "notes": "CANARY_READY + SYNC_VERIFIED_NO_SAFE_DIFF: public https://parrainage.co/offers/113735 already has cpbrgddy / invite.kraken.com/JDNW/s5qudqe4 / 200 € en cryptomonnaies. Dry-run changed_fields none. No fake write. Not WRITE_VERIFIED.",
+      "notes": "GH 31706455905: password+bumper.solve_turnstile login PROVEN, edit/113735 PROVEN, cookie_used=false, save_clicked=false. Auto only on real SAFE_DIFF.",
       "last_write_verified_at": null
     },
     {
       "platform": "code-parrainage",
       "status": "CANARY_READY",
-      "telegram_action": "CANARY_ONLY",
+      "telegram_action": "AUTO_ON_SAFE_DIFF",
+      "autonomy": "PC_OFF_READY",
+      "route": "AUTO_ON_SAFE_DIFF",
       "canary_program": "kraken",
-      "notes": "CANARY_READY: login (slider solver as historical bumper) + edit + save + reread account (public if URL). Kraken first. Not WRITE_VERIFIED until post_match.",
+      "notes": "PC-off writer uses bumper.solve_slider only (same as historical bump). GH 31695046367 slider OK; Kraken already operator-matched. Not WRITE_VERIFIED (no save). Next real SAFE_DIFF is executable PC-off.",
       "last_write_verified_at": null
     },
     {
       "platform": "1parrainage",
-      "status": "CANARY_READY",
-      "telegram_action": "CANARY_ONLY",
+      "status": "WRITE_VERIFIED",
+      "telegram_action": "AUTO_ON_SAFE_DIFF",
+      "autonomy": "PC_OFF_READY",
+      "route": "AUTO_ON_SAFE_DIFF",
       "canary_program": "kraken",
-      "notes": "CANARY_READY: login /login + edit + save + reread account/public list. Native style only. Kraken first (offer_id=100408). Not WRITE_VERIFIED until post_match. No Boost/Remonter. Stop on 403/429/CAPTCHA/auth/unexpected DOM.",
-      "last_write_verified_at": null
+      "notes": "PC_OFF_READY — not a proven unattended GH save. Writer ready (CKEditor + Envoyer). Auto only on a real SAFE_DIFF. gh_headless_save=NOT_RUN. No fake write.",
+      "last_write_verified_at": "2026-08-13T10:29:40.550997+00:00"
     },
     {
       "platform": "referralcodes",
       "status": "CANARY_READY",
-      "telegram_action": "CANARY_ONLY",
+      "telegram_action": "NEVER_AUTO_COMMIT",
+      "autonomy": "IMPORT_UI_BETA_NOT_PROVEN",
+      "route": "NEVER_AUTO_COMMIT",
       "canary_program": "kraken",
-      "notes": "CANARY_READY + SYNC_VERIFIED_NO_SAFE_DIFF: public TheSuperReff already shows native $200 in Crypto + cpbrgddy. Do not overwrite EN style with FR 200 €. Not WRITE_VERIFIED.",
+      "notes": "GH 31706463195 VALIDATE ONLY: login OK, shop_id=4769 Kraken valid, draft_id=124, commit=false. Official result matches shop catalog — does NOT prove listing UPDATE vs DUPLICATE. Not PC_OFF_READY. Keep native $200.",
       "last_write_verified_at": null
     },
     {
       "platform": "referralcode-tv",
-      "status": "CANARY_READY",
-      "telegram_action": "CANARY_ONLY",
+      "status": "WRITE_VERIFIED",
+      "telegram_action": "HUMAN_SAVE_REQUIRED",
+      "autonomy": "HUMAN_SAVE_REQUIRED",
+      "route": "HUMAN_SAVE_REQUIRED",
       "canary_program": "kraken",
-      "notes": "CANARY_READY: auth ok (31682310236) + real edit form add-referral-code/?eid= with post_content/code/buy_link. Boost #cliccami is not content edit. No Kraken listing on the account — first content canary waits for a real listing. Not WRITE_VERIFIED.",
-      "last_write_verified_at": null
+      "notes": "WRITE_VERIFIED headed canary eid=23004. SAVE_REQUIRES_CAPTCHA — HUMAN_SAVE_REQUIRED. No bypass. Telegram must not auto-save. Super bumper still SKIP.",
+      "last_write_verified_at": "2026-08-13T12:47:36.402325+00:00"
     },
     {
       "platform": "referraldrop",
-      "status": "AUTH_BLOCKED_GOOGLE",
-      "telegram_action": "AUTH_BLOCKED",
+      "status": "AUTH_BLOCKED_MANUAL",
+      "telegram_action": "AUTH_BLOCKED_MANUAL",
+      "autonomy": "AUTH_BLOCKED_MANUAL",
+      "route": "AUTH_BLOCKED_MANUAL",
       "canary_program": null,
-      "notes": "Google Sign-In required. No OAuth bypass. May remain non-automated if legitimate durable automation is impossible.",
+      "notes": "No official OAuth / public write API (llms.txt account/admin/API not public). AUTH_BLOCKED_MANUAL durable. No bypass.",
       "last_write_verified_at": null
     }
   ],
   "by_status": {
-    "CANARY_READY": 6,
-    "AUTH_BLOCKED_GOOGLE": 1
+    "CANARY_READY": 4,
+    "WRITE_VERIFIED": 2,
+    "AUTH_BLOCKED_MANUAL": 1
   },
   "HERMES_AUTOFRESH_INTERFACE_READY": "YES",
   "HERMES_PRODUCTION_READY": "YES",
   "MONITOR_SHADOW_READY": "YES",
-  "END_TO_END_OPERATOR_READY": "NO",
-  "blockers_to_ready": [
-    "No WRITE_VERIFIED platform yet — run live canaries (Super-Parrain then parrainage-co / code-parrainage) with post_match"
-  ],
+  "END_TO_END_OPERATOR_READY": "YES",
+  "blockers_to_ready": [],
   "note": "Product path: Hermes calls tools/hermes_autofresh.py or workflow hermes_operator.yml. telegram-worker is optional/test only. WRITE_VERIFIED requires real authenticated canary + post-verify.",
   "ALL_NON_BLOCKED_PLATFORMS_CANARY_READY": "YES",
   "MULTIPROGRAM_DRY_RUN_READY": "YES",
