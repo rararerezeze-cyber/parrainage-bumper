@@ -73,13 +73,42 @@ jobs:
           # should_commit is computed by save_run_report (compares to previous report)
           if python monitor.py --should-commit; then
             echo "Business/status change detected — committing light state"
-            git add data/monitor/last-observations.json data/monitor/history.jsonl data/monitor/accepted-fields.json data/monitor/accepted-history.jsonl data/offer-sources.json data/captures/monitor-last-report.json data/captures/monitor-auto-accept-simulation.json 2>/dev/null || true
+            # Same class of bug fixed in capture_readonly.yml: `git add`
+            # aborts the ENTIRE invocation (stages nothing at all) the
+            # instant any one pathspec matches nothing. accepted-fields.json
+            # / accepted-history.jsonl do not exist yet in this repo, so the
+            # old single `git add ... 2>/dev/null || true` line silently
+            # staged NOTHING on every run, including the paths that did
+            # exist and did change. Add only what is actually present.
+            for f in data/monitor/last-observations.json \
+                     data/monitor/history.jsonl \
+                     data/monitor/accepted-fields.json \
+                     data/monitor/accepted-history.jsonl \
+                     data/offer-sources.json \
+                     data/captures/monitor-last-report.json \
+                     data/captures/monitor-auto-accept-simulation.json; do
+              if [ -f "$f" ]; then
+                git add "$f"
+              fi
+            done
             if git diff --staged --quiet; then
               echo "no staged file changes"
             else
               git commit -m "chore(monitor): business/status observation update"
-              git pull --rebase origin "${{ github.ref_name }}" || true
-              git push || true
+              # A failed pull/push must never be swallowed: the report this
+              # run produced would otherwise claim a business/status change
+              # was persisted when it was only ever committed locally on
+              # this ephemeral runner. No retry loop -- one attempt, fail
+              # loudly (visible red run) on error, same as
+              # hermes_operator.yml / controlled_write.yml.
+              if ! git pull --rebase origin "${{ github.ref_name }}"; then
+                echo "::error::git pull --rebase failed -- monitor business/status commit was NOT pushed. The report this run produced does not reflect a durably persisted change."
+                exit 1
+              fi
+              if ! git push; then
+                echo "::error::git push failed -- monitor business/status commit was NOT pushed. The report this run produced does not reflect a durably persisted change."
+                exit 1
+              fi
             fi
           else
             echo "No business/status change — skip git commit (report stays in artifacts)"
