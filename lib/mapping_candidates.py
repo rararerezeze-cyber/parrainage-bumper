@@ -28,9 +28,104 @@ STATUS_PENDING = "pending"
 STATUS_PROMOTED = "promoted"
 STATUS_DISMISSED = "dismissed"
 
+# Divergence classification -- an operator's Telegram queue must default to
+# real offer content, never the capture engine's own bookkeeping. Real
+# incident this guards against: the first real capture produced 116 pending
+# candidates for one platform pass, and only a handful were an actual
+# code/lien/gain change -- the rest were parser confidence scores, an
+# internal `quality`/`sync_mode` label, a freeform note restating something
+# already known, or a URL fragment variant of the same announcement. Mixing
+# them into one undifferentiated queue would train the operator to ignore
+# it.
+CLASS_BUSINESS = "BUSINESS"
+CLASS_TARGETING = "TARGETING"
+CLASS_ENGINE_METADATA = "ENGINE_METADATA"
+
+# A. Real, human-visible offer content -- the only class actionable by
+# default. platform_values.* (personal_code, personal_link, referee_reward,
+# referrer_reward, conditions, ...) and their top-level equivalents.
+_BUSINESS_FIELDS = frozenset(
+    {
+        "personal_code",
+        "personal_link",
+        "referee_reward",
+        "referrer_reward",
+        "conditions",
+        "title",
+    }
+)
+# B. Information used to locate/target the right listing, not the offer
+# content itself. Visible only in a diagnostic/technical view.
+_TARGETING_FIELDS = frozenset(
+    {
+        "edit_url",
+        "platform_offer_id",
+        "occurrences",
+        "occurrence_count",
+        "edit_url_source",
+        "edit_url_learned_at",
+        "announcement_url",
+    }
+)
+# C. The capture engine's own bookkeeping -- must never look like "your
+# offer changed" to a human operator.
+_ENGINE_METADATA_FIELDS = frozenset({"sync_mode", "quality", "notes"})
+
+
+def classify_field(field: str) -> str:
+    """A. BUSINESS / B. TARGETING / C. ENGINE_METADATA for a divergence
+    field name (including dotted nested keys like "platform_values.title" or
+    "confidences.personal_code"). Unknown fields default to TARGETING: never
+    silently hidden as noise, but also never presented as a proven offer
+    change until someone classifies it explicitly.
+    """
+    # Nested prefix decides first: confidences.personal_code is a parser
+    # confidence score, not the personal_code value itself, even though its
+    # leaf name matches a BUSINESS field.
+    if "." in field:
+        prefix = field.split(".", 1)[0]
+        if prefix == "platform_values":
+            return CLASS_BUSINESS
+        if prefix == "confidences":
+            return CLASS_ENGINE_METADATA
+        return CLASS_TARGETING
+    if field in _BUSINESS_FIELDS:
+        return CLASS_BUSINESS
+    if field in _ENGINE_METADATA_FIELDS:
+        return CLASS_ENGINE_METADATA
+    return CLASS_TARGETING
+
+
+def is_actionable(candidate_class: str) -> bool:
+    """Only BUSINESS divergences default into the operator-facing queue."""
+    return candidate_class == CLASS_BUSINESS
+
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def _normalize_for_comparison(field: str, value: Any) -> Any:
+    """Best-effort equivalence check so a truly-equivalent value never
+    creates divergence noise. NEVER applied to BUSINESS fields -- a real
+    code/lien/gain change must never be silently swallowed by a
+    normalization rule, whatever the rule.
+
+    Known rule: announcement_url's `#id=...` fragment identifies which
+    offer card on a shared listing page an edit_url was learned from; it is
+    not a different offer, so a fragment-only diff is not a business
+    change. The rule is intentionally narrow (this exact field) rather than
+    "any URL" -- edit_url's fragment (if any) may be meaningful and must
+    not be silently stripped.
+    """
+    if classify_field(field) == CLASS_BUSINESS:
+        return value
+    if not isinstance(value, str):
+        return value
+    v = value.strip()
+    if field == "announcement_url":
+        v = v.split("#", 1)[0]
+    return v
 
 
 class MappingCandidateStore:
@@ -78,7 +173,18 @@ def record_candidate_divergence(
     count, to `entry["history"]` (append-only, oldest first) before being
     superseded. A human reviewing the candidate can see the full X -> Y ->
     Z timeline, not just the latest snapshot.
+
+    Before recording anything, curated_value/observed_value are compared
+    after `_normalize_for_comparison()` -- a value that is truly equivalent
+    (e.g. the same announcement_url with/without its #id fragment) never
+    becomes a candidate at all. Never applied to BUSINESS fields.
     """
+    if _normalize_for_comparison(field, curated_value) == _normalize_for_comparison(
+        field, observed_value
+    ):
+        return {"skipped": True, "reason": "equivalent_after_normalization", "field": field}
+
+    candidate_class = classify_field(field)
     store = store or MappingCandidateStore()
     data = store.load()
     entries = data.setdefault("entries", {})
@@ -91,6 +197,8 @@ def record_candidate_divergence(
             "program": program,
             "language": language,
             "field": field,
+            "candidate_class": candidate_class,
+            "actionable": is_actionable(candidate_class),
             "curated_value": curated_value,
             "observed_value": observed_value,
             "first_observed_at": now,
@@ -100,6 +208,8 @@ def record_candidate_divergence(
             "history": [],
         }
     else:
+        entry["candidate_class"] = candidate_class
+        entry["actionable"] = is_actionable(candidate_class)
         entry["curated_value"] = curated_value
         entry.setdefault("history", [])
         if entry.get("observed_value") == observed_value:
@@ -130,9 +240,15 @@ def list_pending_candidates(
     platform: str | None = None,
     program: str | None = None,
     *,
+    candidate_class: str | None = None,
     store: MappingCandidateStore | None = None,
 ) -> list[dict[str, Any]]:
-    """Stage D input: what an operator should review."""
+    """Stage D input: every pending divergence, all classes -- the full
+    diagnostic view. Entries recorded before candidate_class existed are
+    classified on the fly via classify_field(), never mutating the stored
+    file just to answer a read. Pass candidate_class to filter (e.g. only
+    ENGINE_METADATA for a technical view).
+    """
     store = store or MappingCandidateStore()
     data = store.load()
     out = []
@@ -143,8 +259,28 @@ def list_pending_candidates(
             continue
         if program and entry.get("program") != program:
             continue
+        cls = entry.get("candidate_class") or classify_field(str(entry.get("field") or ""))
+        if candidate_class and cls != candidate_class:
+            continue
+        if "candidate_class" not in entry:
+            entry = {**entry, "candidate_class": cls, "actionable": is_actionable(cls)}
         out.append(entry)
     return out
+
+
+def list_operator_queue(
+    platform: str | None = None,
+    program: str | None = None,
+    *,
+    store: MappingCandidateStore | None = None,
+) -> list[dict[str, Any]]:
+    """The default operator-facing queue: BUSINESS, actionable divergences
+    only. ENGINE_METADATA/TARGETING noise never appears here -- use
+    list_pending_candidates(candidate_class=...) for the diagnostic view.
+    """
+    return list_pending_candidates(
+        platform, program, candidate_class=CLASS_BUSINESS, store=store
+    )
 
 
 def promote_candidate(

@@ -310,3 +310,178 @@ def test_dismiss_never_touches_the_curated_mapping(store, tmp_path, monkeypatch)
     assert r["ok"] is True
     assert mc.list_pending_candidates("p", "prog", store=store) == []
     assert json.loads(mapping_file.read_text(encoding="utf-8"))["edit_url"] == "X"
+
+
+# --- classification: BUSINESS / TARGETING / ENGINE_METADATA ---
+#
+# Real incident this section guards against: the first real capture
+# produced 116 pending candidates in one run. Only a handful were a real
+# code/lien/gain change (BUSINESS); the rest were parser confidence scores,
+# an internal quality/sync_mode label, a note, or a URL fragment variant of
+# the same announcement (TARGETING/ENGINE_METADATA). An operator queue that
+# doesn't separate these trains a human to stop reading it.
+
+
+def test_classify_business_fields():
+    for field in (
+        "platform_values.personal_code",
+        "platform_values.personal_link",
+        "platform_values.referee_reward",
+        "platform_values.referrer_reward",
+        "platform_values.conditions",
+        "personal_code",
+        "conditions",
+        "title",
+    ):
+        assert mc.classify_field(field) == mc.CLASS_BUSINESS, field
+        assert mc.is_actionable(mc.classify_field(field)) is True
+
+
+def test_classify_targeting_fields():
+    for field in (
+        "edit_url",
+        "platform_offer_id",
+        "occurrences",
+        "occurrence_count",
+        "edit_url_source",
+        "edit_url_learned_at",
+        "announcement_url",
+    ):
+        assert mc.classify_field(field) == mc.CLASS_TARGETING, field
+        assert mc.is_actionable(mc.classify_field(field)) is False
+
+
+def test_classify_engine_metadata_fields():
+    for field in (
+        "sync_mode",
+        "quality",
+        "notes",
+        "confidences.personal_code",
+        "confidences.referee_reward",
+    ):
+        assert mc.classify_field(field) == mc.CLASS_ENGINE_METADATA, field
+        assert mc.is_actionable(mc.classify_field(field)) is False
+
+
+def test_recorded_candidate_carries_its_class_and_actionable_flag(store):
+    biz = mc.record_candidate_divergence(
+        "1parrainage", "kraken", "fr", "platform_values.referee_reward", "200 €", "250 €", store=store
+    )
+    assert biz["candidate_class"] == mc.CLASS_BUSINESS
+    assert biz["actionable"] is True
+
+    meta = mc.record_candidate_divergence(
+        "1parrainage", "kraken", "fr", "confidences.referee_reward", "medium", "low", store=store
+    )
+    assert meta["candidate_class"] == mc.CLASS_ENGINE_METADATA
+    assert meta["actionable"] is False
+
+
+def test_operator_queue_shows_only_business_actionable(store):
+    mc.record_candidate_divergence(
+        "1parrainage", "kraken", "fr", "platform_values.personal_code", "OLD", "NEW", store=store
+    )
+    mc.record_candidate_divergence(
+        "1parrainage", "kraken", "fr", "sync_mode", "REVIEW", "SAFE_AUTO", store=store
+    )
+    mc.record_candidate_divergence(
+        "1parrainage", "kraken", "fr", "notes", "old note", "new note", store=store
+    )
+    mc.record_candidate_divergence(
+        "1parrainage", "kraken", "fr", "confidences.personal_code", "medium", "low", store=store
+    )
+    mc.record_candidate_divergence(
+        "1parrainage", "kraken", "fr", "edit_url", "https://x/old", "https://x/new", store=store
+    )
+
+    queue = mc.list_operator_queue("1parrainage", "kraken", store=store)
+    assert [c["field"] for c in queue] == ["platform_values.personal_code"]
+
+    diagnostic = mc.list_pending_candidates("1parrainage", "kraken", store=store)
+    assert len(diagnostic) == 5, "diagnostic view keeps every class, nothing dropped"
+
+    technical_only = mc.list_pending_candidates(
+        "1parrainage", "kraken", candidate_class=mc.CLASS_ENGINE_METADATA, store=store
+    )
+    assert {c["field"] for c in technical_only} == {"sync_mode", "notes", "confidences.personal_code"}
+
+
+def test_pre_classification_entries_are_classified_on_read_without_mutating_storage(store):
+    """Entries written before candidate_class existed (the real 116 from the
+    first capture) must still classify correctly on read, without requiring
+    a migration script that rewrites the stored file."""
+    data = store.load()
+    data["entries"]["1parrainage:kraken:fr:platform_values.personal_link"] = {
+        "platform": "1parrainage",
+        "program": "kraken",
+        "language": "fr",
+        "field": "platform_values.personal_link",
+        "curated_value": "https://old",
+        "observed_value": "https://new",
+        "status": mc.STATUS_PENDING,
+        "history": [],
+    }
+    store.save(data)
+
+    queue = mc.list_operator_queue("1parrainage", "kraken", store=store)
+    assert len(queue) == 1
+    assert queue[0]["candidate_class"] == mc.CLASS_BUSINESS
+    assert queue[0]["actionable"] is True
+
+    # The on-disk file itself is untouched -- classification is read-time only.
+    raw = json.loads(store.path.read_text(encoding="utf-8"))
+    assert "candidate_class" not in raw["entries"]["1parrainage:kraken:fr:platform_values.personal_link"]
+
+
+# --- normalization anti-false-positive ---
+
+
+def test_announcement_url_fragment_only_diff_is_not_a_candidate(store):
+    result = mc.record_candidate_divergence(
+        "1parrainage",
+        "kraken",
+        "fr",
+        "announcement_url",
+        "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100408",
+        "https://www.1parrainage.com/listeannonces_98906_Adrien89.php",
+        store=store,
+    )
+    assert result.get("skipped") is True
+    assert mc.list_pending_candidates("1parrainage", "kraken", store=store) == []
+
+
+def test_announcement_url_real_change_still_creates_a_candidate(store):
+    result = mc.record_candidate_divergence(
+        "1parrainage",
+        "kraken",
+        "fr",
+        "announcement_url",
+        "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100408",
+        "https://www.1parrainage.com/listeannonces_11111_Other.php#id=999",
+        store=store,
+    )
+    assert result.get("skipped") is not True
+    pending = mc.list_pending_candidates("1parrainage", "kraken", store=store)
+    assert len(pending) == 1
+    assert pending[0]["field"] == "announcement_url"
+
+
+def test_normalization_never_suppresses_a_real_business_divergence(store):
+    """A code/lien/gain change must never be silently swallowed by a
+    normalization rule -- even one that happens to look like whitespace or
+    formatting noise."""
+    result = mc.record_candidate_divergence(
+        "1parrainage",
+        "kraken",
+        "fr",
+        "platform_values.personal_code",
+        "  cpbrgddy  ",
+        "cpbrgddy",
+        store=store,
+    )
+    # BUSINESS fields are never normalized -- even a pure-whitespace
+    # difference must still surface, since we cannot be sure it is really
+    # whitespace-only for every possible business value.
+    assert result.get("skipped") is not True
+    pending = mc.list_pending_candidates("1parrainage", "kraken", store=store)
+    assert len(pending) == 1
