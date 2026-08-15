@@ -1,5 +1,16 @@
 {
-  "sites": {},
+  "sites": {
+    "referralcode-tv": {
+      "platform": "referralcode-tv",
+      "items": [],
+      "errors": [
+        {
+          "error": "aucune annonce structuree extraite — DOM a cartographier",
+          "hint": "raw dump: data/captures/referralcode-tv-raw.txt"
+        }
+      ]
+    }
+  },
   "missing_credentials": [],
   "auth_policy": {
     "session": {

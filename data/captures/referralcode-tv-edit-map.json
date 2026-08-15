@@ -56,7 +56,7 @@
       {
         "program": "boursobank",
         "announcement_url": "https://www.referralcode.tv/brand/boursobank-referral-codes/",
-        "edit_url": null,
+        "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23070",
         "sid": null
       },
       {
@@ -68,7 +68,7 @@
       {
         "program": "ebuyclub",
         "announcement_url": "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-ebuyclub-referral-offer-e5-welcome-bonus-%e2%ad%90%ef%b8%8f-join-ebuyclub-a-cashback-platform-that-lets-you-earn-money-while-shopping-online/?__sid=23055",
-        "edit_url": null,
+        "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23055",
         "sid": "23055"
       },
       {
@@ -78,10 +78,22 @@
         "sid": "23028"
       },
       {
+        "program": "igraal",
+        "announcement_url": "https://www.referralcode.tv/add-referral-code/?eid=23067",
+        "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23067",
+        "sid": null
+      },
+      {
         "program": "joko",
         "announcement_url": "https://www.referralcode.tv/referral-code/%e2%9a%a1%ef%b8%8f-offre-parrainage-joko-5e-offerts-des-votre-premiere-utilisation-%e2%9a%a1-%e2%9a%a1-bonus-5e-credites-a-linscription-via-mon-lien-ou-code-parrainage-%e2%9c%85/?__sid=23052",
-        "edit_url": null,
+        "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23052",
         "sid": "23052"
+      },
+      {
+        "program": "kraken",
+        "announcement_url": "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-kraken-referral-bonus-up-to-200-in-crypto-%e2%ad%90%ef%b8%8f-join-kraken-one-of-the-most-trusted-and-secure-crypto-exchanges-worldwide/",
+        "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23004",
+        "sid": null
       },
       {
         "program": "ledger",
@@ -96,10 +108,34 @@
         "sid": "23010"
       },
       {
+        "program": "paypal",
+        "announcement_url": "https://www.referralcode.tv/add-referral-code/?eid=23061",
+        "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23061",
+        "sid": null
+      },
+      {
+        "program": "poulpeo",
+        "announcement_url": "https://www.referralcode.tv/add-referral-code/?eid=23064",
+        "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23064",
+        "sid": null
+      },
+      {
         "program": "revolut",
         "announcement_url": "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-revolut-referral-offer-up-to-200-bonus-%e2%ad%90%ef%b8%8f-join-revolut-a-leading-global-banking-and-finance-app/?__sid=23058",
-        "edit_url": null,
+        "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23058",
         "sid": "23058"
+      },
+      {
+        "program": "robinhood",
+        "announcement_url": "https://www.referralcode.tv/add-referral-code/?eid=23073",
+        "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23073",
+        "sid": null
+      },
+      {
+        "program": "stake",
+        "announcement_url": "https://www.referralcode.tv/add-referral-code/?eid=23076",
+        "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23076",
+        "sid": null
       },
       {
         "program": "swissborg",
@@ -108,15 +144,27 @@
         "sid": "23017"
       },
       {
+        "program": "traderepublic",
+        "announcement_url": "https://www.referralcode.tv/add-referral-code/?eid=23049",
+        "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23049",
+        "sid": null
+      },
+      {
         "program": "unibet",
         "announcement_url": "https://www.referralcode.tv/brand/unibet-referral-codes/",
         "edit_url": null,
         "sid": null
       },
       {
+        "program": "vinted",
+        "announcement_url": "https://www.referralcode.tv/add-referral-code/?eid=23046",
+        "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23046",
+        "sid": null
+      },
+      {
         "program": "widilo",
         "announcement_url": "https://www.referralcode.tv/referral-code/%e2%9a%a1%ef%b8%8f-widilo-signup-bonus-up-to-e6-free-%e2%9a%a1%ef%b8%8f-get-cashback-rewards-just-for-signing-up-and-installing-the-extension/?__sid=23043",
-        "edit_url": null,
+        "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23043",
         "sid": "23043"
       }
     ],
@@ -146,15 +194,68 @@
       {
         "url": "https://www.referralcode.tv/my-account/?tab=listings",
         "final_url": "https://www.referralcode.tv/my-account/?tab=listings",
-        "body_len": 929,
-        "edit_candidates": [],
+        "body_len": 2915,
+        "edit_candidates": [
+          {
+            "href": "https://referralcode.tv/add-referral-code/?eid=23043",
+            "label": "edit code https://referralcode.tv/add-referral-code/?eid=23043"
+          },
+          {
+            "href": "https://referralcode.tv/add-referral-code/?eid=23076",
+            "label": "edit code https://referralcode.tv/add-referral-code/?eid=23076"
+          },
+          {
+            "href": "https://referralcode.tv/add-referral-code/?eid=23073",
+            "label": "edit code https://referralcode.tv/add-referral-code/?eid=23073"
+          },
+          {
+            "href": "https://referralcode.tv/add-referral-code/?eid=23070",
+            "label": "edit code https://referralcode.tv/add-referral-code/?eid=23070"
+          },
+          {
+            "href": "https://referralcode.tv/add-referral-code/?eid=23067",
+            "label": "edit code https://referralcode.tv/add-referral-code/?eid=23067"
+          },
+          {
+            "href": "https://referralcode.tv/add-referral-code/?eid=23064",
+            "label": "edit code https://referralcode.tv/add-referral-code/?eid=23064"
+          },
+          {
+            "href": "https://referralcode.tv/add-referral-code/?eid=23061",
+            "label": "edit code https://referralcode.tv/add-referral-code/?eid=23061"
+          },
+          {
+            "href": "https://referralcode.tv/add-referral-code/?eid=23058",
+            "label": "edit code https://referralcode.tv/add-referral-code/?eid=23058"
+          },
+          {
+            "href": "https://referralcode.tv/add-referral-code/?eid=23055",
+            "label": "edit code https://referralcode.tv/add-referral-code/?eid=23055"
+          },
+          {
+            "href": "https://www.referralcode.tv/referral-code/%e2%9a%a1%ef%b8%8f-offre-parrainage-joko-5e-offerts-des-votre-premiere-utilisation-%e2%9a%a1-%e2%9a%a1-bonus-5e-credites-a-linscription-via-mon-lien-ou-code-parrainage-%e2%9c%85/?__sid=23052",
+            "label": "⚡️ offre parrainage joko – 5€ offerts dès votre première utilisation ⚡ ⚡ bonus : 5€ crédités à l’ins"
+          },
+          {
+            "href": "https://referralcode.tv/add-referral-code/?eid=23052",
+            "label": "edit code https://referralcode.tv/add-referral-code/?eid=23052"
+          },
+          {
+            "href": "https://referralcode.tv/add-referral-code/?eid=23049",
+            "label": "edit code https://referralcode.tv/add-referral-code/?eid=23049"
+          },
+          {
+            "href": "https://referralcode.tv/add-referral-code/?eid=23046",
+            "label": "edit code https://referralcode.tv/add-referral-code/?eid=23046"
+          }
+        ],
         "has_cliccami": true,
         "snippet": "Home\nContact Us\nMy Account\nLogout\nReferralCode\nAbout us\nBrands\nReferral Codes\n \nTheSuperReff\nAgency • rararerezeze@gmail.com\nAdd Referral code\nLogout\nDashboard\nHere you'll find your account overview, recent account notices and alerts.\nMy Referral Codes 23\nHere you can view, manage and upgrade your existing codes & links.\nSettings\nContact details, email, password and other account details can be found here.\nMy Referral Codes\nLive (23)\nPending (0)\nPending Approval (0)\nWaiting Payment (0)\nExpired ("
       },
       {
         "url": "https://www.referralcode.tv/my-account/",
         "final_url": "https://www.referralcode.tv/my-account/",
-        "body_len": 1114,
+        "body_len": 1188,
         "edit_candidates": [],
         "has_cliccami": false,
         "snippet": "Home\nContact Us\nMy Account\nLogout\nReferralCode\nAbout us\nBrands\nReferral Codes\n \nTheSuperReff\nAgency • rararerezeze@gmail.com\nAdd Referral code\nLogout\nDashboard\nHere you'll find your account overview, recent account notices and alerts.\nMy Referral Codes 23\nHere you can view, manage and upgrade your existing codes & links.\nSettings\nContact details, email, password and other account details can be found here.\nWelcome Back\n\nHere's an overview of your account.\n\n Boost your codes\nMy Username\nTheSuperR"
@@ -162,7 +263,7 @@
       {
         "url": "https://www.referralcode.tv/my-account/?tab=dashboard",
         "final_url": "https://www.referralcode.tv/my-account/?tab=dashboard",
-        "body_len": 1114,
+        "body_len": 1188,
         "edit_candidates": [],
         "has_cliccami": false,
         "snippet": "Home\nContact Us\nMy Account\nLogout\nReferralCode\nAbout us\nBrands\nReferral Codes\n \nTheSuperReff\nAgency • rararerezeze@gmail.com\nAdd Referral code\nLogout\nDashboard\nHere you'll find your account overview, recent account notices and alerts.\nMy Referral Codes 23\nHere you can view, manage and upgrade your existing codes & links.\nSettings\nContact details, email, password and other account details can be found here.\nWelcome Back\n\nHere's an overview of your account.\n\n Boost your codes\nMy Username\nTheSuperR"
@@ -170,16 +271,163 @@
       {
         "url": "https://www.referralcode.tv/my-account/?dashboard=listings",
         "final_url": "https://www.referralcode.tv/my-account/?dashboard=listings",
-        "body_len": 1114,
+        "body_len": 1188,
         "edit_candidates": [],
         "has_cliccami": false,
         "snippet": "Home\nContact Us\nMy Account\nLogout\nReferralCode\nAbout us\nBrands\nReferral Codes\n \nTheSuperReff\nAgency • rararerezeze@gmail.com\nAdd Referral code\nLogout\nDashboard\nHere you'll find your account overview, recent account notices and alerts.\nMy Referral Codes 23\nHere you can view, manage and upgrade your existing codes & links.\nSettings\nContact details, email, password and other account details can be found here.\nWelcome Back\n\nHere's an overview of your account.\n\n Boost your codes\nMy Username\nTheSuperR"
       }
     ],
-    "edit_urls": [],
+    "edit_urls": [
+      "https://referralcode.tv/add-referral-code/?eid=23043",
+      "https://referralcode.tv/add-referral-code/?eid=23076",
+      "https://referralcode.tv/add-referral-code/?eid=23073",
+      "https://referralcode.tv/add-referral-code/?eid=23070",
+      "https://referralcode.tv/add-referral-code/?eid=23067",
+      "https://referralcode.tv/add-referral-code/?eid=23064",
+      "https://referralcode.tv/add-referral-code/?eid=23061",
+      "https://referralcode.tv/add-referral-code/?eid=23058",
+      "https://referralcode.tv/add-referral-code/?eid=23055",
+      "https://www.referralcode.tv/referral-code/%e2%9a%a1%ef%b8%8f-offre-parrainage-joko-5e-offerts-des-votre-premiere-utilisation-%e2%9a%a1-%e2%9a%a1-bonus-5e-credites-a-linscription-via-mon-lien-ou-code-parrainage-%e2%9c%85/?__sid=23052",
+      "https://referralcode.tv/add-referral-code/?eid=23052",
+      "https://referralcode.tv/add-referral-code/?eid=23049",
+      "https://referralcode.tv/add-referral-code/?eid=23046"
+    ],
     "errors": [],
     "login_landed": "https://www.referralcode.tv/my-account/?l=en_US",
-    "field_probes": [],
-    "conclusion": "NO_EDIT_URLS_YET — inspect pages[] snippets / screenshots"
+    "field_probes": [
+      {
+        "url": "https://www.referralcode.tv/add-referral-code/?eid=23043",
+        "eid": "23043",
+        "program": null,
+        "post_title": "⚡️ Widilo Signup Bonus – Up to €6 Free ⚡️  Get cashback rewards just for signing up and installing the extension.",
+        "code": "NGA684",
+        "buy_link": "https://www.widilo.fr/i/NGA684",
+        "content_len": 726,
+        "content_head": "⚡️ Widilo Signup Bonus – Up to €6 Free ⚡️\n\nGet cashback rewards just for signing up and installing the extension.\n\n⸻\n\n🎁 Bonus:\n• €5 for signing up via referral link\n• +€1 extra for installing the Widilo browser extension\n➡️ Total: up to €6",
+        "page_title": "Add Referral code - Referral Codes"
+      },
+      {
+        "url": "https://www.referralcode.tv/add-referral-code/?eid=23076",
+        "eid": "23076",
+        "program": "stake",
+        "post_title": "🔗 Link: https://stake.com/?c=dgVATAsz 🎟️ Code: dgVATAsz",
+        "code": "dgVATAsz",
+        "buy_link": "https://stake.com/?c=dgVATAsz",
+        "content_len": 49,
+        "content_head": "🔗 Link: stake.com/?c=dgVATAsz\n🎟️ Code: dgVATAsz",
+        "page_title": "Add Referral code - Referral Codes"
+      },
+      {
+        "url": "https://www.referralcode.tv/add-referral-code/?eid=23073",
+        "eid": "23073",
+        "program": "robinhood",
+        "post_title": "⭐️ Robinhood Europe Referral Offer – $50 Free Crypto Bonus ⭐️  Join Robinhood Europe, a secure and regulated platform for trading cryptocurrencies and",
+        "code": "adrienb-999a02",
+        "buy_link": "https://join.robinhood.com/eu_crypto/adrienb-999a02",
+        "content_len": 1124,
+        "content_head": "⭐️ Robinhood Europe Referral Offer – $50 Free Crypto Bonus ⭐️\n\nJoin Robinhood Europe, a secure and regulated platform for trading cryptocurrencies and tokenized US stocks with low fees.\n\n⸻\n\n🎁 Bonus: $50 in free crypto for new users\n\n⸻\n\n🎟️",
+        "page_title": "Add Referral code - Referral Codes"
+      },
+      {
+        "url": "https://www.referralcode.tv/add-referral-code/?eid=23070",
+        "eid": "23070",
+        "program": null,
+        "post_title": "⭐️ Jusqu’à 200 € OFFERTS en ce MOMENT ⭐️",
+        "code": "ADBE5645",
+        "buy_link": "https://bour.so/p/cdRUvTEbxaf",
+        "content_len": 1789,
+        "content_head": "⭐️ Jusqu’à 200 € OFFERTS en ce MOMENT ⭐️\n\n⭐️ Prime totale pour vous : 200 €\n\njusqu'a 120 € pour un 1er compte avec un 1er versement, puis au moins 1 opération par carte par mois pendant 3 mois\n+\nVous bénéficierez de 80€ de prime pour toute ",
+        "page_title": "Add Referral code - Referral Codes"
+      },
+      {
+        "url": "https://www.referralcode.tv/add-referral-code/?eid=23067",
+        "eid": "23067",
+        "program": "paypal",
+        "post_title": "⚡ Bonus : 5 € offers sur votre compte iGraal m via mon lien ✅",
+        "code": "AG_608d8f9aded43",
+        "buy_link": "https://fr.igraal.com/parrainage?parrain=AG_608d8f9aded43",
+        "content_len": 815,
+        "content_head": "⚡️ Offre Parrainage iGraal – 5 € offerts ⚡\n\n⚡ Bonus : 5 € offers sur votre compte iGraal m via mon lien ✅\n\n⸻\n\n⭐️ Lien de parrainage :\n\n➡️ fr.igraal.com/parrainage?parrain=AG_608d8f9aded43\n\n⸻\n\n✅ Conditions pour obtenir le bonus :\n\n1. Créez v",
+        "page_title": "Add Referral code - Referral Codes"
+      },
+      {
+        "url": "https://www.referralcode.tv/add-referral-code/?eid=23064",
+        "eid": "23064",
+        "program": null,
+        "post_title": "⭐️ Poulpeo Referral Offer – $5 Welcome Bonus ⭐️  Join Poulpeo, a cashback platform that lets you earn money while shopping online.",
+        "code": "4KD2ab",
+        "buy_link": "https://www.poulpeo.com/inscription/parrainage?sponsor_key=4KD2ab&utm_source=chatgpt.com",
+        "content_len": 704,
+        "content_head": "⭐️ Poulpeo Referral Offer – $5 Welcome Bonus ⭐️\n\nJoin Poulpeo, a cashback platform that lets you earn money while shopping online.\n\n⸻\n\n🎁 Bonus: $5 credited instantly after sign-up using referral code\n\n⸻\n\n🎟️ Sign up here:\nwww.poulpeo.com/i",
+        "page_title": "Add Referral code - Referral Codes"
+      },
+      {
+        "url": "https://www.referralcode.tv/add-referral-code/?eid=23061",
+        "eid": "23061",
+        "program": "paypal",
+        "post_title": "⭐️ PayPal Referral Offer – $10 Bonus ⭐️  Get $10 cash directly into your PayPal account.",
+        "code": "",
+        "buy_link": "https://py.pl/1GOwby",
+        "content_len": 608,
+        "content_head": "⭐️ PayPal Referral Offer – $10 Bonus ⭐️\n\nGet $10 cash directly into your PayPal account.\n\n⸻\n\n🎁 Bonus: $10 PayPal cash after completing simple requirements\n\n⸻\n\n🎟️ Sign up here:\n\npy.pl/1GOwby\n\n⸻\n\n⚙️ How to claim your bonus:\n\nCreate a new Pa",
+        "page_title": "Add Referral code - Referral Codes"
+      },
+      {
+        "url": "https://www.referralcode.tv/add-referral-code/?eid=23058",
+        "eid": "23058",
+        "program": null,
+        "post_title": "⭐️ Revolut Referral Offer – Up to $200 Bonus ⭐️  Join Revolut, a leading global banking and finance app.",
+        "code": "adrienhcos",
+        "buy_link": "https://revolut.com/referral/?referral-code=adrienhcos!JUL2-26-AR-H1&geo-redirect",
+        "content_len": 1099,
+        "content_head": "⭐️ Revolut Referral Offer – Up to $200 Bonus ⭐️\n\nJoin Revolut, a leading global banking and finance app.\n\n⸻\n\n🎁 Bonus: $10 to $200 cash reward (varies depending on ongoing campaigns)\n\n⸻\n\n🎟️ Sign up here:\n\nrevolut.com/referral/?referral-cod",
+        "page_title": "Add Referral code - Referral Codes"
+      },
+      {
+        "url": "https://www.referralcode.tv/add-referral-code/?eid=23055",
+        "eid": "23055",
+        "program": null,
+        "post_title": "⭐️ EBuyClub Referral Offer – €5 Welcome Bonus ⭐️  Join EBuyClub, a cashback platform that lets you earn money while shopping online.",
+        "code": "adrien891000",
+        "buy_link": "https://www.ebuyclub.com/?parrain=adrien891000",
+        "content_len": 752,
+        "content_head": "⭐️ EBuyClub Referral Offer – €5 Welcome Bonus ⭐️\n\nJoin EBuyClub, a cashback platform that lets you earn money while shopping online.\n\n⸻\n\n🎁 Bonus: €5 credited instantly after sign-up\n\n⸻\n\n🎟️ Sign up here:\nwww.ebuyclub.com/?parrain=adrien891",
+        "page_title": "Add Referral code - Referral Codes"
+      },
+      {
+        "url": "https://www.referralcode.tv/add-referral-code/?eid=23052",
+        "eid": "23052",
+        "program": "joko",
+        "post_title": "⚡️ Offre Parrainage Joko – 5€ offerts dès votre première utilisation ⚡  ⚡ Bonus : 5€ crédités à l’inscription via mon lien ou code parrainage ✅  ⸻  ➡️",
+        "code": "stxzzb",
+        "buy_link": "https://hellojoko.app.link/?utm_source=chatgpt.com",
+        "content_len": 1072,
+        "content_head": "⚡️ Offre Parrainage Joko – 5€ offerts dès votre première utilisation ⚡\n\n⚡ Bonus : 5€ crédités à l’inscription via mon lien ou code parrainage ✅\n\n⸻\n\n➡️ Code parrain : stxzzb\n\n⸻\n\n✅ Conditions pour bénéficier du bonus :\n1. Inscrivez-vous via l",
+        "page_title": "Add Referral code - Referral Codes"
+      },
+      {
+        "url": "https://www.referralcode.tv/add-referral-code/?eid=23049",
+        "eid": "23049",
+        "program": null,
+        "post_title": "⭐️ Trade Republic Referral Offer – 3% Interest Boost for 3 Months ⭐️  Earn boosted interest and rewards with Trade Republic, a leading European invest",
+        "code": "s931znqx",
+        "buy_link": "https://refnocode.trade.re/s931znqx",
+        "content_len": 996,
+        "content_head": "⭐️ Trade Republic Referral Offer – 3% Interest Boost for 3 Months ⭐️\n\nEarn boosted interest and rewards with Trade Republic, a leading European investment app.\n\n⸻\n\n🎁 Bonus:\n• 3% interest boost for 3 months\n• Additional welcome and referral",
+        "page_title": "Add Referral code - Referral Codes"
+      },
+      {
+        "url": "https://www.referralcode.tv/add-referral-code/?eid=23046",
+        "eid": "23046",
+        "program": null,
+        "post_title": "⚡️ Vinted Referral Offer – Easy Signup & Secure Buying/Selling ⚡️  Join Vinted, the leading marketplace for second-hand fashion.",
+        "code": "weeew89",
+        "buy_link": "https://www.vinted.fr/invite/weeew89",
+        "content_len": 833,
+        "content_head": "⚡️ Vinted Referral Offer – Easy Signup & Secure Buying/Selling ⚡️\n\nJoin Vinted, the leading marketplace for second-hand fashion.\n\n⸻\n\n🎁 Bonus: Sign up via referral link to get started on the platform\n\n⸻\n\n🎟️ Referral code: weeew89\n🔗 Sign u",
+        "page_title": "Add Referral code - Referral Codes"
+      }
+    ],
+    "conclusion": "EDIT_URLS_FOUND"
   }
 }
