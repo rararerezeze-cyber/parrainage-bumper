@@ -288,6 +288,124 @@ def write_build_result(result: BuildResult) -> dict[str, Path]:
     return {"golden": g_path, "template": t_path, "mapping": m_path, "meta": meta_path}
 
 
+MUTABLE_FIELD_ORDER = ["personal_code", "personal_link", "referee_reward", "referrer_reward", "conditions"]
+
+# Once a real value exists for one of these, a fresh read-only capture may
+# never silently replace it -- only fill it in if it was previously empty.
+# Real incident: capture_oneparrainage() called write_build_result() (via
+# this same module) unconditionally on every run, which always emits a
+# fixed schema with edit_url=None and no memory of anything previously
+# learned -- destroying manually-verified evidence for all 31 1parrainage
+# programs it touched in one pass (2026-08-15, commit 83f22bca), including
+# the real WRITE_VERIFIED edit_url for kraken.
+MAPPING_PROTECT_ONCE_SET_FIELDS = (
+    "edit_url",
+    "platform_offer_id",
+    "occurrences",
+    "occurrence_count",
+    "edit_url_source",
+    "edit_url_learned_at",
+    "sync_mode",
+    "quality",
+    "announcement_url",
+)
+MAPPING_NESTED_MERGE_FIELDS = ("platform_values", "confidences")
+
+
+def _present(value: Any) -> bool:
+    return value not in (None, "", [], {})
+
+
+def merge_conservative_mapping_update(
+    existing: dict[str, Any] | None, fresh: dict[str, Any]
+) -> tuple[dict[str, Any], dict[str, list[str]]]:
+    """Merge a freshly-derived mapping onto an existing one without ever
+    downgrading already-curated evidence.
+
+    Rules, in order:
+    1. If `existing.notes` already contains a "WRITE_VERIFIED" marker, the
+       entire record is a real, proven write -- return it completely
+       unchanged. A read-only capture must never touch it at all.
+    2. `platform_values` / `confidences` merge key by key: an already-
+       present sub-value wins; a fresh sub-value is only adopted for a key
+       that was previously missing (enrichment, never replacement).
+       `mutable_fields` is then recomputed from the merged platform_values
+       so it never disagrees with what was actually kept.
+    3. `MAPPING_PROTECT_ONCE_SET_FIELDS` (edit_url, platform_offer_id,
+       occurrences, occurrence_count, edit_url_source, edit_url_learned_at,
+       sync_mode, quality, announcement_url): keep the existing value
+       whenever one is already present; only adopt the fresh value if the
+       field was previously empty.
+    4. `notes`: never silently replace existing non-empty notes.
+    5. Everything else (platform/program/language identity, golden_file,
+       template_status, markers, offer_fields, source_of_truth) is safe to
+       refresh normally -- these are either identity fields or fixed
+       boilerplate, never curated evidence.
+
+    Returns (merged, report) where report has "enriched" (fields filled in
+    that were previously missing) and "kept_existing" (fields where a
+    fresh value was proposed but the existing one was preserved instead)
+    for auditability.
+    """
+    report: dict[str, list[str]] = {"enriched": [], "kept_existing": []}
+    if not existing:
+        report["enriched"] = sorted(k for k, v in fresh.items() if _present(v))
+        return dict(fresh), report
+
+    if "WRITE_VERIFIED" in str(existing.get("notes") or ""):
+        report["kept_existing"] = ["*ALL* (WRITE_VERIFIED record frozen)"]
+        return dict(existing), report
+
+    merged = dict(existing)
+
+    for nested_key in MAPPING_NESTED_MERGE_FIELDS:
+        old_nested = dict(existing.get(nested_key) or {})
+        new_nested = dict(fresh.get(nested_key) or {})
+        merged_nested = dict(old_nested)
+        for k, v in new_nested.items():
+            if _present(old_nested.get(k)):
+                if old_nested.get(k) != v:
+                    report["kept_existing"].append(f"{nested_key}.{k}")
+            elif _present(v):
+                merged_nested[k] = v
+                report["enriched"].append(f"{nested_key}.{k}")
+        merged[nested_key] = merged_nested
+
+    merged["mutable_fields"] = [
+        f for f in MUTABLE_FIELD_ORDER if f in merged.get("platform_values") or {}
+    ]
+
+    for key in MAPPING_PROTECT_ONCE_SET_FIELDS:
+        old_v = existing.get(key)
+        new_v = fresh.get(key)
+        if _present(old_v):
+            merged[key] = old_v
+            if new_v != old_v:
+                report["kept_existing"].append(key)
+        elif _present(new_v):
+            merged[key] = new_v
+            report["enriched"].append(key)
+
+    if _present(existing.get("notes")):
+        merged["notes"] = existing.get("notes")
+        if fresh.get("notes") and fresh.get("notes") != existing.get("notes"):
+            report["kept_existing"].append("notes")
+    elif fresh.get("notes"):
+        merged["notes"] = fresh.get("notes")
+        report["enriched"].append("notes")
+
+    handled = set(MAPPING_NESTED_MERGE_FIELDS) | set(MAPPING_PROTECT_ONCE_SET_FIELDS) | {
+        "notes",
+        "mutable_fields",
+    }
+    for key, new_v in fresh.items():
+        if key in handled:
+            continue
+        merged[key] = new_v
+
+    return merged, report
+
+
 def extract_values_via_template(
     template: str,
     golden: str,

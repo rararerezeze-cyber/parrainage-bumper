@@ -33,7 +33,13 @@ from lib.auth_policy import (
     should_stop_platform,
 )
 from lib.offers import OffersRepository
-from lib.template_builder import build_from_text, detect_platform_values, write_build_result
+from lib.paths import TEMPLATES_DIR, golden_path, mapping_path, template_path
+from lib.template_builder import (
+    build_from_text,
+    detect_platform_values,
+    merge_conservative_mapping_update,
+    write_build_result,
+)
 
 # Import utilitaires bumper sans executer main
 sys.path.insert(0, str(ROOT))
@@ -1157,6 +1163,30 @@ async def capture_oneparrainage(browser, offers: OffersRepository) -> dict:
             except KeyError:
                 offer = None
             try:
+                # READ-ONLY must never downgrade already-curated evidence.
+                # Snapshot everything write_build_result() is about to
+                # overwrite unconditionally (mapping.json AND the golden/
+                # template/meta text files) so a fresh, lower-fidelity pass
+                # can never silently destroy edit_url / platform_offer_id /
+                # occurrences / a WRITE_VERIFIED record / a richer golden
+                # text -- see lib.template_builder.merge_conservative_mapping_update.
+                m_path_probe = mapping_path(platform, slug, "fr")
+                g_path_probe = golden_path(platform, slug, "fr")
+                t_path_probe = template_path(platform, slug, "fr")
+                meta_path_probe = TEMPLATES_DIR / platform / f"{slug}.fr.meta.json"
+                existing_mapping = (
+                    json.loads(m_path_probe.read_text(encoding="utf-8"))
+                    if m_path_probe.exists()
+                    else None
+                )
+                existing_meta = (
+                    json.loads(meta_path_probe.read_text(encoding="utf-8"))
+                    if meta_path_probe.exists()
+                    else None
+                )
+                existing_golden = g_path_probe.read_text(encoding="utf-8") if g_path_probe.exists() else None
+                existing_template = t_path_probe.read_text(encoding="utf-8") if t_path_probe.exists() else None
+
                 result = build_from_text(
                     platform=platform,
                     program=slug,
@@ -1173,10 +1203,41 @@ async def capture_oneparrainage(browser, offers: OffersRepository) -> dict:
                 d["quality"] = "native_list_or_auth"
                 d["style_policy"] = "native_platform_style_only"
                 d["notes"] = "; ".join(filter(None, [d.get("notes"), "no emoji re-injection"]))
-                mpath.write_text(json.dumps(d, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+                merged, merge_report = merge_conservative_mapping_update(existing_mapping, d)
+                mpath.write_text(json.dumps(merged, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+                meta_path = paths["meta"]
+                if existing_meta is not None:
+                    fresh_meta = json.loads(meta_path.read_text(encoding="utf-8"))
+                    merged_meta, _meta_report = merge_conservative_mapping_update(existing_meta, fresh_meta)
+                    meta_path.write_text(
+                        json.dumps(merged_meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+                    )
+
+                # "quality" kept_existing means the prior capture was strictly
+                # richer (e.g. native_list_full_inventory vs this quick list
+                # scrape) -- the golden/template text write_build_result()
+                # just produced is from the same lower-fidelity pass, so
+                # restore the prior text too rather than leave the mapping
+                # metadata pointing at a golden text worse than what it
+                # describes.
+                if "quality" in merge_report.get("kept_existing", []):
+                    if existing_golden is not None:
+                        paths["golden"].write_text(existing_golden, encoding="utf-8")
+                    if existing_template is not None:
+                        paths["template"].write_text(existing_template, encoding="utf-8")
+
                 seen.add(slug)
                 report["items"].append(
-                    {"program": slug, "status": "ok", "chars": len(body), "mutable": result.mutable_fields}
+                    {
+                        "program": slug,
+                        "status": "ok",
+                        "chars": len(body),
+                        "mutable": result.mutable_fields,
+                        "merge_enriched": merge_report.get("enriched"),
+                        "merge_kept_existing": merge_report.get("kept_existing"),
+                    }
                 )
             except Exception as exc:  # noqa: BLE001
                 report["errors"].append({"program": slug, "error": str(exc)})
