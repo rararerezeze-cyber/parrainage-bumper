@@ -1,15 +1,1 @@
-Offre Parrainage Joko – 5 € offerts dès votre première utilisation
-
-Bonus : {{REFEREE_REWARD}}
-
-Code parrain :
-{{PERSONAL_CODE}}
-
-Conditions pour bénéficier du bonus :
-
-Inscrivez-vous
-...
-
-J’en profite
-
-<img loading="lazy" class="img-responsive" width="115" border="0" height="38" src='/uploads/leslogos/poulpeo.gif'
+Offre Parrainage Joko – 5 € offerts dès votre première utilisation Bonus : 5 € crédités à l’inscription via le lien ou le code de parrainage Code parrain : {{PERSONAL_CODE}} Conditions pour bénéficier du bonus : {{REFEREE_REWARD}}

@@ -1,11 +1,1 @@
-Offre Parrainage NRJ Mobile – 10 € offerts chacun
-
-Bonus : {{REFEREE_REWARD}}.
-
-Profitez d’un forfait NRJ Mobile avantageux tout en recevant une récompense grâce au parrainage.
-
-...
-
-J’en profite
-
-<img loading="lazy" class="img-responsive" width="115" border="0" height="38" src='/uploads/leslogos/revolut.jpg'
+Offre Parrainage NRJ Mobile – 10 € offerts chacun Bonus : {{REFEREE_REWARD}}. Profitez d’un forfait NRJ Mobile avantageux tout en recevant une récompense grâce au parrainage. ... Lire la suite

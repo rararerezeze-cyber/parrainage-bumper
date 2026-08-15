@@ -1,12 +1,1 @@
-Offre Parrainage Revolut – Jusqu’à {{REFEREE_REWARD}}
-
-Entre 10 € et {{REFEREE_REWARD}} avec Revolut
-Prime en cash (montant variable selon les campagnes en cours) après ouverture et utilisation du compte Revolut via le lien de parrainage.
-
-Lien de parrainage :
-
-...
-
-J’en profite
-
-<img loading="lazy" class="img-responsive" width="115" border="0" height="38" src='/uploads/leslogos/traderepublic.jpg'
+Offre Parrainage Revolut – Jusqu’à {{REFEREE_REWARD}} Revolut Prime en cash (montant variable selon les campagnes en cours) après ouverture et utilisation du compte Revolut via le lien de parrainage. Lien de parrainage : ... Lire la suite

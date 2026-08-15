@@ -212,135 +212,582 @@
   },
   "auth": {
     "mode": "auth",
-    "ok": true,
-    "login": "ok",
-    "pages": [
-      {
-        "url": "https://www.1parrainage.com/espace_parrain/",
-        "final_url": "https://www.1parrainage.com/espace_parrain/",
-        "body_len": 1200,
-        "edit_candidates": [
+    "ok": false,
+    "login": "failed",
+    "pages": [],
+    "edit_urls": [],
+    "errors": [],
+    "dom_census": {
+      "mode": "dom_census",
+      "ok": true,
+      "census_before_consent": {
+        "url": "https://www.1parrainage.com/login",
+        "title": "Parrainage, Code Promo, Cashback et Réductions",
+        "forms": [
           {
-            "href": "https://www.1parrainage.com/espace_parrain/profile/edit/98906/",
-            "label": "profil https://www.1parrainage.com/espace_parrain/profile/edit/98906/"
+            "action": "https://www.1parrainage.com/texte_results.php",
+            "method": "get",
+            "id": "",
+            "className": "w-100",
+            "input_count": 4
           },
           {
-            "href": "https://www.1parrainage.com/espace_parrain/profile/edit/98906/",
-            "label": "modifier mon profil https://www.1parrainage.com/espace_parrain/profile/edit/98906/"
+            "action": "/login",
+            "method": "post",
+            "id": "",
+            "className": "comment-form newsletter",
+            "input_count": 5
+          },
+          {
+            "action": "https://my.sendinblue.com/users/subscribeembed/js_id/30ix8/id/1",
+            "method": "",
+            "id": "theform",
+            "className": "description comment-form",
+            "input_count": 6
           }
         ],
-        "snippet": " ENGIE: Offre d'été boostée jusqu'à 145€ (25€ + 120€) offerts ! J'en profite >\nOFFRE\nPARRAIN\n Mon Espace Se déconnecter\nBIENVENUE SUR L'ESPACE PARRAIN\nAccueil\nAbonnement\nParrainages\nMessagerie\nProfil\nSe déconnecter\n\n \n\nAdrien Besnard\n\nPseudo : Adrien89\n\nInscription : 16-03-2022\n\nStatut : Activé\n\nModifier mon profil Ma page personnelle\nGagnez plus avec 1parrainage ?\nAccédez au Blog qui fait des €€€"
+        "input_count_total": 18,
+        "inputs": [
+          {
+            "type": "radio",
+            "name": "cat",
+            "id": "inlineCheckbox1",
+            "placeholder": "",
+            "visible": true,
+            "in_form_action": "https://www.1parrainage.com/texte_results.php"
+          },
+          {
+            "type": "radio",
+            "name": "cat",
+            "id": "inlineCheckbox2",
+            "placeholder": "",
+            "visible": true,
+            "in_form_action": "https://www.1parrainage.com/texte_results.php"
+          },
+          {
+            "type": "text",
+            "name": "texte",
+            "id": "typeahead",
+            "placeholder": "Rechercher une \"offre\" ou un \"parrain\"",
+            "visible": true,
+            "in_form_action": "https://www.1parrainage.com/texte_results.php"
+          },
+          {
+            "type": "hidden",
+            "name": "catOK",
+            "id": "catOK",
+            "placeholder": "",
+            "visible": false,
+            "in_form_action": "https://www.1parrainage.com/texte_results.php"
+          },
+          {
+            "type": "text",
+            "name": "_username",
+            "id": "_username",
+            "placeholder": "Email",
+            "visible": true,
+            "in_form_action": "/login"
+          },
+          {
+            "type": "password",
+            "name": "_password",
+            "id": "_password",
+            "placeholder": "Mot de passe",
+            "visible": true,
+            "in_form_action": "/login"
+          },
+          {
+            "type": "checkbox",
+            "name": "_remember_me",
+            "id": "remember_me",
+            "placeholder": "",
+            "visible": true,
+            "in_form_action": "/login"
+          },
+          {
+            "type": "hidden",
+            "name": "_csrf_token",
+            "id": "",
+            "placeholder": "",
+            "visible": false,
+            "in_form_action": "/login"
+          },
+          {
+            "type": "submit",
+            "name": "submit",
+            "id": "",
+            "placeholder": "",
+            "visible": true,
+            "in_form_action": "/login"
+          },
+          {
+            "type": "hidden",
+            "name": "",
+            "id": "sib_embed_signup_lang",
+            "placeholder": "",
+            "visible": false,
+            "in_form_action": null
+          },
+          {
+            "type": "hidden",
+            "name": "",
+            "id": "sib_embed_invalid_email_message",
+            "placeholder": "",
+            "visible": false,
+            "in_form_action": null
+          },
+          {
+            "type": "hidden",
+            "name": "primary_type",
+            "id": "primary_type",
+            "placeholder": "",
+            "visible": false,
+            "in_form_action": null
+          },
+          {
+            "type": "hidden",
+            "name": "js_id",
+            "id": "js_id",
+            "placeholder": "",
+            "visible": false,
+            "in_form_action": "https://my.sendinblue.com/users/subscribeembed/js_id/30ix8/id/1"
+          },
+          {
+            "type": "hidden",
+            "name": "listid",
+            "id": "listid",
+            "placeholder": "",
+            "visible": false,
+            "in_form_action": "https://my.sendinblue.com/users/subscribeembed/js_id/30ix8/id/1"
+          },
+          {
+            "type": "hidden",
+            "name": "from_url",
+            "id": "from_url",
+            "placeholder": "",
+            "visible": false,
+            "in_form_action": "https://my.sendinblue.com/users/subscribeembed/js_id/30ix8/id/1"
+          },
+          {
+            "type": "hidden",
+            "name": "hdn_email_txt",
+            "id": "hdn_email_txt",
+            "placeholder": "",
+            "visible": false,
+            "in_form_action": "https://my.sendinblue.com/users/subscribeembed/js_id/30ix8/id/1"
+          },
+          {
+            "type": "hidden",
+            "name": "req_hid",
+            "id": "req_hid",
+            "placeholder": "",
+            "visible": false,
+            "in_form_action": "https://my.sendinblue.com/users/subscribeembed/js_id/30ix8/id/1"
+          },
+          {
+            "type": "text",
+            "name": "email",
+            "id": "email",
+            "placeholder": "Votre email*",
+            "visible": true,
+            "in_form_action": "https://my.sendinblue.com/users/subscribeembed/js_id/30ix8/id/1"
+          }
+        ],
+        "selector_census": {
+          "input#_username": {
+            "count": 1,
+            "visible": 1
+          },
+          "input[name='_username']": {
+            "count": 1,
+            "visible": 1
+          },
+          "form[action=\"/login\"] input#_username": {
+            "count": 1,
+            "visible": 1
+          },
+          "input#_password": {
+            "count": 1,
+            "visible": 1
+          },
+          "input[name='_password']": {
+            "count": 1,
+            "visible": 1
+          },
+          "form[action=\"/login\"] input#_password": {
+            "count": 1,
+            "visible": 1
+          }
+        },
+        "consent_nodes": [
+          {
+            "tag": "DIV",
+            "id": "__abconsent-cmp",
+            "className": "",
+            "visible": false
+          },
+          {
+            "tag": "DIV",
+            "id": "sd-cmp",
+            "className": "sd-cmp-E8mYB sd-cmp-0D1DZ",
+            "visible": false
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "className": "sd-cmp-4oXwF",
+            "visible": true
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "className": "sd-cmp-0aBA7",
+            "visible": false
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "className": "sd-cmp-wBgKb sd-cmp-CShq- sd-cmp-UenSl",
+            "visible": true
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "className": "sd-cmp-Mhcnq",
+            "visible": true
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "className": "sd-cmp-rErhr",
+            "visible": true
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "className": "sd-cmp-uLlTJ",
+            "visible": true
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "className": "sd-cmp-hHVD5",
+            "visible": true
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "className": "sd-cmp-LN2h8",
+            "visible": true
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "className": "sd-cmp-3wghC",
+            "visible": true
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "className": "sd-cmp-bS5Na",
+            "visible": false
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "className": "sd-cmp-J-Y-d",
+            "visible": true
+          }
+        ],
+        "body_text_head": "PROFITEZ DES PROMOS DE PARRAINAGES, AVEC NOS MISES EN RELATION PARRAINS FILLEULS !\nOFFRE\nPARRAIN\n Se connecter S'inscrire\nCONNECTEZ-VOUS À VOTRE COMPTE\n Se Rappeler De Moi\nMot de passe oublié ?\nPas encore de compte ? S'inscrire\nUNE OFFRE DE PARRAINAGE N'EXISTE PAS ?\n\nVous constatez qu'une offre de parrainage n'existe pas encore sur 1parrainage.com ?\nContactez-nous avec un maximum d'informations pour que nous l'ajoutions.\n\nNous contacter\nRECHERCHER PAR LA 1ÈRE LETTRE DU MARCHAND\nA B C D E F G H I J K L M N O P Q R S T U V W X Y Z (0-9)\nS'INSCRIRE À NOTRE NEWSLETTER\nS'inscrire\nVous pouvez vous d"
       },
-      {
-        "url": "https://www.1parrainage.com/espace_parrain/annonces/",
-        "final_url": "https://www.1parrainage.com/espace_parrain/annonces/",
-        "body_len": 1371,
-        "edit_candidates": [],
-        "snippet": "PROFITEZ DES PROMOS DE PARRAINAGES, AVEC NOS MISES EN RELATION PARRAINS FILLEULS !\nOFFRE\nPARRAIN\n Se connecter S'inscrire\n+ 3 000 OFFRES DE PARRAINAGE, + 150 000 PARRAINS PRÊTS À VOUS PARRAINER\n\nPour profiter de codes promo, réductions, mois offerts... Accédez aux annonces de nos parrains.\n\nVoir toutes les offres de parrainage \nPAGE INTROUVABLE\n\nLa page que vous avez souhaité atteindre n'existe pa"
+      "cookie_consent": {
+        "error": "CONSENT_BLOCKED: banner visible but no standard Accepter/Tout accepter/Autoriser button"
       },
-      {
-        "url": "https://www.1parrainage.com/espace_parrain/offres/",
-        "final_url": "https://www.1parrainage.com/espace_parrain/offres/",
-        "body_len": 1371,
-        "edit_candidates": [],
-        "snippet": "PROFITEZ DES PROMOS DE PARRAINAGES, AVEC NOS MISES EN RELATION PARRAINS FILLEULS !\nOFFRE\nPARRAIN\n Se connecter S'inscrire\n+ 3 000 OFFRES DE PARRAINAGE, + 150 000 PARRAINS PRÊTS À VOUS PARRAINER\n\nPour profiter de codes promo, réductions, mois offerts... Accédez aux annonces de nos parrains.\n\nVoir toutes les offres de parrainage \nPAGE INTROUVABLE\n\nLa page que vous avez souhaité atteindre n'existe pa"
+      "census_after_consent": {
+        "url": "https://www.1parrainage.com/login",
+        "title": "Parrainage, Code Promo, Cashback et Réductions",
+        "forms": [
+          {
+            "action": "https://www.1parrainage.com/texte_results.php",
+            "method": "get",
+            "id": "",
+            "className": "w-100",
+            "input_count": 4
+          },
+          {
+            "action": "/login",
+            "method": "post",
+            "id": "",
+            "className": "comment-form newsletter",
+            "input_count": 5
+          },
+          {
+            "action": "https://my.sendinblue.com/users/subscribeembed/js_id/30ix8/id/1",
+            "method": "",
+            "id": "theform",
+            "className": "description comment-form",
+            "input_count": 6
+          }
+        ],
+        "input_count_total": 18,
+        "inputs": [
+          {
+            "type": "radio",
+            "name": "cat",
+            "id": "inlineCheckbox1",
+            "placeholder": "",
+            "visible": true,
+            "in_form_action": "https://www.1parrainage.com/texte_results.php"
+          },
+          {
+            "type": "radio",
+            "name": "cat",
+            "id": "inlineCheckbox2",
+            "placeholder": "",
+            "visible": true,
+            "in_form_action": "https://www.1parrainage.com/texte_results.php"
+          },
+          {
+            "type": "text",
+            "name": "texte",
+            "id": "typeahead",
+            "placeholder": "Rechercher une \"offre\" ou un \"parrain\"",
+            "visible": true,
+            "in_form_action": "https://www.1parrainage.com/texte_results.php"
+          },
+          {
+            "type": "hidden",
+            "name": "catOK",
+            "id": "catOK",
+            "placeholder": "",
+            "visible": false,
+            "in_form_action": "https://www.1parrainage.com/texte_results.php"
+          },
+          {
+            "type": "text",
+            "name": "_username",
+            "id": "_username",
+            "placeholder": "Email",
+            "visible": true,
+            "in_form_action": "/login"
+          },
+          {
+            "type": "password",
+            "name": "_password",
+            "id": "_password",
+            "placeholder": "Mot de passe",
+            "visible": true,
+            "in_form_action": "/login"
+          },
+          {
+            "type": "checkbox",
+            "name": "_remember_me",
+            "id": "remember_me",
+            "placeholder": "",
+            "visible": true,
+            "in_form_action": "/login"
+          },
+          {
+            "type": "hidden",
+            "name": "_csrf_token",
+            "id": "",
+            "placeholder": "",
+            "visible": false,
+            "in_form_action": "/login"
+          },
+          {
+            "type": "submit",
+            "name": "submit",
+            "id": "",
+            "placeholder": "",
+            "visible": true,
+            "in_form_action": "/login"
+          },
+          {
+            "type": "hidden",
+            "name": "",
+            "id": "sib_embed_signup_lang",
+            "placeholder": "",
+            "visible": false,
+            "in_form_action": null
+          },
+          {
+            "type": "hidden",
+            "name": "",
+            "id": "sib_embed_invalid_email_message",
+            "placeholder": "",
+            "visible": false,
+            "in_form_action": null
+          },
+          {
+            "type": "hidden",
+            "name": "primary_type",
+            "id": "primary_type",
+            "placeholder": "",
+            "visible": false,
+            "in_form_action": null
+          },
+          {
+            "type": "hidden",
+            "name": "js_id",
+            "id": "js_id",
+            "placeholder": "",
+            "visible": false,
+            "in_form_action": "https://my.sendinblue.com/users/subscribeembed/js_id/30ix8/id/1"
+          },
+          {
+            "type": "hidden",
+            "name": "listid",
+            "id": "listid",
+            "placeholder": "",
+            "visible": false,
+            "in_form_action": "https://my.sendinblue.com/users/subscribeembed/js_id/30ix8/id/1"
+          },
+          {
+            "type": "hidden",
+            "name": "from_url",
+            "id": "from_url",
+            "placeholder": "",
+            "visible": false,
+            "in_form_action": "https://my.sendinblue.com/users/subscribeembed/js_id/30ix8/id/1"
+          },
+          {
+            "type": "hidden",
+            "name": "hdn_email_txt",
+            "id": "hdn_email_txt",
+            "placeholder": "",
+            "visible": false,
+            "in_form_action": "https://my.sendinblue.com/users/subscribeembed/js_id/30ix8/id/1"
+          },
+          {
+            "type": "hidden",
+            "name": "req_hid",
+            "id": "req_hid",
+            "placeholder": "",
+            "visible": false,
+            "in_form_action": "https://my.sendinblue.com/users/subscribeembed/js_id/30ix8/id/1"
+          },
+          {
+            "type": "text",
+            "name": "email",
+            "id": "email",
+            "placeholder": "Votre email*",
+            "visible": true,
+            "in_form_action": "https://my.sendinblue.com/users/subscribeembed/js_id/30ix8/id/1"
+          }
+        ],
+        "selector_census": {
+          "input#_username": {
+            "count": 1,
+            "visible": 1
+          },
+          "input[name='_username']": {
+            "count": 1,
+            "visible": 1
+          },
+          "form[action=\"/login\"] input#_username": {
+            "count": 1,
+            "visible": 1
+          },
+          "input#_password": {
+            "count": 1,
+            "visible": 1
+          },
+          "input[name='_password']": {
+            "count": 1,
+            "visible": 1
+          },
+          "form[action=\"/login\"] input#_password": {
+            "count": 1,
+            "visible": 1
+          }
+        },
+        "consent_nodes": [
+          {
+            "tag": "DIV",
+            "id": "__abconsent-cmp",
+            "className": "",
+            "visible": false
+          },
+          {
+            "tag": "DIV",
+            "id": "sd-cmp",
+            "className": "sd-cmp-E8mYB sd-cmp-0D1DZ",
+            "visible": false
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "className": "sd-cmp-4oXwF",
+            "visible": true
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "className": "sd-cmp-0aBA7",
+            "visible": false
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "className": "sd-cmp-wBgKb sd-cmp-CShq- sd-cmp-UenSl",
+            "visible": true
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "className": "sd-cmp-Mhcnq",
+            "visible": true
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "className": "sd-cmp-rErhr",
+            "visible": true
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "className": "sd-cmp-uLlTJ",
+            "visible": true
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "className": "sd-cmp-hHVD5",
+            "visible": true
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "className": "sd-cmp-LN2h8",
+            "visible": true
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "className": "sd-cmp-3wghC",
+            "visible": true
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "className": "sd-cmp-bS5Na",
+            "visible": false
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "className": "sd-cmp-J-Y-d",
+            "visible": true
+          }
+        ],
+        "body_text_head": "PROFITEZ DES PROMOS DE PARRAINAGES, AVEC NOS MISES EN RELATION PARRAINS FILLEULS !\nOFFRE\nPARRAIN\n Se connecter S'inscrire\nCONNECTEZ-VOUS À VOTRE COMPTE\n Se Rappeler De Moi\nMot de passe oublié ?\nPas encore de compte ? S'inscrire\nUNE OFFRE DE PARRAINAGE N'EXISTE PAS ?\n\nVous constatez qu'une offre de parrainage n'existe pas encore sur 1parrainage.com ?\nContactez-nous avec un maximum d'informations pour que nous l'ajoutions.\n\nNous contacter\nRECHERCHER PAR LA 1ÈRE LETTRE DU MARCHAND\nA B C D E F G H I J K L M N O P Q R S T U V W X Y Z (0-9)\nS'INSCRIRE À NOTRE NEWSLETTER\nS'inscrire\nVous pouvez vous d"
       },
-      {
-        "url": "https://www.1parrainage.com/espace_membre.php",
-        "final_url": "https://www.1parrainage.com/espace_membre.php",
-        "body_len": 1371,
-        "edit_candidates": [],
-        "snippet": "PROFITEZ DES PROMOS DE PARRAINAGES, AVEC NOS MISES EN RELATION PARRAINS FILLEULS !\nOFFRE\nPARRAIN\n Se connecter S'inscrire\n+ 3 000 OFFRES DE PARRAINAGE, + 150 000 PARRAINS PRÊTS À VOUS PARRAINER\n\nPour profiter de codes promo, réductions, mois offerts... Accédez aux annonces de nos parrains.\n\nVoir toutes les offres de parrainage \nPAGE INTROUVABLE\n\nLa page que vous avez souhaité atteindre n'existe pa"
-      },
-      {
-        "url": "https://www.1parrainage.com/espace-parrain",
-        "final_url": "https://www.1parrainage.com/espace-parrain",
-        "body_len": 1371,
-        "edit_candidates": [],
-        "snippet": "PROFITEZ DES PROMOS DE PARRAINAGES, AVEC NOS MISES EN RELATION PARRAINS FILLEULS !\nOFFRE\nPARRAIN\n Se connecter S'inscrire\n+ 3 000 OFFRES DE PARRAINAGE, + 150 000 PARRAINS PRÊTS À VOUS PARRAINER\n\nPour profiter de codes promo, réductions, mois offerts... Accédez aux annonces de nos parrains.\n\nVoir toutes les offres de parrainage \nPAGE INTROUVABLE\n\nLa page que vous avez souhaité atteindre n'existe pa"
-      },
-      {
-        "url": "https://www.1parrainage.com/mes-annonces.php",
-        "final_url": "https://www.1parrainage.com/mes-annonces.php",
-        "body_len": 1371,
-        "edit_candidates": [],
-        "snippet": "PROFITEZ DES PROMOS DE PARRAINAGES, AVEC NOS MISES EN RELATION PARRAINS FILLEULS !\nOFFRE\nPARRAIN\n Se connecter S'inscrire\n+ 3 000 OFFRES DE PARRAINAGE, + 150 000 PARRAINS PRÊTS À VOUS PARRAINER\n\nPour profiter de codes promo, réductions, mois offerts... Accédez aux annonces de nos parrains.\n\nVoir toutes les offres de parrainage \nPAGE INTROUVABLE\n\nLa page que vous avez souhaité atteindre n'existe pa"
-      },
-      {
-        "url": "https://www.1parrainage.com/mes_annonces.php",
-        "final_url": "https://www.1parrainage.com/mes_annonces.php",
-        "body_len": 1371,
-        "edit_candidates": [],
-        "snippet": "PROFITEZ DES PROMOS DE PARRAINAGES, AVEC NOS MISES EN RELATION PARRAINS FILLEULS !\nOFFRE\nPARRAIN\n Se connecter S'inscrire\n+ 3 000 OFFRES DE PARRAINAGE, + 150 000 PARRAINS PRÊTS À VOUS PARRAINER\n\nPour profiter de codes promo, réductions, mois offerts... Accédez aux annonces de nos parrains.\n\nVoir toutes les offres de parrainage \nPAGE INTROUVABLE\n\nLa page que vous avez souhaité atteindre n'existe pa"
-      },
-      {
-        "url": "https://www.1parrainage.com/gestion_annonces.php",
-        "final_url": "https://www.1parrainage.com/gestion_annonces.php",
-        "body_len": 1371,
-        "edit_candidates": [],
-        "snippet": "PROFITEZ DES PROMOS DE PARRAINAGES, AVEC NOS MISES EN RELATION PARRAINS FILLEULS !\nOFFRE\nPARRAIN\n Se connecter S'inscrire\n+ 3 000 OFFRES DE PARRAINAGE, + 150 000 PARRAINS PRÊTS À VOUS PARRAINER\n\nPour profiter de codes promo, réductions, mois offerts... Accédez aux annonces de nos parrains.\n\nVoir toutes les offres de parrainage \nPAGE INTROUVABLE\n\nLa page que vous avez souhaité atteindre n'existe pa"
-      },
-      {
-        "url": "https://www.1parrainage.com/annonces_membre.php",
-        "final_url": "https://www.1parrainage.com/annonces_membre.php",
-        "body_len": 1371,
-        "edit_candidates": [],
-        "snippet": "PROFITEZ DES PROMOS DE PARRAINAGES, AVEC NOS MISES EN RELATION PARRAINS FILLEULS !\nOFFRE\nPARRAIN\n Se connecter S'inscrire\n+ 3 000 OFFRES DE PARRAINAGE, + 150 000 PARRAINS PRÊTS À VOUS PARRAINER\n\nPour profiter de codes promo, réductions, mois offerts... Accédez aux annonces de nos parrains.\n\nVoir toutes les offres de parrainage \nPAGE INTROUVABLE\n\nLa page que vous avez souhaité atteindre n'existe pa"
-      },
-      {
-        "url": "https://www.1parrainage.com/membre",
-        "final_url": "https://www.1parrainage.com/membre",
-        "body_len": 1371,
-        "edit_candidates": [],
-        "snippet": "PROFITEZ DES PROMOS DE PARRAINAGES, AVEC NOS MISES EN RELATION PARRAINS FILLEULS !\nOFFRE\nPARRAIN\n Se connecter S'inscrire\n+ 3 000 OFFRES DE PARRAINAGE, + 150 000 PARRAINS PRÊTS À VOUS PARRAINER\n\nPour profiter de codes promo, réductions, mois offerts... Accédez aux annonces de nos parrains.\n\nVoir toutes les offres de parrainage \nPAGE INTROUVABLE\n\nLa page que vous avez souhaité atteindre n'existe pa"
-      },
-      {
-        "url": "https://www.1parrainage.com/account",
-        "final_url": "https://www.1parrainage.com/account",
-        "body_len": 1371,
-        "edit_candidates": [],
-        "snippet": "PROFITEZ DES PROMOS DE PARRAINAGES, AVEC NOS MISES EN RELATION PARRAINS FILLEULS !\nOFFRE\nPARRAIN\n Se connecter S'inscrire\n+ 3 000 OFFRES DE PARRAINAGE, + 150 000 PARRAINS PRÊTS À VOUS PARRAINER\n\nPour profiter de codes promo, réductions, mois offerts... Accédez aux annonces de nos parrains.\n\nVoir toutes les offres de parrainage \nPAGE INTROUVABLE\n\nLa page que vous avez souhaité atteindre n'existe pa"
-      },
-      {
-        "url": "https://www.1parrainage.com/dashboard",
-        "final_url": "https://www.1parrainage.com/dashboard",
-        "body_len": 1371,
-        "edit_candidates": [],
-        "snippet": "PROFITEZ DES PROMOS DE PARRAINAGES, AVEC NOS MISES EN RELATION PARRAINS FILLEULS !\nOFFRE\nPARRAIN\n Se connecter S'inscrire\n+ 3 000 OFFRES DE PARRAINAGE, + 150 000 PARRAINS PRÊTS À VOUS PARRAINER\n\nPour profiter de codes promo, réductions, mois offerts... Accédez aux annonces de nos parrains.\n\nVoir toutes les offres de parrainage \nPAGE INTROUVABLE\n\nLa page que vous avez souhaité atteindre n'existe pa"
-      },
-      {
-        "url": "https://www.1parrainage.com/parrain.php",
-        "final_url": "https://www.1parrainage.com/parrain.php",
-        "body_len": 1371,
-        "edit_candidates": [],
-        "snippet": "PROFITEZ DES PROMOS DE PARRAINAGES, AVEC NOS MISES EN RELATION PARRAINS FILLEULS !\nOFFRE\nPARRAIN\n Se connecter S'inscrire\n+ 3 000 OFFRES DE PARRAINAGE, + 150 000 PARRAINS PRÊTS À VOUS PARRAINER\n\nPour profiter de codes promo, réductions, mois offerts... Accédez aux annonces de nos parrains.\n\nVoir toutes les offres de parrainage \nPAGE INTROUVABLE\n\nLa page que vous avez souhaité atteindre n'existe pa"
-      },
-      {
-        "url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php",
-        "final_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php",
-        "body_len": 13723,
-        "edit_candidates": [],
-        "snippet": " ENGIE: Offre d'été boostée jusqu'à 145€ (25€ + 120€) offerts ! J'en profite >\nOFFRE\nPARRAIN\n Mon Espace Se déconnecter\nLISTE DES OFFRES DE PARRAINAGE DU PARRAIN \"ADRIEN89\"\n\n \n\nADRIEN89\n\nMembre depuis le 16-03-2022\n\nAnnonces publiées : 41\n\nLaisser un avis au parrain\nLES 5 DERNIERS AVIS PUBLIÉS POUR ADRIEN89\n\nAucun avis n'a été publié pour le parrain Adrien89\n\n\n\n\nLISTE DES ANNONCES DE PARRAINAGE DU"
-      }
-    ],
-    "edit_urls": [
-      "https://www.1parrainage.com/espace_parrain/profile/edit/98906/",
-      "https://www.1parrainage.com/espace_parrain/parrainages/edit/2541207/"
-    ],
-    "errors": [],
-    "login_landed": "https://www.1parrainage.com/espace_parrain/",
-    "known_edit_probe": {
-      "url": "https://www.1parrainage.com/espace_parrain/parrainages/edit/2541207/",
-      "bounced_login": false,
-      "has_ckeditor": true,
-      "has_textarea": true,
-      "len": 1063,
-      "has_s5qudqe4": true,
-      "has_4jdp7sea": false,
-      "has_cpbrgddy": true,
-      "form_edit": true
+      "screenshot": "debug_1parrainage_dom_census.png"
     },
-    "save_clicked": false,
-    "conclusion": "EDIT_URLS_FOUND"
+    "error": "CONSENT_BLOCKED: banner visible but no standard Accepter/Tout accepter/Autoriser button",
+    "kind": "unknown"
   }
 }

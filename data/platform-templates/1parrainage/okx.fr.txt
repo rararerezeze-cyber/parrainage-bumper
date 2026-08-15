@@ -1,8 +1,1 @@
-Code parrain : {{PERSONAL_CODE}} (normalement pré-rempli)
-
-Avantages pour vous :
-...
-
-J’en profite
-
-<img loading="lazy" class="img-responsive" width="115" border="0" height="38" src='/uploads/leslogos/totalenergies.jpg'
+OKX – Jusqu’à 250 € offerts en Bitcoin Profitez de récompenses en BTC en vous inscrivant via mon lien de parrainage : Lien de parrainage : {{PERSONAL_LINK}} Code parrain : {{PERSONAL_CODE}} (normalement pré-rempli) Avantages pour vous : ... Lire la suite

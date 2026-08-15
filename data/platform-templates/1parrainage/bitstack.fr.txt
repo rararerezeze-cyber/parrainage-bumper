@@ -1,12 +1,1 @@
-Offre Parrainage Bitstack – 5 € en Bitcoin offerts
-
-Bonus : {{REFEREE_REWARD}}
-Recevez 5 € en Bitcoin après un achat total d’au moins 100 € via Bitstack, après inscription via le lien de parrainage.
-
-Lien de parrainage :
-{{PERSONAL_LINK}}
-...
-
-J’en profite
-
-<img loading="lazy" class="img-responsive" width="115" border="0" height="38" src='/uploads/leslogos/parionssport.gif'
+Offre Parrainage Bitstack – {{REFEREE_REWARD}}cevez 5 € en Bitcoin après un achat total d’au moins 100 € via Bitstack, après inscription via le lien de parrainage. Lien de parrainage : {{PERSONAL_LINK}} ... Lire la suite

@@ -1,13 +1,1 @@
-Offre Parrainage Trade Republic – Recevez 3 % d’intérêts pendant 3 mois
-
-Code parrain : {{PERSONAL_CODE}}
-
-Lien de parrainage :
-{{PERSONAL_LINK}}
-
-Pendant cette période, tu peux profiter des récompenses Trade Republic de deux faç
-...
-
-J’en profite
-
-<img loading="lazy" class="img-responsive" width="115" border="0" height="38" src='/uploads/leslogos/okx.jpg'
+Offre Parrainage Trade Republic – Recevez 3 % d’intérêts pendant 3 mois Code parrain : {{PERSONAL_CODE}} Lien de parrainage : {{PERSONAL_LINK}} Pendant cette période, tu peux profiter des récompenses Trade Republic de deux faç ... Lire la suite

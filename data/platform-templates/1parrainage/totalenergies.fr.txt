@@ -1,10 +1,1 @@
-offre :
-
-Inscrivez-vous sur le site TotalEnergies
-
-Lors de votre inscription, rens
-...
-
-J’en profite
-
-<img loading="lazy" class="img-responsive" width="115" border="0" height="38" src='/uploads/leslogos/kraken.jpg'
+20€ OFFERTS Lien de parrainage : {{PERSONAL_LINK}} Code parrainage : {{PERSONAL_CODE}} Étapes à suivre pour bénéficier de l’offre : Inscrivez-vous sur le site TotalEnergies Lors de votre inscription, rens ... Lire la suite

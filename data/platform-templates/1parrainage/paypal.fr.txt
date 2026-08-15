@@ -1,12 +1,1 @@
-Offre Parrainage PayPal – {{REFEREE_REWARD}}
-
-{{REFEREE_REWARD}} via PayPal
-Recevez 10 € en cash directement sur votre compte PayPal après avoir dépensé au moins 5 € dans les 30 jours suivant votre inscription via le lien de parrainage.
-
-Lien de parrainage :
-
-...
-
-J’en profite
-
-<img loading="lazy" class="img-responsive" width="115" border="0" height="38" src='/uploads/leslogos/ebuyclub.gif'
+Offre Parrainage PayPal – {{REFEREE_REWARD}} 10 € en cash directement sur votre compte PayPal après avoir dépensé au moins 5 € dans les 30 jours suivant votre inscription via le lien de parrainage. Lien de parrainage : ... Lire la suite

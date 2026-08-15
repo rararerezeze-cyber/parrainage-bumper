@@ -1,14 +1,1 @@
-Offre Parrainage HEETCH – {{REFEREE_REWARD}} offerts à l’inscription
-
-Bonus : {{REFEREE_REWARD}}
-Recevez {{REFEREE_REWARD}} directement crédités dès votre inscription sur HEETCH via mon code ou lien de parrainage.
-
-Lien / Code de parrainage :
-Code : {{PERSONAL_CODE}}
-
-Étapes &a
-...
-
-J’en profite
-
-<img loading="lazy" class="img-responsive" width="115" border="0" height="38" src='/uploads/leslogos/bitstack.jpg'
+Offre Parrainage HEETCH – {{REFEREE_REWARD}}vez 5 € directement crédités dès votre inscription sur HEETCH via mon code ou lien de parrainage. Lien / Code de parrainage : Code : {{PERSONAL_CODE}} Étapes &a ... Lire la suite

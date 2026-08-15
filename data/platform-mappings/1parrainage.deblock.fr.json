@@ -21,30 +21,21 @@
     "referee_reward": "reward",
     "conditions": "cond"
   },
-  "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=101211",
+  "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php",
   "edit_url": null,
   "platform_values": {
-    "referee_reward": "prime aléatoire jusqu’à 500 €"
+    "referee_reward": "500 € offerts Bonus : prime aléatoire jusqu’à"
   },
   "confidences": {
     "referee_reward": "medium"
   },
-  "notes": "lien offers.json non trouve dans le texte; bonus extrait du texte plateforme (confiance moyenne); native style only — no emoji reinjection; list_brand=coupon promotionnel deblock",
+  "notes": "lien offers.json non trouve dans le texte; bonus extrait du texte plateforme (confiance moyenne); native_platform_style_only; no emoji re-injection",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",
     "referee_reward": "offers_json_then_official",
     "announcement_text": "platform_target_only"
   },
-  "quality": "native_list_full_inventory",
-  "style_policy": "native_platform_style_only",
-  "platform_offer_id": "101211",
-  "occurrences": [
-    {
-      "offer_id": "101211",
-      "brand": "coupon promotionnel deblock",
-      "chars": 388
-    }
-  ],
-  "occurrence_count": 1
+  "quality": "native_list_or_auth",
+  "style_policy": "native_platform_style_only"
 }
