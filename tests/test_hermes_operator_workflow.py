@@ -145,3 +145,34 @@ def test_no_retry_storm_added():
     """Exactly one pull attempt and one push attempt -- no loop."""
     assert COMMIT_STEP_CODE.count("git pull --rebase origin") == 1
     assert COMMIT_STEP_CODE.count("if ! git push; then") == 1
+
+
+def test_git_add_no_longer_masks_a_missing_pathspec():
+    """Same class of bug fixed in capture_readonly.yml and monitor_offers.yml
+    this session: a single `git add pathA pathB ... || true` aborts the
+    ENTIRE invocation (stages nothing at all, not even paths that exist and
+    changed) the instant one pathspec matches nothing. All paths here are
+    currently git-tracked baseline files (verified in the fix commit), so
+    the old line was not live-broken -- but it is the exact same fragile
+    pattern, one rename/deletion away from silently breaking Hermes
+    persistence on every run after."""
+    assert not any(
+        "2>/dev/null || true" in line for line in COMMIT_STEP_CODE.splitlines()
+    ), "the masked unconditional git add must be gone from the executable code"
+    assert 'if [ -e "$p" ]; then' in COMMIT_STEP_CODE
+    assert 'git add "$p"' in COMMIT_STEP_CODE
+
+
+def test_every_previously_grouped_path_is_still_staged_individually():
+    for p in (
+        "data/operator-overrides.json",
+        "data/platform-write-status.json",
+        "data/captures",
+        "data/pending_writes.json",
+        "data/platform-mappings",
+        "data/platform-templates",
+        "data/sync-state.json",
+        "last_super_run.txt",
+        "data/autofresh-phase.json",
+    ):
+        assert p in COMMIT_STEP_CODE, f"missing path in the per-file loop: {p}"

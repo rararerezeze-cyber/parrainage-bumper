@@ -149,7 +149,28 @@ jobs:
           set -e
           git config user.name "autofresh-bot"
           git config user.email "autofresh-bot@users.noreply.github.com"
-          git add data/operator-overrides.json data/platform-write-status.json data/captures/hermes-last-result.json data/captures data/pending_writes.json data/platform-mappings data/platform-templates data/sync-state.json last_super_run.txt data/autofresh-phase.json 2>/dev/null || true
+          # Same class of bug fixed in capture_readonly.yml and
+          # monitor_offers.yml this session: `git add` aborts the ENTIRE
+          # invocation (stages nothing at all, not even the paths that do
+          # exist and did change) the instant one pathspec matches nothing.
+          # Every path below is currently a git-tracked baseline file/dir
+          # (verified), so the old grouped `2>/dev/null || true` line was
+          # not live-broken -- but it is the exact same fragile pattern,
+          # one rename/deletion away from silently staging nothing on
+          # every Hermes run ever after. Stage each individually instead.
+          for p in data/operator-overrides.json \
+                   data/platform-write-status.json \
+                   data/captures \
+                   data/pending_writes.json \
+                   data/platform-mappings \
+                   data/platform-templates \
+                   data/sync-state.json \
+                   last_super_run.txt \
+                   data/autofresh-phase.json; do
+            if [ -e "$p" ]; then
+              git add "$p"
+            fi
+          done
           if git diff --cached --quiet; then
             echo "no commit"
             exit 0
