@@ -229,25 +229,15 @@ async def _click_known_accept(page) -> str | None:
     return None
 
 
-async def handle_cookie_consent(page, *, timeout_s: float = 8.0) -> dict[str, Any]:
-    """Click a single standard Accept if a consent banner is visible.
-
-    Returns cookie_consent_handled YES/NO. Raises ConsentBlocked if unsafe.
-    """
-    import asyncio
-
-    await asyncio.sleep(0.6)
-    # Give late Didomi/Sourcepoint iframes a short extra beat on headless Linux.
-    if not await _username_visible(page):
-        await asyncio.sleep(1.2)
-    form_visible = await _username_visible(page)
+async def _scan_consent_ui(page) -> dict[str, Any]:
+    """One read-only pass: is a banner visible, and what accept/reject
+    buttons can currently be seen on page + all frames."""
     banner = await _consent_ui_visible(page)
     owners = [page, *list(page.frames)]
     visible_buttons: list[tuple[Any, dict[str, str]]] = []
     for owner in owners:
         for b in await _visible_buttons(owner):
             visible_buttons.append((owner, b))
-
     accept_candidates = [
         (owner, b)
         for owner, b in visible_buttons
@@ -258,6 +248,49 @@ async def handle_cookie_consent(page, *, timeout_s: float = 8.0) -> dict[str, An
         for _, b in visible_buttons
         if classify_consent_label(b.get("text") or "") == "REJECT_OR_SETTINGS"
     ]
+    return {
+        "banner": banner,
+        "accept_candidates": accept_candidates,
+        "settings_or_reject": settings_or_reject,
+    }
+
+
+async def handle_cookie_consent(page, *, timeout_s: float = 8.0) -> dict[str, Any]:
+    """Click a single standard Accept if a consent banner is visible.
+
+    Returns cookie_consent_handled YES/NO. Raises ConsentBlocked if unsafe.
+    """
+    import asyncio
+
+    await asyncio.sleep(0.6)
+    form_visible = await _username_visible(page)
+
+    # Give late Didomi/Sourcepoint widgets time to finish rendering their
+    # accept button. Previously this extra wait was gated on the login field
+    # NOT being visible yet -- but on sites where the field is present in the
+    # DOM (and thus Playwright-"visible") well before a slow CMP widget has
+    # rendered its button, that condition is essentially never true, so the
+    # extra wait never actually fired. Evidence: 1parrainage GH Actions probe
+    # (data/captures/1parrainage-edit-map.json, dom_census, 2026-08-15)
+    # showed input#_username visible=1 from the very first census, alongside
+    # a Sourcepoint banner (sd-cmp-* nodes) that never exposed a matching
+    # Accept button within the original single fixed-delay scan --
+    # CONSENT_BLOCKED even though a real form and a real banner both exist.
+    # Poll banner+button state directly instead of inferring readiness from
+    # the login field.
+    scan = await _scan_consent_ui(page)
+    deadline0 = asyncio.get_event_loop().time() + 1.8
+    while (
+        scan["banner"]
+        and not scan["accept_candidates"]
+        and asyncio.get_event_loop().time() < deadline0
+    ):
+        await asyncio.sleep(0.3)
+        scan = await _scan_consent_ui(page)
+
+    banner = scan["banner"]
+    accept_candidates = scan["accept_candidates"]
+    settings_or_reject = scan["settings_or_reject"]
 
     if not banner and form_visible and not accept_candidates:
         return {
