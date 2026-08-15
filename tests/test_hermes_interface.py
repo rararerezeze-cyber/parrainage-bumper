@@ -127,6 +127,43 @@ def test_handle_request_wrapper():
     assert r["correlation_id"] == "corr-1"
 
 
+def test_hostile_command_payload_never_crashes_or_is_mangled():
+    """Downstream defense in depth for hermes_operator.yml's env-based input
+    passthrough (see tests/test_hermes_operator_workflow.py): even a command
+    string containing quotes, triple-quotes, newlines, $, backticks and
+    unicode must reach this function completely literally and never raise
+    an unhandled exception -- parsing it as a garbled command and returning
+    a structured parse_error is fine, silently crashing or corrupting the
+    string is not.
+    """
+    hostile = (
+        'Kraken status\n"""not python""" \'not bash\' '
+        "$HOME `id` ${{ malicious }} héllo wörld 🚀"
+    )
+    r = run_autofresh_command(
+        hostile,
+        requester={"source": "hermes", "identity": "h1'\"; DROP TABLE x;--"},
+        run_writers=False,
+        persist=False,
+    )
+    assert r["command"] == hostile
+    assert isinstance(r.get("ok"), bool)
+    if not r["ok"]:
+        assert r["errors"]
+
+
+def test_hostile_correlation_id_passed_through_unmangled():
+    body = {
+        "action": "autofresh",
+        "command": "Kraken status",
+        "requester": {"source": "hermes", "identity": "h1"},
+        "options": {"persist": True, "plan": True, "run_writers": False},
+        "correlation_id": "corr\n\"'$(`)`\t🚀",
+    }
+    r = handle_request(body)
+    assert r["correlation_id"] == body["correlation_id"]
+
+
 def test_idempotence_same_value():
     run_autofresh_command(
         "Kraken code IDEMP123",

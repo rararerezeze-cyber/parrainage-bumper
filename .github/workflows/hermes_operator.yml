@@ -21,12 +21,14 @@ on:
         required: false
         default: ""
       run_writers:
-        description: "Run WRITE_VERIFIED writers (true/false)"
+        description: "Run WRITE_VERIFIED writers (true/false). Fail-closed: only an explicit true arms a writer, and only for a 'set' command — status/plan/read commands never dispatch one either way."
         required: false
-        default: "true"
+        default: "false"
 permissions:
+  # Only what this job's own steps need. actions: write was unused here --
+  # nothing in this job dispatches/cancels workflow runs or otherwise calls
+  # the Actions API; only git commit/push (contents: write) is required.
   contents: write
-  actions: write
 concurrency:
   group: autofresh-hermes-operator
   cancel-in-progress: false
@@ -63,34 +65,60 @@ jobs:
           HERMES_SHARED_TOKEN: ${{ secrets.HERMES_SHARED_TOKEN }}
           AUTOFRESH_PHASE: "VALIDATION_LIVE"
           GITHUB_ACTIONS: "true"
+          # workflow_dispatch inputs passed ONLY via env -- never spliced into
+          # the shell/Python source text below. GitHub Actions serializes an
+          # env: value as a single opaque string into the process
+          # environment; it is not textually interpolated into the script,
+          # so quotes/triple-quotes/newlines/$/backticks/unicode in the
+          # input can never break out of a string literal or be re-executed
+          # by the shell. Do not change this back to `${{ github.event.inputs.* }}`
+          # inline in `run:` -- see tests/test_hermes_operator_workflow.py.
+          HERMES_INPUT_COMMAND: ${{ github.event.inputs.command }}
+          HERMES_INPUT_REQUESTER: ${{ github.event.inputs.requester }}
+          HERMES_INPUT_CORRELATION_ID: ${{ github.event.inputs.correlation_id }}
+          HERMES_INPUT_RUN_WRITERS: ${{ github.event.inputs.run_writers }}
         run: |
           set -e
-          CMD='${{ github.event.inputs.command }}'
-          REQ='${{ github.event.inputs.requester }}'
-          CID='${{ github.event.inputs.correlation_id }}'
-          RW='${{ github.event.inputs.run_writers }}'
-          python - <<PY
-          import json, os, subprocess, sys
+          python - <<'PY'
+          import json, os
           from pathlib import Path
-          cmd = os.environ.get("CMD") or """${{ github.event.inputs.command }}"""
-          # rebuild request for hermes_autofresh
+
+          # os.environ only -- no shell/YAML interpolation of user input past
+          # this point. Quoted heredoc delimiter ('PY') also stops bash from
+          # expanding any $(...) / `...` that might literally appear in the
+          # command text before Python ever sees it.
+          cmd = os.environ.get("HERMES_INPUT_COMMAND", "")
+          requester = os.environ.get("HERMES_INPUT_REQUESTER") or "hermes"
+          correlation_id = os.environ.get("HERMES_INPUT_CORRELATION_ID") or None
+          run_writers_raw = os.environ.get("HERMES_INPUT_RUN_WRITERS") or "false"
+          token = os.environ.get("AUTOFRESH_OPERATOR_TOKEN") or os.environ.get("HERMES_SHARED_TOKEN") or ""
+
           req = {
             "action": "autofresh",
-            "command": """${{ github.event.inputs.command }}""",
+            "command": cmd,
             "requester": {
               "source": "hermes",
-              "identity": """${{ github.event.inputs.requester }}""" or "hermes",
-              "token": os.environ.get("AUTOFRESH_OPERATOR_TOKEN") or os.environ.get("HERMES_SHARED_TOKEN") or "",
+              "identity": requester,
+              "token": token,
             },
             "options": {
               "persist": True,
               "plan": True,
-              "run_writers": ("""${{ github.event.inputs.run_writers }}""" or "true").lower() == "true",
+              # Fail-closed default "false" (see workflow_dispatch input).
+              # Only ever consumed for a parsed action=="set" command anyway
+              # (lib/hermes_interface.py) -- status/plan/read commands never
+              # dispatch a writer regardless of this flag.
+              "run_writers": run_writers_raw.strip().lower() == "true",
             },
-            "correlation_id": """${{ github.event.inputs.correlation_id }}""" or None,
+            "correlation_id": correlation_id,
           }
           Path("/tmp/hermes-request.json").write_text(json.dumps(req, ensure_ascii=False), encoding="utf-8")
-          print(json.dumps(req, ensure_ascii=False, indent=2))
+
+          # Never print the token, even redacted-by-GitHub-masking is not a
+          # substitute for not logging it in the first place.
+          safe = json.loads(json.dumps(req))
+          safe["requester"]["token"] = "***" if safe["requester"].get("token") else ""
+          print(json.dumps(safe, ensure_ascii=False, indent=2))
           PY
           set +e
           python tools/hermes_autofresh.py --request-file /tmp/hermes-request.json > /tmp/hermes-result.json
@@ -118,11 +146,28 @@ jobs:
       - name: Commit overrides + status
         if: success()
         run: |
+          set -e
           git config user.name "autofresh-bot"
           git config user.email "autofresh-bot@users.noreply.github.com"
           git add data/operator-overrides.json data/platform-write-status.json data/captures/hermes-last-result.json data/captures data/pending_writes.json data/platform-mappings data/platform-templates data/sync-state.json last_super_run.txt data/autofresh-phase.json 2>/dev/null || true
-          if git diff --cached --quiet; then echo "no commit"; else
-            git commit -m "chore(hermes): operator command result"
-            git pull --rebase origin "${{ github.ref_name }}" || true
-            git push || true
+          if git diff --cached --quiet; then
+            echo "no commit"
+            exit 0
           fi
+          git commit -m "chore(hermes): operator command result"
+          # No auto-retry loop (avoid a retry storm on repeated failures) --
+          # one pull+push attempt. A failure here must NOT be swallowed: the
+          # already-uploaded hermes-last-result.json artifact/JSON reflects
+          # a mutation that only ever landed on this ephemeral runner's
+          # local disk, never durably in the repo, unless this step's own
+          # exit code is 0. Let a failure here fail the job (visible red run)
+          # instead of `|| true`-ing past it.
+          if ! git pull --rebase origin "${{ github.ref_name }}"; then
+            echo "::error::git pull --rebase failed -- Hermes operator commit was NOT pushed. The result JSON this run produced does not reflect a durably persisted change."
+            exit 1
+          fi
+          if ! git push; then
+            echo "::error::git push failed -- Hermes operator commit was NOT pushed. The result JSON this run produced does not reflect a durably persisted change."
+            exit 1
+          fi
+          echo "git_persisted=true"
