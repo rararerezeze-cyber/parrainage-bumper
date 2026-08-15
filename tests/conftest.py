@@ -67,6 +67,7 @@ _PATCH_TARGETS: list[tuple[str, list[str]]] = [
     ("lib.operator_overrides", [
         "DATA_DIR", "OPERATOR_OVERRIDES_PATH", "ACCEPTED_MONITOR_FIELDS_PATH",
     ]),
+    ("lib.mapping_candidates", ["MAPPING_CANDIDATES_PATH"]),
     ("lib.offers", ["OFFERS_PATH"]),
     ("lib.coverage", ["DATA_DIR", "MAPPINGS_DIR"]),
     ("lib.inventory", ["MAPPINGS_DIR"]),

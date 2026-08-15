@@ -117,6 +117,85 @@ def test_override_gt_monitor(store, monkeypatch, tmp_path):
     assert eff2.source == SOURCE_ACCEPTED_MONITOR
 
 
+def test_full_precedence_chain_platform_gt_global_gt_monitor_gt_canonical(
+    store, monkeypatch, tmp_path
+):
+    """Single scenario proving all four tiers in order, per the explicit
+    operator rule: PLATFORM_OPERATOR > GLOBAL_OPERATOR > ACCEPTED_MONITOR >
+    CANONICAL. A value the operator sets from Telegram must never be
+    silently overwritten by the public monitor or a recapture."""
+    accepted = tmp_path / "accepted.json"
+    accepted.write_text(
+        json.dumps({"programs": {"kraken": {"referee_reward": "5 €"}}}),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr("lib.operator_overrides.ACCEPTED_MONITOR_FIELDS_PATH", accepted)
+    from lib.operator_overrides import load_accepted_monitor_fields
+
+    accepted_map = load_accepted_monitor_fields()
+
+    # 4. CANONICAL only — nothing else set, and no accepted-monitor value
+    # for this program/field yet (an empty accepted store, checked
+    # separately below with the real one).
+    eff = resolve_effective_value(
+        "kraken", "referee_reward", platform="super-parrain", canonical="1 €",
+        store=store, accepted={},
+    )
+    assert (eff.value, eff.source) == ("1 €", SOURCE_CANONICAL)
+
+    # 3. ACCEPTED_MONITOR beats CANONICAL.
+    eff = resolve_effective_value(
+        "kraken", "referee_reward", platform="super-parrain", canonical="1 €",
+        store=store, accepted=accepted_map,
+    )
+    assert (eff.value, eff.source) == ("5 €", SOURCE_ACCEPTED_MONITOR)
+
+    # 2. GLOBAL_OPERATOR beats ACCEPTED_MONITOR.
+    store.upsert("kraken", "referee_reward", "20 €")
+    eff = resolve_effective_value(
+        "kraken", "referee_reward", platform="super-parrain", canonical="1 €",
+        store=store, accepted=accepted_map,
+    )
+    assert (eff.value, eff.source) == ("20 €", SOURCE_GLOBAL_OPERATOR)
+
+    # 1. PLATFORM_OPERATOR beats GLOBAL_OPERATOR (the highest tier wins).
+    store.upsert("kraken", "referee_reward", "30 €", platform="super-parrain")
+    eff = resolve_effective_value(
+        "kraken", "referee_reward", platform="super-parrain", canonical="1 €",
+        store=store, accepted=accepted_map,
+    )
+    assert (eff.value, eff.source) == ("30 €", SOURCE_PLATFORM_OPERATOR)
+
+    # A different platform with no PLATFORM_OPERATOR override still falls
+    # back to GLOBAL_OPERATOR, never CANONICAL or ACCEPTED_MONITOR while a
+    # global override exists — this is the exact rule protecting a Telegram
+    # value from a recapture/monitor overwrite.
+    eff_other = resolve_effective_value(
+        "kraken", "referee_reward", platform="parrainage-co", canonical="1 €",
+        store=store, accepted=accepted_map,
+    )
+    assert (eff_other.value, eff_other.source) == ("20 €", SOURCE_GLOBAL_OPERATOR)
+
+
+def test_accepted_monitor_alone_beats_canonical(store, monkeypatch, tmp_path):
+    accepted = tmp_path / "accepted.json"
+    accepted.write_text(
+        json.dumps({"programs": {"kraken": {"referee_reward": "5 €"}}}),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr("lib.operator_overrides.ACCEPTED_MONITOR_FIELDS_PATH", accepted)
+    from lib.operator_overrides import load_accepted_monitor_fields
+
+    eff = resolve_effective_value(
+        "kraken",
+        "referee_reward",
+        canonical="1 €",
+        store=store,
+        accepted=load_accepted_monitor_fields(),
+    )
+    assert (eff.value, eff.source) == ("5 €", SOURCE_ACCEPTED_MONITOR)
+
+
 def test_remove_platform_fallback_global(store):
     store.upsert("kraken", "referee_reward", "20 €")
     store.upsert("kraken", "referee_reward", "25 €", platform="super-parrain")

@@ -22,6 +22,7 @@ from lib.write_status import (
     STATUS_CANARY_READY,
     STATUS_WRITE_PREPARED,
     STATUS_WRITE_VERIFIED,
+    get_platform_meta,
     get_platform_status,
     human_local_command,
     may_auto_execute_on_safe_diff,
@@ -58,6 +59,8 @@ class PlatformImpact:
     error: str | None = None
     route: str = ""
     human_command: str | None = None
+    last_write_verified_at: str | None = None
+    last_failure: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -72,6 +75,8 @@ class PlatformImpact:
             "error": self.error,
             "route": self.route,
             "human_command": self.human_command,
+            "last_write_verified_at": self.last_write_verified_at,
+            "last_failure": self.last_failure,
         }
 
 
@@ -142,6 +147,9 @@ def plan_program_impact(
         can_auto = may_auto_execute_on_safe_diff(ref.platform)
         human_cmd = human_local_command(ref.platform)
         tg_action = telegram_action_for_platform(ref.platform)
+        plat_meta = get_platform_meta(ref.platform)
+        last_write_verified_at = plat_meta.get("last_write_verified_at")
+        last_failure = plat_meta.get("last_failure")
 
         try:
             mapping = mappings.load(ref.platform, ref.program, ref.language)
@@ -157,6 +165,8 @@ def plan_program_impact(
                     error=str(exc),
                     route=route,
                     human_command=human_cmd,
+                    last_write_verified_at=last_write_verified_at,
+                    last_failure=last_failure,
                 )
             )
             continue
@@ -173,6 +183,8 @@ def plan_program_impact(
                     error="template_absent",
                     route=route,
                     human_command=human_cmd,
+                    last_write_verified_at=last_write_verified_at,
+                    last_failure=last_failure,
                 )
             )
             continue
@@ -241,6 +253,8 @@ def plan_program_impact(
                     ),
                     route=route,
                     human_command=human_cmd,
+                    last_write_verified_at=last_write_verified_at,
+                    last_failure=last_failure,
                 )
             )
         except Exception as exc:  # noqa: BLE001
@@ -255,6 +269,8 @@ def plan_program_impact(
                     error=str(exc),
                     route=route,
                     human_command=human_cmd,
+                    last_write_verified_at=last_write_verified_at,
+                    last_failure=last_failure,
                 )
             )
 
@@ -268,6 +284,28 @@ def plan_program_impact(
     )
     write_verified_live = sum(1 for i in impacts if i.write_mode == STATUS_WRITE_VERIFIED)
 
+    # Real offer content the capture engine has observed diverging from the
+    # curated mapping (never the ENGINE_METADATA/TARGETING noise -- see
+    # lib.mapping_candidates.classify_field()). Never auto-applied here;
+    # this is visibility only, exactly like list_operator_queue() itself.
+    try:
+        from lib.mapping_candidates import list_operator_queue
+
+        business_divergences = [
+            {
+                "platform": c.get("platform"),
+                "field": c.get("field"),
+                "curated_value": c.get("curated_value"),
+                "observed_value": c.get("observed_value"),
+                "last_observed_at": c.get("last_observed_at"),
+            }
+            for c in list_operator_queue(
+                platform=platform_filter, program=program
+            )
+        ]
+    except Exception:
+        business_divergences = []
+
     return {
         "program": program,
         "phase": phase_name(),
@@ -277,6 +315,7 @@ def plan_program_impact(
         },
         "global_fields": global_fields,
         "platforms": [i.to_dict() for i in impacts],
+        "business_divergences": business_divergences,
         "summary": {
             "platforms_mapped": len(impacts),
             "pending_update": sum(1 for i in impacts if i.status == "pending_update"),
@@ -285,6 +324,7 @@ def plan_program_impact(
             "write_verified_live": write_verified_live,
             "WRITE_VERIFIED": ws.get("WRITE_VERIFIED"),
             "telegram_live_capable": ws.get("telegram_live_capable"),
+            "business_divergences_pending": len(business_divergences),
         },
         "write_status": ws,
         "observation_only_default": True,
@@ -340,6 +380,23 @@ def format_plan_report(
             )
             if p.get("error"):
                 lines.append(f"    error: {p['error']}")
+        if p.get("last_write_verified_at"):
+            lines.append(f"    last write verified: {p['last_write_verified_at']}")
+        if p.get("last_failure"):
+            lf = p["last_failure"]
+            lines.append(f"    last error: {lf.get('error')} ({lf.get('at')})")
+
+    divergences = plan.get("business_divergences") or []
+    if divergences:
+        lines.append("")
+        lines.append(f"BUSINESS divergences detected ({len(divergences)}):")
+        for d in divergences[:10]:
+            lines.append(
+                f"  {d.get('platform'):18} {d.get('field'):24} "
+                f"curated={d.get('curated_value')!r} observed={d.get('observed_value')!r}"
+            )
+        if len(divergences) > 10:
+            lines.append(f"  ... and {len(divergences) - 10} more (list_operator_queue)")
 
     s = plan.get("summary") or {}
     lines.append("")
