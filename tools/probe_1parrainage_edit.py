@@ -73,6 +73,130 @@ def public_discovery() -> dict:
     }
 
 
+_CENSUS_JS = """
+() => {
+  const consentHints = ['cookie','consent','didomi','onetrust','sourcepoint',
+    'consentframework','quantcast','axeptio','gdpr','tcf','cmp'];
+  function visibleInfo(el) {
+    const r = el.getBoundingClientRect();
+    const st = getComputedStyle(el);
+    return !!(r.width && r.height) && st.display !== 'none'
+      && st.visibility !== 'hidden' && st.opacity !== '0';
+  }
+  const forms = Array.from(document.querySelectorAll('form')).map(f => ({
+    action: f.getAttribute('action') || '',
+    method: f.getAttribute('method') || '',
+    id: f.id || '',
+    className: (f.className || '').toString().slice(0, 120),
+    input_count: f.querySelectorAll('input').length,
+  }));
+  // Never reads .value -- type/name/id/placeholder only, no field content.
+  const inputs = Array.from(document.querySelectorAll('input')).map(i => ({
+    type: i.type || '',
+    name: i.name || '',
+    id: i.id || '',
+    placeholder: i.placeholder || '',
+    visible: visibleInfo(i),
+    in_form_action: i.closest('form') ? (i.closest('form').getAttribute('action') || '') : null,
+  }));
+  function census(sel) {
+    let els;
+    try { els = Array.from(document.querySelectorAll(sel)); }
+    catch (e) { return { error: String(e) }; }
+    return { count: els.length, visible: els.filter(visibleInfo).length };
+  }
+  const consentNodes = Array.from(document.querySelectorAll('iframe, div, aside, section, dialog'))
+    .filter(el => {
+      const blob = ((el.id||'') + ' ' + (el.className||'') + ' ' + (el.src||'')
+        + ' ' + (el.getAttribute('title')||'')).toLowerCase();
+      return consentHints.some(h => blob.includes(h));
+    })
+    .map(el => ({
+      tag: el.tagName,
+      id: el.id || '',
+      className: (el.className||'').toString().slice(0, 120),
+      visible: visibleInfo(el),
+    }));
+  return {
+    url: location.href,
+    title: document.title,
+    forms,
+    input_count_total: inputs.length,
+    inputs,
+    selector_census: {
+      'input#_username': census('input#_username'),
+      "input[name='_username']": census("input[name='_username']"),
+      'form[action="/login"] input#_username': census('form[action="/login"] input#_username'),
+      'input#_password': census('input#_password'),
+      "input[name='_password']": census("input[name='_password']"),
+      'form[action="/login"] input#_password': census('form[action="/login"] input#_password'),
+    },
+    consent_nodes: consentNodes,
+    body_text_head: (document.body && document.body.innerText || '').slice(0, 600),
+  };
+}
+"""
+
+
+async def dom_census_discovery() -> dict:
+    """Strictly read-only: navigate to /login, handle cookie consent (the
+    same real lib.cookie_consent.handle_cookie_consent used in production),
+    then census the DOM before any fill/submit attempt.
+
+    Never fills or submits the login form, never touches an ad-edit page,
+    never records field values -- only structural facts (selector
+    counts/visibility, form actions, input type/name/id, consent widget
+    presence). Purpose: settle empirically why lib.cookie_consent's own
+    unscoped `_username_visible()` check has reported the login field
+    visible right before platforms.oneparrainage.writer._login()'s
+    form-scoped smart_fill() then failed to find it
+    (data/captures/write-1parrainage-kraken.json, 2026-08-13T08:49,
+    "unexpected_dom: login fields not found on /login") -- without guessing.
+    """
+    import bumper as bumper_mod
+    from lib.cookie_consent import handle_cookie_consent
+    from playwright.async_api import async_playwright
+
+    LOGIN_URL = "https://www.1parrainage.com/login"
+    report: dict = {"mode": "dom_census", "ok": False}
+    async with async_playwright() as pw:
+        browser = await pw.chromium.launch(
+            headless=True,
+            args=[
+                "--no-sandbox",
+                "--disable-dev-shm-usage",
+                "--lang=fr-FR",
+                "--disable-blink-features=AutomationControlled",
+            ],
+        )
+        ctx = await bumper_mod.new_context(browser)
+        page = await ctx.new_page()
+        try:
+            await page.goto(LOGIN_URL, wait_until="domcontentloaded", timeout=60000)
+            await bumper_mod.human_sleep(1.0, 2.0)
+            report["census_before_consent"] = await page.evaluate(_CENSUS_JS)
+            try:
+                consent = await handle_cookie_consent(page)
+                report["cookie_consent"] = consent
+            except Exception as exc:  # noqa: BLE001 -- ConsentBlocked or other; still census after
+                report["cookie_consent"] = {"error": str(exc)}
+            await bumper_mod.human_sleep(0.5, 1.0)
+            report["census_after_consent"] = await page.evaluate(_CENSUS_JS)
+            try:
+                await page.screenshot(path="debug_1parrainage_dom_census.png", full_page=True)
+                report["screenshot"] = "debug_1parrainage_dom_census.png"
+            except Exception as exc:  # noqa: BLE001
+                report["screenshot_error"] = str(exc)
+            report["ok"] = True
+        except Exception as exc:  # noqa: BLE001
+            report["error"] = str(exc)
+        finally:
+            await page.close()
+            await ctx.close()
+            await browser.close()
+    return report
+
+
 async def auth_discovery() -> dict:
     from lib.auth_policy import classify_auth_failure, should_stop_platform
     from platforms.oneparrainage.writer import (
@@ -100,6 +224,7 @@ async def auth_discovery() -> dict:
         "pages": [],
         "edit_urls": [],
         "errors": [],
+        "dom_census": await dom_census_discovery(),
     }
     async with async_playwright() as pw:
         browser = await pw.chromium.launch(
