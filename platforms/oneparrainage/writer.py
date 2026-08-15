@@ -255,6 +255,52 @@ async def _detect_challenge(page) -> None:
         _raise_if_stop("forbidden", status=403)
 
 
+async def _login_field_census(page) -> dict[str, Any]:
+    """Read-only diagnostic, never fails the caller.
+
+    Local headed sessions (data/captures/1parrainage-headed-canary.json,
+    tools/local_headed_1parrainage.py) reach the login form fine; the same
+    login sequence in headless GitHub Actions has raised "unexpected_dom:
+    login fields not found on /login" (data/captures/write-1parrainage-
+    kraken.json, 2026-08-13T08:49) even though lib.cookie_consent's own
+    unscoped `_username_visible()` check reported the field visible just
+    before that -- i.e. two different visibility checks on what should be
+    the same element disagreed. Attaching a per-selector count/visible
+    census to the failure turns that mystery into something a human can
+    read directly from the next real failure's JSON report, without
+    needing screenshot access: a genuinely absent form (count=0 everywhere)
+    means something else entirely from a duplicate/hidden-form scope
+    mismatch (count>1, or count=1 but visible=0 for the scoped selector
+    while an unscoped one shows visible=1 elsewhere on the page).
+    """
+    selectors = (
+        'form[action="/login"] input#_username',
+        'input#_username',
+        'input[name="_username"]',
+        'form[action="/login"]',
+    )
+    out: dict[str, Any] = {}
+    for sel in selectors:
+        try:
+            loc = page.locator(sel)
+            total = await loc.count()
+            visible = 0
+            for i in range(min(total, 5)):
+                try:
+                    if await loc.nth(i).is_visible():
+                        visible += 1
+                except Exception:
+                    pass
+            out[sel] = {"count": total, "visible": visible}
+        except Exception as exc:  # noqa: BLE001
+            out[sel] = {"error": str(exc)[:200]}
+    try:
+        out["url"] = page.url
+    except Exception:
+        pass
+    return out
+
+
 async def _login(page, cfg: dict) -> None:
     bumper = _bumper()
     email = cfg.get("email") or ""
@@ -311,7 +357,11 @@ async def _login(page, cfg: dict) -> None:
             await page.screenshot(path="debug_1parrainage_login.png", full_page=True)
         except Exception:
             pass
-        raise RuntimeError("unexpected_dom: login fields not found on /login")
+        census = await _login_field_census(page)
+        raise RuntimeError(
+            "unexpected_dom: login fields not found on /login "
+            f"(email_ok={email_ok} pass_ok={pass_ok} census={census})"
+        )
     btn = page.locator(
         'form[action="/login"] input[type="submit"][name="submit"], '
         'form[action="/login"] input[value="Je me connecte"], '

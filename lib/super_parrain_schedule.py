@@ -155,9 +155,116 @@ def is_super_parrain_canary_pending() -> bool:
         return True
 
 
+# --- Historical bumper authorization -------------------------------------
+#
+# Deliberately independent from WRITE_VERIFIED. WRITE_VERIFIED proves one
+# targeted content-writer canary works (login + edit + save + reread +
+# post_match on a single program, e.g. Poulpeo — see
+# data/captures/write-super-parrain-poulpeo.json). It must never by itself
+# authorize the *global* historical bumper, which opens every codes-promo
+# edit form across ~35 programs and clicks Enregistrer once per program.
+# These are two different blast radii and must be gated independently.
+#
+# Fail-closed: with no explicit operator action, this is always False, even
+# once WRITE_VERIFIED is true. Only authorize_historical_bumper() may set it
+# True; only revoke_historical_bumper_authorization() (or never calling
+# authorize in the first place) keeps/returns it to False.
+RUNTIME_MODE_CANARY_PENDING = "CANARY_PENDING"
+RUNTIME_MODE_BUMPER_SUSPENDED = "WRITE_VERIFIED_BUMPER_SUSPENDED"
+RUNTIME_MODE_NORMAL_BUMP = "NORMAL_BUMP"
+
+
+def is_historical_bumper_authorized() -> bool:
+    try:
+        from lib.phase import load_phase
+
+        return bool(load_phase().get("super_parrain_historical_bumper_authorized"))
+    except Exception:
+        # Fail-closed: unreadable state must never be read as "authorized".
+        return False
+
+
+def _sync_write_status_bumper_label(*, bumper_authorized: bool) -> None:
+    """Keep platform-write-status.json's display fields (runtime_mode,
+    autonomy) in sync with the authorization flag whenever super-parrain is
+    already WRITE_VERIFIED. Never touches status/evidence/timestamps -- this
+    is a label refresh, not a new verification event.
+    """
+    try:
+        from lib.write_status import (
+            AUTONOMY_WRITE_VERIFIED_BUMPER_SUSPENDED,
+            STATUS_WRITE_VERIFIED,
+            load_write_status,
+            save_write_status,
+        )
+
+        data = load_write_status()
+        meta = (data.get("platforms") or {}).get("super-parrain") or {}
+        if meta.get("status") != STATUS_WRITE_VERIFIED:
+            return
+        meta["runtime_mode"] = "NORMAL_BUMP" if bumper_authorized else "WRITE_VERIFIED_BUMPER_SUSPENDED"
+        meta["autonomy"] = (
+            "FUSED_UPDATE_BUMP" if bumper_authorized else AUTONOMY_WRITE_VERIFIED_BUMPER_SUSPENDED
+        )
+        data["platforms"]["super-parrain"] = meta
+        save_write_status(data)
+    except Exception:
+        pass
+
+
+def authorize_historical_bumper(reason: str, *, actor: str = "operator") -> dict[str, Any]:
+    """Explicit, auditable operator action. Nothing else may set this True.
+
+    Does not touch last_super_run.txt / cooldown — authorization only lifts
+    the WRITE_VERIFIED_BUMPER_SUSPENDED gate; the normal 24h cooldown still
+    applies on top before any real cycle runs.
+    """
+    from lib.phase import load_phase, save_phase
+    from lib.safety import audit, snapshot_state
+
+    snapshot_state("authorize_historical_bumper")
+    data = load_phase()
+    data["super_parrain_historical_bumper_authorized"] = True
+    data["super_parrain_historical_bumper_authorized_at"] = datetime.now(timezone.utc).isoformat()
+    data["super_parrain_historical_bumper_authorized_by"] = actor
+    data["super_parrain_historical_bumper_authorized_reason"] = reason
+    save_phase(data)
+    _sync_write_status_bumper_label(bumper_authorized=True)
+    audit("historical_bumper_authorized", actor=actor, reason=reason)
+    return {"ok": True, "authorized": True, "actor": actor, "reason": reason}
+
+
+def revoke_historical_bumper_authorization(*, reason: str = "", actor: str = "operator") -> dict[str, Any]:
+    from lib.phase import load_phase, save_phase
+    from lib.safety import audit, snapshot_state
+
+    snapshot_state("revoke_historical_bumper_authorization")
+    data = load_phase()
+    data["super_parrain_historical_bumper_authorized"] = False
+    data["super_parrain_historical_bumper_revoked_at"] = datetime.now(timezone.utc).isoformat()
+    data["super_parrain_historical_bumper_revoked_by"] = actor
+    data["super_parrain_historical_bumper_revoked_reason"] = reason
+    save_phase(data)
+    _sync_write_status_bumper_label(bumper_authorized=False)
+    audit("historical_bumper_authorization_revoked", actor=actor, reason=reason)
+    return {"ok": True, "authorized": False, "actor": actor, "reason": reason}
+
+
 def super_parrain_runtime_mode() -> str:
-    """CANARY_PENDING | NORMAL_BUMP"""
-    return "CANARY_PENDING" if is_super_parrain_canary_pending() else "NORMAL_BUMP"
+    """CANARY_PENDING | WRITE_VERIFIED_BUMPER_SUSPENDED | NORMAL_BUMP
+
+    CANARY_PENDING: content-writer not yet WRITE_VERIFIED.
+    WRITE_VERIFIED_BUMPER_SUSPENDED: content-writer IS WRITE_VERIFIED, but
+      the historical bumper has not been explicitly authorized. Fail-closed
+      default — this is the common state right after a first WRITE_VERIFIED.
+    NORMAL_BUMP: content-writer WRITE_VERIFIED AND historical bumper
+      explicitly authorized (authorize_historical_bumper() was called).
+    """
+    if is_super_parrain_canary_pending():
+        return RUNTIME_MODE_CANARY_PENDING
+    if not is_historical_bumper_authorized():
+        return RUNTIME_MODE_BUMPER_SUSPENDED
+    return RUNTIME_MODE_NORMAL_BUMP
 
 
 def decide_super_parrain_action() -> dict[str, Any]:
@@ -169,15 +276,22 @@ def decide_super_parrain_action() -> dict[str, Any]:
         → action ``skip`` always for the historical bumper
         → never bump / never save / never consume last_super_run
         → activation_canary.yml is the *only* workflow allowed to save
+    - WRITE_VERIFIED_BUMPER_SUSPENDED (WRITE_VERIFIED but bumper not
+      explicitly authorized): action ``skip`` always. WRITE_VERIFIED proves
+      one targeted content-writer canary, not that the operator wants the
+      global ~35-program historical bumper to run. Fail-closed: this is the
+      default the moment WRITE_VERIFIED becomes true, until
+      authorize_historical_bumper() is called.
     - wait: hors créneau 24h (also skip_bump)
-    - cycle: WRITE_VERIFIED + créneau ouvert → PRE-CHECK + bumper normal
+    - cycle: WRITE_VERIFIED + bumper authorized + créneau ouvert → PRE-CHECK + bumper normal
 
-    Does not delete the bumper — only suspends its saves until canary succeeds.
+    Does not delete the bumper — only suspends its saves until both gates pass.
     """
     eligible, nxt, hours = is_eligible()
     pending = list_pending_super_parrain()
     mode = super_parrain_runtime_mode()
-    canary_pending = mode == "CANARY_PENDING"
+    canary_pending = mode == RUNTIME_MODE_CANARY_PENDING
+    bumper_suspended = mode == RUNTIME_MODE_BUMPER_SUSPENDED
     base = {
         "runtime_mode": mode,
         "canary_pending": canary_pending,
@@ -186,6 +300,7 @@ def decide_super_parrain_action() -> dict[str, Any]:
         "pending_count": len(pending),
         "pending_programs": [p.get("program") for p in pending],
         "activation_canary_owns_save": canary_pending,
+        "historical_bumper_authorized": is_historical_bumper_authorized(),
     }
 
     # Hard gate: historical bumper is suspended until WRITE_VERIFIED
@@ -206,7 +321,33 @@ def decide_super_parrain_action() -> dict[str, Any]:
             "note": (
                 "bump_super_parrain.yml SKIP while CANARY_PENDING. "
                 "Only activation_canary.yml may live-save (Kraken content canary). "
-                "After post_match=true → WRITE_VERIFIED → NORMAL_BUMP re-enabled."
+                "After post_match=true → WRITE_VERIFIED → still SUSPENDED until "
+                "the historical bumper is separately authorized."
+            ),
+        }
+
+    # Second, independent hard gate: WRITE_VERIFIED alone never authorizes
+    # the global historical bumper. Fail-closed until an operator explicitly
+    # calls authorize_historical_bumper().
+    if bumper_suspended:
+        return {
+            **base,
+            "action": "skip",
+            "reason": "historical_bumper_not_authorized",
+            "skip_bump": True,
+            "run_precheck": False,
+            "run_bump": False,
+            "run_canary": False,
+            "eligible_now": eligible,
+            "note": (
+                "super-parrain content-writer is WRITE_VERIFIED (a real targeted "
+                "canary save was proven — login, edit, save, reread, post_match). "
+                "The separate global historical bumper (~35 programs, 1 "
+                "Enregistrer/code) requires an explicit operator authorization "
+                "that has not been given. WRITE_VERIFIED never implies bumper "
+                "authorization. Call "
+                "lib.super_parrain_schedule.authorize_historical_bumper(reason) "
+                "to lift this gate; the 24h cooldown still applies on top."
             ),
         }
 

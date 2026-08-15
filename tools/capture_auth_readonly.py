@@ -800,7 +800,15 @@ async def capture_referralcode_tv(browser, offers: OffersRepository) -> dict:
             await page.wait_for_url(lambda u: "/login" not in u, timeout=15000)
         except Exception:
             pass
-        await page.wait_for_load_state("networkidle")
+        try:
+            # Same fragile networkidle wait fixed in bumper.py::run_referralcode
+            # and tools/probe_referralcode_tv_edit.py -- intermittently hangs
+            # the full 30s default timeout on this site (background
+            # analytics/chat-widget requests). domcontentloaded + bounded
+            # timeout is enough to safely reach the URL check below.
+            await page.wait_for_load_state("domcontentloaded", timeout=15000)
+        except Exception:
+            pass
         if "/login" in page.url:
             raise RuntimeError("login echoue")
 

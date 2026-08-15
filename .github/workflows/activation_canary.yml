@@ -208,8 +208,16 @@ jobs:
           )
           print(json.dumps(out, indent=2, ensure_ascii=False))
           if verified:
-              assert mode == "NORMAL_BUMP", mode
-              print("CANARY_PENDING=false — historical bumper re-enabled (NORMAL_BUMP)")
+              # WRITE_VERIFIED proves this one targeted canary; it does NOT by
+              # itself authorize the separate global historical bumper (see
+              # lib.super_parrain_schedule.is_historical_bumper_authorized).
+              # Fail-closed default after a first WRITE_VERIFIED is SUSPENDED,
+              # not NORMAL_BUMP.
+              assert mode in ("NORMAL_BUMP", "WRITE_VERIFIED_BUMPER_SUSPENDED"), mode
+              if mode == "NORMAL_BUMP":
+                  print("CANARY_PENDING=false — historical bumper explicitly authorized (NORMAL_BUMP)")
+              else:
+                  print("CANARY_PENDING=false — content-writer WRITE_VERIFIED; historical bumper stays SUSPENDED (not authorized, fail-closed)")
           PY
             exit 0
           fi
@@ -304,6 +312,7 @@ jobs:
             data/platform-write-status.json
             data/autofresh-phase.json
             last_super_run.txt
+            debug_*.png
           if-no-files-found: ignore
       - name: Commit status if verified
         if: success()

@@ -58,11 +58,17 @@ jobs:
             echo "action=dry" >> "$GITHUB_OUTPUT"
           fi
 
-          # Manual "cycle" cannot force bump while CANARY_PENDING
+          # Manual "cycle" cannot force bump while CANARY_PENDING, nor while
+          # WRITE_VERIFIED_BUMPER_SUSPENDED (WRITE_VERIFIED alone never
+          # authorizes the global historical bumper — see
+          # lib.super_parrain_schedule.is_historical_bumper_authorized).
+          # decide_super_parrain_action()/super_parrain_cycle.py already
+          # refuse this independently; this mirrors that at the earliest
+          # point so a manual dispatch never even queues a browser install.
           if [ "$MODE" = "cycle" ]; then
-            if [ "$MODE_RT" = "CANARY_PENDING" ]; then
+            if [ "$MODE_RT" = "CANARY_PENDING" ] || [ "$MODE_RT" = "WRITE_VERIFIED_BUMPER_SUSPENDED" ]; then
               echo "action=skip" >> "$GITHUB_OUTPUT"
-              echo "Forced cycle blocked by CANARY_PENDING → SKIP"
+              echo "Forced cycle blocked by runtime_mode=$MODE_RT → SKIP (historical bumper not authorized)"
             else
               echo "action=cycle" >> "$GITHUB_OUTPUT"
             fi

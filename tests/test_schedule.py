@@ -37,7 +37,15 @@ def test_canary_pending_skips_historical_even_when_eligible(tmp_path, monkeypatc
     assert d["eligible_now"] is True
 
 
-def test_write_verified_allows_cycle(tmp_path, monkeypatch):
+def test_write_verified_alone_still_skips_bumper(tmp_path, monkeypatch):
+    """WRITE_VERIFIED is necessary but not sufficient for a historical cycle.
+
+    Content-writer proof (WRITE_VERIFIED, e.g. the real Poulpeo canary) must
+    never by itself authorize the separate global historical bumper — see
+    tests/test_super_parrain_bumper_authorization.py for the full gate
+    behavior. Without an explicit authorize_historical_bumper() call, the
+    bumper stays SUSPENDED (fail-closed) even once WRITE_VERIFIED is true.
+    """
     import lib.super_parrain_schedule as sched
     import lib.write_status as ws
 
@@ -48,11 +56,41 @@ def test_write_verified_allows_cycle(tmp_path, monkeypatch):
         '{"version":1,"platforms":{"super-parrain":{"status":"WRITE_VERIFIED"}}}',
         encoding="utf-8",
     )
+    phase = tmp_path / "autofresh-phase.json"  # no authorization flag set
     monkeypatch.setattr(sched, "PENDING_PATH", pending)
     monkeypatch.setattr(sched, "LAST_SUPER_RUN", last)
     monkeypatch.setattr(ws, "STATUS_PATH", status)
+    monkeypatch.setattr("lib.phase.PHASE_PATH", phase)
 
     assert is_super_parrain_canary_pending() is False
+    assert super_parrain_runtime_mode() == "WRITE_VERIFIED_BUMPER_SUSPENDED"
+    d = decide_super_parrain_action()
+    assert d["action"] == "skip"
+    assert d["run_bump"] is False
+    assert d["skip_bump"] is True
+    assert d["reason"] == "historical_bumper_not_authorized"
+
+
+def test_write_verified_and_bumper_authorized_allows_cycle(tmp_path, monkeypatch):
+    import lib.super_parrain_schedule as sched
+    import lib.write_status as ws
+
+    pending = tmp_path / "pending_writes.json"
+    last = tmp_path / "last.txt"
+    status = tmp_path / "platform-write-status.json"
+    status.write_text(
+        '{"version":1,"platforms":{"super-parrain":{"status":"WRITE_VERIFIED"}}}',
+        encoding="utf-8",
+    )
+    phase = tmp_path / "autofresh-phase.json"
+    monkeypatch.setattr(sched, "PENDING_PATH", pending)
+    monkeypatch.setattr(sched, "LAST_SUPER_RUN", last)
+    monkeypatch.setattr(ws, "STATUS_PATH", status)
+    monkeypatch.setattr("lib.phase.PHASE_PATH", phase)
+    sched.authorize_historical_bumper("test operator sign-off", actor="test")
+
+    assert is_super_parrain_canary_pending() is False
+    assert super_parrain_runtime_mode() == "NORMAL_BUMP"
     d = decide_super_parrain_action()
     assert d["action"] == "cycle"
     assert d["run_bump"] is True

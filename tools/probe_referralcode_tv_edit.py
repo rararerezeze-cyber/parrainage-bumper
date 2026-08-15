@@ -159,7 +159,17 @@ async def auth_discovery() -> dict:
                 await page.wait_for_url(lambda u: "/login" not in u, timeout=20000)
             except Exception:
                 pass
-            await page.wait_for_load_state("networkidle")
+            try:
+                # Same fragile "networkidle" wait as bumper.py::run_referralcode
+                # (see comment there) -- confirmed to intermittently hang the
+                # full 30s default timeout on this site (docs/HANDOFF_CODEX.md
+                # blocker #2, GH run 31648937632: "Timeout 30000ms exceeded"
+                # on login). domcontentloaded with a bounded timeout is
+                # enough to safely reach the point where page.url can be
+                # checked below.
+                await page.wait_for_load_state("domcontentloaded", timeout=15000)
+            except Exception:
+                pass
             if "/login" in page.url:
                 raise RuntimeError("login failed")
             report["login"] = "ok"

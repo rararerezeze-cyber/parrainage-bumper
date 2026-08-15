@@ -952,7 +952,26 @@ async def run_referralcode(browser):
                 await page.wait_for_url(lambda u: "/login" not in u, timeout=15000)
             except Exception:
                 pass
-            await page.wait_for_load_state("networkidle")
+            try:
+                # "networkidle" here hung the full 30s default timeout and
+                # killed the login 3 retries in a row, repeatedly (GH runs
+                # 31717355757, 31793636589, 31815661689, 31866504330 —
+                # always "Timeout 30000ms exceeded" on this exact line,
+                # always right after email+password were already filled and
+                # submitted successfully). The same automated login DID
+                # succeed at least once with the same networkidle wait
+                # (data/captures/referralcode-tv-edit-map.json, login="ok",
+                # 2026-08-12/13) before it started failing this way, which
+                # points at a flaky background request (analytics/chat
+                # widget) that intermittently never lets the page reach true
+                # network idle -- not an auth/CAPTCHA block, which would
+                # fail every time, not intermittently. The URL check just
+                # below is what actually matters; domcontentloaded reaches
+                # that safely, with a short bounded timeout so a stalled
+                # background request can never hard-fail the login again.
+                await page.wait_for_load_state("domcontentloaded", timeout=15000)
+            except Exception:
+                pass
             await human_sleep(2, 4)
 
             if "/login" in page.url:

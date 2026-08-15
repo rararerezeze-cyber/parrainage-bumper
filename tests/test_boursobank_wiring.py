@@ -95,25 +95,44 @@ def test_boursobank_simulate_only_real_native_diffs(tmp_path, monkeypatch):
 
 
 def test_super_poulpeo_canary_all_reward_spans_consistent():
+    """referee_reward override stays internally consistent across every span.
+
+    Deliberately reads the *current* published value from the mapping file
+    instead of hardcoding it: a real WRITE_VERIFIED canary changed Poulpeo's
+    referee_reward from 5€ to 3€ on 2026-08-13 (GH run 31724917509,
+    data/captures/write-super-parrain-poulpeo.json), which broke a previous
+    version of this test that hardcoded old="5€". A canary content field is
+    live production state, not a stable test fixture -- this test must keep
+    passing regardless of what the currently-published reward happens to be.
+    """
+    from lib.paths import mapping_path
+
+    current = json.loads(
+        mapping_path("super-parrain", "poulpeo", "fr").read_text(encoding="utf-8")
+    )
+    old_reward = current["platform_values"]["referee_reward"]
+    # Probe value guaranteed different from whatever is currently published.
+    new_reward = "9€" if old_reward != "9€" else "8€"
+
     plan = build_write_plan(
         "super-parrain",
         "poulpeo",
         "fr",
-        overrides={"referee_reward": "3 €"},
+        overrides={"referee_reward": f"{new_reward[:-1]} €"},
         only_fields=["referee_reward"],
     )
     assert plan.structure_preserved
     assert set(plan.changed_fields) == {"referee_reward"}
-    assert plan.changed_fields["referee_reward"]["old"] == "5€"
-    assert plan.changed_fields["referee_reward"]["new"] == "3€"
-    assert plan.historical.count("5€") == 3
-    assert plan.rendered.count("3€") == 3
-    assert plan.rendered.count("5€") == 0
+    assert plan.changed_fields["referee_reward"]["old"] == old_reward
+    assert plan.changed_fields["referee_reward"]["new"] == new_reward
+    assert plan.historical.count(old_reward) == 3
+    assert plan.rendered.count(new_reward) == 3
+    assert plan.rendered.count(old_reward) == 0
     assert "4KD2ab" in plan.rendered
     assert "sponsor_key=4KD2ab" in plan.rendered
     assert plan.variables["personal_code"] == "4KD2ab"
     assert "sponsor_key=4KD2ab" in (plan.variables["personal_link"] or "")
     assert "{{" not in plan.historical
     assert "{{" not in plan.rendered
-    expected = plan.historical.replace("5€", "3€")
+    expected = plan.historical.replace(old_reward, new_reward)
     assert plan.rendered == expected

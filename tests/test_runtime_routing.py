@@ -4,6 +4,7 @@ from __future__ import annotations
 from lib.write_status import (
     ROUTE_AUTO_ON_SAFE_DIFF,
     ROUTE_AUTH_BLOCKED_MANUAL,
+    ROUTE_BUMPER_NOT_AUTHORIZED,
     ROUTE_CANARY_PENDING_SKIP,
     ROUTE_COOKIE_SESSION_NOT_PC_OFF,
     ROUTE_HUMAN_SAVE_REQUIRED,
@@ -34,7 +35,18 @@ def test_human_and_blocked_never_auto():
     assert may_auto_execute_on_safe_diff("referralcodes") is False
     assert runtime_route("referraldrop") == ROUTE_AUTH_BLOCKED_MANUAL
     assert may_auto_execute_on_safe_diff("referraldrop") is False
-    assert runtime_route("super-parrain") == ROUTE_CANARY_PENDING_SKIP
+    # super-parrain's exact route depends on two independent, legitimately
+    # time-varying gates: whether the content-writer is WRITE_VERIFIED
+    # (ROUTE_CANARY_PENDING_SKIP if not) and, once verified, whether the
+    # separate global historical bumper has been explicitly authorized
+    # (ROUTE_BUMPER_NOT_AUTHORIZED if not — fail-closed default). The
+    # invariant that must always hold regardless of that real, evolving
+    # state is that it is never auto-dispatched.
+    assert runtime_route("super-parrain") in (
+        ROUTE_CANARY_PENDING_SKIP,
+        ROUTE_BUMPER_NOT_AUTHORIZED,
+    )
+    assert runtime_route("super-parrain") != ROUTE_AUTO_ON_SAFE_DIFF
     assert may_auto_execute_on_safe_diff("super-parrain") is False
     assert runtime_route("parrainage-co") == ROUTE_AUTO_ON_SAFE_DIFF
     assert may_auto_execute_on_safe_diff("parrainage-co") is True

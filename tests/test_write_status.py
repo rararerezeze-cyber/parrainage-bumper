@@ -65,13 +65,21 @@ def test_mark_verified_with_full_evidence(status_path, monkeypatch, tmp_path):
     )
     assert r["ok"] is True
     assert ws.is_write_verified("super-parrain")
-    assert ws.runtime_route("super-parrain") == "FUSED_UPDATE_BUMP"
+    # Bumper not explicitly authorized (fail-closed default) -> not FUSED_UPDATE_BUMP
+    # yet, even though the content-writer is WRITE_VERIFIED.
+    assert ws.runtime_route("super-parrain") == ws.ROUTE_BUMPER_NOT_AUTHORIZED
     assert ws.may_auto_execute_on_safe_diff("super-parrain") is False
     assert ws.is_telegram_live_capable("super-parrain") is False
     s = ws.summary()
     assert s["write_verified_count"] == 1
     assert "super-parrain" not in s["telegram_live_capable"]
     assert s["WRITE_VERIFIED"] == "1/7"
+
+    from lib.super_parrain_schedule import authorize_historical_bumper
+
+    authorize_historical_bumper("test operator sign-off", actor="test")
+    assert ws.runtime_route("super-parrain") == "FUSED_UPDATE_BUMP"
+    assert ws.may_auto_execute_on_safe_diff("super-parrain") is False
 
 
 def test_referraldrop_auth_blocked(status_path):
@@ -132,6 +140,65 @@ def test_compare_class_does_not_write_verify(status_path):
     assert ws.is_blocked_compare("code-parrainage") is True
     assert ws.is_write_verified("code-parrainage") is False
     assert ws.is_sequence_cleared("code-parrainage") is False
+
+
+def test_write_verified_never_downgraded_by_later_no_safe_diff(status_path, monkeypatch, tmp_path):
+    """A proven save+reread+post_match must survive a later NO_SAFE_DIFF.
+
+    Regression: on 2026-08-13 controlled_write_super_parrain.py genuinely
+    promoted super-parrain to WRITE_VERIFIED for poulpeo (real login, fill,
+    save, reread_account, reread_public, post_match=true — see
+    data/captures/write-super-parrain-poulpeo.json), but the promotion never
+    reached git because controlled_write.yml's commit step didn't stage
+    platform-write-status.json. Every later canary run then re-read a stale
+    CANARY_READY status from git and recorded NO_SAFE_DIFF for the kraken
+    canary program, which looked like WRITE_VERIFIED had been erased. The
+    persistence gap is fixed in controlled_write.yml; this test locks the
+    invariant at the logic layer so it can never regress silently again:
+    once WRITE_VERIFIED, a NO_SAFE_DIFF on any program must never downgrade
+    the platform's status, only WRITE_VERIFIED itself may re-promote it.
+    """
+    phase = tmp_path / "phase.json"
+    phase.write_text(
+        json.dumps({"phase": "VALIDATION_LIVE", "live_writes": True, "write_verified": []}),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr("lib.phase.PHASE_PATH", phase)
+
+    checks = {k: True for k in ws.REQUIRED_VERIFY_CHECKS}
+    r = ws.mark_write_verified(
+        "super-parrain",
+        program="poulpeo",
+        evidence={"post_match": True, "checks": checks},
+    )
+    assert r["ok"] is True
+    assert ws.get_platform_status("super-parrain") == ws.STATUS_WRITE_VERIFIED
+    # WRITE_VERIFIED alone never authorizes the separate global historical
+    # bumper (fail-closed by design — see
+    # tests/test_super_parrain_bumper_authorization.py) — runtime_mode
+    # starts SUSPENDED, not NORMAL_BUMP, until an operator explicitly
+    # authorizes the bumper.
+    assert (
+        ws.load_write_status()["platforms"]["super-parrain"]["runtime_mode"]
+        == "WRITE_VERIFIED_BUMPER_SUSPENDED"
+    )
+
+    # A later canary on the designated gating program (kraken) that finds
+    # nothing to change must record NO_SAFE_DIFF without ever rolling the
+    # platform back below WRITE_VERIFIED.
+    r2 = ws.mark_sync_verified_no_safe_diff("super-parrain", program="kraken")
+    assert r2["ok"] is True
+    assert r2["status"] == ws.STATUS_WRITE_VERIFIED
+    assert ws.get_platform_status("super-parrain") == ws.STATUS_WRITE_VERIFIED
+    assert ws.is_write_verified("super-parrain") is True
+    assert (
+        ws.load_write_status()["platforms"]["super-parrain"]["runtime_mode"]
+        == "WRITE_VERIFIED_BUMPER_SUSPENDED"
+    )
+    assert (
+        ws.load_write_status()["platforms"]["super-parrain"].get("last_write_verified_at")
+        is not None
+    )
 
 
 def test_dom_blocked_predecessor_does_not_stall_later_real_diff(status_path):

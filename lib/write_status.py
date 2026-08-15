@@ -40,6 +40,13 @@ AUTONOMY_IMPORT_UI_BETA_NOT_PROVEN = "IMPORT_UI_BETA_NOT_PROVEN"
 AUTONOMY_AUTH_BLOCKED_MANUAL = "AUTH_BLOCKED_MANUAL"
 AUTONOMY_COOKIE_SESSION_NOT_PC_OFF = "COOKIE_SESSION_NOT_PC_OFF"
 AUTONOMY_CANARY_PENDING_SKIP = "CANARY_PENDING_SKIP"
+# super-parrain only: content-writer WRITE_VERIFIED, but the separate global
+# historical bumper is on an explicit operator hold (fail-closed default —
+# see lib.super_parrain_schedule.is_historical_bumper_authorized). Distinct
+# from AUTONOMY_CANARY_PENDING_SKIP, which means the content-writer itself
+# is not verified yet -- CANARY_PENDING_SKIP on an already-WRITE_VERIFIED
+# platform is a stale/wrong label, not just an imprecise one.
+AUTONOMY_WRITE_VERIFIED_BUMPER_SUSPENDED = "WRITE_VERIFIED_BUMPER_SUSPENDED"
 
 # Runtime routes (Monitor → Hermes → writer). Human routes never auto-dispatch.
 ROUTE_AUTO_ON_SAFE_DIFF = "AUTO_ON_SAFE_DIFF"
@@ -48,6 +55,11 @@ ROUTE_NEVER_AUTO_COMMIT = "NEVER_AUTO_COMMIT"
 ROUTE_AUTH_BLOCKED_MANUAL = "AUTH_BLOCKED_MANUAL"
 ROUTE_CANARY_PENDING_SKIP = "CANARY_PENDING_SKIP"
 ROUTE_COOKIE_SESSION_NOT_PC_OFF = "COOKIE_SESSION_NOT_PC_OFF"
+# super-parrain only: content-writer IS WRITE_VERIFIED but the separate
+# global historical bumper has not been explicitly authorized (fail-closed).
+# Distinct from ROUTE_CANARY_PENDING_SKIP (content-writer not verified yet)
+# so operator-facing status never conflates the two independent gates.
+ROUTE_BUMPER_NOT_AUTHORIZED = "BUMPER_NOT_AUTHORIZED"
 
 HUMAN_LOCAL_COMMANDS = {
     "referralcode-tv": "python -u tools/local_headed_rctv_canary.py",
@@ -336,7 +348,9 @@ def autonomy_class(platform: str) -> str:
     plat = platform.strip().lower()
     st = str(meta.get("status") or "")
     if plat == "super-parrain" and st == STATUS_WRITE_VERIFIED:
-        return str(meta.get("autonomy") or "FUSED_UPDATE_BUMP")
+        # Fail-closed fallback: an unset autonomy field on an already
+        # WRITE_VERIFIED super-parrain must never be read as bumper-authorized.
+        return str(meta.get("autonomy") or AUTONOMY_WRITE_VERIFIED_BUMPER_SUSPENDED)
     raw = meta.get("autonomy")
     if raw:
         return str(raw)
@@ -357,9 +371,19 @@ def runtime_route(platform: str) -> str:
     """Monitor → Hermes → writer dispatch class."""
     plat = (platform or "").strip().lower()
     if plat == "super-parrain":
-        if is_write_verified(plat):
-            return "FUSED_UPDATE_BUMP"
-        return ROUTE_CANARY_PENDING_SKIP
+        if not is_write_verified(plat):
+            return ROUTE_CANARY_PENDING_SKIP
+        # WRITE_VERIFIED alone never implies the global historical bumper is
+        # authorized -- that is a separate, explicit, fail-closed gate (see
+        # lib.super_parrain_schedule.is_historical_bumper_authorized).
+        try:
+            from lib.super_parrain_schedule import is_historical_bumper_authorized
+
+            if is_historical_bumper_authorized():
+                return "FUSED_UPDATE_BUMP"
+        except Exception:
+            pass
+        return ROUTE_BUMPER_NOT_AUTHORIZED
     auto = autonomy_class(plat)
     if auto == AUTONOMY_PC_OFF_READY:
         return ROUTE_AUTO_ON_SAFE_DIFF
@@ -443,13 +467,36 @@ def mark_write_verified(
     meta["status"] = STATUS_WRITE_VERIFIED
     meta["canary_program"] = program
     meta["last_write_verified_at"] = _now()
+    bumper_authorized = False
     if platform == "super-parrain":
-        meta["runtime_mode"] = "NORMAL_BUMP"
-        meta["autonomy"] = "FUSED_UPDATE_BUMP"
+        # WRITE_VERIFIED proves this one targeted content-writer canary
+        # works. It must NEVER by itself authorize the separate, much
+        # larger-blast-radius global historical bumper (~35 programs, 1
+        # Enregistrer/code) -- that requires an explicit, independent
+        # operator authorize_historical_bumper() call. Fail-closed: read
+        # the *actual* authorization flag rather than assuming NORMAL_BUMP.
+        try:
+            from lib.super_parrain_schedule import is_historical_bumper_authorized
+
+            bumper_authorized = is_historical_bumper_authorized()
+        except Exception:
+            bumper_authorized = False
+        meta["runtime_mode"] = "NORMAL_BUMP" if bumper_authorized else "WRITE_VERIFIED_BUMPER_SUSPENDED"
+        meta["autonomy"] = (
+            "FUSED_UPDATE_BUMP" if bumper_authorized else AUTONOMY_WRITE_VERIFIED_BUMPER_SUSPENDED
+        )
         meta["notes"] = (
-            "WRITE_VERIFIED — Poulpeo content canary passed; "
-            "CANARY_PENDING_SKIP removed; historical bumper re-enabled. "
-            "Still never AUTO_ON_SAFE_DIFF."
+            "WRITE_VERIFIED — content-writer proof (login+edit+save+reread+post_match). "
+            + (
+                "Historical bumper explicitly authorized — NORMAL_BUMP."
+                if bumper_authorized
+                else (
+                    "Historical bumper NOT authorized (fail-closed, independent from "
+                    "this content-writer proof) — bump_super_parrain.yml stays SKIP "
+                    "until an operator calls "
+                    "lib.super_parrain_schedule.authorize_historical_bumper()."
+                )
+            )
         )
     meta["evidence"] = {
         "program": program,
@@ -471,10 +518,17 @@ def mark_write_verified(
     if platform == "super-parrain":
         try:
             ph = load_phase()
-            ph["super_parrain_runtime"] = "NORMAL_BUMP"
+            ph["super_parrain_runtime"] = meta["runtime_mode"]
             ph["note"] = (
                 (ph.get("note") or "")
-                + " Super-Parrain WRITE_VERIFIED: bumper re-enabled."
+                + (
+                    " Super-Parrain content-writer WRITE_VERIFIED; historical "
+                    + (
+                        "bumper authorized — NORMAL_BUMP."
+                        if bumper_authorized
+                        else "bumper NOT authorized (fail-closed) — stays SUSPENDED."
+                    )
+                )
             ).strip()
             save_phase(ph)
         except Exception:
@@ -555,6 +609,9 @@ def format_telegram_platform_lines(plan_platforms: list[dict[str, Any]] | None =
             extra_cmd = ""
         elif action == ROUTE_CANARY_PENDING_SKIP:
             label = "SKIP"
+            extra_cmd = ""
+        elif action == ROUTE_BUMPER_NOT_AUTHORIZED:
+            label = "WRITE_VERIFIED_BUMPER_SUSPENDED"
             extra_cmd = ""
         elif action == ROUTE_COOKIE_SESSION_NOT_PC_OFF:
             label = "COOKIE_SESSION"
