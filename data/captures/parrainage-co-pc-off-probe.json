@@ -6,7 +6,7 @@
   "login_path": "bumper.smart_login_parrainage",
   "turnstile": "bumper.solve_turnstile",
   "twocaptcha_present": true,
-  "at": "2026-08-15T09:31:43.097895+00:00",
+  "at": "2026-08-15T17:42:59.368088+00:00",
   "login_ok": true,
   "url_after_login": "https://parrainage.co/account",
   "offers_url": "https://parrainage.co/account/offers",
