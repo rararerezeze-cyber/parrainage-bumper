@@ -2,7 +2,7 @@
   "platform": "1parrainage",
   "program": "kraken",
   "language": "fr",
-  "sync_mode": "SAFE_AUTO",
+  "sync_mode": "REVIEW",
   "template_status": "ready",
   "golden_file": "kraken.fr.golden.txt",
   "mutable_fields": [
@@ -23,25 +23,36 @@
     "referee_reward": "reward",
     "conditions": "cond"
   },
-  "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php",
-  "edit_url": null,
+  "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100408",
+  "edit_url": "https://www.1parrainage.com/espace_parrain/parrainages/edit/2541207/",
   "platform_values": {
     "personal_code": "cpbrgddy",
     "personal_link": "https://invite.kraken.com/JDNW/s5qudqe4",
     "referee_reward": "200 € en cryptomonnaies"
   },
   "confidences": {
-    "personal_code": "high",
-    "personal_link": "high",
-    "referee_reward": "high"
+    "personal_code": "medium",
+    "personal_link": "medium",
+    "referee_reward": "medium"
   },
-  "notes": "native_platform_style_only; no emoji re-injection",
+  "notes": "WRITE_VERIFIED 2026-08-13: public now matches OPERATOR_VALIDATED cpbrgddy / s5qudqe4 / 200 € en cryptomonnaies. Native style only — no emoji reinjection; list_brand=coupon promotionnel Kraken; edit_id=2541207 ≠ offer_id=100408",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",
     "referee_reward": "offers_json_then_official",
     "announcement_text": "platform_target_only"
   },
-  "quality": "native_list_or_auth",
-  "style_policy": "native_platform_style_only"
+  "quality": "native_list_full_inventory",
+  "style_policy": "native_platform_style_only",
+  "platform_offer_id": "100408",
+  "occurrences": [
+    {
+      "offer_id": "100408",
+      "brand": "coupon promotionnel Kraken",
+      "chars": 407
+    }
+  ],
+  "occurrence_count": 1,
+  "edit_url_source": "headed_manual_discovery",
+  "edit_url_learned_at": "2026-08-13T10:29:29.092808+00:00"
 }
