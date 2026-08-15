@@ -8,6 +8,7 @@ OFFERS_PATH = DATA_DIR / "offers.json"
 OPERATOR_OVERRIDES_PATH = DATA_DIR / "operator-overrides.json"
 ACCEPTED_MONITOR_FIELDS_PATH = DATA_DIR / "monitor" / "accepted-fields.json"
 SYNC_STATE_PATH = DATA_DIR / "sync-state.json"
+MAPPING_CANDIDATES_PATH = DATA_DIR / "mapping-candidates.json"
 TEMPLATES_DIR = DATA_DIR / "platform-templates"
 MAPPINGS_DIR = DATA_DIR / "platform-mappings"
 

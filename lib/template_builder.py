@@ -316,16 +316,70 @@ def _present(value: Any) -> bool:
     return value not in (None, "", [], {})
 
 
+def _divergence(field: str, existing_value: Any, fresh_value: Any) -> dict[str, Any]:
+    return {"field": field, "existing": existing_value, "fresh": fresh_value}
+
+
+def _all_divergences(existing: dict[str, Any], fresh: dict[str, Any]) -> list[dict[str, Any]]:
+    """Every field (including nested platform_values/confidences sub-keys)
+    where `existing` already has a real value and `fresh` proposes a
+    genuinely different one. Used both by the WRITE_VERIFIED freeze branch
+    and the normal merge branch so a real site change is never invisible,
+    even on a frozen record -- it just never gets auto-applied.
+    """
+    out: list[dict[str, Any]] = []
+    for nested_key in MAPPING_NESTED_MERGE_FIELDS:
+        old_nested = existing.get(nested_key) or {}
+        new_nested = fresh.get(nested_key) or {}
+        for k, v in new_nested.items():
+            old_v = old_nested.get(k)
+            if _present(old_v) and _present(v) and old_v != v:
+                out.append(_divergence(f"{nested_key}.{k}", old_v, v))
+    for key in MAPPING_PROTECT_ONCE_SET_FIELDS:
+        old_v = existing.get(key)
+        new_v = fresh.get(key)
+        if _present(old_v) and _present(new_v) and old_v != new_v:
+            out.append(_divergence(key, old_v, new_v))
+    old_notes = existing.get("notes")
+    new_notes = fresh.get("notes")
+    if _present(old_notes) and _present(new_notes) and old_notes != new_notes:
+        out.append(_divergence("notes", old_notes, new_notes))
+    return out
+
+
 def merge_conservative_mapping_update(
     existing: dict[str, Any] | None, fresh: dict[str, Any]
-) -> tuple[dict[str, Any], dict[str, list[str]]]:
+) -> tuple[dict[str, Any], dict[str, Any]]:
     """Merge a freshly-derived mapping onto an existing one without ever
-    downgrading already-curated evidence.
+    downgrading already-curated evidence, and without ever silently
+    discarding a genuine new observation either.
 
-    Rules, in order:
+    Five explicit stages (A-E), matching how a real site change is
+    expected to reach the curated mapping:
+      A. `existing` -- the curated, protected mapping (this function's
+         first argument). Stays the active mapping this call returns.
+      B. `fresh` -- a new read-only observation (this function's second
+         argument). Never written to the curated mapping by this function
+         alone.
+      C. Divergence detection -- see `_all_divergences()`: any protected
+         field where `existing` already has a value and `fresh` proposes a
+         genuinely different one is reported in `report["divergences"]`,
+         never silently dropped. The caller (capture_oneparrainage()) is
+         expected to persist these via lib.mapping_candidates so they stay
+         visible across runs, independent of the curated mapping file.
+      D. Validation -- a human/operator reviewing
+         lib.mapping_candidates.list_pending_candidates(), not performed by
+         this function.
+      E. Promotion -- lib.mapping_candidates.promote_candidate() writes the
+         candidate's value into the curated mapping deliberately. This
+         function is never called as part of that path; promotion edits
+         the mapping file directly, on purpose, outside any capture run.
+
+    Merge rules, in order:
     1. If `existing.notes` already contains a "WRITE_VERIFIED" marker, the
        entire record is a real, proven write -- return it completely
-       unchanged. A read-only capture must never touch it at all.
+       unchanged (stage A wins outright). Divergences (stage C) are still
+       computed and reported, just never auto-applied.
     2. `platform_values` / `confidences` merge key by key: an already-
        present sub-value wins; a fresh sub-value is only adopted for a key
        that was previously missing (enrichment, never replacement).
@@ -342,20 +396,28 @@ def merge_conservative_mapping_update(
        refresh normally -- these are either identity fields or fixed
        boilerplate, never curated evidence.
 
-    Returns (merged, report) where report has "enriched" (fields filled in
-    that were previously missing) and "kept_existing" (fields where a
-    fresh value was proposed but the existing one was preserved instead)
-    for auditability.
+    Returns (merged, report). report has:
+      "enriched": fields filled in that were previously missing.
+      "kept_existing": fields where a fresh value was proposed but the
+        existing one was preserved instead (field names only, for quick
+        logging -- may include fields where fresh had nothing new to say).
+      "divergences": [{"field", "existing", "fresh"}, ...] -- the subset of
+        kept_existing fields where fresh's value is a real, different,
+        non-empty observation. This is what stage C candidate tracking
+        should persist; never empty when a genuine site change was seen,
+        regardless of whether the record is WRITE_VERIFIED-frozen.
     """
-    report: dict[str, list[str]] = {"enriched": [], "kept_existing": []}
+    report: dict[str, Any] = {"enriched": [], "kept_existing": [], "divergences": []}
     if not existing:
         report["enriched"] = sorted(k for k, v in fresh.items() if _present(v))
         return dict(fresh), report
 
     if "WRITE_VERIFIED" in str(existing.get("notes") or ""):
         report["kept_existing"] = ["*ALL* (WRITE_VERIFIED record frozen)"]
+        report["divergences"] = _all_divergences(existing, fresh)
         return dict(existing), report
 
+    report["divergences"] = _all_divergences(existing, fresh)
     merged = dict(existing)
 
     for nested_key in MAPPING_NESTED_MERGE_FIELDS:

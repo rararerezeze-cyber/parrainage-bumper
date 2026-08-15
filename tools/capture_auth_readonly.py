@@ -1228,6 +1228,25 @@ async def capture_oneparrainage(browser, offers: OffersRepository) -> dict:
                     if existing_template is not None:
                         paths["template"].write_text(existing_template, encoding="utf-8")
 
+                # Stage C: a protected field was kept, but the fresh capture
+                # saw a genuinely different value -- never let that vanish.
+                # Best-effort only; a candidate-tracking failure must never
+                # break this (already read-only) capture.
+                try:
+                    from lib.mapping_candidates import record_candidate_divergence
+
+                    for div in merge_report.get("divergences") or []:
+                        record_candidate_divergence(
+                            platform,
+                            slug,
+                            "fr",
+                            div["field"],
+                            div["existing"],
+                            div["fresh"],
+                        )
+                except Exception:  # noqa: BLE001
+                    pass
+
                 seen.add(slug)
                 report["items"].append(
                     {
@@ -1237,6 +1256,7 @@ async def capture_oneparrainage(browser, offers: OffersRepository) -> dict:
                         "mutable": result.mutable_fields,
                         "merge_enriched": merge_report.get("enriched"),
                         "merge_kept_existing": merge_report.get("kept_existing"),
+                        "merge_divergences": merge_report.get("divergences"),
                     }
                 )
             except Exception as exc:  # noqa: BLE001
