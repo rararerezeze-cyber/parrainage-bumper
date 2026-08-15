@@ -117,18 +117,27 @@ jobs:
         run: |
           git config user.name "autofresh-bot"
           git config user.email "autofresh-bot@users.noreply.github.com"
-          # data/mapping-candidates.json: stage 1parrainage.kraken.fr.json
-          # confirmed persist_conservative_mapping_update() divergence
-          # tracking must survive across ephemeral runners, or every
-          # candidate observation (Y) is lost the moment this job's runner
-          # is torn down and the next capture starts from a blank slate.
-          # Same conditional-commit gate as everything else in this step:
-          # git diff --cached --quiet already guarantees no commit (no
-          # noise) when the file's bytes are unchanged -- which is exactly
-          # the case when no divergence was observed this run, since
-          # lib.mapping_candidates.record_candidate_divergence() is then
-          # never called and the file is never touched at all.
-          git add data/platform-mappings data/platform-templates data/captures data/needs_canonical_data.json data/orphans data/mapping-candidates.json || true
+          # git add aborts the ENTIRE command (exit 128, stages nothing at
+          # all -- verified empirically, not assumed) the moment any one
+          # pathspec matches nothing. data/mapping-candidates.json only
+          # exists once a real divergence has been observed
+          # (lib.mapping_candidates.record_candidate_divergence() is the
+          # only thing that ever creates it), so on the common no-
+          # divergence run it is legitimately absent. Adding it to the
+          # same `git add` as the always-present capture paths meant every
+          # such run's `|| true` silently swallowed a `fatal: pathspec
+          # ... did not match any files` and staged NOTHING -- not even
+          # the always-present paths that genuinely changed. Stage those
+          # normally, then add the optional candidates file separately,
+          # only if it exists.
+          git add data/platform-mappings \
+                  data/platform-templates \
+                  data/captures \
+                  data/needs_canonical_data.json \
+                  data/orphans || true
+          if [ -f data/mapping-candidates.json ]; then
+            git add data/mapping-candidates.json
+          fi
           if git diff --cached --quiet; then
             echo "No capture files to commit"
           else
