@@ -59,7 +59,7 @@ Hermes dispatches:
 POST /repos/{owner}/{repo}/actions/workflows/hermes_operator.yml/dispatches
 Authorization: Bearer <fine-grained PAT with actions:write>
 {
-  "ref": "autofresh/phase2b-kraken-capture",
+  "ref": "main",
   "inputs": {
     "command": "Kraken gain filleul 20 €",
     "requester": "hermes-main",
@@ -68,6 +68,11 @@ Authorization: Bearer <fine-grained PAT with actions:write>
   }
 }
 ```
+
+`ref` must always be `main`. An old feature branch (e.g.
+`autofresh/phase2b-kraken-capture`) may still exist on the remote long after
+merge — dispatching against it silently runs a stale, pre-hardening copy of
+this workflow instead of the current one on `main`.
 
 Then Hermes downloads artifact `hermes-autofresh-result` → `hermes-last-result.json`.
 
