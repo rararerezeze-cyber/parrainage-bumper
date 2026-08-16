@@ -15,7 +15,10 @@ from tools.canary_write_parrainage_co import (
     ORIGINAL_VALUE,
     PLATFORM,
     PROGRAM,
+    _account_phase_evidence,
     _canary_and_original_renders,
+    _public_phase_evidence,
+    _sha256,
 )
 
 
@@ -78,24 +81,69 @@ def test_rollback_is_unconditional_in_source_after_canary_click():
         "the account reread between canary-save and rollback-save must be "
         "individually caught so a failure there cannot skip the mandatory rollback"
     )
-    # _reread_public() is the only other call in this span that touches the
-    # network; it must never raise (it catches internally and returns
-    # (None, error) instead) -- otherwise it WOULD be able to skip rollback.
-    reread_public_src = inspect.getsource(mod._reread_public)
+    # _fetch_public_evidence() is the only other call in this span that
+    # touches the network; it must never raise (it catches internally and
+    # returns an evidence dict with an "error" key instead) -- otherwise it
+    # WOULD be able to skip rollback.
+    reread_public_src = inspect.getsource(mod._fetch_public_evidence)
     assert "except Exception" in reread_public_src
     assert "raise" not in reread_public_src
-    # Every dereference of the (possibly-None) account dump in this span
-    # must be None-guarded.
-    assert 'if canary_account_dump else None' in span
-    assert '(canary_account_dump or {})' in span
 
     assert idx_canary_click < idx_rollback_click
+
+
+def test_sha256_is_deterministic_and_distinguishes_content():
+    assert _sha256("abc") == _sha256("abc")
+    assert _sha256("abc") != _sha256("abd")
+    assert _sha256(None) is None
+
+
+def test_account_phase_evidence_extracts_code_link_and_match():
+    dump = {
+        "inputs": [
+            {"name": "ref_code", "preview": "cpbrgddy"},
+            {"name": "ref_link", "preview": "https://invite.kraken.com/JDNW/s5qudqe4"},
+            {"name": "content", "preview": "⭐️ preview..."},
+        ]
+    }
+    plain_text = ORIGINAL_VALUE + "\ncpbrgddy\nhttps://invite.kraken.com/JDNW/s5qudqe4"
+    ev = _account_phase_evidence("before", dump, plain_text, plain_text)
+    assert ev["ref_code"] == "cpbrgddy"
+    assert ev["ref_link"] == "https://invite.kraken.com/JDNW/s5qudqe4"
+    assert ev["contains_original_reward"] is True
+    assert ev["contains_canary_reward"] is False
+    assert ev["canonical_match_vs_expected"] is True
+    assert ev["raw_text_sha256"] == _sha256(plain_text)
+
+
+def test_account_phase_evidence_flags_canary_value_present():
+    plain_text = CANARY_VALUE + "\ncpbrgddy\nhttps://invite.kraken.com/JDNW/s5qudqe4"
+    ev = _account_phase_evidence("canary", {"inputs": []}, plain_text, plain_text)
+    assert ev["contains_canary_reward"] is True
+    assert ev["contains_original_reward"] is False
+
+
+def test_public_phase_evidence_hashes_raw_html_separately_from_extracted():
+    extracted = ORIGINAL_VALUE
+    ev = _public_phase_evidence("before", "deadbeef", extracted, extracted)
+    assert ev["raw_html_sha256"] == "deadbeef"
+    assert ev["extracted_text_sha256"] == _sha256(extracted)
+    assert ev["canonical_match_vs_expected"] is True
+
+
+def test_public_phase_evidence_no_match_on_canary_vs_original_expected():
+    ev = _public_phase_evidence("canary", "x", CANARY_VALUE, ORIGINAL_VALUE)
+    assert ev["canonical_match_vs_expected"] is False
+    assert ev["contains_canary_reward"] is True
 
 
 def test_write_verified_promotion_gated_on_both_canary_and_rollback_ok():
     import tools.canary_write_parrainage_co as mod
 
     src = inspect.getsource(mod.main)
-    idx_write_verified = src.index("write_verified = bool(canary_ok and rollback_ok")
+    idx_write_verified = src.index("write_verified = bool(")
     idx_promo = src.index("if write_verified:")
     assert idx_write_verified < idx_promo
+    verdict_span = src[idx_write_verified:idx_promo]
+    assert "canary_ok" in verdict_span
+    assert "rollback_ok" in verdict_span

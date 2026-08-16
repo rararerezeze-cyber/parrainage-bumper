@@ -1,10 +1,27 @@
 #!/usr/bin/env python3
-"""One-shot, rollback-guaranteed canary write for Parrainage.co / Kraken.
+"""One-shot, rollback-guaranteed canary write for Parrainage.co / Kraken — v2.
 
 Explicit operator authorization (2026-08-16): single program (kraken),
 single field (referee_reward), exactly 2 saves maximum (canary, rollback),
 in ONE browser session/login so there is no risk of a session/cookie
 mismatch between the canary save and the mandatory rollback.
+
+v2 changes from the first run (2026-08-16, run 31948143274):
+  - Uses platforms.parrainage_co.writer's canonical line-sequence
+    comparison (_canonical_match / _canonical_contains) instead of the old
+    _norm()-based substring/equality checks -- the exact same mechanism
+    execute_write() now uses for a real write. The first run's rollback
+    genuinely succeeded (independently re-confirmed by direct fetch +
+    account reread afterwards) but its own public-body verification
+    reported false at EVERY phase, including the pre-save baseline,
+    because the old comparison had no tolerance for parrainage.co's public
+    renderer inserting an extra blank line after every stored line break.
+  - Captures full evidence at each of the five phases (before, canary
+    account, canary public, rollback account, rollback public): raw text,
+    its SHA-256, its canonical line sequence, observed referee_reward/
+    code/link, and the canonical match boolean against the phase's
+    expected value -- enough to audit after the fact without re-running
+    anything.
 
 State machine:
   snapshot (before, real DOM + real public page)
@@ -31,6 +48,7 @@ original state; only two in-memory rendered strings are carried forward.
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import sys
 from datetime import datetime, timezone
@@ -44,13 +62,15 @@ from lib.offers import OffersRepository  # noqa: E402
 from lib.operator_overrides import OperatorOverrideStore  # noqa: E402
 from lib.renderer import MappingRepository, Renderer, TemplateRepository  # noqa: E402
 from platforms.parrainage_co.writer import (  # noqa: E402
+    WritePlan,
+    _canonical_contains,
+    _canonical_lines,
+    _canonical_match,
     _dump_form_debug,
     _extract_public_body,
     _login,
-    _norm,
     _reread_account_fields,
     _resolve_edit_url,
-    WritePlan,
 )
 
 PLATFORM = "parrainage-co"
@@ -69,6 +89,72 @@ def _bumper():
     import bumper as bumper_mod
 
     return bumper_mod
+
+
+def _sha256(text: str | None) -> str | None:
+    if text is None:
+        return None
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def _account_phase_evidence(label: str, dump: dict | None, plain_text: str | None, expected_rendered: str) -> dict:
+    """Full auditable evidence for an account/edit-side checkpoint."""
+    ref_code = next(
+        (i.get("preview") for i in (dump or {}).get("inputs") or [] if i.get("name") == "ref_code"), None
+    )
+    ref_link = next(
+        (i.get("preview") for i in (dump or {}).get("inputs") or [] if i.get("name") == "ref_link"), None
+    )
+    content_preview = next(
+        (i.get("preview") for i in (dump or {}).get("inputs") or [] if i.get("name") == "content"), None
+    )
+    return {
+        "phase": label,
+        "side": "account",
+        "raw_text_sha256": _sha256(plain_text),
+        "raw_text_len": len(plain_text or ""),
+        "canonical_lines": _canonical_lines(plain_text or ""),
+        "content_field_preview": content_preview,
+        "ref_code": ref_code,
+        "ref_link": ref_link,
+        "contains_original_reward": ORIGINAL_VALUE in (plain_text or ""),
+        "contains_canary_reward": CANARY_VALUE in (plain_text or ""),
+        "canonical_match_vs_expected": (
+            _canonical_contains(plain_text, expected_rendered) if plain_text else None
+        ),
+    }
+
+
+def _public_phase_evidence(label: str, raw_html_sha: str | None, extracted_text: str | None, expected_rendered: str) -> dict:
+    """Full auditable evidence for a public-page checkpoint."""
+    return {
+        "phase": label,
+        "side": "public",
+        "raw_html_sha256": raw_html_sha,
+        "extracted_text_sha256": _sha256(extracted_text),
+        "extracted_text_len": len(extracted_text or ""),
+        "canonical_lines": _canonical_lines(extracted_text or ""),
+        "contains_original_reward": ORIGINAL_VALUE in (extracted_text or ""),
+        "contains_canary_reward": CANARY_VALUE in (extracted_text or ""),
+        "canonical_match_vs_expected": (
+            _canonical_match(extracted_text, expected_rendered) if extracted_text else None
+        ),
+    }
+
+
+async def _fetch_public_evidence(label: str, expected_rendered: str) -> dict:
+    try:
+        html = fetch_text(PUBLIC_URL)
+        raw_sha = _sha256(html)
+        extracted = _extract_public_body(html)
+        return _public_phase_evidence(label, raw_sha, extracted, expected_rendered)
+    except Exception as exc:  # noqa: BLE001
+        return {
+            "phase": label,
+            "side": "public",
+            "error": str(exc),
+            "canonical_match_vs_expected": None,
+        }
 
 
 def _canary_and_original_renders() -> tuple[str, str, dict, dict]:
@@ -95,11 +181,9 @@ def _canary_and_original_renders() -> tuple[str, str, dict, dict]:
     template = templates.load_text(PLATFORM, PROGRAM, LANGUAGE)
     offer = renderer.offers.get_by_slug(PROGRAM)
 
-    # Original (current effective state, before touching anything)
     rendered_original = renderer.render(template, mapping, offer=offer)
     variables_original = renderer.build_variables(mapping, offer=offer)
 
-    # Canary: temporary PLATFORM_OPERATOR override, removed immediately after.
     store.upsert(
         PROGRAM, FIELD, CANARY_VALUE, platform=PLATFORM,
         message="canary_write_verified_probe_2026-08-16",
@@ -110,7 +194,6 @@ def _canary_and_original_renders() -> tuple[str, str, dict, dict]:
     finally:
         store.remove(PROGRAM, FIELD, platform=PLATFORM)
 
-    # Confirm cleanup — override store must be exactly as before.
     remaining = [
         o
         for o in store.load()
@@ -173,22 +256,6 @@ async def _click_save(page) -> None:
     await bumper.human_sleep(1.5, 2.5)
 
 
-def _extract_form_content(dump: dict) -> str | None:
-    for inp in dump.get("inputs") or []:
-        if inp.get("tag") == "TEXTAREA" and inp.get("name") == "content":
-            return inp.get("preview")  # capped at 200 chars by _dump_form_debug
-    return None
-
-
-async def _reread_public(step_label: str) -> tuple[str | None, str | None]:
-    try:
-        html = fetch_text(PUBLIC_URL)
-        body = _extract_public_body(html)
-        return body, None
-    except Exception as exc:  # noqa: BLE001
-        return None, f"{step_label}_error:{exc}"
-
-
 async def main() -> int:
     report: dict = {
         "at_start": datetime.now(timezone.utc).isoformat(),
@@ -198,6 +265,7 @@ async def main() -> int:
         "original_value": ORIGINAL_VALUE,
         "canary_value": CANARY_VALUE,
         "public_url": PUBLIC_URL,
+        "comparison_mechanism": "canonical_line_sequence_v2",
         "phases": {},
     }
 
@@ -256,30 +324,22 @@ async def main() -> int:
             await page.goto(edit_url, wait_until="domcontentloaded", timeout=60000)
             await bumper.human_sleep(1.2, 2.0)
 
-            # --- BEFORE snapshot ---
+            # --- BEFORE: account + public ---
             before_dump = await _dump_form_debug(page, "debug_parrainage_canary_before.json")
-            before_public, before_public_err = await _reread_public("before")
-            before_content = _extract_form_content(before_dump)
-            before_ref_code = next(
-                (i.get("preview") for i in before_dump.get("inputs") or [] if i.get("name") == "ref_code"), None
+            before_account_text = await _reread_account_fields(page)
+            before_account_ev = _account_phase_evidence(
+                "before", before_dump, before_account_text, rendered_original
             )
-            before_ref_link = next(
-                (i.get("preview") for i in before_dump.get("inputs") or [] if i.get("name") == "ref_link"), None
-            )
-            report["phases"]["before"] = {
-                "content_preview": before_content,
-                "ref_code": before_ref_code,
-                "ref_link": before_ref_link,
-                "ref_code_matches_expected": before_ref_code == variables_original.get("personal_code"),
-                "ref_link_matches_expected": before_ref_link == variables_original.get("personal_link"),
-                "public_body_matches_original": (
-                    _norm(before_public) == _norm(rendered_original) if before_public else None
-                ),
-                "public_error": before_public_err,
-            }
+            before_public_ev = await _fetch_public_evidence("before", rendered_original)
+            report["phases"]["before_account"] = before_account_ev
+            report["phases"]["before_public"] = before_public_ev
 
-            if not report["phases"]["before"]["ref_code_matches_expected"] or not report["phases"]["before"]["ref_link_matches_expected"]:
-                report["abort_before_save"] = "ref_code/ref_link do not match expected values — refusing canary save"
+            if before_account_ev["ref_code"] != variables_original.get("personal_code") or (
+                before_account_ev["ref_link"] != variables_original.get("personal_link")
+            ):
+                report["abort_before_save"] = (
+                    "ref_code/ref_link do not match expected values — refusing canary save"
+                )
                 raise RuntimeError(report["abort_before_save"])
 
             # --- CANARY SAVE ---
@@ -288,73 +348,43 @@ async def main() -> int:
             await _click_save(page)
             report["phases"]["canary_save"] = {"filled_via": fill_sel, "clicked": True}
 
-            # --- reread after canary (best-effort; never skips rollback) ---
-            canary_account_dump = None
-            canary_public_body = None
+            # --- CANARY: account + public (best-effort; never skips rollback) ---
+            canary_dump = None
+            canary_account_text = None
             try:
                 await page.goto(edit_url, wait_until="domcontentloaded", timeout=60000)
                 await bumper.human_sleep(1.0, 1.8)
-                canary_account_dump = await _dump_form_debug(page, "debug_parrainage_canary_after.json")
+                canary_dump = await _dump_form_debug(page, "debug_parrainage_canary_after.json")
+                canary_account_text = await _reread_account_fields(page)
             except Exception as exc:  # noqa: BLE001
                 report["phases"]["canary_save"]["account_reread_error"] = str(exc)
 
+            report["phases"]["canary_account"] = _account_phase_evidence(
+                "canary", canary_dump, canary_account_text, rendered_canary
+            )
             await asyncio.sleep(2)
-            canary_public_body, canary_public_err = await _reread_public("canary")
-
-            canary_content = _extract_form_content(canary_account_dump) if canary_account_dump else None
-            canary_ref_code = (
-                next((i.get("preview") for i in (canary_account_dump or {}).get("inputs") or [] if i.get("name") == "ref_code"), None)
-            )
-            canary_ref_link = (
-                next((i.get("preview") for i in (canary_account_dump or {}).get("inputs") or [] if i.get("name") == "ref_link"), None)
-            )
-            report["phases"]["canary_verify"] = {
-                "account_content_preview": canary_content,
-                "ref_code": canary_ref_code,
-                "ref_link": canary_ref_link,
-                "ref_code_unchanged": canary_ref_code == before_ref_code,
-                "ref_link_unchanged": canary_ref_link == before_ref_link,
-                "public_body_matches_canary": (
-                    (_norm(rendered_canary) in _norm(canary_public_body)) if canary_public_body else None
-                ),
-                "public_error": canary_public_err,
-            }
+            report["phases"]["canary_public"] = await _fetch_public_evidence("canary", rendered_canary)
 
             # --- MANDATORY ROLLBACK — always attempted once save was clicked ---
             fill_sel_rb = await _fill_content_only(page, rendered_original)
             await _click_save(page)
             report["phases"]["rollback_save"] = {"filled_via": fill_sel_rb, "clicked": True}
 
-            rollback_account_dump = None
+            rollback_dump = None
+            rollback_account_text = None
             try:
                 await page.goto(edit_url, wait_until="domcontentloaded", timeout=60000)
                 await bumper.human_sleep(1.0, 1.8)
-                rollback_account_dump = await _dump_form_debug(page, "debug_parrainage_rollback_after.json")
+                rollback_dump = await _dump_form_debug(page, "debug_parrainage_rollback_after.json")
+                rollback_account_text = await _reread_account_fields(page)
             except Exception as exc:  # noqa: BLE001
                 report["phases"]["rollback_save"]["account_reread_error"] = str(exc)
 
+            report["phases"]["rollback_account"] = _account_phase_evidence(
+                "rollback", rollback_dump, rollback_account_text, rendered_original
+            )
             await asyncio.sleep(2)
-            rollback_public_body, rollback_public_err = await _reread_public("rollback")
-
-            rollback_content = _extract_form_content(rollback_account_dump) if rollback_account_dump else None
-            rollback_ref_code = (
-                next((i.get("preview") for i in (rollback_account_dump or {}).get("inputs") or [] if i.get("name") == "ref_code"), None)
-            )
-            rollback_ref_link = (
-                next((i.get("preview") for i in (rollback_account_dump or {}).get("inputs") or [] if i.get("name") == "ref_link"), None)
-            )
-            rollback_public_match = (
-                (_norm(rendered_original) in _norm(rollback_public_body)) if rollback_public_body else None
-            )
-            report["phases"]["rollback_verify"] = {
-                "account_content_preview": rollback_content,
-                "ref_code": rollback_ref_code,
-                "ref_link": rollback_ref_link,
-                "ref_code_unchanged": rollback_ref_code == before_ref_code,
-                "ref_link_unchanged": rollback_ref_link == before_ref_link,
-                "public_body_matches_original": rollback_public_match,
-                "public_error": rollback_public_err,
-            }
+            report["phases"]["rollback_public"] = await _fetch_public_evidence("rollback", rendered_original)
 
         except Exception as exc:  # noqa: BLE001
             report["fatal_error"] = str(exc)
@@ -366,19 +396,29 @@ async def main() -> int:
 
     report["at_end"] = datetime.now(timezone.utc).isoformat()
 
-    rollback_ok = bool(
-        report.get("phases", {}).get("rollback_verify", {}).get("public_body_matches_original")
-        and report.get("phases", {}).get("rollback_verify", {}).get("ref_code_unchanged")
-        and report.get("phases", {}).get("rollback_verify", {}).get("ref_link_unchanged")
+    def _match(phase_key: str) -> bool | None:
+        return report.get("phases", {}).get(phase_key, {}).get("canonical_match_vs_expected")
+
+    ref_code_ok = (
+        report.get("phases", {}).get("canary_account", {}).get("ref_code")
+        == report.get("phases", {}).get("before_account", {}).get("ref_code")
+        == report.get("phases", {}).get("rollback_account", {}).get("ref_code")
     )
-    canary_ok = bool(
-        report.get("phases", {}).get("canary_verify", {}).get("public_body_matches_canary")
-        and report.get("phases", {}).get("canary_verify", {}).get("ref_code_unchanged")
-        and report.get("phases", {}).get("canary_verify", {}).get("ref_link_unchanged")
+    ref_link_ok = (
+        report.get("phases", {}).get("canary_account", {}).get("ref_link")
+        == report.get("phases", {}).get("before_account", {}).get("ref_link")
+        == report.get("phases", {}).get("rollback_account", {}).get("ref_link")
     )
-    write_verified = bool(canary_ok and rollback_ok and not report.get("fatal_error"))
+
+    canary_ok = bool(_match("canary_account") and _match("canary_public"))
+    rollback_ok = bool(_match("rollback_account") and _match("rollback_public"))
+    write_verified = bool(
+        canary_ok and rollback_ok and ref_code_ok and ref_link_ok and not report.get("fatal_error")
+    )
     report["canary_ok"] = canary_ok
     report["rollback_ok"] = rollback_ok
+    report["ref_code_unchanged_throughout"] = ref_code_ok
+    report["ref_link_unchanged_throughout"] = ref_link_ok
     report["write_verified"] = write_verified
 
     OUT.mkdir(parents=True, exist_ok=True)
@@ -400,7 +440,7 @@ async def main() -> int:
             "canary_and_rollback": True,
             "announcement_url": PUBLIC_URL,
             "edit_url": edit_url,
-            "source": "canary_write_parrainage_co",
+            "source": "canary_write_parrainage_co_v2",
             "checks": report,
         }
         promo = mark_write_verified(PLATFORM, program=PROGRAM, evidence=evidence)
