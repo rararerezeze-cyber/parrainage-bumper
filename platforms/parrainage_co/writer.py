@@ -391,53 +391,17 @@ def _extract_public_body(html: str) -> str:
     return text[:4000]
 
 
-def _canonical_lines(text: str) -> list[str]:
-    """Canonicalize *text* to a sequence of non-empty, trimmed lines.
-
-    Platform-specific normalization for parrainage.co's compte<->public
-    comparison: the public renderer inserts an extra blank line after
-    every stored line break (confirmed 2026-08-16 via a full line-by-line
-    diff against a real fetch -- content identical, only spacing differs).
-    Tolerates ONLY that class of purely presentational difference: CRLF/LF,
-    trailing whitespace per line, and how many blank lines separate two
-    real lines (blank lines are dropped entirely, not collapsed-and-kept,
-    so their count can never affect the comparison either way).
-
-    Deliberately NOT permissive on anything else: non-empty text content,
-    line order, amounts, code, link, punctuation, or any added/removed/
-    reordered line all still produce a different sequence -- this is an
-    exact sequence comparison, never a substring or fuzzy match.
-    """
-    normalized = (text or "").replace("\r\n", "\n").replace("\r", "\n")
-    return [line.strip() for line in normalized.split("\n") if line.strip()]
-
-
-def _canonical_match(a: str, b: str) -> bool:
-    """Exact canonical-line-sequence equality. Use for the public page,
-    where _extract_public_body already narrowly isolates just the offer
-    block -- nothing else should be present.
-    """
-    return _canonical_lines(a) == _canonical_lines(b)
-
-
-def _canonical_contains(haystack_text: str, needle_text: str) -> bool:
-    """True iff needle's canonical line sequence appears as a contiguous
-    run within haystack's canonical line sequence.
-
-    Use for the account/edit reread, which legitimately contains extra
-    trailing lines beyond the content textarea (_reread_account_fields
-    also appends other visible input values, e.g. ref_code/ref_link) --
-    exact equality would always fail there even on a perfect match.
-    """
-    haystack = _canonical_lines(haystack_text)
-    needle = _canonical_lines(needle_text)
-    if not needle:
-        return False
-    span = len(needle)
-    for i in range(len(haystack) - span + 1):
-        if haystack[i : i + span] == needle:
-            return True
-    return False
+# Factored into lib/canonical_text.py (2026-08-16) so code-parrainage (same
+# underlying site family, same kind of public-rendering blank-line quirk)
+# and any future platform writer reuse this exact, already-tested logic
+# instead of a second, potentially-diverging copy. Aliased under the
+# original names so every existing import in this module and in
+# tools/canary_write_parrainage_co.py / tests keeps working unchanged.
+from lib.canonical_text import (
+    canonical_contains as _canonical_contains,
+    canonical_lines as _canonical_lines,
+    canonical_match as _canonical_match,
+)
 
 
 def _norm(s: str) -> str:

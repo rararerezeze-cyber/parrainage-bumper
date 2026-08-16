@@ -1,0 +1,93 @@
+name: Canary write (Code-Parrainage)
+# Explicit operator authorization required for each dispatch (2026-08-16).
+# Single program (kraken), single field (referee_reward inside the offre
+# textarea), exactly 2 real saves (canary, then mandatory rollback) in one
+# browser session. Real slider/captcha check via bumper.solve_slider()
+# (same official solver already proven at login) before EACH save -- abort,
+# no bypass, if present and unsolved. company/code_ou_lien verified at
+# every checkpoint -- any drift is a CRITICAL FAIL, immediate stop. See
+# tools/canary_write_code_parrainage.py and
+# tests/test_canary_code_parrainage_script.py for the full state machine
+# and structural guarantees.
+on:
+  workflow_dispatch: {}
+permissions:
+  contents: write
+concurrency:
+  group: autofresh-canary-code-parrainage
+  cancel-in-progress: false
+jobs:
+  canary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+      - name: Canary + mandatory rollback
+        id: canary
+        env:
+          CODE_PARRAINAGE_EMAIL: ${{ secrets.CODE_PARRAINAGE_EMAIL }}
+          CODE_PARRAINAGE_PASSWORD: ${{ secrets.CODE_PARRAINAGE_PASSWORD }}
+        run: |
+          set +e
+          python -u tools/canary_write_code_parrainage.py
+          echo "canary_exit=$?" >> "$GITHUB_OUTPUT"
+      - name: Logs
+        if: always()
+        run: |
+          cat data/captures/canary-code-parrainage-kraken.json || true
+      - name: Upload canary artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: canary-code-parrainage
+          retention-days: 14
+          if-no-files-found: ignore
+          path: |
+            data/captures/canary-code-parrainage-kraken.json
+            data/captures/code-parrainage-slider-diag.json
+            debug_code_canary_before.png
+            debug_code_canary_before.json
+            debug_code_canary_after.json
+            debug_code_rollback_after.json
+      - name: Commit result (only files that exist)
+        if: always()
+        run: |
+          git config user.name "autofresh-bot"
+          git config user.email "autofresh-bot@users.noreply.github.com"
+          for p in data/captures/canary-code-parrainage-kraken.json \
+                   data/platform-write-status.json \
+                   data/platform-templates/code-parrainage/kraken.fr.golden.txt \
+                   data/platform-mappings/code-parrainage.kraken.fr.json; do
+            if [ -f "$p" ]; then
+              git add "$p"
+            fi
+          done
+          if git diff --cached --quiet; then
+            echo "no commit"
+          else
+            git commit -m "chore(canary): code-parrainage kraken referee_reward canary result"
+            if ! git pull --rebase origin "${GITHUB_REF_NAME}"; then
+              echo "::error::git pull --rebase failed -- canary result was NOT pushed."
+              exit 1
+            fi
+            if ! git push; then
+              echo "::error::git push failed -- canary result was NOT pushed."
+              exit 1
+            fi
+          fi
+      - name: Fail the run if the script did not exit 0
+        if: always()
+        run: |
+          EXIT="${{ steps.canary.outputs.canary_exit }}"
+          echo "canary script exit=$EXIT"
+          if [ "$EXIT" != "0" ]; then
+            echo "::error::Canary script did not report success (exit=$EXIT). Check the Logs step / canary-code-parrainage-kraken.json artifact for exact remaining state. exit=3 means CRITICAL FAIL (company/code_ou_lien drift) -- treat as highest priority."
+            exit 1
+          fi

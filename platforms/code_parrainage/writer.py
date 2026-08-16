@@ -18,6 +18,8 @@ from typing import Any
 _ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(_ROOT))
 
+from lib.canonical_text import canonical_contains as _canonical_contains
+from lib.canonical_text import canonical_match as _canonical_match
 from lib.http_fetch import fetch_text
 from lib.mapping_guards import write_blocked_reason
 from lib.offers import OffersRepository
@@ -381,14 +383,31 @@ def _values_present(haystack: str, plan: WritePlan) -> bool:
 
 
 def _extract_public_body(html: str) -> str:
-    text = re.sub(r"(?is)<script[\s\S]*?</script>|<style[\s\S]*?</style>", " ", html)
-    text = re.sub(r"<br\s*/?>", "\n", text, flags=re.I)
+    """Locate the real offer block in a fetched public page.
+
+    Cleans first (strip script/style, convert <br>, strip remaining tags,
+    unescape entities, normalize CRLF/trailing-whitespace) and only then
+    searches for the offer block -- same discipline as
+    platforms/parrainage_co/writer.py's _extract_public_body (real
+    incident there: matching on raw HTML let a duplicate decoy phrase
+    swallow markup). code-parrainage's real fetched public text has shown
+    messy mixed \\r\\n/\\n sequences between lines (e.g.
+    "...offerts\\n\\r\\n\\n\\r\\n⚡ Bonus..."); the canonical-line
+    comparison this feeds (lib.canonical_text) already tolerates that, but
+    normalizing here too keeps the raw report readable.
+    """
+    text = re.sub(r"(?is)<(script|style|noscript)\b[^>]*>.*?</\1>", " ", html)
+    text = re.sub(r"(?i)<br\s*/?>", "\n", text)
     text = re.sub(r"<[^>]+>", "\n", text)
     text = unescape(text)
+    text = text.replace("\r\n", "\n").replace("\r", "\n")
+    text = re.sub(r"[ \t]+(\n|$)", r"\1", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    text = text.strip()
     m = re.search(r"(⭐️ Offre Parrainage[\s\S]*?discord\.gg/\S+ ↩️)", text)
     if m:
         return m.group(1).strip()
-    return re.sub(r"\n{3,}", "\n\n", text).strip()[:4000]
+    return text[:4000]
 
 
 async def execute_write(
@@ -519,10 +538,7 @@ async def execute_write(
             await ctx.close()
             await browser.close()
 
-    account_ok = bool(account_text) and (
-        _norm(plan.rendered) in _norm(account_text)
-        or _values_present(account_text, plan)
-    )
+    account_ok = bool(account_text) and _canonical_contains(account_text, plan.rendered)
     published = None
     public_match = None
     if plan.announcement_url and "/modif/" not in plan.announcement_url:
@@ -531,9 +547,7 @@ async def execute_write(
         try:
             html = fetch_text(plan.announcement_url)
             published = _extract_public_body(html)
-            public_match = _norm(published) == _norm(plan.rendered) or _norm(
-                plan.rendered
-            ) in _norm(published)
+            public_match = _canonical_match(published, plan.rendered)
             steps.append(f"post_match_public={public_match}")
         except Exception as exc:
             steps.append(f"public_reread_error={exc}")
