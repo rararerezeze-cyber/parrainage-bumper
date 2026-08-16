@@ -132,10 +132,29 @@ async def main() -> int:
 
             kraken_candidates = [c for c in candidates if c.get("isProg")]
             report["kraken_matching_candidates"] = kraken_candidates
-            chosen = kraken_candidates[0]["href"] if kraken_candidates else (
-                candidates[0]["href"] if candidates else None
+            # The listing page's row context only exposed "Actualiser" as
+            # text (no visible company/program name per row), so label-based
+            # isProg matching found nothing. Known public offer id 84601
+            # (https://code-parrainage.net/annonce/84601, confirmed Kraken:
+            # title "Code Parrainage kraken : cpbrgddy") appeared in the
+            # discovered /modif/{id} candidate list -- these platforms
+            # consistently reuse the same numeric id across public/edit
+            # views (confirmed pattern on parrainage-co, offer 113735). Try
+            # that specific id FIRST, with explicit content verification,
+            # before falling back to isProg or the first candidate.
+            known_id_candidate = next(
+                (c["href"] for c in candidates if c["href"].rstrip("/").endswith("/84601")), None
+            )
+            chosen = known_id_candidate or (
+                kraken_candidates[0]["href"] if kraken_candidates else (
+                    candidates[0]["href"] if candidates else None
+                )
             )
             report["chosen_edit_url"] = chosen
+            report["chosen_via"] = (
+                "known_public_id_84601" if known_id_candidate
+                else ("isProg_label_match" if kraken_candidates else "first_candidate_fallback")
+            )
 
             if chosen:
                 report["step"] = "navigate_chosen_edit_url"
@@ -160,6 +179,31 @@ async def main() -> int:
                 report["chosen_url_looks_like_public_view"] = any(
                     (b.get("text") or "").strip().lower() in ("copier", "fermer", "parcourir les offres")
                     for b in dump.get("buttons") or []
+                )
+                # Explicit content check: does this specific edit form
+                # actually belong to Kraken? (chosen-by-id-guess still
+                # needs real confirmation, not just "id matched".)
+                company_val = next(
+                    (i.get("preview") for i in dump.get("inputs") or [] if i.get("name") == "company"),
+                    None,
+                )
+                code_ou_lien_val = next(
+                    (i.get("preview") for i in dump.get("inputs") or [] if i.get("name") == "code_ou_lien"),
+                    None,
+                )
+                offre_val = next(
+                    (i.get("preview") for i in dump.get("inputs") or [] if i.get("name") == "offre"),
+                    None,
+                )
+                report["chosen_url_company_field"] = company_val
+                report["chosen_url_code_ou_lien_field"] = code_ou_lien_val
+                report["chosen_url_offre_preview"] = offre_val
+                report["chosen_url_confirmed_kraken"] = bool(
+                    (company_val and "kraken" in company_val.lower())
+                    or (code_ou_lien_val and (
+                        "cpbrgddy" in code_ou_lien_val or "kraken" in code_ou_lien_val.lower()
+                    ))
+                    or (offre_val and "kraken" in offre_val.lower())
                 )
 
             # --- independently confirm the known /annonce/84601 URL is public-only ---
