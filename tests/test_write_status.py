@@ -30,6 +30,50 @@ def test_super_parrain_is_canary_ready_not_verified(status_path):
     assert ws.may_auto_execute_on_safe_diff("super-parrain") is False
 
 
+def test_canary_ready_with_pc_off_ready_autonomy_is_not_telegram_live_capable(status_path):
+    """Regression for a real incident (2026-08-16): telegram_live_capable
+    previously required only autonomy == PC_OFF_READY, so code-parrainage
+    (status=CANARY_READY, autonomy=PC_OFF_READY -- a real, deliberately-set
+    combination once its writer mechanics were proven, documented as "next
+    real SAFE_DIFF is executable PC-off") was advertised as Telegram
+    live-write capable despite never having been WRITE_VERIFIED -- directly
+    contradicting the status file's own top-level note ("Telegram live
+    writes only for WRITE_VERIFIED platforms"). Both conditions are now
+    required.
+    """
+    assert ws.get_platform_status("code-parrainage") == ws.STATUS_CANARY_READY
+    meta = ws.get_platform_meta("code-parrainage")
+    assert meta.get("autonomy") == ws.AUTONOMY_PC_OFF_READY  # the trap: looks auto-capable
+    assert ws.is_telegram_live_capable("code-parrainage") is False
+    assert "code-parrainage" not in ws.summary()["telegram_live_capable"]
+
+
+def test_promoting_that_same_platform_to_write_verified_makes_it_live_capable(
+    status_path, monkeypatch, tmp_path
+):
+    """The flip side: once code-parrainage is genuinely WRITE_VERIFIED
+    (full evidence, same as any other platform), it correctly becomes
+    Telegram live-capable -- this isn't a blanket exclusion of
+    code-parrainage, only of an unearned CANARY_READY status.
+    """
+    phase = tmp_path / "phase.json"
+    phase.write_text(
+        json.dumps({"phase": "VALIDATION_LIVE", "live_writes": True, "write_verified": []}),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr("lib.phase.PHASE_PATH", phase)
+
+    checks = {k: True for k in ws.REQUIRED_VERIFY_CHECKS}
+    r = ws.mark_write_verified(
+        "code-parrainage",
+        program="kraken",
+        evidence={"post_match": True, "checks": checks},
+    )
+    assert r["ok"] is True
+    assert ws.is_telegram_live_capable("code-parrainage") is True
+    assert "code-parrainage" in ws.summary()["telegram_live_capable"]
+
+
 def test_cannot_mark_verified_without_evidence(status_path):
     r = ws.mark_write_verified(
         "super-parrain",

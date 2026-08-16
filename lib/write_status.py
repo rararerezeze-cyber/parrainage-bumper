@@ -326,11 +326,29 @@ def get_platform_meta(platform: str) -> dict[str, Any]:
 
 
 def _meta_auto_on_safe_diff(platform: str, meta: dict[str, Any]) -> bool:
-    """PC_OFF_READY only. WRITE_VERIFIED is not unattended-proof. Super never auto."""
+    """Telegram live-capable requires BOTH: status == WRITE_VERIFIED AND
+    autonomy == PC_OFF_READY. Super never auto.
+
+    Real incident (2026-08-16): this previously checked autonomy alone.
+    code-parrainage has had autonomy=PC_OFF_READY explicitly set since its
+    own canary proved the writer mechanics (login/edit/reread), with its
+    own notes documenting "Next real SAFE_DIFF is executable PC-off" as a
+    deliberate design -- but it was still only status=CANARY_READY, never
+    actually WRITE_VERIFIED (no real save has ever been proven there). That
+    meant telegram_live_capable advertised it as Telegram-live-write-ready
+    while data/platform-write-status.json's own top-level note says
+    "Telegram live writes only for WRITE_VERIFIED platforms" -- a direct
+    contradiction. autonomy=PC_OFF_READY describes the writer's *class*
+    (no human/captcha step needed IF it runs) -- WRITE_VERIFIED status is
+    the actual, current, per-platform proof that a real save+reread has
+    succeeded. Both are required for Telegram to treat it as live-capable.
+    """
     plat = (platform or "").strip().lower()
     if plat == "super-parrain":
         return False
     if (meta or {}).get("save_requires_captcha"):
+        return False
+    if (meta or {}).get("status") != STATUS_WRITE_VERIFIED:
         return False
     return (meta or {}).get("autonomy") == AUTONOMY_PC_OFF_READY
 
@@ -399,8 +417,29 @@ def runtime_route(platform: str) -> str:
 
 
 def may_auto_execute_on_safe_diff(platform: str) -> bool:
-    """True only for PC_OFF_READY writers. Empty changed_fields stays NO_SAFE_DIFF."""
-    return runtime_route(platform) == ROUTE_AUTO_ON_SAFE_DIFF
+    """True only for PC_OFF_READY writers that are ALSO currently
+    WRITE_VERIFIED. Empty changed_fields stays NO_SAFE_DIFF.
+
+    Real incident (2026-08-16): runtime_route()==ROUTE_AUTO_ON_SAFE_DIFF
+    alone was previously treated as sufficient here. That route reflects a
+    platform's writer *class* via autonomy_class() (autonomy=PC_OFF_READY,
+    "no human/captcha step needed if it runs") -- not whether this specific
+    platform has ever actually been proven WRITE_VERIFIED. code-parrainage
+    had autonomy=PC_OFF_READY explicitly set once its writer mechanics were
+    proven (login/edit/reread), with its own notes documenting "next real
+    SAFE_DIFF is executable PC-off" as a deliberate design -- while still
+    only CANARY_READY, no real save ever proven. Because this function is
+    tools/run_verified_writers.py's _try_platform_if_verified()'s ONLY
+    gate before calling execute(plan, dry_run=False), that meant a real
+    detected SAFE_DIFF could have triggered a genuine unattended live write
+    to a platform that had never been write-verified. Both conditions are
+    now required; runtime_route()'s own return value is intentionally left
+    unchanged (still useful as an informational "writer class" signal for
+    routing/status displays).
+    """
+    if runtime_route(platform) != ROUTE_AUTO_ON_SAFE_DIFF:
+        return False
+    return get_platform_status(platform) == STATUS_WRITE_VERIFIED
 
 
 def human_local_command(platform: str) -> str | None:

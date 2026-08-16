@@ -1,12 +1,11 @@
 {
   "version": 1,
-  "updated_at": "2026-08-16T13:41:32.579960+00:00",
+  "updated_at": "2026-08-16T13:52:46.441956+00:00",
   "note": "Strict write readiness. WRITE_VERIFIED requires full post-verify evidence. Telegram live writes only for WRITE_VERIFIED platforms.",
   "write_verified_count": 4,
   "write_verified_ratio": "4/7",
   "telegram_live_capable": [
     "parrainage-co",
-    "code-parrainage",
     "1parrainage"
   ],
   "platforms": {
@@ -74,10 +73,11 @@
         "post_match": true,
         "announcement_url": "https://parrainage.co/offers/113735",
         "edit_url": "https://parrainage.co/account/offers/edit/113735",
-        "public_reread": null,
+        "public_reread": true,
         "immutable_ok": true,
         "recorded_at": "2026-08-16T13:41:32.579960+00:00",
-        "source": "canary_write_parrainage_co_v2_manual_reconciliation"
+        "source": "canary_write_parrainage_co_v2_manual_reconciliation",
+        "public_reread_note": "Was left null by the manual reconciliation script's evidence dict (which never set this field, unlike every controlled_write_*.py's convention of public_reread=bool(post_publish_text)); corrected from already-captured proof, no new fetch: data/captures/canary-parrainage-co-kraken.json phases.before_public/canary_public/rollback_public all show a non-empty extracted public text with canonical_match_vs_expected=true."
       }
     },
     "code-parrainage": {
