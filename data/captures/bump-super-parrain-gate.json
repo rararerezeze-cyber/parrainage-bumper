@@ -1,14 +1,14 @@
 {
   "workflow": "bump_super_parrain",
   "result": "SKIP",
-  "reason": "historical_bumper_not_authorized",
-  "runtime_mode": "WRITE_VERIFIED_BUMPER_SUSPENDED",
+  "reason": "cooldown_24h_historical_slot",
+  "runtime_mode": "NORMAL_BUMP",
   "canary_pending": false,
   "run_bump": false,
   "skip_bump": true,
   "activation_canary_owns_save": false,
-  "eligible_now": true,
-  "next_eligible_at": "2026-08-13T05:37:10.549152+00:00",
-  "hours_remaining": 0.0,
-  "last_super_run": "2026-08-12T05:37:10.549152"
+  "eligible_now": false,
+  "next_eligible_at": "2026-08-17T08:13:56.264798+00:00",
+  "hours_remaining": 23.92,
+  "last_super_run": "2026-08-16T08:13:56.264798"
 }
