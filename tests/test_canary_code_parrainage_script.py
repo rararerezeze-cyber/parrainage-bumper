@@ -273,3 +273,31 @@ def test_network_evidence_included_in_final_report():
     idx_assign = src.index('report["network_evidence"] = network_evidence')
     idx_write = src.index("REPORT_PATH.write_text(", idx_assign)
     assert idx_assign < idx_write
+
+
+# --- dialog handler (root cause fix, for a FUTURE authorized run) ----------
+
+def test_dialog_handler_registered_before_any_click():
+    import tools.canary_write_code_parrainage as mod
+
+    src = inspect.getsource(mod.main)
+    idx_register = src.index("_register_dialog_handler(")
+    idx_click1 = src.index("await _click_save(")
+    assert idx_register < idx_click1
+
+
+def test_dialog_handler_always_accepts_never_dismisses():
+    import tools.canary_write_code_parrainage as mod
+
+    src = inspect.getsource(mod._register_dialog_handler)
+    assert "dialog.accept()" in src
+    assert "dialog.dismiss()" not in src
+
+
+def test_dialog_handler_logs_before_accepting():
+    import tools.canary_write_code_parrainage as mod
+
+    src = inspect.getsource(mod._register_dialog_handler)
+    idx_log = src.index('report.setdefault("dialogs_seen"')
+    idx_accept = src.index("dialog.accept()")
+    assert idx_log < idx_accept

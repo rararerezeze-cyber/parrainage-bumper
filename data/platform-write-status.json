@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-08-16T18:41:41.321196+00:00",
+  "updated_at": "2026-08-16T19:14:33.989410+00:00",
   "note": "Strict write readiness. WRITE_VERIFIED requires full post-verify evidence. Telegram live writes only for WRITE_VERIFIED platforms.",
   "write_verified_count": 4,
   "write_verified_ratio": "4/7",
@@ -84,7 +84,7 @@
       "status": "CANARY_READY",
       "canary_program": "kraken",
       "autonomy": "PC_OFF_READY",
-      "notes": "PC-off writer uses bumper.solve_slider only (same as historical bump). Kraken already operator-matched. Real edit form is /modif/84601 (single combined code_ou_lien field). LIVE CANARY ATTEMPTED 2026-08-16 (GH run 31962858807): 2 real Save clicks executed (canary + rollback), full identity guard clean (company=Kraken, code_ou_lien=cpbrgddy unchanged at all 3 checkpoints), no critical_fail -- but the fill+Save mechanism had ZERO observable effect on the live site: offre content and public page byte-identical before/canary/rollback. NOT WRITE_VERIFIED -- write mechanism not proven functional. Status intentionally stays CANARY_READY. Next step: read-only diagnosis of why Save does not persist (no new Save until root cause is found and a corrected mechanism is proposed).",
+      "notes": "PC-off writer uses bumper.solve_slider only (same as historical bump). Kraken already operator-matched. Real edit form is /modif/84601 (single combined code_ou_lien field). LIVE CANARY ATTEMPTED 2026-08-16 (GH run 31962858807): 2 real Save clicks, identity clean, no critical_fail, but ZERO persistence (offre unchanged before/canary/rollback). ROOT CAUSE CONFIRMED 2026-08-16 (GH run 31966798936, full script extraction: data/captures/code-parrainage-offre-form-script.js) -- the edit form's own JS submit handler calls native window.confirm('Etes-vous sur de vouloir modifier cette annonce ?') and does e.preventDefault() if not accepted. Playwright's default is to DISMISS unhandled dialogs, so both canary Saves were silently blocked client-side before any request ever reached modification.php -- confirmed NOT a server-side rejection, NOT the 200-char counter (no minlength/maxlength attrs, counter is a minimum already exceeded), NOT a missing form field. Fix prepared (not yet run): canary_write_code_parrainage.py now has _register_dialog_handler (accepts the confirm, logs it) and _register_network_listeners (captures the modification.php request/response for the next attempt). NOT WRITE_VERIFIED. Status intentionally stays CANARY_READY. Awaiting explicit operator GO for the next canary (same minimal referee_reward diff, dialog now handled).",
       "last_compare_class": "NO_SAFE_DIFF",
       "last_compare_at": "2026-08-13T11:29:23.291254+00:00",
       "last_compare_note": "slider solver shared with bumper succeeded; account reread matches OPERATOR_VALIDATED",
@@ -108,6 +108,12 @@
         "error": "canary save clicked twice (canary + mandatory rollback) but the textarea#offre content never persisted on any reread -- offre_sha256 identical across before_account/canary_account/rollback_account, and the public page's raw_html_sha256 identical across before_public/canary_public/rollback_public. No slider present (confirmed empirically both times), Save button confirmed visible+enabled both times, company/code_ou_lien unchanged at every checkpoint (identity_ok=true, no critical_fail). ROOT_CAUSE UNKNOWN as of this record -- read-only diagnostic in progress, no further Save attempts authorized (2/2 used).",
         "program": "kraken",
         "at": "2026-08-16T17:52:35.378306+00:00"
+      },
+      "last_diagnostic_run": {
+        "gh_run_id": "31966798936",
+        "at": "2026-08-16T19:11:51.069735+00:00",
+        "report": "data/captures/inspect-code-parrainage-offre-scripts-full.json",
+        "finding": "unhandled_confirm_dialog_blocks_submit"
       }
     },
     "1parrainage": {

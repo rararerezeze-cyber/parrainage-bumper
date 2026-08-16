@@ -296,6 +296,29 @@ async def _register_network_listeners(page, network_evidence: dict, phase_ref: d
     page.on("response", lambda resp: asyncio.create_task(_on_response(resp)))
 
 
+async def _register_dialog_handler(page, report: dict) -> None:
+    """Root cause (2026-08-16, confirmed from the site's own JS,
+    debug_code_script_2.js): the edit form's submit handler calls native
+    window.confirm('Etes-vous sur de vouloir modifier cette annonce ?')
+    and does e.preventDefault() if it is not accepted. Playwright's
+    default behavior for an unhandled dialog is to DISMISS it -- which is
+    exactly what silently blocked both Save clicks in GH run 31962858807
+    (no request was ever sent to modification.php; nothing to do with
+    server-side rejection or the 200-character counter). A real human
+    clicking "Enregistrer les modifications" would click OK on this
+    prompt, so accepting it here reproduces real user behavior, not a
+    bypass of any actual site protection.
+    """
+
+    async def _on_dialog(dialog) -> None:
+        report.setdefault("dialogs_seen", []).append(
+            {"type": dialog.type, "message": dialog.message}
+        )
+        await dialog.accept()
+
+    page.on("dialog", lambda d: asyncio.create_task(_on_dialog(d)))
+
+
 async def _fill_offre_only(page, text: str) -> None:
     await page.locator("textarea#offre").fill(text)
 
@@ -376,6 +399,7 @@ async def main() -> int:
         ctx = await bumper.new_context(browser)
         page = await ctx.new_page()
         await _register_network_listeners(page, network_evidence, phase_ref)
+        await _register_dialog_handler(page, report)
         try:
             # --- login (real slider solve already happens inside _login) ---
             await _login(page, cfg)

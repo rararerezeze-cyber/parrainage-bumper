@@ -1,0 +1,42 @@
+{
+  "at_start": "2026-08-16T19:11:23.200220+00:00",
+  "platform": "code-parrainage",
+  "program": "kraken",
+  "edit_url": "https://code-parrainage.net/modif/84601",
+  "mode": "diagnostic_read_only_full_script_dump_never_saves",
+  "scripts": [
+    {
+      "index": 0,
+      "src": "inline#0",
+      "file": "debug_code_script_0.js",
+      "length": 33566,
+      "sha256": "e4f5d201d41568f4b30f6422e8881e6bde410b2c2405b0ae778b45d526224172",
+      "references_offre": false,
+      "submit_related_signals_found": []
+    },
+    {
+      "index": 1,
+      "src": "inline#1",
+      "file": "debug_code_script_1.js",
+      "length": 6275,
+      "sha256": "cfc708e925a5a654289fc2cbe048ab275894ca6bfd6e26b054a99edd4d2cc958",
+      "references_offre": false,
+      "submit_related_signals_found": [
+        "addEventListener('click'",
+        "preventDefault"
+      ]
+    },
+    {
+      "index": 2,
+      "src": "inline#2",
+      "file": "debug_code_script_2.js",
+      "length": 2571,
+      "sha256": "52533d381d983f32040fb87fa28595500dc87333a042c2b0c1dc5bbfb64e288d",
+      "references_offre": true,
+      "submit_related_signals_found": [
+        "preventDefault"
+      ]
+    }
+  ],
+  "at_end": "2026-08-16T19:11:51.069735+00:00"
+}
