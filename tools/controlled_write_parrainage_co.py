@@ -51,6 +51,16 @@ def main() -> int:
         result = asyncio.run(execute_write(plan, dry_run=False, inspect_only=True))
         path = OUT / f"inspect-parrainage-co-{args.program}.json"
         OUT.mkdir(parents=True, exist_ok=True)
+        evidence = result.evidence_checks or {}
+        dump = evidence.get("form_dump") or {}
+        observed_code = next(
+            (i.get("preview") for i in (dump.get("inputs") or []) if i.get("name") == "ref_code"),
+            None,
+        )
+        observed_link = next(
+            (i.get("preview") for i in (dump.get("inputs") or []) if i.get("name") == "ref_link"),
+            None,
+        )
         payload = {
             "at": datetime.now(timezone.utc).isoformat(),
             "mode": "inspect_only",
@@ -59,8 +69,19 @@ def main() -> int:
             "edit_url": result.edit_url,
             "announcement_url": plan.announcement_url,
             "steps": result.steps,
-            "evidence_checks": result.evidence_checks,
-            "form_dump": result.account_reread_text,
+            "account_canonical_match": evidence.get("account_canonical_match"),
+            "public_canonical_match": evidence.get("public_canonical_match"),
+            "structure_preserved": plan.structure_preserved,
+            "expected_referee_reward": plan.variables.get("referee_reward"),
+            "observed_personal_code": observed_code,
+            "observed_personal_link": observed_link,
+            "expected_personal_code": plan.variables.get("personal_code"),
+            "expected_personal_link": plan.variables.get("personal_link"),
+            "code_matches_expected": observed_code == plan.variables.get("personal_code"),
+            "link_matches_expected": observed_link == plan.variables.get("personal_link"),
+            "account_reread_text": result.account_reread_text,
+            "public_reread_text": result.post_publish_text,
+            "form_dump": dump,
         }
         path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print(f"\nok={result.ok} steps={result.steps}")
