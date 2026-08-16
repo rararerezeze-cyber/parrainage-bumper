@@ -1,0 +1,21 @@
+{
+  "id": "20260816T075410Z",
+  "at": "2026-08-16T07:54:10.755112+00:00",
+  "reason": "authorize_historical_bumper",
+  "copied": [
+    "operator-overrides.json",
+    "platform-write-status.json",
+    "pending_writes.json",
+    "autofresh-phase.json",
+    "circuit-breakers.json",
+    "sync-state.json"
+  ],
+  "missing": [],
+  "path": "C:\\Users\\adrie\\Documents\\parrainage-bumper\\data\\snapshots\\20260816T075410Z",
+  "excludes": [
+    "last_super_run.txt",
+    "secrets",
+    "cookies",
+    "storage-state"
+  ]
+}

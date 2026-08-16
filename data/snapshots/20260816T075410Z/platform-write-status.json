@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-08-16T07:54:10.761122+00:00",
+  "updated_at": "2026-08-16T06:02:11.130906+00:00",
   "note": "Strict write readiness. WRITE_VERIFIED requires full post-verify evidence. Telegram live writes only for WRITE_VERIFIED platforms.",
   "write_verified_count": 3,
   "write_verified_ratio": "3/7",
@@ -13,8 +13,8 @@
     "super-parrain": {
       "status": "WRITE_VERIFIED",
       "canary_program": "poulpeo",
-      "runtime_mode": "NORMAL_BUMP",
-      "autonomy": "FUSED_UPDATE_BUMP",
+      "runtime_mode": "WRITE_VERIFIED_BUMPER_SUSPENDED",
+      "autonomy": "WRITE_VERIFIED_BUMPER_SUSPENDED",
       "notes": "WRITE_VERIFIED — content-writer proof (login+edit+save+reread+post_match). Historical bumper NOT authorized (fail-closed, independent from this content-writer proof) — bump_super_parrain.yml stays SKIP until an operator calls lib.super_parrain_schedule.authorize_historical_bumper().",
       "content_sync": "SYNC_VERIFIED_NO_SAFE_DIFF",
       "sync_verified_at": "2026-08-13T08:03:39.875092+00:00",

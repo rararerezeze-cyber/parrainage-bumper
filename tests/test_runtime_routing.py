@@ -13,6 +13,8 @@ from lib.write_status import (
     may_auto_execute_on_safe_diff,
     runtime_route,
 )
+
+ROUTE_FUSED_UPDATE_BUMP = "FUSED_UPDATE_BUMP"
 from platforms.referralcode_tv.writer import execute_write as rctv_execute
 from platforms.referralcodes.writer import execute_write as rcodes_execute
 from tools.run_verified_writers import AUTO_SAFE_DIFF_PLATFORMS, NEVER_AUTO_DISPATCH, _skip_route
@@ -39,12 +41,17 @@ def test_human_and_blocked_never_auto():
     # time-varying gates: whether the content-writer is WRITE_VERIFIED
     # (ROUTE_CANARY_PENDING_SKIP if not) and, once verified, whether the
     # separate global historical bumper has been explicitly authorized
-    # (ROUTE_BUMPER_NOT_AUTHORIZED if not — fail-closed default). The
-    # invariant that must always hold regardless of that real, evolving
-    # state is that it is never auto-dispatched.
+    # (ROUTE_BUMPER_NOT_AUTHORIZED if not — fail-closed default;
+    # FUSED_UPDATE_BUMP once an operator has explicitly called
+    # authorize_historical_bumper()). The invariant that must always hold
+    # regardless of that real, evolving state is that it is never
+    # auto-dispatched via the monitor's "safe diff" path — FUSED_UPDATE_BUMP
+    # is a distinct, explicitly-authorized cron/manual route, not
+    # ROUTE_AUTO_ON_SAFE_DIFF.
     assert runtime_route("super-parrain") in (
         ROUTE_CANARY_PENDING_SKIP,
         ROUTE_BUMPER_NOT_AUTHORIZED,
+        ROUTE_FUSED_UPDATE_BUMP,
     )
     assert runtime_route("super-parrain") != ROUTE_AUTO_ON_SAFE_DIFF
     assert may_auto_execute_on_safe_diff("super-parrain") is False
