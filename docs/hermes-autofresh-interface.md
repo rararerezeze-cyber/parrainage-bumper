@@ -109,6 +109,14 @@ Legacy workflow `telegram_sync.yml` remains for compatibility (still message-dri
 }
 ```
 
+### French UX meta-commands
+
+`parsed.action` can also be `"help"`, `"divergences"`, or `"plateformes_program"`
+(see AGENTS.md's "Global French UX meta-commands" section for the exact trigger
+phrases). All three are pure reads — `writers` is always `null`, `platforms` is
+always `[]`, and `human_summary` is the ready-to-send French text (menu, example
+list, per-platform table, or a divergence list) — relay it as-is.
+
 ### Platform rows for Hermes UI
 
 | `write_mode` / status | Hermes should say |

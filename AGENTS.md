@@ -13,15 +13,18 @@ Pattern: `<program> <verb> [value]`, optionally `<program> <platform> <verb> [va
   `overrides` query anyway — those are read-only and Autofresh returns
   `unknown_program` cleanly if it doesn't recognize it. Never guess-invent a value
   for a `set` verb.
-- `<verb>`: `status` | `overrides` | `code` | `lien`/`link` | `gain filleul` |
-  `gain parrain` | `conditions` | `dépôt minimum` | `dépense minimum` | `minimum de
-  trade` | `nombre de transactions` | `délai` | `expiration` | `type de récompense` |
-  `titre` | `supprimer override <champ>`.
+- `<verb>`: `status`/`statut` | `overrides` | `divergences` | `plateformes` |
+  `code` | `lien`/`link` | `gain filleul`/`récompense filleul` |
+  `gain parrain`/`récompense parrain` | `conditions` | `dépôt minimum` |
+  `dépense minimum` | `minimum de trade` | `nombre de transactions` | `délai` |
+  `expiration` | `type de récompense` | `titre` |
+  `supprimer`/`retirer`/`effacer override <champ>`.
 - `<platform>` (optional): `Super-Parrain` | `Parrainage.co` | `Code-Parrainage` |
   `1Parrainage` | `ReferralCodes` | `ReferralCode.tv` | `ReferralDrop`. Omitted =
   global (all platforms), unless a platform-specific override exists (it always wins).
 
-**Positive examples** (→ Autofresh): `Kraken status`, `Kraken overrides`,
+**Positive examples** (→ Autofresh): `Kraken status`, `Kraken statut`,
+`Kraken overrides`, `Kraken divergences`, `Kraken plateformes`,
 `Kraken code ABC123`, `Kraken gain filleul 20 €`, `Kraken Super-Parrain gain filleul
 25 €`, `Kraken supprimer override gain filleul`.
 
@@ -29,6 +32,25 @@ Pattern: `<program> <verb> [value]`, optionally `<program> <platform> <verb> [va
 Kraken ?`, `C'est quoi Kraken ?`, any message about the Kraken *exchange* with no
 verb from the list above. The verb is what discriminates — a bare program/brand
 name alone is never enough.
+
+## Global French UX meta-commands (no program token)
+
+These are read-only, dispatch through the exact same recipe below (same command
+string, verbatim, as `command`), never persist anything, and never invoke a
+writer regardless of `run_writers`:
+
+- `Autofresh` / `Autofresh aide` / `Aide Autofresh` / `Autofresh commandes` →
+  the full French command menu (`human_summary` is the menu text — relay it
+  as-is, do not paraphrase).
+- `Autofresh exemples` → a short list of concrete example commands.
+- `Autofresh plateformes` → the real per-platform capability table (WRITE_VERIFIED
+  / CANARY_READY / etc., translated to French), generated live from backend
+  state, not a static doc — always current.
+
+If a message names a known program plus a bare ambiguous reward word (e.g.
+`Kraken récompense`, no `filleul`/`parrain` qualifier), Autofresh replies with a
+French clarifying question (not a technical `unknown_field` error) — relay
+`errors[0].detail` verbatim as the Telegram reply in that case.
 
 ## Dispatch recipe (exact — verified against the live workflow file)
 

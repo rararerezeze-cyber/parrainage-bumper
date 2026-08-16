@@ -28,6 +28,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+from lib.autofresh_help import ambiguous_field_reply, detect_meta_command
 from lib.offers import OffersRepository
 from lib.operator_overrides import (
     FIELD_ALIASES,
@@ -51,7 +52,7 @@ _PLAT_NC = (
 )
 
 STATUS_RE = re.compile(
-    rf"(?i)^\s*{_PROG}\s+(status|overrides)\s*$"
+    rf"(?i)^\s*{_PROG}\s+(status|statut|overrides|divergences|plateformes)\s*$"
 )
 REMOVE_RE = re.compile(
     rf"(?i)^\s*{_PROG}"
@@ -128,13 +129,34 @@ def parse_message(message: str, offers: OffersRepository) -> dict:
     if "\x00" in msg or len(msg) > 4000:
         raise ValueError("invalid_message")
 
+    meta_topic = detect_meta_command(msg)
+    if meta_topic:
+        return {
+            "action": "help",
+            "help_topic": meta_topic,
+            "program": None,
+            "offer_name": None,
+            "platform": None,
+            "field": None,
+            "value": None,
+        }
+
     m = STATUS_RE.match(msg)
     if m:
         offer = resolve_program(m.group(1), offers)
         if not offer:
             raise ValueError(f"unknown_program:{m.group(1)}")
+        verb = m.group(2).lower()
+        if verb in ("status", "statut"):
+            action = "status"
+        elif verb == "overrides":
+            action = "list"
+        elif verb == "divergences":
+            action = "divergences"
+        else:  # plateformes
+            action = "plateformes_program"
         return {
-            "action": "status" if m.group(2).lower() == "status" else "list",
+            "action": action,
             "program": offer["lk"],
             "offer_name": offer.get("name"),
             "platform": None,
@@ -195,6 +217,10 @@ def parse_message(message: str, offers: OffersRepository) -> dict:
             plat = None
         fv = _split_field_value(rest)
         if not fv:
+            first_word = rest.split(None, 1)[0] if rest.strip() else ""
+            hint = ambiguous_field_reply(first_word)
+            if hint:
+                raise ValueError(hint)
             raise ValueError(
                 "Message non reconnu. Ex: 'Kraken gain filleul 20 €' | "
                 "'Kraken Super-Parrain code ABC' | 'Kraken status'"
@@ -202,6 +228,9 @@ def parse_message(message: str, offers: OffersRepository) -> dict:
         field_raw, value = fv
         field = normalize_field_name(field_raw)
         if not field:
+            hint = ambiguous_field_reply(field_raw)
+            if hint:
+                raise ValueError(hint)
             raise ValueError(f"unknown_field:{field_raw}")
         return {
             "action": "set",
@@ -220,15 +249,35 @@ def parse_message(message: str, offers: OffersRepository) -> dict:
 
 
 def apply_operator_command(parsed: dict, *, message: str) -> dict:
+    action = parsed["action"]
+
+    if action == "help":
+        from lib.autofresh_help import build_topic
+
+        topic = parsed.get("help_topic") or "menu"
+        return {"action": "help", "topic": topic, "text": build_topic(topic)}
+
     store = OperatorOverrideStore()
     program = parsed["program"]
-    action = parsed["action"]
 
     if action == "status":
         return {"action": "status", "status": status_report(program, store)}
     if action == "list":
         ovs = store.list_for_program(program)
         return {"action": "list", "overrides": [o.to_dict() for o in ovs]}
+    if action == "divergences":
+        from lib.mapping_candidates import list_operator_queue
+
+        queue = list_operator_queue(program=program)
+        return {"action": "divergences", "program": program, "divergences": queue}
+    if action == "plateformes_program":
+        from lib.autofresh_help import build_platforms_status
+
+        return {
+            "action": "plateformes_program",
+            "program": program,
+            "text": build_platforms_status(program=program),
+        }
 
     if action == "remove":
         ok = store.remove(program, parsed["field"], platform=parsed.get("platform"))

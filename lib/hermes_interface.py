@@ -324,6 +324,25 @@ def run_autofresh_command(
             lock_cm.__exit__(None, None, None)
 
 
+def _format_divergences_fr(program: str, items: list[dict[str, Any]]) -> str:
+    if not items:
+        return f"Aucune divergence en attente pour {program}."
+    lines = [f"⚠️ {len(items)} divergence(s) en attente pour {program} :"]
+    for it in items:
+        lines.append(
+            f"• {it.get('platform')} / {it.get('field')} : "
+            f"{it.get('curated_value')!r} → {it.get('observed_value')!r}"
+        )
+    return "\n".join(lines)
+
+
+# Pure read-only meta-actions: never persist, never lock, never invoke a
+# writer, never touch format_plan_report (which only knows about
+# status/list/set/remove). Short-circuited here, before any of that
+# machinery, rather than teaching format_plan_report a 4th/5th/6th action.
+_READ_ONLY_META_ACTIONS = {"help", "divergences", "plateformes_program"}
+
+
 def _run_autofresh_command_locked(
     base: dict[str, Any],
     command: str,
@@ -334,6 +353,23 @@ def _run_autofresh_command_locked(
     run_writers: bool,
     replay_key: str,
 ) -> dict[str, Any]:
+    action = parsed.get("action")
+    if action in _READ_ONLY_META_ACTIONS:
+        result = apply_operator_command(parsed, message=command)
+        base["result"] = result
+        base["ok"] = True
+        base["persist_confirmed"] = True
+        if action == "divergences":
+            base["human_summary"] = _format_divergences_fr(
+                parsed.get("program") or "", result.get("divergences") or []
+            )
+        else:
+            base["human_summary"] = result.get("text", "")
+        base["platforms"] = []
+        base["write_status"] = write_summary()
+        base["idempotency_key"] = replay_key
+        return base
+
     if persist and parsed.get("action") in {"set", "remove"}:
         ledger = _load_idempotency()
         prev = (ledger.get("keys") or {}).get(replay_key)
