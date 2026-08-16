@@ -391,6 +391,55 @@ def _extract_public_body(html: str) -> str:
     return text[:4000]
 
 
+def _canonical_lines(text: str) -> list[str]:
+    """Canonicalize *text* to a sequence of non-empty, trimmed lines.
+
+    Platform-specific normalization for parrainage.co's compte<->public
+    comparison: the public renderer inserts an extra blank line after
+    every stored line break (confirmed 2026-08-16 via a full line-by-line
+    diff against a real fetch -- content identical, only spacing differs).
+    Tolerates ONLY that class of purely presentational difference: CRLF/LF,
+    trailing whitespace per line, and how many blank lines separate two
+    real lines (blank lines are dropped entirely, not collapsed-and-kept,
+    so their count can never affect the comparison either way).
+
+    Deliberately NOT permissive on anything else: non-empty text content,
+    line order, amounts, code, link, punctuation, or any added/removed/
+    reordered line all still produce a different sequence -- this is an
+    exact sequence comparison, never a substring or fuzzy match.
+    """
+    normalized = (text or "").replace("\r\n", "\n").replace("\r", "\n")
+    return [line.strip() for line in normalized.split("\n") if line.strip()]
+
+
+def _canonical_match(a: str, b: str) -> bool:
+    """Exact canonical-line-sequence equality. Use for the public page,
+    where _extract_public_body already narrowly isolates just the offer
+    block -- nothing else should be present.
+    """
+    return _canonical_lines(a) == _canonical_lines(b)
+
+
+def _canonical_contains(haystack_text: str, needle_text: str) -> bool:
+    """True iff needle's canonical line sequence appears as a contiguous
+    run within haystack's canonical line sequence.
+
+    Use for the account/edit reread, which legitimately contains extra
+    trailing lines beyond the content textarea (_reread_account_fields
+    also appends other visible input values, e.g. ref_code/ref_link) --
+    exact equality would always fail there even on a perfect match.
+    """
+    haystack = _canonical_lines(haystack_text)
+    needle = _canonical_lines(needle_text)
+    if not needle:
+        return False
+    span = len(needle)
+    for i in range(len(haystack) - span + 1):
+        if haystack[i : i + span] == needle:
+            return True
+    return False
+
+
 def _norm(s: str) -> str:
     return "\n".join(line.rstrip() for line in s.replace("\r\n", "\n").split("\n")).strip()
 
@@ -499,15 +548,37 @@ async def execute_write(
                 pass
             if inspect_only:
                 dump = await _dump_form_debug(page, "debug_parrainage_inspect_form.json")
+                account_text = await _reread_account_fields(page)
+                account_match = (
+                    _canonical_contains(account_text, plan.rendered) if account_text else False
+                )
+                published = None
+                public_match = None
+                if plan.announcement_url and "/account/" not in plan.announcement_url:
+                    try:
+                        await asyncio.sleep(1)
+                        html = fetch_text(plan.announcement_url)
+                        published = _extract_public_body(html)
+                        public_match = _canonical_match(published, plan.rendered)
+                    except Exception as exc:  # noqa: BLE001
+                        steps.append(f"public_fetch_error={exc}")
                 steps.append("inspect_only — no fill, no Enregistrer, no Save")
                 return WriteResult(
                     ok=True,
                     plan=plan,
                     edit_url=edit_url,
-                    account_reread_text=json.dumps(dump, ensure_ascii=False, indent=2),
+                    account_reread_text=account_text,
+                    post_publish_text=published,
                     steps=steps,
                     post_match=None,
-                    evidence_checks={"inspect_only": True, "filled": False, "submitted": False},
+                    evidence_checks={
+                        "inspect_only": True,
+                        "filled": False,
+                        "submitted": False,
+                        "account_canonical_match": account_match,
+                        "public_canonical_match": public_match,
+                        "form_dump": dump,
+                    },
                 )
             steps.append("fill_save")
             fill_steps = await _fill_and_save(
@@ -562,13 +633,8 @@ async def execute_write(
             steps=steps,
         )
 
-    public_match = _norm(published) == _norm(plan.rendered) or _norm(plan.rendered) in _norm(
-        published
-    )
-    account_ok = bool(account_text) and (
-        _norm(plan.rendered) in _norm(account_text)
-        or _values_present(account_text, plan)
-    )
+    public_match = _canonical_match(published, plan.rendered)
+    account_ok = bool(account_text) and _canonical_contains(account_text, plan.rendered)
     expected_ok = _values_present(published, plan) or _values_present(account_text or "", plan)
     checks = {
         "authenticated": True,
