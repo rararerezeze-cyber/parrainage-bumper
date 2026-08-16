@@ -51,6 +51,19 @@ jobs:
             echo "CANARY_PENDING → historical bumper SKIP (activation_canary owns save)"
           fi
 
+          # Visible alert (not just a buried JSON field): a WRITE_VERIFIED
+          # platform sitting BUMPER_SUSPENDED means the ~24h historical
+          # bump has stopped running until an operator explicitly calls
+          # lib.super_parrain_schedule.authorize_historical_bumper() --
+          # this can otherwise go unnoticed for days (real incident:
+          # 2026-08-12 to 2026-08-16, discovered only when the operator
+          # checked the live site). A GitHub Actions ::warning:: surfaces
+          # in the run summary/annotations UI on every 2h poll while
+          # suspended, with no extra alerting infra required.
+          if [ "$MODE_RT" = "WRITE_VERIFIED_BUMPER_SUSPENDED" ]; then
+            echo "::warning::Super-Parrain is WRITE_VERIFIED but the historical bumper is BUMPER_SUSPENDED (not explicitly authorized) -- the ~24h bump is NOT running. Call lib.super_parrain_schedule.authorize_historical_bumper() to resume it."
+          fi
+
           MODE="${{ github.event.inputs.mode }}"
           if [ -z "$MODE" ]; then MODE=auto; fi
 
@@ -183,18 +196,51 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          # Never commit last_super_run from a CANARY_PENDING skip path
-          git add data/captures/bump-super-parrain-gate.json \
-            data/captures/super-parrain-last-cycle.json \
-            data/captures/write-super-parrain-kraken.json \
-            data/platform-write-status.json data/autofresh-phase.json \
-            data/platform-mappings/super-parrain.*.json \
-            data/platform-templates/super-parrain/ 2>/dev/null || true
-          if [ "${{ steps.decide.outputs.runtime_mode }}" != "CANARY_PENDING" ]; then
-            git add last_super_run.txt 2>/dev/null || true
+          # Same class of bug fixed this session in capture_readonly.yml,
+          # monitor_offers.yml, and hermes_operator.yml: `git add` aborts
+          # the ENTIRE invocation (stages nothing at all, not even paths
+          # that exist and changed) the instant one pathspec matches
+          # nothing -- and an unmatched glob (e.g. super-parrain-last-
+          # cycle.json / write-super-parrain-kraken.json, only written on
+          # an actual cycle run, never on a skip) is exactly such a
+          # pathspec. Stage each individually behind an existence check;
+          # `data/platform-mappings/super-parrain.*.json` is a real shell
+          # glob so it needs `compgen`/a loop rather than a plain `-f`.
+          for p in data/captures/bump-super-parrain-gate.json \
+                   data/captures/super-parrain-last-cycle.json \
+                   data/captures/write-super-parrain-kraken.json \
+                   data/platform-write-status.json \
+                   data/autofresh-phase.json; do
+            if [ -f "$p" ]; then
+              git add "$p"
+            fi
+          done
+          if [ -d data/platform-templates/super-parrain ]; then
+            git add data/platform-templates/super-parrain/
           fi
-          if git diff --staged --quiet; then echo "no commit"; else
+          for f in data/platform-mappings/super-parrain.*.json; do
+            [ -e "$f" ] && git add "$f"
+          done
+          # Never commit last_super_run from a CANARY_PENDING skip path
+          if [ "${{ steps.decide.outputs.runtime_mode }}" != "CANARY_PENDING" ]; then
+            if [ -f last_super_run.txt ]; then
+              git add last_super_run.txt
+            fi
+          fi
+          if git diff --staged --quiet; then
+            echo "no commit"
+          else
             git commit -m "chore: super-parrain canary/bump results"
-            git pull --rebase origin main || true
-            git push origin HEAD:main || true
+            # A failed pull/push must never be swallowed: the artifacts this
+            # run produced would otherwise claim results were persisted when
+            # they only ever landed on this ephemeral runner's local disk.
+            # No retry loop -- one attempt, fail loudly (visible red run).
+            if ! git pull --rebase origin main; then
+              echo "::error::git pull --rebase failed -- super-parrain bump/canary results were NOT pushed. This run's results do not reflect a durably persisted change."
+              exit 1
+            fi
+            if ! git push origin HEAD:main; then
+              echo "::error::git push failed -- super-parrain bump/canary results were NOT pushed. This run's results do not reflect a durably persisted change."
+              exit 1
+            fi
           fi
