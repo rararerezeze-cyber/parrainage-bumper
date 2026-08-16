@@ -23,8 +23,8 @@
     "referee_reward": "reward",
     "conditions": "cond"
   },
-  "announcement_url": null,
-  "edit_url": "https://code-parrainage.net/annonce/84601",
+  "announcement_url": "https://code-parrainage.net/annonce/84601",
+  "edit_url": "https://code-parrainage.net/modif/84601",
   "platform_values": {
     "personal_code": "cpbrgddy",
     "personal_link": "https://invite.kraken.com/JDNW/s5qudqe4",
@@ -35,7 +35,7 @@
     "personal_link": "high",
     "referee_reward": "high"
   },
-  "notes": "auth_edit_url=https://code-parrainage.net/annonce/84601; chars=869",
+  "notes": "CORRECTED 2026-08-16 (GH runs 31951629497/31951796737, read-only Étape A): the old edit_url (/annonce/84601) is the PUBLIC view page (title 'Code Parrainage kraken : cpbrgddy', buttons Parcourir/Fermer/Copier only, no Enregistrer, no editable fields) -- moved to announcement_url, which is where it belongs. Real edit form confirmed at /modif/84601 (company=Kraken, code_ou_lien=cpbrgddy, offre textarea=750 chars matching golden, real 'Enregistrer les modifications' submit button). Form has a SINGLE combined code_ou_lien field, not separate code+link inputs like other platforms -- see AGENTS.md/canary planning notes before assuming personal_code/personal_link map 1:1 to distinct DOM fields here.",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",

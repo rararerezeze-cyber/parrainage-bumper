@@ -84,7 +84,7 @@
       "status": "CANARY_READY",
       "canary_program": "kraken",
       "autonomy": "PC_OFF_READY",
-      "notes": "PC-off writer uses bumper.solve_slider only (same as historical bump). GH 31695046367 slider OK; Kraken already operator-matched. Not WRITE_VERIFIED (no save). Next real SAFE_DIFF is executable PC-off.",
+      "notes": "PC-off writer uses bumper.solve_slider only (same as historical bump). GH 31695046367 slider OK; Kraken already operator-matched. Not WRITE_VERIFIED (no save). Next real SAFE_DIFF is executable PC-off. CORRECTED 2026-08-16 (GH runs 31951629497/31951796737, read-only): real edit form is /modif/84601, NOT the previously-cached /annonce/84601 (that URL is public-only -- see data/platform-mappings/code-parrainage.kraken.fr.json). Single combined code_ou_lien field, not separate code+link inputs. Still no real Save ever proven -- status intentionally unchanged.",
       "last_compare_class": "NO_SAFE_DIFF",
       "last_compare_at": "2026-08-13T11:29:23.291254+00:00",
       "last_compare_note": "slider solver shared with bumper succeeded; account reread matches OPERATOR_VALIDATED",
