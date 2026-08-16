@@ -1,0 +1,50 @@
+name: Inspect (Parrainage.co)
+# READ-ONLY: real login + real navigation to the real edit form + DOM
+# census. Never fills, never clicks Enregistrer/Save, never touches an
+# override or write_status. See platforms/parrainage_co/writer.py
+# execute_write(inspect_only=True) and tests/test_inspect_only_gating.py
+# for the structural proof this cannot save.
+on:
+  workflow_dispatch:
+    inputs:
+      program:
+        description: "Programme (ex. kraken)"
+        required: true
+        default: "kraken"
+permissions:
+  contents: read
+concurrency:
+  group: autofresh-inspect-parrainage-co
+  cancel-in-progress: false
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+      - name: Inspect Parrainage.co (read-only, no save)
+        env:
+          PARRAINAGE_CO_EMAIL: ${{ secrets.PARRAINAGE_CO_EMAIL }}
+          PARRAINAGE_CO_PASSWORD: ${{ secrets.PARRAINAGE_CO_PASSWORD }}
+          PARRAINAGE_CO_RM_COOKIE: ${{ secrets.PARRAINAGE_CO_RM_COOKIE }}
+          TWOCAPTCHA_KEY: ${{ secrets.TWOCAPTCHA_KEY }}
+        run: |
+          python -u tools/controlled_write_parrainage_co.py --program "${{ github.event.inputs.program }}" --inspect-only
+      - name: Upload inspection artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: inspect-parrainage-co
+          retention-days: 7
+          if-no-files-found: ignore
+          path: |
+            data/captures/inspect-parrainage-co-*.json
+            debug_parrainage_write_before.png
+            debug_parrainage_inspect_form.json

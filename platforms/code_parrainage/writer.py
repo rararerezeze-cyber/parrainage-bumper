@@ -6,6 +6,7 @@ Never clicks Actualiser/boost — only Enregistrer/Sauvegarder on the edit form.
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 import re
 import sys
@@ -225,6 +226,44 @@ async def _resolve_edit_url(page, plan: WritePlan, base: str) -> str:
     raise RuntimeError(f"edit URL introuvable pour {plan.program} sur /moncompte")
 
 
+async def _dump_form_debug(page, path: str) -> dict[str, Any]:
+    """Read-only DOM census: every input/textarea/select/contenteditable on
+    the current page, plus its current value, and every submit-like button.
+    Never fills or clicks anything. Used exclusively by inspect_only.
+    """
+    data = await page.evaluate(
+        """
+        () => {
+          const inputs = Array.from(document.querySelectorAll('input, textarea, select, [contenteditable="true"]'))
+            .map(el => ({
+              tag: el.tagName,
+              type: el.type || '',
+              name: el.name || '',
+              id: el.id || '',
+              placeholder: el.getAttribute('placeholder') || '',
+              contenteditable: el.getAttribute('contenteditable') || '',
+              visible: !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length),
+              valueLen: ((el.value != null ? el.value : el.innerText) || '').length,
+              preview: ((el.value != null ? el.value : el.innerText) || '').slice(0, 200),
+            }));
+          const buttons = Array.from(document.querySelectorAll('button, input[type="submit"]'))
+            .map(el => ({
+              tag: el.tagName,
+              type: el.type || '',
+              text: (el.innerText || el.value || '').trim().slice(0, 80),
+              visible: !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length),
+            }));
+          return {url: location.href, title: document.title, inputs, buttons, bodyPreview: document.body.innerText.slice(0, 1500)};
+        }
+        """
+    )
+    try:
+        Path(path).write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    except Exception:
+        pass
+    return data
+
+
 async def _fill_and_save(page, text: str, code: str | None, link: str | None) -> list[str]:
     bumper = _bumper()
     steps: list[str] = []
@@ -352,51 +391,64 @@ def _extract_public_body(html: str) -> str:
     return re.sub(r"\n{3,}", "\n\n", text).strip()[:4000]
 
 
-async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult:
+async def execute_write(
+    plan: WritePlan, *, dry_run: bool = True, inspect_only: bool = False
+) -> WriteResult:
+    """inspect_only=True: real login + real navigation to the real Kraken
+    edit form + a read-only DOM census (_dump_form_debug). Structurally
+    cannot fill or save -- the fill/save call (_fill_and_save, further
+    below) is never reached on this path; inspect_only returns before it.
+
+    Deliberately bypasses the "no changed_fields -> NOOP" short-circuit
+    below: Kraken is currently NO_SAFE_DIFF on code-parrainage (already in
+    sync), and inspection needs a real authenticated look at the live form
+    regardless of whether a content diff currently exists.
+    """
     steps: list[str] = []
-    blocked = write_blocked_reason(plan.platform, plan.program, plan.language)
-    if blocked:
-        return WriteResult(
-            ok=False,
-            plan=plan,
-            error=f"WRITE_BLOCKED: {blocked}",
-            steps=["blocked"],
-        )
     circ = live_write_blocked_reason("code-parrainage")
-    if circ and not dry_run:
+    if circ and not dry_run and not inspect_only:
         return WriteResult(ok=False, plan=plan, error=f"CIRCUIT_OPEN: {circ}", steps=["circuit"])
-    if not plan.structure_preserved:
-        return WriteResult(
-            ok=False, plan=plan, error="structure_not_preserved", steps=steps
-        )
-    if not plan.changed_fields:
-        return WriteResult(
-            ok=True,
-            plan=plan,
-            steps=["noop"],
-            post_match=None,
-            post_publish_text=plan.historical,
-            error="NO_SAFE_DIFF",
-            evidence_checks={
-                "authenticated": False,
-                "targeted_edit": False,
-                "submit_ok": False,
-                "reread_account": False,
-                "expected_values_present": True,
-                "immutable_preserved": True,
-            },
-        )
-    if dry_run or not content_write_allowed("code-parrainage"):
-        return WriteResult(
-            ok=True,
-            plan=plan,
-            steps=[
-                "dry-run only"
-                if dry_run
-                else f"LIVE_DISABLED ({phase_name()}) — need CANARY_READY/WRITE_VERIFIED"
-            ],
-            post_match=None,
-        )
+    if not inspect_only:
+        blocked = write_blocked_reason(plan.platform, plan.program, plan.language)
+        if blocked:
+            return WriteResult(
+                ok=False,
+                plan=plan,
+                error=f"WRITE_BLOCKED: {blocked}",
+                steps=["blocked"],
+            )
+        if not plan.structure_preserved:
+            return WriteResult(
+                ok=False, plan=plan, error="structure_not_preserved", steps=steps
+            )
+        if not plan.changed_fields:
+            return WriteResult(
+                ok=True,
+                plan=plan,
+                steps=["noop"],
+                post_match=None,
+                post_publish_text=plan.historical,
+                error="NO_SAFE_DIFF",
+                evidence_checks={
+                    "authenticated": False,
+                    "targeted_edit": False,
+                    "submit_ok": False,
+                    "reread_account": False,
+                    "expected_values_present": True,
+                    "immutable_preserved": True,
+                },
+            )
+        if dry_run or not content_write_allowed("code-parrainage"):
+            return WriteResult(
+                ok=True,
+                plan=plan,
+                steps=[
+                    "dry-run only"
+                    if dry_run
+                    else f"LIVE_DISABLED ({phase_name()}) — need CANARY_READY/WRITE_VERIFIED"
+                ],
+                post_match=None,
+            )
 
     bumper = _bumper()
     cfg = bumper.CONFIG["code"]
@@ -428,6 +480,18 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
                 await page.screenshot(path="debug_code_write_before.png", full_page=True)
             except Exception:
                 pass
+            if inspect_only:
+                dump = await _dump_form_debug(page, "debug_code_inspect_form.json")
+                steps.append("inspect_only — no fill, no slider-on-save, no Enregistrer")
+                return WriteResult(
+                    ok=True,
+                    plan=plan,
+                    edit_url=edit_url,
+                    account_reread_text=json.dumps(dump, ensure_ascii=False, indent=2),
+                    steps=steps,
+                    post_match=None,
+                    evidence_checks={"inspect_only": True, "filled": False, "submitted": False},
+                )
             steps.append("fill_save")
             fill_steps = await _fill_and_save(
                 page,

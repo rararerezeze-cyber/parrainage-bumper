@@ -31,11 +31,41 @@ def main() -> int:
         action="store_true",
         help="Confirme intention d'ecrire (ne bypass pas les gates phase/status).",
     )
+    p.add_argument(
+        "--inspect-only",
+        action="store_true",
+        help=(
+            "Real login + real navigation to the real edit form + a read-only "
+            "DOM census. Never fills, never clicks Enregistrer/Save, never "
+            "touches an override, never writes write_status. Independent of "
+            "--execute/--force -- no fake write, no state mutation."
+        ),
+    )
     args = p.parse_args()
 
     plan = build_write_plan("parrainage-co", args.program, args.language)
     for line in plan_report_lines(plan):
         print(line)
+
+    if args.inspect_only:
+        result = asyncio.run(execute_write(plan, dry_run=False, inspect_only=True))
+        path = OUT / f"inspect-parrainage-co-{args.program}.json"
+        OUT.mkdir(parents=True, exist_ok=True)
+        payload = {
+            "at": datetime.now(timezone.utc).isoformat(),
+            "mode": "inspect_only",
+            "ok": result.ok,
+            "error": result.error,
+            "edit_url": result.edit_url,
+            "announcement_url": plan.announcement_url,
+            "steps": result.steps,
+            "evidence_checks": result.evidence_checks,
+            "form_dump": result.account_reread_text,
+        }
+        path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        print(f"\nok={result.ok} steps={result.steps}")
+        print(f"report={path}")
+        return 0 if result.ok else 1
 
     if not plan.structure_preserved:
         print("ABORT: structure non preserve", file=sys.stderr)
