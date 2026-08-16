@@ -363,17 +363,32 @@ async def _reread_account_fields(page) -> str:
 
 
 def _extract_public_body(html: str) -> str:
-    m = re.search(r"(⭐️ Offre Parrainage[\s\S]*?discord\.gg/\S+ ↩️)", html)
-    if m:
-        return m.group(1)
-    text = re.sub(r"(?is)<script[\s\S]*?</script>|<style[\s\S]*?</style>", " ", html)
-    text = re.sub(r"<br\s*/?>", "\n", text, flags=re.I)
+    """Locate the real offer block in a fetched public page.
+
+    Always cleans the HTML FIRST (strip script/style/noscript, convert
+    <br>, strip remaining tags, unescape entities, normalize whitespace)
+    and only THEN searches for the offer block. Never runs a regex against
+    raw, un-stripped HTML: a real incident (2026-08-16, parrainage-co
+    canary post-verify) showed the offer's own text (e.g. "Conditions de
+    parrainage :") can appear a second time inside a meta tag's attribute
+    value earlier in the raw document; matching on raw HTML let the
+    non-greedy regex skip past that decoy and swallow real markup
+    (`...">\n <meta ...`) in between, silently corrupting the extracted
+    text. Attribute values never survive tag-stripping, so cleaning first
+    structurally removes that decoy before any block-matching is attempted.
+    """
+    text = re.sub(r"(?is)<(script|style|noscript)\b[^>]*>.*?</\1>", " ", html)
+    text = re.sub(r"(?i)<br\s*/?>", "\n", text)
     text = re.sub(r"<[^>]+>", "\n", text)
     text = unescape(text)
+    text = text.replace("\r\n", "\n").replace("\r", "\n")
+    text = re.sub(r"[ \t]+(\n|$)", r"\1", text)  # trailing spaces per line
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    text = text.strip()
     m = re.search(r"(⭐️ Offre Parrainage[\s\S]*?discord\.gg/\S+ ↩️)", text)
     if m:
         return m.group(1).strip()
-    return re.sub(r"\n{3,}", "\n\n", text).strip()[:4000]
+    return text[:4000]
 
 
 def _norm(s: str) -> str:
