@@ -210,7 +210,8 @@ jobs:
                    data/captures/super-parrain-last-cycle.json \
                    data/captures/write-super-parrain-kraken.json \
                    data/platform-write-status.json \
-                   data/autofresh-phase.json; do
+                   data/autofresh-phase.json \
+                   data/super_parrain_jitter.json; do
             if [ -f "$p" ]; then
               git add "$p"
             fi

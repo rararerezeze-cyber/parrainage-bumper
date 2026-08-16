@@ -166,7 +166,8 @@ jobs:
                    data/platform-templates \
                    data/sync-state.json \
                    last_super_run.txt \
-                   data/autofresh-phase.json; do
+                   data/autofresh-phase.json \
+                   data/super_parrain_jitter.json; do
             if [ -e "$p" ]; then
               git add "$p"
             fi

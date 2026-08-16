@@ -319,10 +319,38 @@ jobs:
         run: |
           git config user.name "autofresh-bot"
           git config user.email "autofresh-bot@users.noreply.github.com"
-          git add data/platform-write-status.json data/autofresh-phase.json data/captures data/platform-mappings data/platform-templates last_super_run.txt data/pending_writes.json 2>/dev/null || true
-          if git diff --cached --quiet; then echo "no commit"; else
+          # Same class of bug fixed elsewhere this session (bump_super_parrain.yml,
+          # monitor_offers.yml, capture_readonly.yml, hermes_operator.yml): a
+          # grouped `git add` with `2>/dev/null || true` silently stages NOTHING
+          # at all -- not even paths that exist and changed -- the instant one
+          # pathspec matches nothing. And a masked pull/push (`|| true`) claims a
+          # canary result was persisted when it never left this ephemeral runner.
+          # Stage each individually behind an existence check, then fail loud.
+          for p in data/platform-write-status.json \
+                   data/autofresh-phase.json \
+                   data/pending_writes.json \
+                   data/super_parrain_jitter.json \
+                   last_super_run.txt; do
+            if [ -f "$p" ]; then
+              git add "$p"
+            fi
+          done
+          for d in data/captures data/platform-mappings data/platform-templates; do
+            if [ -d "$d" ]; then
+              git add "$d"
+            fi
+          done
+          if git diff --cached --quiet; then
+            echo "no commit"
+          else
             git commit -m "chore(activation): canary result ${{ steps.plat.outputs.platform }}"
             BRANCH="${GITHUB_REF_NAME}"
-            git pull --rebase origin "$BRANCH" || true
-            git push origin "HEAD:$BRANCH" || true
+            if ! git pull --rebase origin "$BRANCH"; then
+              echo "::error::git pull --rebase failed -- activation canary result was NOT pushed."
+              exit 1
+            fi
+            if ! git push origin "HEAD:$BRANCH"; then
+              echo "::error::git push failed -- activation canary result was NOT pushed."
+              exit 1
+            fi
           fi

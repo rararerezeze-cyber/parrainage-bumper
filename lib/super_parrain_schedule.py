@@ -7,6 +7,7 @@ jamais indefiniment le bump via un pending.
 from __future__ import annotations
 
 import json
+import random
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -18,6 +19,8 @@ COOLDOWN = timedelta(hours=24)
 LAST_SUPER_RUN = ROOT / "last_super_run.txt"
 PENDING_PATH = DATA_DIR / "pending_writes.json"
 CYCLE_REPORT = DATA_DIR / "captures" / "super-parrain-last-cycle.json"
+JITTER_PATH = DATA_DIR / "super_parrain_jitter.json"
+JITTER_MAX_MINUTES = 180
 
 
 def _parse_dt(raw: str | None) -> datetime | None:
@@ -41,6 +44,66 @@ def last_super_action_at() -> datetime | None:
     return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
 
 
+def _load_jitter_state() -> dict[str, Any]:
+    if not JITTER_PATH.exists():
+        return {}
+    try:
+        return json.loads(JITTER_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def _save_jitter_state(data: dict[str, Any]) -> None:
+    JITTER_PATH.parent.mkdir(parents=True, exist_ok=True)
+    tmp = JITTER_PATH.with_suffix(JITTER_PATH.suffix + ".tmp")
+    tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    tmp.replace(JITTER_PATH)
+
+
+def _jitter_for(last: datetime) -> timedelta:
+    """Persistent random 0-3h jitter added on top of the 24h cooldown.
+
+    Rolled once per cycle, keyed to the exact last_super_run.txt timestamp
+    that opened this cycle -- stable across every 2h poll within the same
+    waiting window (no flapping target), and only re-rolled once a new real
+    success (bumper.py's run_super(), tools/run_verified_writers.py, or
+    tools/controlled_write_super_parrain.py -- all three ultimately just
+    advance last_super_run.txt) produces a new `last`. No GitHub Actions
+    sleep of any kind: the existing 2h poll already picks up whatever
+    next_eligible_at() currently returns, exactly like it does for the
+    plain 24h cooldown -- this only adds an extra, persisted-not-recomputed
+    offset on top.
+
+    Deliberately keyed off `last` (read-time, lazy) rather than rolled
+    eagerly inside record_super_action_now(): last_super_run.txt is written
+    from three different call sites (see above) and only one of them
+    (record_super_action_now() itself) is easy to hook centrally -- keying
+    off the value every reader already re-reads anyway covers all three for
+    free and can't silently miss one.
+    """
+    key = last.isoformat()
+    state = _load_jitter_state()
+    if state.get("for_cycle_after") == key and isinstance(state.get("jitter_minutes"), int):
+        return timedelta(minutes=state["jitter_minutes"])
+    minutes = random.randint(0, JITTER_MAX_MINUTES)
+    _save_jitter_state(
+        {
+            "for_cycle_after": key,
+            "jitter_minutes": minutes,
+            "rolled_at": datetime.now(timezone.utc).isoformat(),
+        }
+    )
+    return timedelta(minutes=minutes)
+
+
+def current_jitter_minutes() -> int | None:
+    """None before any real cycle has ever run (first slot has no jitter)."""
+    last = last_super_action_at()
+    if last is None:
+        return None
+    return int(_jitter_for(last).total_seconds() // 60)
+
+
 def next_eligible_at(now: datetime | None = None) -> datetime:
     now = now or datetime.now(timezone.utc)
     if now.tzinfo is None:
@@ -48,7 +111,7 @@ def next_eligible_at(now: datetime | None = None) -> datetime:
     last = last_super_action_at()
     if last is None:
         return now
-    return last + COOLDOWN
+    return last + COOLDOWN + _jitter_for(last)
 
 
 def is_eligible(now: datetime | None = None) -> tuple[bool, datetime, float]:
@@ -301,6 +364,7 @@ def decide_super_parrain_action() -> dict[str, Any]:
         "pending_programs": [p.get("program") for p in pending],
         "activation_canary_owns_save": canary_pending,
         "historical_bumper_authorized": is_historical_bumper_authorized(),
+        "jitter_minutes": current_jitter_minutes(),
     }
 
     # Hard gate: historical bumper is suspended until WRITE_VERIFIED

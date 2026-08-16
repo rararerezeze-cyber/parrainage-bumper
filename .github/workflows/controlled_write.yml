@@ -76,10 +76,32 @@ jobs:
           # run even though the live write genuinely happened (see incident on
           # run 31724917509 / Poulpeo: data/captures/write-super-parrain-poulpeo.json
           # proves post_match=true but platform-write-status.json never recorded it).
-          git add data/captures/write-*.json data/platform-mappings data/platform-templates/super-parrain data/platform-write-status.json data/autofresh-phase.json data/pending_writes.json last_super_run.txt || true
+          # Same class of bug fixed elsewhere this session: a grouped `git add`
+          # with `|| true` silently stages nothing at all the instant one
+          # pathspec (e.g. data/captures/write-*.json when no matching file was
+          # produced) doesn't exist. Stage each individually instead.
+          for p in data/captures/write-*.json; do
+            [ -e "$p" ] && git add "$p"
+          done
+          if [ -d data/platform-mappings ]; then git add data/platform-mappings; fi
+          if [ -d data/platform-templates/super-parrain ]; then git add data/platform-templates/super-parrain; fi
+          for p in data/platform-write-status.json \
+                   data/autofresh-phase.json \
+                   data/pending_writes.json \
+                   data/super_parrain_jitter.json \
+                   last_super_run.txt; do
+            [ -f "$p" ] && git add "$p"
+          done
           if git diff --cached --quiet; then
             echo "No files to commit"
           else
             git commit -m "chore(write): Super-Parrain controlled write result for ${{ github.event.inputs.program }}"
-            git push
+            if ! git pull --rebase origin "${GITHUB_REF_NAME}"; then
+              echo "::error::git pull --rebase failed -- controlled write result was NOT pushed."
+              exit 1
+            fi
+            if ! git push; then
+              echo "::error::git push failed -- controlled write result was NOT pushed."
+              exit 1
+            fi
           fi

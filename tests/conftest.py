@@ -58,6 +58,7 @@ _PATCH_TARGETS: list[tuple[str, list[str]]] = [
     ("lib.write_status", ["DATA_DIR", "STATUS_PATH"]),
     ("lib.super_parrain_schedule", [
         "DATA_DIR", "ROOT", "LAST_SUPER_RUN", "PENDING_PATH", "CYCLE_REPORT",
+        "JITTER_PATH",
     ]),
     ("lib.safety", ["DATA_DIR", "SNAPSHOT_DIR", "AUDIT_PATH", "CIRCUIT_PATH"]),
     ("lib.canary_gate", ["DATA_DIR", "LOCK_PATH", "PACKS_PATH"]),

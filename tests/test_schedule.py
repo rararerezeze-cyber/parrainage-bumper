@@ -1,9 +1,12 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from lib.super_parrain_schedule import (
+    JITTER_MAX_MINUTES,
+    current_jitter_minutes,
     decide_super_parrain_action,
     enqueue_pending,
     is_super_parrain_canary_pending,
+    next_eligible_at,
     super_parrain_runtime_mode,
 )
 
@@ -191,6 +194,9 @@ def test_no_historical_save_until_slot_after_gate(tmp_path, monkeypatch):
     monkeypatch.setattr(sched, "PENDING_PATH", pending)
     monkeypatch.setattr(sched, "LAST_SUPER_RUN", last)
     monkeypatch.setattr(ws, "STATUS_PATH", status)
+    # Pin jitter to 0 -- this test asserts the exact historical 24h mark,
+    # independent of the (separately tested) 0-3h jitter feature.
+    monkeypatch.setattr(sched, "_jitter_for", lambda _last: timedelta(0))
 
     # Before eligibility
     before = datetime(2026, 8, 13, 5, 36, 0, tzinfo=timezone.utc)
@@ -209,3 +215,113 @@ def test_no_historical_save_until_slot_after_gate(tmp_path, monkeypatch):
     assert d2["action"] == "skip"
     assert d2["run_bump"] is False
     assert d2["activation_canary_owns_save"] is True
+
+
+# --- persistent 0-3h jitter on top of the 24h cooldown ---------------------
+
+
+def test_first_ever_run_has_no_jitter(tmp_path, monkeypatch):
+    """No last_super_run.txt yet -> immediately eligible, no jitter delay."""
+    import lib.super_parrain_schedule as sched
+
+    monkeypatch.setattr(sched, "LAST_SUPER_RUN", tmp_path / "last.txt")
+    monkeypatch.setattr(sched, "JITTER_PATH", tmp_path / "jitter.json")
+
+    assert current_jitter_minutes() is None
+    now = datetime(2026, 8, 16, 12, 0, 0, tzinfo=timezone.utc)
+    assert next_eligible_at(now) == now
+
+
+def test_jitter_is_within_bounds_and_added_on_top_of_24h(tmp_path, monkeypatch):
+    import lib.super_parrain_schedule as sched
+
+    last = tmp_path / "last.txt"
+    last.write_text("2026-08-12T05:37:10.549152+00:00", encoding="utf-8")
+    monkeypatch.setattr(sched, "LAST_SUPER_RUN", last)
+    monkeypatch.setattr(sched, "JITTER_PATH", tmp_path / "jitter.json")
+
+    minutes = current_jitter_minutes()
+    assert minutes is not None
+    assert 0 <= minutes <= JITTER_MAX_MINUTES
+
+    expected_base = datetime(2026, 8, 13, 5, 37, 10, 549152, tzinfo=timezone.utc)
+    nxt = next_eligible_at(datetime(2026, 8, 12, 6, 0, 0, tzinfo=timezone.utc))
+    assert nxt >= expected_base
+    assert nxt <= expected_base + timedelta(minutes=JITTER_MAX_MINUTES)
+
+
+def test_jitter_is_stable_across_repeated_polls_same_cycle(tmp_path, monkeypatch):
+    """No flapping target: the same last_super_run must yield the same
+    jittered next_eligible_at on every poll within the same waiting window."""
+    import lib.super_parrain_schedule as sched
+
+    last = tmp_path / "last.txt"
+    last.write_text("2026-08-12T05:37:10.549152+00:00", encoding="utf-8")
+    monkeypatch.setattr(sched, "LAST_SUPER_RUN", last)
+    monkeypatch.setattr(sched, "JITTER_PATH", tmp_path / "jitter.json")
+
+    first = next_eligible_at()
+    for _ in range(5):
+        assert next_eligible_at() == first
+    assert current_jitter_minutes() == current_jitter_minutes()
+
+
+def test_jitter_persists_to_disk_for_a_fresh_process(tmp_path, monkeypatch):
+    """Simulates the real GitHub Actions constraint: a fresh checkout must
+    see the SAME jitter a previous run already rolled and committed, not
+    re-roll a new one every poll."""
+    import lib.super_parrain_schedule as sched
+
+    last = tmp_path / "last.txt"
+    last.write_text("2026-08-12T05:37:10.549152+00:00", encoding="utf-8")
+    jitter_path = tmp_path / "jitter.json"
+    monkeypatch.setattr(sched, "LAST_SUPER_RUN", last)
+    monkeypatch.setattr(sched, "JITTER_PATH", jitter_path)
+
+    first = next_eligible_at()
+    assert jitter_path.exists()
+
+    # "fresh process": re-read from the persisted file only, no in-memory state.
+    second = next_eligible_at()
+    assert second == first
+
+
+def test_jitter_rerolls_only_after_a_new_real_cycle(tmp_path, monkeypatch):
+    """A genuinely new last_super_run value (a real success) gets its own,
+    independently-rolled jitter -- the old cycle's jitter must not leak."""
+    import lib.super_parrain_schedule as sched
+
+    last = tmp_path / "last.txt"
+    last.write_text("2026-08-12T05:37:10.549152+00:00", encoding="utf-8")
+    monkeypatch.setattr(sched, "LAST_SUPER_RUN", last)
+    monkeypatch.setattr(sched, "JITTER_PATH", tmp_path / "jitter.json")
+
+    first_next = next_eligible_at()
+
+    # A new real cycle succeeds -- last_super_run.txt advances.
+    last.write_text("2026-08-14T09:00:00+00:00", encoding="utf-8")
+    second_next = next_eligible_at()
+    assert second_next != first_next
+    assert second_next >= datetime(2026, 8, 15, 9, 0, 0, tzinfo=timezone.utc)
+
+
+def test_decide_action_exposes_jitter_minutes(tmp_path, monkeypatch):
+    import lib.super_parrain_schedule as sched
+    import lib.write_status as ws
+
+    pending = tmp_path / "pending_writes.json"
+    last = tmp_path / "last.txt"
+    last.write_text("2026-08-12T05:37:10.549152+00:00", encoding="utf-8")
+    status = tmp_path / "platform-write-status.json"
+    status.write_text(
+        '{"version":1,"platforms":{"super-parrain":{"status":"CANARY_READY"}}}',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(sched, "PENDING_PATH", pending)
+    monkeypatch.setattr(sched, "LAST_SUPER_RUN", last)
+    monkeypatch.setattr(sched, "JITTER_PATH", tmp_path / "jitter.json")
+    monkeypatch.setattr(ws, "STATUS_PATH", status)
+
+    d = decide_super_parrain_action()
+    assert d["jitter_minutes"] is not None
+    assert 0 <= d["jitter_minutes"] <= JITTER_MAX_MINUTES
