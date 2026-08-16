@@ -1,0 +1,46 @@
+name: Inspect (Code-Parrainage edit mechanism)
+# READ-ONLY, Étape A discovery: real login + real navigation to find the
+# ACTUAL Kraken edit form (the cached mapping edit_url was proven to be a
+# public view page, not an edit form). Never fills, never clicks
+# Actualiser/Enregistrer/Sauvegarder/Valider, never touches an override or
+# write_status. See tools/inspect_code_parrainage_edit_mechanism.py and
+# tests/test_inspect_code_parrainage_edit_mechanism.py for the structural
+# proof this cannot save.
+on:
+  workflow_dispatch: {}
+permissions:
+  contents: read
+concurrency:
+  group: autofresh-inspect-code-parrainage-edit-mechanism
+  cancel-in-progress: false
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+      - name: Discover real edit mechanism (read-only, no save)
+        env:
+          CODE_PARRAINAGE_EMAIL: ${{ secrets.CODE_PARRAINAGE_EMAIL }}
+          CODE_PARRAINAGE_PASSWORD: ${{ secrets.CODE_PARRAINAGE_PASSWORD }}
+        run: |
+          python -u tools/inspect_code_parrainage_edit_mechanism.py
+      - name: Upload inspection artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: inspect-code-parrainage-edit-mechanism
+          retention-days: 14
+          if-no-files-found: ignore
+          path: |
+            data/captures/inspect-code-parrainage-edit-mechanism.json
+            debug_code_inspect_edit_mechanism.png
+            debug_code_edit_mechanism_form.json
+            debug_code_known_public_url_form.json
