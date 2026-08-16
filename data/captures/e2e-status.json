@@ -8,8 +8,8 @@
   "telegram_worker_required": "NO",
   "telegram_worker_code_present": "YES",
   "operator_overrides_store": "PASS",
-  "WRITE_VERIFIED": "2/7",
-  "write_verified_count": 2,
+  "WRITE_VERIFIED": "3/7",
+  "write_verified_count": 3,
   "telegram_live_capable": [
     "parrainage-co",
     "code-parrainage",
@@ -18,13 +18,13 @@
   "platforms": [
     {
       "platform": "super-parrain",
-      "status": "CANARY_READY",
-      "telegram_action": "CANARY_PENDING_SKIP",
-      "autonomy": "CANARY_PENDING_SKIP",
-      "route": "CANARY_PENDING_SKIP",
-      "canary_program": "kraken",
-      "notes": "CANARY_READY + SYNC_VERIFIED_NO_SAFE_DIFF: Kraken already matches OPERATOR_VALIDATED. No fake write. Not WRITE_VERIFIED. Historical bumper remains SKIP. Later platforms may sequence.",
-      "last_write_verified_at": null
+      "status": "WRITE_VERIFIED",
+      "telegram_action": "BUMPER_NOT_AUTHORIZED",
+      "autonomy": "WRITE_VERIFIED_BUMPER_SUSPENDED",
+      "route": "BUMPER_NOT_AUTHORIZED",
+      "canary_program": "poulpeo",
+      "notes": "WRITE_VERIFIED — content-writer proof (login+edit+save+reread+post_match). Historical bumper NOT authorized (fail-closed, independent from this content-writer proof) — bump_super_parrain.yml stays SKIP until an operator calls lib.super_parrain_schedule.authorize_historical_bumper().",
+      "last_write_verified_at": "2026-08-15T08:28:55.596484+00:00"
     },
     {
       "platform": "parrainage-co",
@@ -88,8 +88,8 @@
     }
   ],
   "by_status": {
-    "CANARY_READY": 4,
-    "WRITE_VERIFIED": 2,
+    "WRITE_VERIFIED": 3,
+    "CANARY_READY": 3,
     "AUTH_BLOCKED_MANUAL": 1
   },
   "HERMES_AUTOFRESH_INTERFACE_READY": "YES",

@@ -1,12 +1,12 @@
 {
   "platform": "super-parrain",
-  "result": "CANARY_ATTEMPTED",
-  "runtime_mode": "CANARY_PENDING",
-  "canary_pending": true,
-  "post_match": null,
+  "result": "WRITE_VERIFIED",
+  "runtime_mode": "WRITE_VERIFIED_BUMPER_SUSPENDED",
+  "canary_pending": false,
+  "post_match": true,
   "historical_bumper_after": {
     "action": "skip",
     "run_bump": false,
-    "runtime_mode": "CANARY_PENDING"
+    "runtime_mode": "WRITE_VERIFIED_BUMPER_SUSPENDED"
   }
 }
