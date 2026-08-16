@@ -1,0 +1,90 @@
+name: Canary write (Parrainage.co)
+# Explicit operator authorization required for each dispatch (2026-08-16).
+# Single program (kraken), single field (referee_reward), exactly 2 real
+# saves (canary, then mandatory rollback) in one browser session. See
+# tools/canary_write_parrainage_co.py for the full state machine and
+# tests/test_canary_parrainage_co_script.py for the pre-browser guarantees.
+on:
+  workflow_dispatch: {}
+permissions:
+  contents: write
+concurrency:
+  group: autofresh-canary-parrainage-co
+  cancel-in-progress: false
+jobs:
+  canary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+      - name: Canary + mandatory rollback
+        id: canary
+        env:
+          PARRAINAGE_CO_EMAIL: ${{ secrets.PARRAINAGE_CO_EMAIL }}
+          PARRAINAGE_CO_PASSWORD: ${{ secrets.PARRAINAGE_CO_PASSWORD }}
+          PARRAINAGE_CO_RM_COOKIE: ${{ secrets.PARRAINAGE_CO_RM_COOKIE }}
+          TWOCAPTCHA_KEY: ${{ secrets.TWOCAPTCHA_KEY }}
+        run: |
+          set +e
+          python -u tools/canary_write_parrainage_co.py
+          echo "canary_exit=$?" >> "$GITHUB_OUTPUT"
+      - name: Logs
+        if: always()
+        run: |
+          cat data/captures/canary-parrainage-co-kraken.json || true
+      - name: Upload canary artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: canary-parrainage-co
+          retention-days: 14
+          if-no-files-found: ignore
+          path: |
+            data/captures/canary-parrainage-co-kraken.json
+            debug_parrainage_canary_before.json
+            debug_parrainage_canary_after.json
+            debug_parrainage_rollback_after.json
+      - name: Commit result (only on confirmed WRITE_VERIFIED)
+        if: always()
+        run: |
+          git config user.name "autofresh-bot"
+          git config user.email "autofresh-bot@users.noreply.github.com"
+          # Same class of bug fixed elsewhere this session: stage each
+          # existing path individually, never a grouped `git add ... || true`.
+          for p in data/captures/canary-parrainage-co-kraken.json \
+                   data/platform-write-status.json \
+                   data/platform-templates/parrainage-co/kraken.fr.golden.txt \
+                   data/platform-mappings/parrainage-co.kraken.fr.json; do
+            if [ -f "$p" ]; then
+              git add "$p"
+            fi
+          done
+          if git diff --cached --quiet; then
+            echo "no commit"
+          else
+            git commit -m "chore(canary): parrainage-co kraken referee_reward canary result"
+            if ! git pull --rebase origin "${GITHUB_REF_NAME}"; then
+              echo "::error::git pull --rebase failed -- canary result was NOT pushed."
+              exit 1
+            fi
+            if ! git push; then
+              echo "::error::git push failed -- canary result was NOT pushed."
+              exit 1
+            fi
+          fi
+      - name: Fail the run if the script did not exit 0
+        if: always()
+        run: |
+          EXIT="${{ steps.canary.outputs.canary_exit }}"
+          echo "canary script exit=$EXIT"
+          if [ "$EXIT" != "0" ]; then
+            echo "::error::Canary script did not report success (exit=$EXIT). Check the Logs step / canary-parrainage-co-kraken.json artifact for exact remaining public state."
+            exit 1
+          fi
