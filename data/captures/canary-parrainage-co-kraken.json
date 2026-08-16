@@ -1,0 +1,53 @@
+{
+  "at_start": "2026-08-16T12:51:01.483157+00:00",
+  "platform": "parrainage-co",
+  "program": "kraken",
+  "field": "referee_reward",
+  "original_value": "200 € en cryptomonnaies",
+  "canary_value": "200 € en crypto-monnaies",
+  "public_url": "https://parrainage.co/offers/113735",
+  "phases": {
+    "before": {
+      "content_preview": "⭐️ Offre Parrainage Kraken – Jusqu’à 200 € offerts\n\n⚡ Bonus : 200 € en cryptomonnaies ⭐️\nRejoignez Kraken, une plateforme d’échange crypto reconnue et sécurisée.\n\n⸻\n\n✅ Code parrain : cpbrgddy\n\n✅ Lien ",
+      "ref_code": "cpbrgddy",
+      "ref_link": "https://invite.kraken.com/JDNW/s5qudqe4",
+      "ref_code_matches_expected": true,
+      "ref_link_matches_expected": true,
+      "public_body_matches_original": false,
+      "public_error": null
+    },
+    "canary_save": {
+      "filled_via": "textarea[0]",
+      "clicked": true
+    },
+    "canary_verify": {
+      "account_content_preview": "⭐️ Offre Parrainage Kraken – Jusqu’à 200 € offerts\n\n⚡ Bonus : 200 € en crypto-monnaies ⭐️\nRejoignez Kraken, une plateforme d’échange crypto reconnue et sécurisée.\n\n⸻\n\n✅ Code parrain : cpbrgddy\n\n✅ Lien",
+      "ref_code": "cpbrgddy",
+      "ref_link": "https://invite.kraken.com/JDNW/s5qudqe4",
+      "ref_code_unchanged": true,
+      "ref_link_unchanged": true,
+      "public_body_matches_canary": false,
+      "public_error": null
+    },
+    "rollback_save": {
+      "filled_via": "textarea[0]",
+      "clicked": true
+    },
+    "rollback_verify": {
+      "account_content_preview": "⭐️ Offre Parrainage Kraken – Jusqu’à 200 € offerts\n\n⚡ Bonus : 200 € en cryptomonnaies ⭐️\nRejoignez Kraken, une plateforme d’échange crypto reconnue et sécurisée.\n\n⸻\n\n✅ Code parrain : cpbrgddy\n\n✅ Lien ",
+      "ref_code": "cpbrgddy",
+      "ref_link": "https://invite.kraken.com/JDNW/s5qudqe4",
+      "ref_code_unchanged": true,
+      "ref_link_unchanged": true,
+      "public_body_matches_original": false,
+      "public_error": null
+    }
+  },
+  "expected_personal_code": "cpbrgddy",
+  "expected_personal_link": "https://invite.kraken.com/JDNW/s5qudqe4",
+  "edit_url": "https://parrainage.co/account/offers/edit/113735",
+  "at_end": "2026-08-16T12:52:12.384981+00:00",
+  "canary_ok": false,
+  "rollback_ok": false,
+  "write_verified": false
+}
