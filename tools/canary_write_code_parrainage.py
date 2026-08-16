@@ -46,6 +46,7 @@ import hashlib
 import json
 import os
 import sys
+import urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -239,6 +240,62 @@ async def _check_save_button_clickable(page, report: dict, *, phase: str):
     return btn
 
 
+async def _register_network_listeners(page, network_evidence: dict, phase_ref: dict) -> None:
+    """Captures ONLY the modification.php request/response, scoped to
+    whichever phase is currently active in phase_ref["name"] (set to
+    "canary" / "rollback" immediately around each _click_save call, and
+    to None otherwise so the login POST and any unrelated traffic is never
+    touched by this listener at all).
+
+    Never logs cookies, Set-Cookie, Authorization, or any session/password
+    data -- only method/url/content-type/status, the already-known-public
+    form field names being sent (company/code_ou_lien/offre/modifpost,
+    the exact same fields this script itself fills), and a hash + short
+    excerpt of the response body for later human review.
+    """
+
+    async def _on_request(request) -> None:
+        phase = phase_ref.get("name")
+        if not phase or "modification.php" not in request.url:
+            return
+        post_data = request.post_data or ""
+        parsed = dict(urllib.parse.parse_qsl(post_data, keep_blank_values=True))
+        offre_val = parsed.get("offre")
+        network_evidence.setdefault(phase, {})["request"] = {
+            "method": request.method,
+            "url": request.url,
+            "content_type": request.headers.get("content-type"),
+            "payload_fields_present": sorted(parsed.keys()),
+            "payload_offre_len": len(offre_val) if offre_val is not None else None,
+            "payload_offre_sha256": _sha256(offre_val),
+            "payload_contains_canary_value": bool(offre_val) and CANARY_VALUE in offre_val,
+            "payload_contains_original_value": bool(offre_val) and ORIGINAL_VALUE in offre_val,
+            "payload_company": parsed.get("company"),
+            "payload_code_ou_lien": parsed.get("code_ou_lien"),
+            "payload_modifpost": parsed.get("modifpost"),
+        }
+
+    async def _on_response(response) -> None:
+        phase = phase_ref.get("name")
+        if not phase or "modification.php" not in response.url:
+            return
+        try:
+            body = await response.text()
+        except Exception:  # noqa: BLE001
+            body = ""
+        network_evidence.setdefault(phase, {})["response"] = {
+            "status": response.status,
+            "url": response.url,
+            "content_type": response.headers.get("content-type"),
+            "body_sha256": _sha256(body) if body else None,
+            "body_len": len(body),
+            "body_excerpt": body[:800],
+        }
+
+    page.on("request", lambda req: asyncio.create_task(_on_request(req)))
+    page.on("response", lambda resp: asyncio.create_task(_on_response(resp)))
+
+
 async def _fill_offre_only(page, text: str) -> None:
     await page.locator("textarea#offre").fill(text)
 
@@ -306,6 +363,8 @@ async def main() -> int:
     from playwright.async_api import async_playwright
 
     canary_may_have_written = False
+    network_evidence: dict = {}
+    phase_ref: dict = {"name": None}
     async with async_playwright() as pw:
         browser = await pw.chromium.launch(
             headless=True,
@@ -316,6 +375,7 @@ async def main() -> int:
         )
         ctx = await bumper.new_context(browser)
         page = await ctx.new_page()
+        await _register_network_listeners(page, network_evidence, phase_ref)
         try:
             # --- login (real slider solve already happens inside _login) ---
             await _login(page, cfg)
@@ -341,7 +401,10 @@ async def main() -> int:
             # --- CANARY SAVE (single click, no retry) ---
             canary_may_have_written = True  # set BEFORE clicking
             await _fill_offre_only(page, rendered_canary)
+            phase_ref["name"] = "canary"
             await _click_save(page, save_btn)
+            await asyncio.sleep(0.5)  # let scheduled request/response listeners flush
+            phase_ref["name"] = None
             report["phases"]["canary_save"] = {"clicked": True}
 
             # --- CANARY: fresh reread, account + public (best-effort; never skips rollback) ---
@@ -372,7 +435,10 @@ async def main() -> int:
             await _check_slider_and_solve(page, report, phase="rollback")
             save_btn2 = await _check_save_button_clickable(page, report, phase="rollback")
             await _fill_offre_only(page, rendered_original)
+            phase_ref["name"] = "rollback"
             await _click_save(page, save_btn2)
+            await asyncio.sleep(0.5)  # let scheduled request/response listeners flush
+            phase_ref["name"] = None
             report["phases"]["rollback_save"] = {"clicked": True}
 
             rollback_dump = None
@@ -404,6 +470,7 @@ async def main() -> int:
             await browser.close()
 
     report["at_end"] = datetime.now(timezone.utc).isoformat()
+    report["network_evidence"] = network_evidence
 
     def _match(phase_key: str) -> bool | None:
         return report.get("phases", {}).get(phase_key, {}).get("canonical_match_vs_expected")

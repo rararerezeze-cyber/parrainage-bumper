@@ -214,3 +214,62 @@ def test_critical_fail_short_circuits_before_any_promotion_attempt():
     idx_critical_check = src.index('if report.get("critical_fail"):')
     idx_write_verified_branch = src.index("if write_verified:")
     assert idx_critical_check < idx_write_verified_branch
+
+
+# --- network instrumentation (for a FUTURE authorized run) -----------------
+
+def test_network_listeners_registered_before_any_click():
+    import tools.canary_write_code_parrainage as mod
+
+    src = inspect.getsource(mod.main)
+    idx_register = src.index("_register_network_listeners(")
+    idx_click1 = src.index("await _click_save(")
+    assert idx_register < idx_click1
+
+
+def test_network_listeners_never_reference_cookies_or_credentials():
+    """Checks the CODE only (docstring stripped) -- the docstring legitimately
+    explains in prose what is never logged, which would false-positive a
+    naive whole-source substring check.
+    """
+    import ast
+
+    import tools.canary_write_code_parrainage as mod
+
+    src = inspect.getsource(mod._register_network_listeners)
+    tree = ast.parse(src)
+    func = tree.body[0]
+    if ast.get_docstring(func) is not None:
+        func.body = func.body[1:]  # drop the docstring node
+    code_only = ast.unparse(func)
+    for forbidden in ("cookie", "authorization", "password", "session_id", "sessionid"):
+        assert forbidden not in code_only.lower()
+
+
+def test_network_listeners_only_capture_modification_php():
+    import tools.canary_write_code_parrainage as mod
+
+    src = inspect.getsource(mod._register_network_listeners)
+    assert src.count("modification.php") >= 2  # request handler + response handler
+
+
+def test_network_evidence_scoped_to_active_phase_only():
+    """phase_ref["name"] must be None outside the two Save-click windows,
+    so login and any unrelated traffic is never captured -- and must be set
+    to "canary"/"rollback" only immediately around the matching click.
+    """
+    import tools.canary_write_code_parrainage as mod
+
+    src = inspect.getsource(mod.main)
+    assert src.count('phase_ref["name"] = "canary"') == 1
+    assert src.count('phase_ref["name"] = "rollback"') == 1
+    assert src.count('phase_ref["name"] = None') == 2
+
+
+def test_network_evidence_included_in_final_report():
+    import tools.canary_write_code_parrainage as mod
+
+    src = inspect.getsource(mod.main)
+    idx_assign = src.index('report["network_evidence"] = network_evidence')
+    idx_write = src.index("REPORT_PATH.write_text(", idx_assign)
+    assert idx_assign < idx_write

@@ -1,0 +1,42 @@
+name: Inspect (Code-Parrainage offre scripts, full dump)
+# READ-ONLY, explicit operator authorization (2026-08-16). Real login +
+# real navigation to /modif/84601 to dump every script's FULL text --
+# structurally cannot click Save/Actualiser or submit anything (see
+# tools/inspect_code_parrainage_offre_scripts_full.py and
+# tests/test_inspect_code_parrainage_offre_scripts_full.py).
+on:
+  workflow_dispatch: {}
+permissions:
+  contents: read
+concurrency:
+  group: autofresh-inspect-code-parrainage-offre-scripts-full
+  cancel-in-progress: false
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+      - name: Dump full offre-form scripts (read-only, no save)
+        env:
+          CODE_PARRAINAGE_EMAIL: ${{ secrets.CODE_PARRAINAGE_EMAIL }}
+          CODE_PARRAINAGE_PASSWORD: ${{ secrets.CODE_PARRAINAGE_PASSWORD }}
+        run: |
+          python -u tools/inspect_code_parrainage_offre_scripts_full.py
+      - name: Upload script dump artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: inspect-code-parrainage-offre-scripts-full
+          retention-days: 14
+          if-no-files-found: ignore
+          path: |
+            data/captures/inspect-code-parrainage-offre-scripts-full.json
+            debug_code_script_*.js
