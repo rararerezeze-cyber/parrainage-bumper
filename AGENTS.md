@@ -23,8 +23,9 @@ Pattern: `<program> <verb> [value]`, optionally `<program> <platform> <verb> [va
   `1Parrainage` | `ReferralCodes` | `ReferralCode.tv` | `ReferralDrop`. Omitted =
   global (all platforms), unless a platform-specific override exists (it always wins).
 
-**Positive examples** (→ Autofresh): `Kraken status`, `Kraken statut`,
-`Kraken overrides`, `Kraken divergences`, `Kraken plateformes`,
+**Positive examples** (→ Autofresh): `Kraken statut` (`status` also accepted, but
+French is the documented/visible form — always lead with `statut` in anything shown
+to the user), `Kraken overrides`, `Kraken divergences`, `Kraken plateformes`,
 `Kraken code ABC123`, `Kraken gain filleul 20 €`, `Kraken Super-Parrain gain filleul
 25 €`, `Kraken supprimer override gain filleul`.
 
@@ -40,12 +41,21 @@ string, verbatim, as `command`), never persist anything, and never invoke a
 writer regardless of `run_writers`:
 
 - `Autofresh` / `Autofresh aide` / `Aide Autofresh` / `Autofresh commandes` →
-  the full French command menu (`human_summary` is the menu text — relay it
-  as-is, do not paraphrase).
+  the full French command menu.
 - `Autofresh exemples` → a short list of concrete example commands.
-- `Autofresh plateformes` → the real per-platform capability table (WRITE_VERIFIED
-  / CANARY_READY / etc., translated to French), generated live from backend
-  state, not a static doc — always current.
+- `Autofresh plateformes` (or `<Programme> plateformes`, e.g. `Kraken plateformes`)
+  → the real platform capability table, generated live from backend state, not
+  a static doc — always current.
+- `<Programme> divergences` → pending BUSINESS-classified divergences for that
+  program.
+
+For all four of these, `human_summary` is already the complete, ready-to-send
+French reply — relay it **verbatim, unedited**. Do not paraphrase it, do not
+blend it with examples from this file or from general knowledge, and do not
+substitute your own wording for any command name inside it (e.g. never say
+"Kraken status" when the text says "Kraken statut" — that text is the single
+source of truth for what commands exist and how they're spelled, not this
+document's own inline examples above).
 
 If a message names a known program plus a bare ambiguous reward word (e.g.
 `Kraken récompense`, no `filleul`/`parrain` qualifier), Autofresh replies with a
@@ -61,7 +71,7 @@ ref        = main   ← NEVER an old feature branch (e.g. autofresh/phase2b-krak
                        still exists on the remote but is stale/pre-hardening; dispatching
                        against it silently skips every security fix on main)
 inputs:
-  command:        the raw message text, verbatim (e.g. "Kraken status")
+  command:        the raw message text, verbatim (e.g. "Kraken statut")
   requester:      an identity string for you, e.g. "hermes"
   correlation_id: a fresh unique id per Telegram update (e.g. the update_id)
   run_writers:    "false" by default — ALWAYS, unless the human operator explicitly

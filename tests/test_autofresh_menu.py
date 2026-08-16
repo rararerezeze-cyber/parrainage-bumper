@@ -222,3 +222,70 @@ def test_plateformes_topic_lists_all_seven_platforms():
 
     text = build_platforms_status()
     assert text.count("•") == len(ALL_PLATFORMS)
+
+
+def test_global_plateformes_never_uses_mapped_language():
+    """The global (no-program) view has no "mapped for X" concept -- must
+    not claim a platform is "mappée"/"non mappée" without a program."""
+    from lib.autofresh_help import build_platforms_status
+
+    text = build_platforms_status()
+    assert "mappée" not in text.lower()
+
+
+def test_per_program_plateformes_distinguishes_known_mapped_blocked():
+    """Regression for the 3 collapsed-into-one-ambiguous-number bug: known
+    (always 7), mapped-for-this-program, and write-status must be three
+    separately labeled counts/fields, never merged into one number."""
+    from lib.autofresh_help import ALL_PLATFORMS, build_platforms_status
+
+    text = build_platforms_status(program="kraken")
+    assert f"{len(ALL_PLATFORMS)} plateformes connues" in text
+    assert "mappées pour Kraken" in text or "mappée pour Kraken" in text
+    # Per-platform lines each show BOTH the mapped flag and the write status,
+    # never just a bare count.
+    for line in text.splitlines():
+        if line.startswith("• "):
+            assert "mappée" in line or "non mappée" in line
+            assert "·" in line  # separator before the write-status label
+
+
+def test_referraldrop_shown_unmapped_for_kraken():
+    """Real data check: referraldrop has no data/platform-mappings/
+    referraldrop.kraken.*.json file -- must show as non-mappée, not silently
+    counted as one of the "mapped" 6."""
+    from lib.autofresh_help import build_platforms_status
+
+    text = build_platforms_status(program="kraken")
+    assert "ReferralDrop — non mappée" in text
+
+
+def test_mapped_count_matches_real_mapping_files_on_disk():
+    from pathlib import Path
+
+    from lib.autofresh_help import ALL_PLATFORMS, _is_mapped_for_program
+    from lib.paths import MAPPINGS_DIR
+
+    real_mapped = {
+        pid for pid in ALL_PLATFORMS if list(Path(MAPPINGS_DIR).glob(f"{pid}.kraken.*.json"))
+    }
+    computed_mapped = {pid for pid in ALL_PLATFORMS if _is_mapped_for_program(pid, "kraken")}
+    assert computed_mapped == real_mapped
+
+
+def test_examples_use_french_statut_not_english_status():
+    from lib.autofresh_help import build_examples
+
+    text = build_examples()
+    assert "Kraken statut" in text
+    assert "Kraken status" not in text
+
+
+def test_gain_parrain_line_never_implies_platform_write_works():
+    from lib.autofresh_help import build_main_menu
+
+    text = build_main_menu()
+    assert "gain parrain" in text.lower()
+    assert "non prise en charge" in text.lower() or "pas encore support" in text.lower()
+    # Must not read as if it's already a working platform write.
+    assert "définir le gain parrain" not in text.lower()

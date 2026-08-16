@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import unicodedata
 
+from lib.paths import MAPPINGS_DIR
 from lib.write_status import ALL_PLATFORMS, STATUS_WRITE_VERIFIED, summary as write_summary
 
 TOPIC_MENU = "menu"
@@ -127,26 +128,70 @@ def route_label_fr(route: str) -> str:
     return _ROUTE_FR.get(route, route)
 
 
+def _is_mapped_for_program(platform_id: str, program: str) -> bool:
+    """A real curated mapping file exists for (platform, program), any
+    language suffix (super-parrain/1parrainage/... use .fr., referralcodes/
+    referralcode-tv/referraldrop use .en.).
+    """
+    try:
+        return any(MAPPINGS_DIR.glob(f"{platform_id}.{program}.*.json"))
+    except Exception:
+        return False
+
+
 def build_platforms_status(*, program: str | None = None) -> str:
     """Real per-platform capability table, translated to French.
 
-    Pulls live from lib.write_status.summary() every call -- never a cached
-    or hardcoded copy, so it reflects whatever writers are actually
-    verified today.
+    Pulls live from lib.write_status.summary() (+ a real mapping-file check
+    when *program* is given) every call -- never a cached or hardcoded
+    copy, so it reflects whatever writers/mappings actually exist today.
+
+    Deliberately keeps three distinct concepts separate rather than
+    collapsing them into one ambiguous count:
+      - "connue"  : one of the 7 platforms Autofresh knows about at all.
+      - "mappée"  : (program-specific only) a curated mapping file exists
+        for THIS program on that platform -- says nothing about whether a
+        write has ever been verified there.
+      - écriture  : the real write-readiness ladder (UNPREPARED ...
+        WRITE_VERIFIED / AUTH_BLOCKED...), independent of "mappée".
     """
     data = write_summary()
     rows = {r["platform"]: r for r in data.get("platforms") or []}
-    lines = ["🎯 AUTOFRESH — ÉTAT RÉEL DES PLATEFORMES" + (f" ({program})" if program else "")]
-    lines.append(f"Écriture vérifiée : {data.get('WRITE_VERIFIED')}")
-    lines.append("")
-    for pid in ALL_PLATFORMS:
-        row = rows.get(pid) or {}
-        status = row.get("status") or "UNPREPARED"
-        route = row.get("route") or ""
-        lines.append(
-            f"• {platform_label_fr(pid)} — {status_label_fr(status)}"
-            + (f" · {route_label_fr(route)}" if route else "")
-        )
+    header = "🎯 AUTOFRESH — PLATEFORMES" + (f" ({program.capitalize()})" if program else "")
+    lines = [header, f"{len(ALL_PLATFORMS)} plateformes connues"]
+
+    if program:
+        mapped_flags = {pid: _is_mapped_for_program(pid, program) for pid in ALL_PLATFORMS}
+        mapped_count = sum(1 for v in mapped_flags.values() if v)
+        unmapped = [pid for pid, v in mapped_flags.items() if not v]
+        lines.append(f"{mapped_count} {'mappée' if mapped_count == 1 else 'mappées'} pour {program.capitalize()}")
+        if unmapped:
+            details = ", ".join(
+                f"{platform_label_fr(pid)} — {status_label_fr(rows.get(pid, {}).get('status') or 'UNPREPARED')}"
+                for pid in unmapped
+            )
+            noun = "non mappée" if len(unmapped) == 1 else "non mappées"
+            lines.append(f"{len(unmapped)} {noun} : {details}")
+        lines.append("")
+        for pid in ALL_PLATFORMS:
+            row = rows.get(pid) or {}
+            status = row.get("status") or "UNPREPARED"
+            mapped_label = "mappée" if mapped_flags[pid] else "non mappée"
+            lines.append(
+                f"• {platform_label_fr(pid)} — {mapped_label} · {status_label_fr(status)}"
+            )
+    else:
+        lines.append(f"Écriture vérifiée : {data.get('WRITE_VERIFIED')}")
+        lines.append("")
+        for pid in ALL_PLATFORMS:
+            row = rows.get(pid) or {}
+            status = row.get("status") or "UNPREPARED"
+            route = row.get("route") or ""
+            lines.append(
+                f"• {platform_label_fr(pid)} — {status_label_fr(status)}"
+                + (f" · {route_label_fr(route)}" if route else "")
+            )
+
     lines.append("")
     lines.append(
         "🔴 Aucune commande Telegram ne déclenche une écriture live instantanée "
@@ -165,7 +210,7 @@ def _gain_parrain_caveat() -> str:
     # writer today has a mutable_field to carry it onto a live listing.
     # See PILOTABLE_FIELDS / DEFAULT_OFFER_FIELDS in lib/operator_overrides.py
     # and lib/template_builder.py for the scaffold this refers to.
-    return "override enregistré, écriture plateforme pas encore supportée (voir « Autofresh plateformes »)"
+    return "enregistrer un override gain parrain ; écriture plateforme non prise en charge actuellement"
 
 
 def build_main_menu() -> str:
@@ -213,6 +258,9 @@ def build_main_menu() -> str:
 
 
 def build_examples() -> str:
+    # French first everywhere ("statut", never "status") -- English verbs
+    # stay accepted as aliases in the parser, but visible documentation is
+    # French-only.
     return (
         "🤖 AUTOFRESH — EXEMPLES\n"
         "\n"
