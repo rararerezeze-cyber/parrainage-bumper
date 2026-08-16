@@ -5,12 +5,14 @@
   "enabled_platforms": [
     "super-parrain",
     "1parrainage",
-    "referralcode-tv"
+    "referralcode-tv",
+    "parrainage-co"
   ],
   "write_verified": [
     "1parrainage",
     "referralcode-tv",
-    "super-parrain"
+    "super-parrain",
+    "parrainage-co"
   ],
   "canary": {
     "platform": "super-parrain",

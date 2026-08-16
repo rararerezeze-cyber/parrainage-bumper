@@ -42,5 +42,7 @@
     "referee_reward": "offers_json_then_official",
     "announcement_text": "platform_target_only"
   },
-  "quality": "auth_edit_refetch"
+  "quality": "auth_edit_refetch",
+  "write_status": "WRITE_VERIFIED",
+  "last_write_at": "2026-08-16T13:35:05.842572+00:00"
 }
