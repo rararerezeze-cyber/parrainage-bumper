@@ -51,6 +51,23 @@ def test_override_store_is_clean_before_and_after():
     assert _platform_entries() == [], "must never leave a stray PLATFORM_OPERATOR override behind"
 
 
+def test_override_store_file_is_byte_identical_after_render_computation():
+    """Regression for a real incident (2026-08-16, run 31950145270):
+    OperatorOverrideStore.save() always bumps `updated_at`, so a plain
+    add-then-remove left data/operator-overrides.json with a changed
+    timestamp (content identical) -- an uncommitted, unstaged diff on a
+    tracked file that made `git pull --rebase` refuse in the commit step,
+    silently losing the run's WRITE_VERIFIED promotion even though the
+    canary+rollback had already succeeded for real.
+    """
+    from lib.paths import OPERATOR_OVERRIDES_PATH
+
+    before = OPERATOR_OVERRIDES_PATH.read_bytes()
+    _canary_and_original_renders()
+    after = OPERATOR_OVERRIDES_PATH.read_bytes()
+    assert after == before, "operator-overrides.json must be byte-identical, not just content-equal"
+
+
 def test_refuses_when_a_platform_override_already_exists():
     store = OperatorOverrideStore()
     store.upsert(PROGRAM, FIELD, "some other value", platform=PLATFORM, message="pre-existing")
@@ -147,3 +164,31 @@ def test_write_verified_promotion_gated_on_both_canary_and_rollback_ok():
     verdict_span = src[idx_write_verified:idx_promo]
     assert "canary_ok" in verdict_span
     assert "rollback_ok" in verdict_span
+
+
+def test_promotion_evidence_uses_the_keys_mark_write_verified_actually_requires():
+    """Regression for a real incident (2026-08-16, run 31950145270): the
+    canary script's own write_verified=True was correct (every real
+    criterion was proven), but mark_write_verified() rejected the
+    promotion with 'incomplete_evidence' because the evidence dict passed
+    `report` (canary_ok/rollback_ok/phases/...) directly as `checks`,
+    instead of lib.write_status.REQUIRED_VERIFY_CHECKS' actual key names.
+    The mapping/golden files got updated locally on the runner regardless
+    (that write isn't gated on mark_write_verified's return), so
+    data/platform-write-status.json silently fell out of sync with the
+    mapping file's own write_status field until this was caught and fixed
+    by hand from the run's raw logs.
+    """
+    from lib.write_status import REQUIRED_VERIFY_CHECKS
+
+    import tools.canary_write_parrainage_co as mod
+
+    src = inspect.getsource(mod.main)
+    idx = src.index("legacy_checks = {")
+    idx_call = src.index("mark_write_verified(", idx)
+    checks_block = src[idx:idx_call]
+    for key in REQUIRED_VERIFY_CHECKS:
+        assert f'"{key}"' in checks_block, f"legacy_checks is missing required key {key!r}"
+    # And the call must actually pass `checks=legacy_checks`, not the raw report.
+    assert "evidence = {" in src[idx_call - 400 : idx_call]
+    assert 'checks": legacy_checks' in src[idx_call - 400 : idx_call]

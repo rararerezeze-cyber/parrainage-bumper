@@ -159,9 +159,28 @@ async def _fetch_public_evidence(label: str, expected_rendered: str) -> dict:
 
 def _canary_and_original_renders() -> tuple[str, str, dict, dict]:
     """Compute both full render targets up front, touching the override
-    store only transiently -- it is back to its original state before this
-    function returns, well before any browser session starts.
+    store only transiently -- it is back to its original state (including
+    exact original bytes, not just content) before this function returns,
+    well before any browser session starts.
+
+    Real incident (2026-08-16, run 31950145270): OperatorOverrideStore.save()
+    always bumps `updated_at` on write, even when the `overrides` list ends
+    up identical -- so a plain add-then-remove left data/operator-
+    overrides.json with a changed timestamp but unchanged content. That
+    tracked-but-unstaged diff (not part of the commit step's staged-file
+    list, since nothing about it needs persisting) made `git pull --rebase`
+    refuse with "You have unstaged changes", silently losing the run's
+    WRITE_VERIFIED promotion even though the canary+rollback themselves had
+    already succeeded. Fix: snapshot the exact original bytes and restore
+    them verbatim, so the file is byte-for-byte unchanged, not just
+    content-equivalent.
     """
+    from lib.paths import OPERATOR_OVERRIDES_PATH
+
+    original_bytes = (
+        OPERATOR_OVERRIDES_PATH.read_bytes() if OPERATOR_OVERRIDES_PATH.exists() else None
+    )
+
     store = OperatorOverrideStore()
     existing = [
         o
@@ -184,15 +203,19 @@ def _canary_and_original_renders() -> tuple[str, str, dict, dict]:
     rendered_original = renderer.render(template, mapping, offer=offer)
     variables_original = renderer.build_variables(mapping, offer=offer)
 
-    store.upsert(
-        PROGRAM, FIELD, CANARY_VALUE, platform=PLATFORM,
-        message="canary_write_verified_probe_2026-08-16",
-    )
     try:
-        rendered_canary = renderer.render(template, mapping, offer=offer)
-        variables_canary = renderer.build_variables(mapping, offer=offer)
+        store.upsert(
+            PROGRAM, FIELD, CANARY_VALUE, platform=PLATFORM,
+            message="canary_write_verified_probe_2026-08-16",
+        )
+        try:
+            rendered_canary = renderer.render(template, mapping, offer=offer)
+            variables_canary = renderer.build_variables(mapping, offer=offer)
+        finally:
+            store.remove(PROGRAM, FIELD, platform=PLATFORM)
     finally:
-        store.remove(PROGRAM, FIELD, platform=PLATFORM)
+        if original_bytes is not None:
+            OPERATOR_OVERRIDES_PATH.write_bytes(original_bytes)
 
     remaining = [
         o
@@ -201,6 +224,8 @@ def _canary_and_original_renders() -> tuple[str, str, dict, dict]:
     ]
     if remaining:
         raise RuntimeError("override_cleanup_failed — refusing to proceed")
+    if original_bytes is not None and OPERATOR_OVERRIDES_PATH.read_bytes() != original_bytes:
+        raise RuntimeError("override_store_not_byte_identical_after_cleanup — refusing to proceed")
 
     if variables_canary.get("personal_code") != variables_original.get("personal_code"):
         raise RuntimeError("personal_code differs between canary/original renders — abort")
@@ -435,13 +460,31 @@ async def main() -> int:
         data["write_status"] = "WRITE_VERIFIED"
         data["last_write_at"] = datetime.now(timezone.utc).isoformat()
         mpath.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        # mark_write_verified() requires the legacy REQUIRED_VERIFY_CHECKS
+        # keys (lib/write_status.py) -- map them onto the real evidence this
+        # run actually captured, rather than passing the raw `report` (whose
+        # own key names don't match and would make mark_write_verified()
+        # reject the promotion with "incomplete_evidence" despite every real
+        # criterion being true).
+        legacy_checks = {
+            "authenticated": bool(edit_url),
+            "targeted_edit": bool(report["phases"]["canary_save"]["clicked"]),
+            "submit_ok": bool(
+                report["phases"]["canary_save"]["clicked"]
+                and report["phases"]["rollback_save"]["clicked"]
+            ),
+            "reread_account": bool(canary_ok and rollback_ok),
+            "expected_values_present": bool(ref_code_ok and ref_link_ok),
+            "immutable_preserved": bool(ref_code_ok and ref_link_ok),
+        }
         evidence = {
             "post_match": True,
             "canary_and_rollback": True,
             "announcement_url": PUBLIC_URL,
             "edit_url": edit_url,
             "source": "canary_write_parrainage_co_v2",
-            "checks": report,
+            "checks": legacy_checks,
+            "full_report": report,
         }
         promo = mark_write_verified(PLATFORM, program=PROGRAM, evidence=evidence)
         print(f"WRITE_VERIFIED parrainage-co registry={promo}")
