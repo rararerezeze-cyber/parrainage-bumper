@@ -515,3 +515,100 @@ def test_phase_ref_always_reset_in_finally_around_each_save_window():
     idx_canary_reset = src.index('phase_ref["name"] = None', idx_canary_finally)
     idx_next_section = src.index("# --- CANARY: fresh reread", idx_canary_reset)
     assert idx_canary_open < idx_canary_finally < idx_canary_reset < idx_next_section
+
+
+# --- fresh pre-rollback identity re-guard (2026-08-17 patch) ---------------
+
+def test_fresh_identity_guard_reloads_edit_url_before_snapshot():
+    import tools.canary_write_code_parrainage as mod
+
+    src = inspect.getsource(mod.main)
+    idx_guard_start = src.index("rollback_guard_dump = None")
+    idx_goto = src.index("page.goto(EDIT_URL", idx_guard_start)
+    idx_dump = src.index('"debug_code_rollback_pre_guard.json"', idx_goto)
+    idx_guard_call = src.index('phase="rollback_pre_guard"', idx_dump)
+    assert idx_guard_start < idx_goto < idx_dump < idx_guard_call
+
+
+def test_fresh_identity_guard_happens_before_rollback_slider_check_and_click():
+    import tools.canary_write_code_parrainage as mod
+
+    src = inspect.getsource(mod.main)
+    idx_guard = src.index('phase="rollback_pre_guard"')
+    idx_slider2 = src.index('_check_slider_and_solve(page, report, phase="rollback")')
+    idx_fill_original = src.index("await _fill_offre_only(page, rendered_original)")
+    idx_click2 = src.index("await _click_save(page, save_btn2)")
+    assert idx_guard < idx_slider2 < idx_fill_original < idx_click2
+
+
+def test_fresh_identity_guard_is_in_same_try_block_as_rollback_click():
+    """A raise from the pre-guard must propagate to the SAME except that
+    already prevents any Save (no separate swallow-and-continue path).
+    """
+    import tools.canary_write_code_parrainage as mod
+
+    src = inspect.getsource(mod.main)
+    idx_guard = src.index('phase="rollback_pre_guard"')
+    idx_click2 = src.index("await _click_save(page, save_btn2)", idx_guard)
+    idx_except_comment = src.index("# Rollback is the last authorized action", idx_click2)
+    assert idx_guard < idx_click2 < idx_except_comment
+
+
+def test_rollback_pre_guard_raises_identity_critical_fail_on_wrong_company():
+    import tools.canary_write_code_parrainage as mod
+
+    report: dict = {}
+    snapshot = {"company": "NotKraken", "code_ou_lien": EXPECTED_CODE_OU_LIEN}
+    with pytest.raises(mod._IdentityCriticalFail):
+        mod._guard_identity(snapshot, phase="rollback_pre_guard", report=report)
+    assert report["identity_checks"]["rollback_pre_guard"]["ok"] is False
+    assert "critical_fail" in report
+
+
+def test_rollback_pre_guard_raises_identity_critical_fail_on_wrong_code_ou_lien():
+    import tools.canary_write_code_parrainage as mod
+
+    report: dict = {}
+    snapshot = {"company": EXPECTED_COMPANY, "code_ou_lien": "WRONGCODE"}
+    with pytest.raises(mod._IdentityCriticalFail):
+        mod._guard_identity(snapshot, phase="rollback_pre_guard", report=report)
+    assert "critical_fail" in report
+
+
+def test_rollback_pre_guard_raises_when_identity_cannot_be_reread_at_all():
+    """Empty/unreadable dump (navigation failed, dump extraction failed)
+    must be treated exactly like a proven identity mismatch -- never a
+    silent pass-through to the rollback Save.
+    """
+    import tools.canary_write_code_parrainage as mod
+
+    report: dict = {}
+    snapshot = mod._account_snapshot({})
+    assert snapshot["company"] is None
+    assert snapshot["code_ou_lien"] is None
+    with pytest.raises(mod._IdentityCriticalFail):
+        mod._guard_identity(snapshot, phase="rollback_pre_guard", report=report)
+    assert report["identity_checks"]["rollback_pre_guard"]["ok"] is False
+
+
+def test_rollback_pre_guard_passes_and_does_not_block_on_correct_identity():
+    import tools.canary_write_code_parrainage as mod
+
+    report: dict = {}
+    snapshot = {"company": EXPECTED_COMPANY, "code_ou_lien": EXPECTED_CODE_OU_LIEN}
+    mod._guard_identity(snapshot, phase="rollback_pre_guard", report=report)  # must not raise
+    assert report["identity_checks"]["rollback_pre_guard"]["ok"] is True
+    assert "critical_fail" not in report
+
+
+def test_rollback_pre_guard_failure_still_blocks_write_verified():
+    """A rollback_pre_guard critical_fail sets report["critical_fail"],
+    which the existing write_verified gate (and the exit=3 CRITICAL FAIL
+    path) already covers -- no separate promotion path exists to bypass it.
+    """
+    import tools.canary_write_code_parrainage as mod
+
+    src = inspect.getsource(mod.main)
+    idx_critical_check = src.index('if report.get("critical_fail"):')
+    idx_write_verified_branch = src.index("if write_verified:")
+    assert idx_critical_check < idx_write_verified_branch

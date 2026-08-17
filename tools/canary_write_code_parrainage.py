@@ -533,6 +533,38 @@ async def main() -> int:
                 report["rollback_skipped_reason"] = "identity_critical_fail_before_rollback"
             else:
                 try:
+                    # --- FRESH pre-rollback identity re-validation
+                    # (2026-08-17 patch): never trust the canary reread for
+                    # this, even on its happy path -- always re-navigate to
+                    # EDIT_URL and take a brand-new snapshot right before
+                    # even considering the rollback Save, so a completely
+                    # failed canary reread (or one that returned stale/wrong
+                    # data) can never lead to a rollback click without first
+                    # reconfirming this is really the Kraken 84601 listing.
+                    # If the guard cannot be established at all (navigation
+                    # fails, dump comes back empty), _account_snapshot on an
+                    # empty dump yields company=None/code_ou_lien=None, which
+                    # _guard_identity treats exactly like a proven mismatch
+                    # -- CRITICAL FAIL, no rollback Save, per operator
+                    # instruction: "impossible de relire l'identite => aucun
+                    # Save rollback".
+                    rollback_guard_dump = None
+                    try:
+                        await page.goto(EDIT_URL, wait_until="domcontentloaded", timeout=60000)
+                        await bumper.human_sleep(1.0, 1.8)
+                        rollback_guard_dump = await _dump_form_debug(
+                            page, "debug_code_rollback_pre_guard.json"
+                        )
+                    except Exception as exc:  # noqa: BLE001
+                        report["rollback_guard_navigation_error"] = str(exc)
+
+                    rollback_guard_snapshot = (
+                        _account_snapshot(rollback_guard_dump) if rollback_guard_dump else {}
+                    )
+                    report["phases"]["rollback_pre_guard"] = rollback_guard_snapshot
+                    _guard_identity(rollback_guard_snapshot, phase="rollback_pre_guard", report=report)
+
+                    # --- Guard passed: only now proceed with the rollback Save ---
                     await _check_slider_and_solve(page, report, phase="rollback")
                     save_btn2 = await _check_save_button_clickable(page, report, phase="rollback")
                     await _fill_offre_only(page, rendered_original)
