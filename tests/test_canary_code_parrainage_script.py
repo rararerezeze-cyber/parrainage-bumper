@@ -286,18 +286,232 @@ def test_dialog_handler_registered_before_any_click():
     assert idx_register < idx_click1
 
 
-def test_dialog_handler_always_accepts_never_dismisses():
-    import tools.canary_write_code_parrainage as mod
-
-    src = inspect.getsource(mod._register_dialog_handler)
-    assert "dialog.accept()" in src
-    assert "dialog.dismiss()" not in src
-
-
 def test_dialog_handler_logs_before_accepting():
     import tools.canary_write_code_parrainage as mod
 
     src = inspect.getsource(mod._register_dialog_handler)
     idx_log = src.index('report.setdefault("dialogs_seen"')
-    idx_accept = src.index("dialog.accept()")
+    idx_accept = src.index("await dialog.accept()")
     assert idx_log < idx_accept
+
+
+class _FakeDialog:
+    def __init__(self, type_: str, message: str):
+        self.type = type_
+        self.message = message
+        self.accepted = False
+        self.dismissed = False
+
+    async def accept(self) -> None:
+        self.accepted = True
+
+    async def dismiss(self) -> None:
+        self.dismissed = True
+
+
+class _FakePage:
+    def __init__(self):
+        self._handlers: dict = {}
+
+    def on(self, event: str, handler) -> None:
+        self._handlers[event] = handler
+
+
+async def _fire_dialog(page: "_FakePage", dialog: "_FakeDialog") -> None:
+    task = page._handlers["dialog"](dialog)
+    await task
+
+
+def _run(coro):
+    import asyncio as _asyncio
+
+    return _asyncio.run(coro)
+
+
+def test_dialog_strict_accepts_expected_confirm_during_canary_phase():
+    import tools.canary_write_code_parrainage as mod
+
+    async def scenario():
+        page, report, phase_ref = _FakePage(), {}, {"name": "canary"}
+        await mod._register_dialog_handler(page, report, phase_ref)
+        dialog = _FakeDialog("confirm", mod.EXPECTED_CONFIRM_MESSAGE)
+        await _fire_dialog(page, dialog)
+        return dialog, report
+
+    dialog, report = _run(scenario())
+    assert dialog.accepted is True
+    assert dialog.dismissed is False
+    assert "unexpected_dialog" not in report
+
+
+def test_dialog_strict_accepts_expected_confirm_during_rollback_phase():
+    import tools.canary_write_code_parrainage as mod
+
+    async def scenario():
+        page, report, phase_ref = _FakePage(), {}, {"name": "rollback"}
+        await mod._register_dialog_handler(page, report, phase_ref)
+        dialog = _FakeDialog("confirm", mod.EXPECTED_CONFIRM_MESSAGE)
+        await _fire_dialog(page, dialog)
+        return dialog, report
+
+    dialog, report = _run(scenario())
+    assert dialog.accepted is True
+    assert dialog.dismissed is False
+    assert "unexpected_dialog" not in report
+
+
+def test_dialog_strict_never_accepts_expected_confirm_outside_a_save_phase():
+    import tools.canary_write_code_parrainage as mod
+
+    async def scenario():
+        page, report, phase_ref = _FakePage(), {}, {"name": None}
+        await mod._register_dialog_handler(page, report, phase_ref)
+        dialog = _FakeDialog("confirm", mod.EXPECTED_CONFIRM_MESSAGE)
+        await _fire_dialog(page, dialog)
+        return dialog, report
+
+    dialog, report = _run(scenario())
+    assert dialog.accepted is False
+    assert dialog.dismissed is True
+    assert report["unexpected_dialog"]["in_save_phase"] is False
+    assert report["unexpected_dialog"]["expected_confirm"] is True
+
+
+def test_dialog_strict_never_accepts_unexpected_alert():
+    import tools.canary_write_code_parrainage as mod
+
+    async def scenario():
+        page, report, phase_ref = _FakePage(), {}, {"name": "canary"}
+        await mod._register_dialog_handler(page, report, phase_ref)
+        dialog = _FakeDialog("alert", "Une erreur est survenue")
+        await _fire_dialog(page, dialog)
+        return dialog, report
+
+    dialog, report = _run(scenario())
+    assert dialog.accepted is False
+    assert dialog.dismissed is True
+    assert report["unexpected_dialog"]["type"] == "alert"
+
+
+def test_dialog_strict_never_accepts_confirm_with_different_message():
+    import tools.canary_write_code_parrainage as mod
+
+    async def scenario():
+        page, report, phase_ref = _FakePage(), {}, {"name": "canary"}
+        await mod._register_dialog_handler(page, report, phase_ref)
+        dialog = _FakeDialog("confirm", "Voulez-vous vraiment quitter ?")
+        await _fire_dialog(page, dialog)
+        return dialog, report
+
+    dialog, report = _run(scenario())
+    assert dialog.accepted is False
+    assert dialog.dismissed is True
+    assert report["unexpected_dialog"]["expected_confirm"] is False
+
+
+def test_dialog_strict_unexpected_dialog_never_sets_identity_critical_fail():
+    """unexpected_dialog must stay a distinct field from critical_fail --
+    only a proven identity drift may skip the mandatory rollback, so this
+    handler must never (even accidentally) write report["critical_fail"].
+    """
+    import tools.canary_write_code_parrainage as mod
+
+    async def scenario():
+        page, report, phase_ref = _FakePage(), {}, {"name": "canary"}
+        await mod._register_dialog_handler(page, report, phase_ref)
+        dialog = _FakeDialog("alert", "Une erreur est survenue")
+        await _fire_dialog(page, dialog)
+        return report
+
+    report = _run(scenario())
+    assert "critical_fail" not in report
+
+
+def test_write_verified_also_requires_no_unexpected_dialog():
+    import tools.canary_write_code_parrainage as mod
+
+    src = inspect.getsource(mod.main)
+    idx = src.index("write_verified = bool(")
+    idx_promo = src.index("if write_verified:")
+    span = src[idx:idx_promo]
+    assert "unexpected_dialog" in span
+
+
+# --- guaranteed rollback after MAY_HAVE_WRITTEN (2026-08-17 patch) ---------
+
+def test_rollback_attempted_even_if_canary_click_itself_raises():
+    """A timeout/exception from _click_save's own wait_for_load_state must
+    be caught locally (not propagate past canary_may_have_written=True)
+    so execution still reaches the rollback block further down.
+    """
+    import tools.canary_write_code_parrainage as mod
+
+    src = inspect.getsource(mod.main)
+    idx_may_have_written = src.index("canary_may_have_written = True")
+    idx_click1 = src.index("await _click_save(page, save_btn)")
+    idx_except1 = src.index("except Exception as exc:", idx_click1)
+    idx_rollback_click = src.index("await _click_save(page, save_btn2)")
+    assert idx_may_have_written < idx_click1 < idx_except1 < idx_rollback_click
+
+
+def test_rollback_attempted_even_if_canary_reread_raises_non_identity():
+    """A non-identity exception (navigation timeout, reread failure, ...)
+    during the canary reread must be caught and must NOT set
+    identity_failed -- only _IdentityCriticalFail may do that.
+    """
+    import tools.canary_write_code_parrainage as mod
+
+    src = inspect.getsource(mod.main)
+    idx_identity_init = src.index("identity_failed = False")
+    idx_except_identity = src.index("except _IdentityCriticalFail as exc:")
+    idx_except_generic = src.index("except Exception as exc:", idx_except_identity)
+    idx_rollback_block = src.index("if identity_failed:")
+    assert idx_identity_init < idx_except_identity < idx_except_generic < idx_rollback_block
+
+
+def test_only_identity_critical_fail_sets_identity_failed():
+    import tools.canary_write_code_parrainage as mod
+
+    src = inspect.getsource(mod.main)
+    assert src.count("identity_failed = True") == 1
+    idx_except = src.index("except _IdentityCriticalFail as exc:")
+    idx_set_true = src.index("identity_failed = True")
+    idx_next_except = src.index("except Exception as exc:", idx_except)
+    assert idx_except < idx_set_true < idx_next_except
+
+
+def test_identity_failed_is_the_only_condition_that_skips_rollback():
+    import tools.canary_write_code_parrainage as mod
+
+    src = inspect.getsource(mod.main)
+    idx_if = src.index("if identity_failed:")
+    idx_else = src.index("else:", idx_if)
+    skip_block = src[idx_if:idx_else]
+    assert "rollback_skipped_reason" in skip_block
+    # The else branch (not identity_failed) must be the one containing the
+    # actual rollback click -- i.e. reachable whenever identity has NOT failed.
+    rest = src[idx_else:]
+    assert "await _click_save(page, save_btn2)" in rest
+
+
+def test_max_two_save_clicks_still_enforced_after_restructure():
+    import tools.canary_write_code_parrainage as mod
+
+    src = inspect.getsource(mod.main)
+    assert src.count("await _click_save(") == 2
+
+
+def test_phase_ref_always_reset_in_finally_around_each_save_window():
+    import tools.canary_write_code_parrainage as mod
+
+    src = inspect.getsource(mod.main)
+    # Two Save windows, each opened with phase_ref["name"] = "..." and
+    # closed with phase_ref["name"] = None inside a finally block.
+    assert src.count('phase_ref["name"] = "canary"') == 1
+    assert src.count('phase_ref["name"] = "rollback"') == 1
+    assert src.count('phase_ref["name"] = None') == 2
+    idx_canary_open = src.index('phase_ref["name"] = "canary"')
+    idx_canary_finally = src.index("finally:", idx_canary_open)
+    idx_canary_reset = src.index('phase_ref["name"] = None', idx_canary_finally)
+    idx_next_section = src.index("# --- CANARY: fresh reread", idx_canary_reset)
+    assert idx_canary_open < idx_canary_finally < idx_canary_reset < idx_next_section

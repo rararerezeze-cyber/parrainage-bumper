@@ -178,9 +178,24 @@ def _account_snapshot(dump: dict) -> dict:
     }
 
 
+class _IdentityCriticalFail(RuntimeError):
+    """Raised ONLY by _guard_identity on a proven company/code_ou_lien
+    drift. This is the ONE exception type allowed to skip the mandatory
+    rollback attempt below (an automated restore after a proven identity
+    drift could itself be more dangerous than stopping) -- every other
+    exception after canary_may_have_written becomes True must still lead
+    to a rollback attempt. Kept as a distinct type (not bare RuntimeError)
+    precisely so that distinction can be made structurally, not by string
+    matching.
+    """
+
+
 def _guard_identity(snapshot: dict, *, phase: str, report: dict) -> None:
     """CRITICAL FAIL check: company/code_ou_lien must never drift. Raises
-    to halt everything immediately -- no further action of any kind.
+    _IdentityCriticalFail to halt everything immediately -- no further
+    action of any kind, except the caller's own decision about whether a
+    rollback attempt already in flight is safe to continue (it never is,
+    once identity has drifted).
     """
     company = snapshot.get("company")
     code_ou_lien = snapshot.get("code_ou_lien")
@@ -196,7 +211,7 @@ def _guard_identity(snapshot: dict, *, phase: str, report: dict) -> None:
             f"(expected {EXPECTED_COMPANY!r}), code_ou_lien={code_ou_lien!r} "
             f"(expected {EXPECTED_CODE_OU_LIEN!r})"
         )
-        raise RuntimeError(report["critical_fail"])
+        raise _IdentityCriticalFail(report["critical_fail"])
 
 
 async def _check_slider_and_solve(page, report: dict, *, phase: str) -> None:
@@ -296,7 +311,14 @@ async def _register_network_listeners(page, network_evidence: dict, phase_ref: d
     page.on("response", lambda resp: asyncio.create_task(_on_response(resp)))
 
 
-async def _register_dialog_handler(page, report: dict) -> None:
+EXPECTED_CONFIRM_MESSAGE = "Êtes-vous sûr de vouloir modifier cette annonce ?"
+
+
+def _normalize_dialog_message(msg: str | None) -> str:
+    return " ".join((msg or "").split()).strip()
+
+
+async def _register_dialog_handler(page, report: dict, phase_ref: dict) -> None:
     """Root cause (2026-08-16, confirmed from the site's own JS,
     debug_code_script_2.js): the edit form's submit handler calls native
     window.confirm('Etes-vous sur de vouloir modifier cette annonce ?')
@@ -306,15 +328,49 @@ async def _register_dialog_handler(page, report: dict) -> None:
     (no request was ever sent to modification.php; nothing to do with
     server-side rejection or the 200-character counter). A real human
     clicking "Enregistrer les modifications" would click OK on this
-    prompt, so accepting it here reproduces real user behavior, not a
+    exact prompt, so accepting it reproduces real user behavior, not a
     bypass of any actual site protection.
+
+    STRICT gate (2026-08-16 operator instruction): a dialog is accepted
+    ONLY when it is a "confirm" type, its normalized message matches
+    EXPECTED_CONFIRM_MESSAGE exactly, AND phase_ref["name"] is currently
+    "canary" or "rollback" (i.e. we are inside one of the two authorized
+    Save-click windows). Anything else -- an unexpected alert, a confirm
+    with different wording, or the expected confirm firing outside a
+    Save window -- is NEVER auto-accepted: it is logged, dismissed (so it
+    cannot hang the run), and recorded under report["unexpected_dialog"]
+    for the operator to review. This is deliberately a SEPARATE field
+    from report["critical_fail"] (reserved for proven identity drift) --
+    an unexpected dialog is not, by itself, proof that a rollback attempt
+    would be unsafe, so it must not silently skip the mandatory rollback.
     """
 
     async def _on_dialog(dialog) -> None:
-        report.setdefault("dialogs_seen", []).append(
-            {"type": dialog.type, "message": dialog.message}
+        phase = phase_ref.get("name")
+        is_expected_confirm = (
+            dialog.type == "confirm"
+            and _normalize_dialog_message(dialog.message) == EXPECTED_CONFIRM_MESSAGE
         )
-        await dialog.accept()
+        in_save_phase = phase in ("canary", "rollback")
+        entry = {
+            "type": dialog.type,
+            "message": dialog.message,
+            "phase": phase,
+            "expected_confirm": is_expected_confirm,
+            "in_save_phase": in_save_phase,
+        }
+        if is_expected_confirm and in_save_phase:
+            entry["action"] = "accept"
+            report.setdefault("dialogs_seen", []).append(entry)
+            await dialog.accept()
+            return
+        entry["action"] = "dismiss"
+        report.setdefault("dialogs_seen", []).append(entry)
+        report["unexpected_dialog"] = entry
+        try:
+            await dialog.dismiss()
+        except Exception:  # noqa: BLE001
+            pass
 
     page.on("dialog", lambda d: asyncio.create_task(_on_dialog(d)))
 
@@ -399,14 +455,15 @@ async def main() -> int:
         ctx = await bumper.new_context(browser)
         page = await ctx.new_page()
         await _register_network_listeners(page, network_evidence, phase_ref)
-        await _register_dialog_handler(page, report)
+        await _register_dialog_handler(page, report, phase_ref)
+        identity_failed = False
         try:
-            # --- login (real slider solve already happens inside _login) ---
+            # --- login + BEFORE snapshot (nothing written yet; an abort here
+            # is always safe -- canary_may_have_written is still False) ---
             await _login(page, cfg)
             await page.goto(EDIT_URL, wait_until="domcontentloaded", timeout=60000)
             await bumper.human_sleep(1.2, 2.0)
 
-            # --- BEFORE: full snapshot ---
             before_dump = await _dump_form_debug(page, "debug_code_canary_before.json")
             before_snapshot = _account_snapshot(before_dump)
             report["phases"]["before_account"] = before_snapshot
@@ -423,69 +480,100 @@ async def main() -> int:
             save_btn = await _check_save_button_clickable(page, report, phase="canary")
 
             # --- CANARY SAVE (single click, no retry) ---
-            canary_may_have_written = True  # set BEFORE clicking
+            canary_may_have_written = True  # set BEFORE clicking. From this
+            # point on, ONLY an _IdentityCriticalFail (set via identity_failed
+            # below) is allowed to skip the mandatory rollback -- every other
+            # exception (click timeout, networkidle failure, reread failure,
+            # instrumentation error, ...) must be caught locally so execution
+            # still reaches the rollback block further down.
             await _fill_offre_only(page, rendered_canary)
             phase_ref["name"] = "canary"
-            await _click_save(page, save_btn)
-            await asyncio.sleep(0.5)  # let scheduled request/response listeners flush
-            phase_ref["name"] = None
-            report["phases"]["canary_save"] = {"clicked": True}
-
-            # --- CANARY: fresh reread, account + public (best-effort; never skips rollback) ---
-            canary_dump = None
             try:
-                await page.goto(EDIT_URL, wait_until="domcontentloaded", timeout=60000)
-                await bumper.human_sleep(1.0, 1.8)
-                canary_dump = await _dump_form_debug(page, "debug_code_canary_after.json")
-            except Exception as exc:  # noqa: BLE001
-                report["phases"]["canary_save"]["account_reread_error"] = str(exc)
+                await _click_save(page, save_btn)
+                report["phases"]["canary_save"] = {"clicked": True}
+            except Exception as exc:  # noqa: BLE001 -- MAY_HAVE_WRITTEN: never skip rollback for this
+                report["phases"]["canary_save"] = {"clicked": True, "click_exception": str(exc)}
+            finally:
+                await asyncio.sleep(0.5)  # let scheduled request/response/dialog listeners flush
+                phase_ref["name"] = None
 
-            canary_snapshot = _account_snapshot(canary_dump) if canary_dump else {}
-            report["phases"]["canary_account"] = canary_snapshot
-            if canary_dump:
+            # --- CANARY: fresh reread, account + public (best-effort). Only
+            # an identity drift here is allowed to skip the rollback below. ---
+            try:
+                canary_dump = None
                 try:
+                    await page.goto(EDIT_URL, wait_until="domcontentloaded", timeout=60000)
+                    await bumper.human_sleep(1.0, 1.8)
+                    canary_dump = await _dump_form_debug(page, "debug_code_canary_after.json")
+                except Exception as exc:  # noqa: BLE001
+                    report["phases"]["canary_save"]["account_reread_error"] = str(exc)
+
+                canary_snapshot = _account_snapshot(canary_dump) if canary_dump else {}
+                report["phases"]["canary_account"] = canary_snapshot
+                if canary_dump:
                     _guard_identity(canary_snapshot, phase="canary", report=report)
-                except RuntimeError:
-                    raise  # CRITICAL FAIL must stop everything, even before rollback
-            report["phases"]["canary_account"]["canonical_match_vs_expected"] = (
-                canonical_contains(canary_snapshot.get("offre") or "", rendered_canary)
-                if canary_snapshot.get("offre") else None
-            )
-            report["phases"]["canary_public"] = await _fetch_public_evidence(
-                rendered_canary, phase="canary"
-            )
-
-            # --- MANDATORY ROLLBACK — single click, always attempted once Save was clicked ---
-            await _check_slider_and_solve(page, report, phase="rollback")
-            save_btn2 = await _check_save_button_clickable(page, report, phase="rollback")
-            await _fill_offre_only(page, rendered_original)
-            phase_ref["name"] = "rollback"
-            await _click_save(page, save_btn2)
-            await asyncio.sleep(0.5)  # let scheduled request/response listeners flush
-            phase_ref["name"] = None
-            report["phases"]["rollback_save"] = {"clicked": True}
-
-            rollback_dump = None
-            try:
-                await page.goto(EDIT_URL, wait_until="domcontentloaded", timeout=60000)
-                await bumper.human_sleep(1.0, 1.8)
-                rollback_dump = await _dump_form_debug(page, "debug_code_rollback_after.json")
+                report["phases"]["canary_account"]["canonical_match_vs_expected"] = (
+                    canonical_contains(canary_snapshot.get("offre") or "", rendered_canary)
+                    if canary_snapshot.get("offre") else None
+                )
+                report["phases"]["canary_public"] = await _fetch_public_evidence(
+                    rendered_canary, phase="canary"
+                )
+            except _IdentityCriticalFail as exc:
+                identity_failed = True
+                report["fatal_error"] = str(exc)
             except Exception as exc:  # noqa: BLE001
-                report["phases"]["rollback_save"]["account_reread_error"] = str(exc)
+                report["phases"].setdefault("canary_save", {})["unexpected_post_click_error"] = str(exc)
 
-            rollback_snapshot = _account_snapshot(rollback_dump) if rollback_dump else {}
-            report["phases"]["rollback_account"] = rollback_snapshot
-            if rollback_dump:
-                _guard_identity(rollback_snapshot, phase="rollback", report=report)
-            report["phases"]["rollback_account"]["canonical_match_vs_expected"] = (
-                canonical_contains(rollback_snapshot.get("offre") or "", rendered_original)
-                if rollback_snapshot.get("offre") else None
-            )
-            report["phases"]["rollback_public"] = await _fetch_public_evidence(
-                rendered_original, phase="rollback"
-            )
+            # --- MANDATORY ROLLBACK — always attempted once canary_may_have_
+            # written is True, UNLESS identity_failed (the ONE operator-
+            # authorized exception: an automated restore after a proven
+            # identity drift could itself be more dangerous than stopping). ---
+            if identity_failed:
+                report["rollback_skipped_reason"] = "identity_critical_fail_before_rollback"
+            else:
+                try:
+                    await _check_slider_and_solve(page, report, phase="rollback")
+                    save_btn2 = await _check_save_button_clickable(page, report, phase="rollback")
+                    await _fill_offre_only(page, rendered_original)
+                    phase_ref["name"] = "rollback"
+                    try:
+                        await _click_save(page, save_btn2)
+                        report["phases"]["rollback_save"] = {"clicked": True}
+                    except Exception as exc:  # noqa: BLE001
+                        report["phases"]["rollback_save"] = {"clicked": True, "click_exception": str(exc)}
+                    finally:
+                        await asyncio.sleep(0.5)  # let scheduled listeners flush
+                        phase_ref["name"] = None
+
+                    rollback_dump = None
+                    try:
+                        await page.goto(EDIT_URL, wait_until="domcontentloaded", timeout=60000)
+                        await bumper.human_sleep(1.0, 1.8)
+                        rollback_dump = await _dump_form_debug(page, "debug_code_rollback_after.json")
+                    except Exception as exc:  # noqa: BLE001
+                        report["phases"]["rollback_save"]["account_reread_error"] = str(exc)
+
+                    rollback_snapshot = _account_snapshot(rollback_dump) if rollback_dump else {}
+                    report["phases"]["rollback_account"] = rollback_snapshot
+                    if rollback_dump:
+                        _guard_identity(rollback_snapshot, phase="rollback", report=report)
+                    report["phases"]["rollback_account"]["canonical_match_vs_expected"] = (
+                        canonical_contains(rollback_snapshot.get("offre") or "", rendered_original)
+                        if rollback_snapshot.get("offre") else None
+                    )
+                    report["phases"]["rollback_public"] = await _fetch_public_evidence(
+                        rendered_original, phase="rollback"
+                    )
+                except Exception as exc:  # noqa: BLE001
+                    # Rollback is the last authorized action either way (max
+                    # 2 saves) -- nothing further to attempt, just record.
+                    report["fatal_error"] = str(exc)
 
         except Exception as exc:  # noqa: BLE001
+            # Only reachable for failures BEFORE canary_may_have_written
+            # became True (login, before-snapshot, pre-canary gates) --
+            # nothing has been clicked yet, so no rollback is owed.
             report["fatal_error"] = str(exc)
             report["canary_may_have_written"] = canary_may_have_written
         finally:
@@ -508,6 +596,7 @@ async def main() -> int:
     write_verified = bool(
         canary_ok and rollback_ok and identity_ok
         and not report.get("fatal_error") and not report.get("critical_fail")
+        and not report.get("unexpected_dialog")
     )
     report["canary_ok"] = canary_ok
     report["rollback_ok"] = rollback_ok
