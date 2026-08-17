@@ -1,5 +1,5 @@
 {
-  "at_start": "2026-08-16T17:52:08.433207+00:00",
+  "at_start": "2026-08-17T16:15:26.344520+00:00",
   "platform": "code-parrainage",
   "program": "kraken",
   "field": "referee_reward",
@@ -18,7 +18,7 @@
     },
     "before_public": {
       "phase": "before",
-      "raw_html_sha256": "9343c2d29838b5478cb3bbd876d6a7a7232935f942fd7b6900ae25a4de40f312",
+      "raw_html_sha256": "d1e85f0878653c1e9569ed04c4c02aa3b1bbf3221961843d769f6aa1d1b9e3fc",
       "extracted_text_sha256": "16dcdccbe11cb94b45ceb4a37cc75ec1e6a182ec98665a0820ed827e1e96538d",
       "extracted_text_len": 756,
       "canonical_lines": [
@@ -55,19 +55,19 @@
     "canary_account": {
       "company": "Kraken",
       "code_ou_lien": "cpbrgddy",
-      "offre": "⭐️ Offre Parrainage Kraken – Jusqu’à 200 € offerts\n\n⚡ Bonus : 200 € en cryptomonnaies ⭐️\nRejoignez Kraken, une plateforme d’échange crypto reconnue et sécurisée.\n\n⸻\n\n✅ Code parrain : cpbrgddy\n\n✅ Lien ",
+      "offre": "⭐️ Offre Parrainage Kraken – Jusqu’à 200 € offerts\n\n⚡ Bonus : 200 € en crypto-monnaies ⭐️\nRejoignez Kraken, une plateforme d’échange crypto reconnue et sécurisée.\n\n⸻\n\n✅ Code parrain : cpbrgddy\n\n✅ Lien",
       "modifpost": "84601",
-      "offre_sha256": "9d72b79cf4b3555fa92118c6235ea49eff6927aa887357d10b73f78c0032c13e",
+      "offre_sha256": "93b917558b102bf11b8b1cc7248925310f7bbd43ad659760d1e71cb649baadd4",
       "canonical_match_vs_expected": false
     },
     "canary_public": {
       "phase": "canary",
-      "raw_html_sha256": "9343c2d29838b5478cb3bbd876d6a7a7232935f942fd7b6900ae25a4de40f312",
-      "extracted_text_sha256": "16dcdccbe11cb94b45ceb4a37cc75ec1e6a182ec98665a0820ed827e1e96538d",
-      "extracted_text_len": 756,
+      "raw_html_sha256": "f34b804e656a1ab2dbe6b197cb332cf8fe70ffd52bec343cb1c7f215d85ccc7a",
+      "extracted_text_sha256": "2ac163125d28245951fabdf702ee6aa8f965a0d3195061a9ba47c5d10ad54bb1",
+      "extracted_text_len": 757,
       "canonical_lines": [
         "⭐️ Offre Parrainage Kraken – Jusqu’à 200 € offerts",
-        "⚡ Bonus : 200 € en cryptomonnaies ⭐️",
+        "⚡ Bonus : 200 € en crypto-monnaies ⭐️",
         "Rejoignez Kraken, une plateforme d’échange crypto reconnue et sécurisée.",
         "⸻",
         "✅ Code parrain : cpbrgddy",
@@ -89,9 +89,16 @@
         "DM-moi — je te guide étape par étape",
         "↪️ https://discord.gg/dDEMb6jEbn ↩️"
       ],
-      "contains_original_reward": true,
-      "contains_canary_reward": false,
-      "canonical_match_vs_expected": false
+      "contains_original_reward": false,
+      "contains_canary_reward": true,
+      "canonical_match_vs_expected": true
+    },
+    "rollback_pre_guard": {
+      "company": "Kraken",
+      "code_ou_lien": "cpbrgddy",
+      "offre": "⭐️ Offre Parrainage Kraken – Jusqu’à 200 € offerts\n\n⚡ Bonus : 200 € en crypto-monnaies ⭐️\nRejoignez Kraken, une plateforme d’échange crypto reconnue et sécurisée.\n\n⸻\n\n✅ Code parrain : cpbrgddy\n\n✅ Lien",
+      "modifpost": "84601",
+      "offre_sha256": "93b917558b102bf11b8b1cc7248925310f7bbd43ad659760d1e71cb649baadd4"
     },
     "rollback_save": {
       "clicked": true
@@ -106,7 +113,7 @@
     },
     "rollback_public": {
       "phase": "rollback",
-      "raw_html_sha256": "9343c2d29838b5478cb3bbd876d6a7a7232935f942fd7b6900ae25a4de40f312",
+      "raw_html_sha256": "d1e85f0878653c1e9569ed04c4c02aa3b1bbf3221961843d769f6aa1d1b9e3fc",
       "extracted_text_sha256": "16dcdccbe11cb94b45ceb4a37cc75ec1e6a182ec98665a0820ed827e1e96538d",
       "extracted_text_len": 756,
       "canonical_lines": [
@@ -149,6 +156,11 @@
       "code_ou_lien": "cpbrgddy",
       "ok": true
     },
+    "rollback_pre_guard": {
+      "company": "Kraken",
+      "code_ou_lien": "cpbrgddy",
+      "ok": true
+    },
     "rollback": {
       "company": "Kraken",
       "code_ou_lien": "cpbrgddy",
@@ -185,7 +197,83 @@
       "enabled": true
     }
   },
-  "at_end": "2026-08-16T17:52:35.378306+00:00",
+  "dialogs_seen": [
+    {
+      "type": "confirm",
+      "message": "Êtes-vous sûr de vouloir modifier cette annonce ?",
+      "phase": "canary",
+      "expected_confirm": true,
+      "in_save_phase": true,
+      "action": "accept"
+    },
+    {
+      "type": "confirm",
+      "message": "Êtes-vous sûr de vouloir modifier cette annonce ?",
+      "phase": "rollback",
+      "expected_confirm": true,
+      "in_save_phase": true,
+      "action": "accept"
+    }
+  ],
+  "at_end": "2026-08-17T16:16:16.833613+00:00",
+  "network_evidence": {
+    "canary": {
+      "request": {
+        "method": "POST",
+        "url": "https://code-parrainage.net/modification.php",
+        "content_type": "application/x-www-form-urlencoded",
+        "payload_fields_present": [
+          "code_ou_lien",
+          "modifpost",
+          "offre",
+          "submit"
+        ],
+        "payload_offre_len": 787,
+        "payload_offre_sha256": "6e30474d6415e36ef556a17eb135ccaff304bc476a2b7fcd12daeb32817e55c6",
+        "payload_contains_canary_value": true,
+        "payload_contains_original_value": false,
+        "payload_company": null,
+        "payload_code_ou_lien": "cpbrgddy",
+        "payload_modifpost": "84601"
+      },
+      "response": {
+        "status": 302,
+        "url": "https://code-parrainage.net/modification.php",
+        "content_type": "text/html; charset=UTF-8",
+        "body_sha256": null,
+        "body_len": 0,
+        "body_excerpt": ""
+      }
+    },
+    "rollback": {
+      "request": {
+        "method": "POST",
+        "url": "https://code-parrainage.net/modification.php",
+        "content_type": "application/x-www-form-urlencoded",
+        "payload_fields_present": [
+          "code_ou_lien",
+          "modifpost",
+          "offre",
+          "submit"
+        ],
+        "payload_offre_len": 786,
+        "payload_offre_sha256": "feafce600016ed00e9a3cff4f9b9d66ec5200351e8eed412d54fb7330f816b48",
+        "payload_contains_canary_value": false,
+        "payload_contains_original_value": true,
+        "payload_company": null,
+        "payload_code_ou_lien": "cpbrgddy",
+        "payload_modifpost": "84601"
+      },
+      "response": {
+        "status": 302,
+        "url": "https://code-parrainage.net/modification.php",
+        "content_type": "text/html; charset=UTF-8",
+        "body_sha256": null,
+        "body_len": 0,
+        "body_excerpt": ""
+      }
+    }
+  },
   "canary_ok": false,
   "rollback_ok": false,
   "identity_ok": true,

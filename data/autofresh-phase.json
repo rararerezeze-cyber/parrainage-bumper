@@ -6,13 +6,15 @@
     "super-parrain",
     "1parrainage",
     "referralcode-tv",
-    "parrainage-co"
+    "parrainage-co",
+    "code-parrainage"
   ],
   "write_verified": [
     "1parrainage",
     "referralcode-tv",
     "super-parrain",
-    "parrainage-co"
+    "parrainage-co",
+    "code-parrainage"
   ],
   "canary": {
     "platform": "super-parrain",

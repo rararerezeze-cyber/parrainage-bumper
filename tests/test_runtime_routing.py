@@ -24,18 +24,21 @@ def test_pc_off_ready_auto_only_on_safe_diff(status_path=None):
     assert runtime_route("1parrainage") == ROUTE_AUTO_ON_SAFE_DIFF
     assert runtime_route("code-parrainage") == ROUTE_AUTO_ON_SAFE_DIFF
     assert runtime_route("parrainage-co") == ROUTE_AUTO_ON_SAFE_DIFF
-    # 1parrainage and parrainage-co are both genuinely WRITE_VERIFIED.
+    # All three are genuinely WRITE_VERIFIED. code-parrainage joined them
+    # 2026-08-17 (GH run 32044775992: real canary+rollback on
+    # referee_reward, offer 84601 -- offre_sha256 changed on canary and
+    # was restored byte-identical on rollback, public raw_html_sha256 same
+    # pattern, real POST to modification.php captured at both phases, no
+    # critical_fail, no unexpected_dialog). Before that promotion this
+    # assertion was False -- see git history for the real incident
+    # (2026-08-16) where runtime_route()'s writer-*class* signal alone was
+    # briefly treated as "safe to auto-write" despite no real save ever
+    # having been proven; may_auto_execute_on_safe_diff() was fixed to also
+    # require status == WRITE_VERIFIED, independent of this test's own
+    # before/after state.
     assert may_auto_execute_on_safe_diff("1parrainage") is True
     assert may_auto_execute_on_safe_diff("parrainage-co") is True
-    # code-parrainage's writer *class* is PC_OFF_READY (autonomy field,
-    # proven writer mechanics) but it has never actually been
-    # WRITE_VERIFIED (no real save proven yet) -- runtime_route() alone
-    # must never be read as "safe to auto-write" for it. Real incident
-    # (2026-08-16): this used to be True, meaning
-    # tools/run_verified_writers.py could have triggered a genuine
-    # unattended live write on the next detected SAFE_DIFF despite no
-    # real save ever having been proven for this platform.
-    assert may_auto_execute_on_safe_diff("code-parrainage") is False
+    assert may_auto_execute_on_safe_diff("code-parrainage") is True
 
 
 def test_human_and_blocked_never_auto():
