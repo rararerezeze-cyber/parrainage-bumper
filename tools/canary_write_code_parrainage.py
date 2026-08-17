@@ -162,10 +162,20 @@ def _canary_and_original_renders() -> tuple[str, str, dict, dict]:
 
 
 def _read_dump_field(dump: dict, name: str) -> str | None:
-    return next(
-        (i.get("preview") for i in (dump or {}).get("inputs") or [] if i.get("name") == name),
-        None,
-    )
+    """Prefers the untruncated `full` value (see _dump_form_debug's
+    docstring for why: comparing a 200-char `preview` against the full
+    ~787-char rendered offer via canonical_contains() can never match
+    regardless of real success -- confirmed root cause of the false
+    canary_ok/rollback_ok=False on run 31962858807 despite a genuinely
+    persisted write later proven on run 32044775992). Falls back to
+    `preview` for dumps that predate this field (older captured JSON,
+    and hand-built fixtures in tests that only set `preview`).
+    """
+    for item in (dump or {}).get("inputs") or []:
+        if item.get("name") == name:
+            full = item.get("full")
+            return full if full is not None else item.get("preview")
+    return None
 
 
 def _account_snapshot(dump: dict) -> dict:

@@ -17,9 +17,12 @@ from tools.canary_write_code_parrainage import (
     ORIGINAL_VALUE,
     PLATFORM,
     PROGRAM,
+    ROOT,
     _account_snapshot,
     _canary_and_original_renders,
     _guard_identity,
+    _read_dump_field,
+    canonical_contains,
 )
 
 
@@ -612,3 +615,126 @@ def test_rollback_pre_guard_failure_still_blocks_write_verified():
     idx_critical_check = src.index('if report.get("critical_fail"):')
     idx_write_verified_branch = src.index("if write_verified:")
     assert idx_critical_check < idx_write_verified_branch
+
+
+# --- account-side truncation fix (2026-08-17 cleanup, no live write) -------
+
+def test_read_dump_field_prefers_full_over_preview():
+    dump = {
+        "inputs": [
+            {"name": "offre", "preview": "short", "full": "the real full value, longer than the preview"},
+        ]
+    }
+    assert _read_dump_field(dump, "offre") == "the real full value, longer than the preview"
+
+
+def test_read_dump_field_falls_back_to_preview_when_full_absent():
+    """Backward compatibility with dumps captured before this fix (and
+    hand-built fixtures elsewhere in this file that only set `preview`).
+    """
+    dump = {"inputs": [{"name": "offre", "preview": "only a preview here"}]}
+    assert _read_dump_field(dump, "offre") == "only a preview here"
+
+
+def test_read_dump_field_returns_none_when_field_absent():
+    dump = {"inputs": [{"name": "company", "full": "Kraken"}]}
+    assert _read_dump_field(dump, "offre") is None
+
+
+def test_account_snapshot_uses_full_text_not_truncated_preview():
+    long_text = "\n\n".join(f"Line {i} of a long offer description" for i in range(30))
+    assert len(long_text) > 200  # the whole point of this test
+    dump = {
+        "inputs": [
+            {"name": "company", "preview": "Kraken", "full": "Kraken"},
+            {"name": "code_ou_lien", "preview": "cpbrgddy", "full": "cpbrgddy"},
+            {"name": "offre", "preview": long_text[:200], "full": long_text},
+            {"name": "modifpost", "preview": "84601", "full": "84601"},
+        ]
+    }
+    snap = _account_snapshot(dump)
+    assert snap["offre"] == long_text
+    assert len(snap["offre"]) > 200
+
+
+def test_canonical_contains_now_matches_on_text_longer_than_200_chars():
+    """The actual regression this fix targets: a rendered offer well over
+    200 chars must be able to canonical_contains-match itself once the
+    account snapshot carries the full text instead of a 200-char preview.
+    """
+    rendered_canary, rendered_original, _vc, _vo = _canary_and_original_renders()
+    assert len(rendered_canary) > 200
+    assert len(rendered_original) > 200
+
+    dump_canary = {"inputs": [{"name": "offre", "preview": rendered_canary[:200], "full": rendered_canary}]}
+    dump_rollback = {"inputs": [{"name": "offre", "preview": rendered_original[:200], "full": rendered_original}]}
+
+    snap_canary = _account_snapshot(dump_canary)
+    snap_rollback = _account_snapshot(dump_rollback)
+
+    assert canonical_contains(snap_canary["offre"], rendered_canary) is True
+    assert canonical_contains(snap_rollback["offre"], rendered_original) is True
+
+    # Proves this is a real fix, not a tautology: the OLD (preview-only)
+    # behavior genuinely could not have matched.
+    truncated_snap_canary = {"offre": rendered_canary[:200]}
+    assert canonical_contains(truncated_snap_canary["offre"], rendered_canary) is False
+
+
+# --- regression test: run 32044775992 (2026-08-17, real live GO) -----------
+
+def test_regression_run_32044775992_network_payload_proves_full_text_sent():
+    """IMPORTANT correction while writing this test: the account-side
+    offre_sha256 recorded by that run (phases.canary_account/rollback_account)
+    is itself a hash of the OLD 200-char truncated preview -- that field was
+    computed by the exact code being fixed here, so it cannot be used as
+    independent proof of full-text equality (an earlier draft of this test
+    assumed otherwise and was wrong; caught by actually running it).
+
+    The genuinely independent proof comes from network_evidence, captured
+    directly from the real POST body via Playwright's request interception
+    (a completely separate code path from _dump_form_debug/_account_snapshot):
+    payload_offre_sha256 at each phase. HTML forms normalize a textarea's
+    line breaks to CRLF on submission (WHATWG "constructing the form data
+    set" -- normalize newlines); accounting for that, the recorded payload
+    hashes match the locally regenerated deterministic renders exactly,
+    proving the canary Save really transmitted the canary text and the
+    rollback Save really transmitted the original text, byte for byte --
+    the strongest available proof this specific run's writes were genuine.
+
+    This does NOT replay the browser session (no new live write) and does
+    NOT claim to reconstruct what the fixed account-side comparison would
+    have returned for this specific run -- the full DOM value was never
+    captured/persisted for it (that's the bug), so that specific claim
+    isn't provable after the fact. The synthetic tests above already prove
+    the fix itself works for text over 200 chars in general.
+    """
+    import hashlib
+    import json
+
+    report_path = ROOT / "data" / "captures" / "canary-code-parrainage-kraken.json"
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert report["at_end"] == "2026-08-17T16:16:16.833613+00:00"  # pins this to run 32044775992
+
+    recorded_canary_payload_sha = report["network_evidence"]["canary"]["request"]["payload_offre_sha256"]
+    recorded_rollback_payload_sha = report["network_evidence"]["rollback"]["request"]["payload_offre_sha256"]
+
+    rendered_canary, rendered_original, _vc, _vo = _canary_and_original_renders()
+
+    def _as_submitted_by_a_browser_form(text: str) -> str:
+        return text.replace("\r\n", "\n").replace("\n", "\r\n")
+
+    assert (
+        hashlib.sha256(_as_submitted_by_a_browser_form(rendered_canary).encode("utf-8")).hexdigest()
+        == recorded_canary_payload_sha
+    )
+    assert (
+        hashlib.sha256(_as_submitted_by_a_browser_form(rendered_original).encode("utf-8")).hexdigest()
+        == recorded_rollback_payload_sha
+    )
+
+    # And the public-side check (never affected by the truncation bug --
+    # it always used the full extracted public text) already reported true
+    # on this exact run for both phases.
+    assert report["phases"]["canary_public"]["canonical_match_vs_expected"] is True
+    assert report["phases"]["rollback_public"]["canonical_match_vs_expected"] is True

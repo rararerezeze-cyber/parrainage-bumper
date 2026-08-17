@@ -231,23 +231,44 @@ async def _resolve_edit_url(page, plan: WritePlan, base: str) -> str:
 async def _dump_form_debug(page, path: str) -> dict[str, Any]:
     """Read-only DOM census: every input/textarea/select/contenteditable on
     the current page, plus its current value, and every submit-like button.
-    Never fills or clicks anything. Used exclusively by inspect_only.
+    Never fills or clicks anything. Used by inspect_only and by the canary
+    scripts' before/canary/rollback snapshots.
+
+    Each field carries both `preview` (first 200 chars, kept for compact
+    debug dumps/screenshots) and `full` (the complete, untruncated value).
+    Real incident (2026-08-16/17, code-parrainage canary run 31962858807):
+    tools/canary_write_code_parrainage.py compared `preview` against the
+    full ~787-char rendered offer via canonical_contains(), which requires
+    the whole needle to appear in the haystack -- structurally impossible
+    once the haystack itself was truncated to 200 chars, producing a false
+    "not persisted" verdict on a save that had genuinely succeeded (proven
+    independently via offre_sha256 and the public-page reread on run
+    32044775992). `full` exists so account-side comparisons can work on
+    the real value instead. This form's fields (company, code_ou_lien,
+    offre, the hidden modifpost, and an empty companySearch autocomplete
+    box) never contain credentials or session data -- this function must
+    only ever be called on an already-authenticated content page, never on
+    the login form.
     """
     data = await page.evaluate(
         """
         () => {
           const inputs = Array.from(document.querySelectorAll('input, textarea, select, [contenteditable="true"]'))
-            .map(el => ({
-              tag: el.tagName,
-              type: el.type || '',
-              name: el.name || '',
-              id: el.id || '',
-              placeholder: el.getAttribute('placeholder') || '',
-              contenteditable: el.getAttribute('contenteditable') || '',
-              visible: !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length),
-              valueLen: ((el.value != null ? el.value : el.innerText) || '').length,
-              preview: ((el.value != null ? el.value : el.innerText) || '').slice(0, 200),
-            }));
+            .map(el => {
+              const raw = (el.value != null ? el.value : el.innerText) || '';
+              return {
+                tag: el.tagName,
+                type: el.type || '',
+                name: el.name || '',
+                id: el.id || '',
+                placeholder: el.getAttribute('placeholder') || '',
+                contenteditable: el.getAttribute('contenteditable') || '',
+                visible: !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length),
+                valueLen: raw.length,
+                preview: raw.slice(0, 200),
+                full: raw,
+              };
+            });
           const buttons = Array.from(document.querySelectorAll('button, input[type="submit"]'))
             .map(el => ({
               tag: el.tagName,
