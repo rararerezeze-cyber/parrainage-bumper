@@ -1,12 +1,8 @@
 {
   "platform": "super-parrain",
-  "result": "WRITE_VERIFIED",
-  "runtime_mode": "WRITE_VERIFIED_BUMPER_SUSPENDED",
-  "canary_pending": false,
-  "post_match": true,
-  "historical_bumper_after": {
-    "action": "skip",
-    "run_bump": false,
-    "runtime_mode": "WRITE_VERIFIED_BUMPER_SUSPENDED"
-  }
+  "result": "WAIT",
+  "reason": "cooldown_24h",
+  "runtime_mode": "NORMAL_BUMP",
+  "next_eligible_at": "2026-08-17T09:45:56.264798+00:00",
+  "hours_remaining": 3.71
 }

@@ -8,33 +8,32 @@
   "telegram_worker_required": "NO",
   "telegram_worker_code_present": "YES",
   "operator_overrides_store": "PASS",
-  "WRITE_VERIFIED": "3/7",
-  "write_verified_count": 3,
+  "WRITE_VERIFIED": "4/7",
+  "write_verified_count": 4,
   "telegram_live_capable": [
     "parrainage-co",
-    "code-parrainage",
     "1parrainage"
   ],
   "platforms": [
     {
       "platform": "super-parrain",
       "status": "WRITE_VERIFIED",
-      "telegram_action": "BUMPER_NOT_AUTHORIZED",
-      "autonomy": "WRITE_VERIFIED_BUMPER_SUSPENDED",
-      "route": "BUMPER_NOT_AUTHORIZED",
+      "telegram_action": "FUSED_UPDATE_BUMP",
+      "autonomy": "FUSED_UPDATE_BUMP",
+      "route": "FUSED_UPDATE_BUMP",
       "canary_program": "poulpeo",
       "notes": "WRITE_VERIFIED — content-writer proof (login+edit+save+reread+post_match). Historical bumper NOT authorized (fail-closed, independent from this content-writer proof) — bump_super_parrain.yml stays SKIP until an operator calls lib.super_parrain_schedule.authorize_historical_bumper().",
       "last_write_verified_at": "2026-08-15T08:28:55.596484+00:00"
     },
     {
       "platform": "parrainage-co",
-      "status": "CANARY_READY",
+      "status": "WRITE_VERIFIED",
       "telegram_action": "AUTO_ON_SAFE_DIFF",
       "autonomy": "PC_OFF_READY",
       "route": "AUTO_ON_SAFE_DIFF",
       "canary_program": "kraken",
-      "notes": "GH 31706455905: password+bumper.solve_turnstile login PROVEN, edit/113735 PROVEN, cookie_used=false, save_clicked=false. Auto only on real SAFE_DIFF.",
-      "last_write_verified_at": null
+      "notes": "GH run 31950145270 (2026-08-16): real canary+rollback save on referee_reward, offer 113735 — canonical account+public match proven at every phase, personal_code/personal_link unchanged throughout, original value restored and confirmed. Auto only on real SAFE_DIFF.",
+      "last_write_verified_at": "2026-08-16T13:41:32.579960+00:00"
     },
     {
       "platform": "code-parrainage",
@@ -43,7 +42,7 @@
       "autonomy": "PC_OFF_READY",
       "route": "AUTO_ON_SAFE_DIFF",
       "canary_program": "kraken",
-      "notes": "PC-off writer uses bumper.solve_slider only (same as historical bump). GH 31695046367 slider OK; Kraken already operator-matched. Not WRITE_VERIFIED (no save). Next real SAFE_DIFF is executable PC-off.",
+      "notes": "PC-off writer uses bumper.solve_slider only (same as historical bump). Kraken already operator-matched. Real edit form is /modif/84601 (single combined code_ou_lien field). LIVE CANARY ATTEMPTED 2026-08-16 (GH run 31962858807): 2 real Save clicks, identity clean, no critical_fail, but ZERO persistence (offre unchanged before/canary/rollback). ROOT CAUSE CONFIRMED 2026-08-16 (GH run 31966798936, full script extraction: data/captures/code-parrainage-offre-form-script.js) -- the edit form's own JS submit handler calls native window.confirm('Etes-vous sur de vouloir modifier cette annonce ?') and does e.preventDefault() if not accepted. Playwright's default is to DISMISS unhandled dialogs, so both canary Saves were silently blocked client-side before any request ever reached modification.php -- confirmed NOT a server-side rejection, NOT the 200-char counter (no minlength/maxlength attrs, counter is a minimum already exceeded), NOT a missing form field. Fix prepared (not yet run): canary_write_code_parrainage.py now has _register_dialog_handler (accepts the confirm, logs it) and _register_network_listeners (captures the modification.php request/response for the next attempt). NOT WRITE_VERIFIED. Status intentionally stays CANARY_READY. Awaiting explicit operator GO for the next canary (same minimal referee_reward diff, dialog now handled).",
       "last_write_verified_at": null
     },
     {
@@ -88,8 +87,8 @@
     }
   ],
   "by_status": {
-    "WRITE_VERIFIED": 3,
-    "CANARY_READY": 3,
+    "WRITE_VERIFIED": 4,
+    "CANARY_READY": 2,
     "AUTH_BLOCKED_MANUAL": 1
   },
   "HERMES_AUTOFRESH_INTERFACE_READY": "YES",
