@@ -8,10 +8,11 @@
   "telegram_worker_required": "NO",
   "telegram_worker_code_present": "YES",
   "operator_overrides_store": "PASS",
-  "WRITE_VERIFIED": "4/7",
-  "write_verified_count": 4,
+  "WRITE_VERIFIED": "5/7",
+  "write_verified_count": 5,
   "telegram_live_capable": [
     "parrainage-co",
+    "code-parrainage",
     "1parrainage"
   ],
   "platforms": [
@@ -37,13 +38,13 @@
     },
     {
       "platform": "code-parrainage",
-      "status": "CANARY_READY",
+      "status": "WRITE_VERIFIED",
       "telegram_action": "AUTO_ON_SAFE_DIFF",
       "autonomy": "PC_OFF_READY",
       "route": "AUTO_ON_SAFE_DIFF",
       "canary_program": "kraken",
-      "notes": "PC-off writer uses bumper.solve_slider only (same as historical bump). Kraken already operator-matched. Real edit form is /modif/84601 (single combined code_ou_lien field). LIVE CANARY ATTEMPTED 2026-08-16 (GH run 31962858807): 2 real Save clicks, identity clean, no critical_fail, but ZERO persistence (offre unchanged before/canary/rollback). ROOT CAUSE CONFIRMED 2026-08-16 (GH run 31966798936, full script extraction: data/captures/code-parrainage-offre-form-script.js) -- the edit form's own JS submit handler calls native window.confirm('Etes-vous sur de vouloir modifier cette annonce ?') and does e.preventDefault() if not accepted. Playwright's default is to DISMISS unhandled dialogs, so both canary Saves were silently blocked client-side before any request ever reached modification.php -- confirmed NOT a server-side rejection, NOT the 200-char counter (no minlength/maxlength attrs, counter is a minimum already exceeded), NOT a missing form field. Fix prepared (not yet run): canary_write_code_parrainage.py now has _register_dialog_handler (accepts the confirm, logs it) and _register_network_listeners (captures the modification.php request/response for the next attempt). NOT WRITE_VERIFIED. Status intentionally stays CANARY_READY. Awaiting explicit operator GO for the next canary (same minimal referee_reward diff, dialog now handled).",
-      "last_write_verified_at": null
+      "notes": "WRITE_VERIFIED 2026-08-17 (GH run 32044775992, real canary+rollback on referee_reward): offre_sha256 changed on canary and restored exactly on rollback (byte-identical to before); public raw_html_sha256 same pattern; real POST captured to modification.php (status 302) with the correct payload at each phase; identity (company=Kraken, code_ou_lien=cpbrgddy) unchanged at all 4 checkpoints; no critical_fail; no unexpected_dialog; exactly 2 Save clicks. Promoted via manual reconciliation because the script's own account-side canonical_contains() check has a known truncation bug (compares a 200-char DOM preview against the full ~787-char rendered text -- see evidence.account_reread_note); the public-side check and every other independent signal confirm real success. Root cause of the PRIOR failed run (GH 31962858807) was an unhandled native confirm() dialog that Playwright dismissed by default -- fixed via the strict dialog gate + network instrumentation + guaranteed rollback + fresh pre-rollback identity re-guard added across commits 03e2715..8b5ccc3. Auto only on a real SAFE_DIFF.",
+      "last_write_verified_at": "2026-08-17T16:20:23.771989+00:00"
     },
     {
       "platform": "1parrainage",
@@ -87,8 +88,8 @@
     }
   ],
   "by_status": {
-    "WRITE_VERIFIED": 4,
-    "CANARY_READY": 2,
+    "WRITE_VERIFIED": 5,
+    "CANARY_READY": 1,
     "AUTH_BLOCKED_MANUAL": 1
   },
   "HERMES_AUTOFRESH_INTERFACE_READY": "YES",
