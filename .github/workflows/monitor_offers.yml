@@ -7,6 +7,15 @@ on:
     # 1×/jour (08:17 UTC) — observation-only; workflow_dispatch pour runs manuels
     - cron: "17 8 * * *"
   workflow_dispatch:
+permissions:
+  # Commit step needs to push its own observation-report commits (see
+  # "Commit results" below). Missing entirely before 2026-08-18 -- every
+  # run that detected a real business/status change failed at push with
+  # "Permission ... denied to github-actions[bot] (403)" (3 consecutive
+  # failures, 2026-08-16..18), silently losing that observation from git
+  # even though it was captured correctly. No write to offers.json or any
+  # platform ever happens here regardless of this permission.
+  contents: write
 concurrency:
   group: autofresh-monitor-offers
   cancel-in-progress: false
