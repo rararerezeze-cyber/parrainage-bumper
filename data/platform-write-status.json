@@ -196,7 +196,7 @@
       "status": "WRITE_VERIFIED",
       "canary_program": "kraken",
       "autonomy": "HUMAN_SAVE_REQUIRED",
-      "notes": "WRITE_VERIFIED headed canary eid=23004. SAVE_REQUIRES_CAPTCHA — HUMAN_SAVE_REQUIRED. No bypass. Telegram must not auto-save. Super bumper still SKIP.",
+      "notes": "WRITE_VERIFIED headed canary eid=23004. SAVE_REQUIRES_CAPTCHA — HUMAN_SAVE_REQUIRED. No bypass. Telegram must not auto-save.",
       "kraken_listing": "KRAKEN_EXISTS",
       "eid_status": "23004",
       "auth_edit_path": "AUTH_EDIT_PATH_PROVEN",
