@@ -388,8 +388,11 @@ async def main() -> int:
             report["commit_clicked"] = False
             report["ok"] = True
         except Exception as exc:
+            import traceback
+
             report["ok"] = False
             report["error"] = str(exc)
+            report["traceback"] = traceback.format_exc()
         finally:
             await page.close()
             await ctx.close()
