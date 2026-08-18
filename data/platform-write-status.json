@@ -15,7 +15,7 @@
       "canary_program": "poulpeo",
       "runtime_mode": "NORMAL_BUMP",
       "autonomy": "FUSED_UPDATE_BUMP",
-      "notes": "WRITE_VERIFIED — content-writer proof (login+edit+save+reread+post_match). Historical bumper NOT authorized (fail-closed, independent from this content-writer proof) — bump_super_parrain.yml stays SKIP until an operator calls lib.super_parrain_schedule.authorize_historical_bumper().",
+      "notes": "WRITE_VERIFIED — content-writer proof (login+edit+save+reread+post_match). Historical bumper authorized and restored; runtime NORMAL_BUMP with ~24h cooldown + persistent jitter. FUSED_UPDATE_BUMP active: content update only on real SAFE_DIFF, otherwise bump-only.",
       "content_sync": "SYNC_VERIFIED_NO_SAFE_DIFF",
       "sync_verified_at": "2026-08-13T08:03:39.875092+00:00",
       "last_compare_class": "NO_SAFE_DIFF",
