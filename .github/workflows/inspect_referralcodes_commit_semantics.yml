@@ -1,0 +1,41 @@
+name: Inspect (ReferralCodes commit semantics)
+# READ-ONLY: determines whether the official Agent Import UI's "Commit"
+# step would UPDATE the existing Kraken listing or create a DUPLICATE.
+# Logs in, fills + clicks Validate only, scans DOM/JS/network for
+# upsert/update/duplicate signals -- never clicks Commit, never writes
+# anything. See tools/inspect_referralcodes_commit_semantics.py.
+on:
+  workflow_dispatch: {}
+permissions:
+  contents: read
+concurrency:
+  group: autofresh-inspect-referralcodes-commit-semantics
+  cancel-in-progress: false
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+      - name: Inspect commit semantics (read-only, never clicks Commit)
+        env:
+          REFERRALCODES_EMAIL: ${{ secrets.REFERRALCODES_EMAIL }}
+          REFERRALCODES_PASSWORD: ${{ secrets.REFERRALCODES_PASSWORD }}
+        run: |
+          python -u tools/inspect_referralcodes_commit_semantics.py
+      - name: Upload inspection artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: inspect-referralcodes-commit-semantics
+          retention-days: 14
+          if-no-files-found: ignore
+          path: |
+            data/captures/referralcodes-commit-semantics.json
