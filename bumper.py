@@ -438,8 +438,25 @@ async def run_super(browser):
                         )
 
                     # --- UN SEUL Enregistrer = update eventuel + remontee ---
-                    await human_click(page, page.locator(
-                        'button:has-text("Enregistrer"), input[type="submit"], button[type="submit"]').first)
+                    # One bounded, same-page retry on a transient click
+                    # timeout before giving up on this listing. Regression
+                    # observed 2026-08-18: ~38/39 listings timed out waiting
+                    # for this exact button in one run while one succeeded,
+                    # consistent with transient slow rendering rather than a
+                    # broken selector (the button IS present -- it just
+                    # doesn't always appear within human_click's 15s window
+                    # under rapid sequential navigation). No page reload here
+                    # -- reloading would drop any Autofresh-prefilled content
+                    # (canary program) sitting unsaved in the form; only the
+                    # click itself is retried, on the same page state.
+                    try:
+                        await human_click(page, page.locator(
+                            'button:has-text("Enregistrer"), input[type="submit"], button[type="submit"]').first)
+                    except Exception:
+                        log.warning(f"  Enregistrer echoue ({i+1}), retry unique (meme page)")
+                        await human_sleep(3, 5)
+                        await human_click(page, page.locator(
+                            'button:has-text("Enregistrer"), input[type="submit"], button[type="submit"]').first)
                     await page.wait_for_load_state("networkidle")
                     await human_sleep(2, 4)
                     bumped += 1
