@@ -288,8 +288,15 @@ async def main() -> int:
                 page, ['input[type="password"]'], password, timeout=8000
             ):
                 raise RuntimeError("login password missing")
+            # Same selector already proven working for this exact site/page
+            # by tools/validate_referralcodes_agent_import.py -- that
+            # script's login submit button matches `button:has-text("Login")`
+            # but not always a bare button[type="submit"]/input[type="submit"].
             await bumper_mod.human_click(
-                page, page.locator('button[type="submit"], input[type="submit"]').first
+                page,
+                page.locator(
+                    'button:has-text("Login"), button[type="submit"], input[type="submit"]'
+                ).first,
             )
             try:
                 await page.wait_for_load_state("networkidle", timeout=25000)
@@ -320,8 +327,11 @@ async def main() -> int:
             if not await area.count():
                 raise RuntimeError("no textarea")
             await area.fill(json.dumps(payload, ensure_ascii=False))
+            # Same selector already proven working on this exact page by
+            # tools/validate_referralcodes_agent_import.py.
             validate_btn = page.locator(
-                'button:has-text("Validate"), input[value*="Validate" i]'
+                'button:has-text("Validate"), button:has-text("Valider"), '
+                'button:has-text("Check"), input[value*="Validate" i]'
             ).first
             if not await validate_btn.count():
                 raise RuntimeError("Validate missing")
