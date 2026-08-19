@@ -566,7 +566,23 @@ async def run_super(browser):
                     )
                 except Exception:
                     pass
-            if bumped != len(edit_urls):
+            missed = len(edit_urls) - bumped
+            if missed:
+                log.warning(f"  Remontee incomplete: {bumped}/{len(edit_urls)} ({missed} manquant(s))")
+            # Tolerate a small shortfall instead of demanding strict 39/39.
+            # Real regression 2026-08-19: a 38/39 run (37 transient
+            # human_click timeouts fixed by the same-page retry above, 1
+            # genuine remaining miss) used to raise here -> retry() reused
+            # the SAME already-authenticated browser context for the retry
+            # attempt, whose /login navigation then redirected straight to
+            # the dashboard (already logged in) instead of showing the
+            # username field, timing out and exhausting all 3 attempts --
+            # turning a 38/39 success into a fully failed, uncommitted run
+            # (last_super_run.txt never written, cooldown never reset,
+            # every attempt thereafter repeated the same fate). A near-
+            # complete pass is a real success: 1-2 missed listings just
+            # get picked up on the next scheduled slot.
+            if missed > 2:
                 raise RuntimeError(f"Remontee incomplete: {bumped}/{len(edit_urls)}")
             with open("last_super_run.txt", "w") as f:
                 f.write(datetime.now().isoformat())
