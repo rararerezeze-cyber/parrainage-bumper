@@ -359,17 +359,29 @@ async def run_super(browser):
         try:
             await page.goto(f"{cfg['url']}/login", wait_until="networkidle")
             await human_sleep(2, 4)
-            await robust_fill(page, 'input[name="_username"], input[type="email"]', cfg["email"])
-            await robust_fill(page, 'input[name="_password"], input[type="password"]', cfg["password"])
-            await human_sleep(1, 2)
-            await human_click(page, page.locator(
-                'input[type="submit"], button:has-text("Connexion"), button[type="submit"]').first)
-            try:
-                await page.wait_for_url(lambda u: "/login" not in u, timeout=15000)
-            except Exception:
-                pass
-            await page.wait_for_load_state("networkidle")
-            await human_sleep(3, 5)
+            # If this _do() call is a retry() re-attempt reusing the SAME
+            # browser context (same cookies) as an earlier attempt that
+            # already logged in successfully, the site redirects /login
+            # straight to the dashboard -- the username field then never
+            # appears, and robust_fill's 15s wait_for(visible) times out.
+            # Real regression 2026-08-19: this turned every retry attempt
+            # into an immediate, guaranteed failure ("Tentative 2/3" /
+            # "3/3" both died here within seconds), on top of the actual
+            # site-side slowness the retry was meant to work around.
+            if "/login" in page.url:
+                await robust_fill(page, 'input[name="_username"], input[type="email"]', cfg["email"])
+                await robust_fill(page, 'input[name="_password"], input[type="password"]', cfg["password"])
+                await human_sleep(1, 2)
+                await human_click(page, page.locator(
+                    'input[type="submit"], button:has-text("Connexion"), button[type="submit"]').first)
+                try:
+                    await page.wait_for_url(lambda u: "/login" not in u, timeout=15000)
+                except Exception:
+                    pass
+                await page.wait_for_load_state("networkidle")
+                await human_sleep(3, 5)
+            else:
+                log.info("  Deja authentifie (session existante) - formulaire login ignore")
             if not await verify_login(page, "/login", name):
                 await page.screenshot(path="debug_super_login.png")
                 raise RuntimeError("Login echoue")
