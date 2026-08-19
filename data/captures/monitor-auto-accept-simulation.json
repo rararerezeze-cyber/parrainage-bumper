@@ -7,9 +7,7 @@
   "eligible_programs": [
     "boursobank",
     "igraal",
-    "kraken",
-    "poulpeo",
-    "winamax"
+    "poulpeo"
   ],
   "eligible_fields": [
     "boursobank.min_deposit",
@@ -17,11 +15,7 @@
     "boursobank.referee_reward",
     "boursobank.reward_type",
     "igraal.referee_reward",
-    "kraken.qualification_days",
-    "kraken.reward_type",
-    "poulpeo.referee_reward",
-    "winamax.referee_reward",
-    "winamax.reward_type"
+    "poulpeo.referee_reward"
   ],
   "rejected_fields_and_reasons": [
     {
@@ -36,12 +30,13 @@
     {
       "program": "kraken",
       "field": "referee_reward",
-      "observed": "20 € en Bitcoin",
+      "observed": null,
       "reasons": [
+        "confidence_not_high:REJECT",
+        "value_not_plausible",
+        "streak_below_3:0",
         "operator_override_lock",
-        "kraken_referee_reward_operator_locked",
-        "kraken_forbidden_20eur_btc",
-        "forbidden_20eur_btc_token"
+        "kraken_referee_reward_operator_locked"
       ]
     }
   ],
@@ -50,42 +45,12 @@
     {
       "decision": "ACCEPT",
       "reasons": [],
-      "program": "kraken",
-      "field": "qualification_days",
-      "canonical": null,
-      "observed": "15",
-      "authority": "OFFICIAL_PUBLIC_MONITOR",
-      "live_high_streak": 7,
-      "effective_now": null,
-      "effective_source": "CANONICAL_DEFAULT",
-      "idempotent": false,
-      "source_url": "https://www.kraken.com/referrals",
-      "parser": "kraken_referral_fr"
-    },
-    {
-      "decision": "ACCEPT",
-      "reasons": [],
-      "program": "kraken",
-      "field": "reward_type",
-      "canonical": null,
-      "observed": "crypto",
-      "authority": "OFFICIAL_PUBLIC_MONITOR",
-      "live_high_streak": 7,
-      "effective_now": null,
-      "effective_source": "CANONICAL_DEFAULT",
-      "idempotent": false,
-      "source_url": "https://www.kraken.com/referrals",
-      "parser": "kraken_referral_fr"
-    },
-    {
-      "decision": "ACCEPT",
-      "reasons": [],
       "program": "boursobank",
       "field": "referee_reward",
       "canonical": "Programme à confirmer",
       "observed": "jusqu'à 160 €",
       "authority": "OFFICIAL_PUBLIC_MONITOR",
-      "live_high_streak": 6,
+      "live_high_streak": 7,
       "effective_now": "Programme à confirmer",
       "effective_source": "CANONICAL_DEFAULT",
       "idempotent": false,
@@ -100,7 +65,7 @@
       "canonical": null,
       "observed": "300 €",
       "authority": "OFFICIAL_PUBLIC_MONITOR",
-      "live_high_streak": 6,
+      "live_high_streak": 7,
       "effective_now": null,
       "effective_source": "CANONICAL_DEFAULT",
       "idempotent": false,
@@ -115,7 +80,7 @@
       "canonical": null,
       "observed": "30",
       "authority": "OFFICIAL_PUBLIC_MONITOR",
-      "live_high_streak": 6,
+      "live_high_streak": 7,
       "effective_now": null,
       "effective_source": "CANONICAL_DEFAULT",
       "idempotent": false,
@@ -130,7 +95,7 @@
       "canonical": null,
       "observed": "tiered_cash",
       "authority": "OFFICIAL_PUBLIC_MONITOR",
-      "live_high_streak": 6,
+      "live_high_streak": 7,
       "effective_now": null,
       "effective_source": "CANONICAL_DEFAULT",
       "idempotent": false,
@@ -140,42 +105,12 @@
     {
       "decision": "ACCEPT",
       "reasons": [],
-      "program": "winamax",
-      "field": "referee_reward",
-      "canonical": "100 €",
-      "observed": "10 € bonus + 10 € freebets",
-      "authority": "OFFICIAL_PUBLIC_MONITOR",
-      "live_high_streak": 6,
-      "effective_now": "100 €",
-      "effective_source": "CANONICAL_DEFAULT",
-      "idempotent": false,
-      "source_url": "https://www.winamax.fr/parrainage",
-      "parser": "winamax_parrainage_fr"
-    },
-    {
-      "decision": "ACCEPT",
-      "reasons": [],
-      "program": "winamax",
-      "field": "reward_type",
-      "canonical": null,
-      "observed": "cash+freebet",
-      "authority": "OFFICIAL_PUBLIC_MONITOR",
-      "live_high_streak": 6,
-      "effective_now": null,
-      "effective_source": "CANONICAL_DEFAULT",
-      "idempotent": false,
-      "source_url": "https://www.winamax.fr/parrainage",
-      "parser": "winamax_parrainage_fr"
-    },
-    {
-      "decision": "ACCEPT",
-      "reasons": [],
       "program": "igraal",
       "field": "referee_reward",
       "canonical": "5 €",
       "observed": "3 €",
       "authority": "OFFICIAL_PUBLIC_MONITOR",
-      "live_high_streak": 7,
+      "live_high_streak": 8,
       "effective_now": "5 €",
       "effective_source": "CANONICAL_DEFAULT",
       "idempotent": false,
@@ -190,7 +125,7 @@
       "canonical": "5 €",
       "observed": "3 €",
       "authority": "OFFICIAL_PUBLIC_MONITOR",
-      "live_high_streak": 7,
+      "live_high_streak": 8,
       "effective_now": "5 €",
       "effective_source": "CANONICAL_DEFAULT",
       "idempotent": false,
@@ -242,20 +177,6 @@
       "human_command": null
     },
     {
-      "platform": "1parrainage",
-      "program": "winamax",
-      "language": "fr",
-      "changed_fields": {
-        "referee_reward": {
-          "old": "50 € à l’inscription avec le parrainage + premier pari rembours&eacut",
-          "new": "10 € bonus + 10 € freebets"
-        }
-      },
-      "route": "AUTO_ON_SAFE_DIFF",
-      "runtime_route": "AUTO_ON_SAFE_DIFF",
-      "human_command": null
-    },
-    {
       "platform": "code-parrainage",
       "program": "igraal",
       "language": "fr",
@@ -277,20 +198,6 @@
         "referee_reward": {
           "old": "5€ de bienvenue crédités dès votre inscription via mon code parrain ✅",
           "new": "3€ de bienvenue crédités dès votre inscription via mon code parrain ✅"
-        }
-      },
-      "route": "AUTO_ON_SAFE_DIFF",
-      "runtime_route": "AUTO_ON_SAFE_DIFF",
-      "human_command": null
-    },
-    {
-      "platform": "code-parrainage",
-      "program": "winamax",
-      "language": "fr",
-      "changed_fields": {
-        "referee_reward": {
-          "old": "50 € à l’inscription + premier pari remboursé jusqu’à 100 en CASH € ✅",
-          "new": "10 € bonus + 10 € freebets"
         }
       },
       "route": "AUTO_ON_SAFE_DIFF",
@@ -333,20 +240,6 @@
         "referee_reward": {
           "old": "5€ de bienvenue crédités dès votre inscription via mon code parrain ✅",
           "new": "3€ de bienvenue crédités dès votre inscription via mon code parrain ✅"
-        }
-      },
-      "route": "AUTO_ON_SAFE_DIFF",
-      "runtime_route": "AUTO_ON_SAFE_DIFF",
-      "human_command": null
-    },
-    {
-      "platform": "parrainage-co",
-      "program": "winamax",
-      "language": "fr",
-      "changed_fields": {
-        "referee_reward": {
-          "old": "50 € à l’inscription + premier pari remboursé jusqu’à 100 en CASH € ✅",
-          "new": "10 € bonus + 10 € freebets"
         }
       },
       "route": "AUTO_ON_SAFE_DIFF",
@@ -392,7 +285,7 @@
         }
       },
       "route": "FUSED_UPDATE_BUMP",
-      "runtime_route": "CANARY_PENDING_SKIP",
+      "runtime_route": "FUSED_UPDATE_BUMP",
       "human_command": null
     },
     {
@@ -406,35 +299,7 @@
         }
       },
       "route": "FUSED_UPDATE_BUMP",
-      "runtime_route": "CANARY_PENDING_SKIP",
-      "human_command": null
-    },
-    {
-      "platform": "super-parrain",
-      "program": "poulpeo",
-      "language": "fr",
-      "changed_fields": {
-        "referee_reward": {
-          "old": "5€ de bienvenue crédités dès votre inscription via mon code parrain ✅",
-          "new": "3€ de bienvenue crédités dès votre inscription via mon code parrain ✅"
-        }
-      },
-      "route": "FUSED_UPDATE_BUMP",
-      "runtime_route": "CANARY_PENDING_SKIP",
-      "human_command": null
-    },
-    {
-      "platform": "super-parrain",
-      "program": "winamax",
-      "language": "fr",
-      "changed_fields": {
-        "referee_reward": {
-          "old": "50 € à l’inscription + premier pari remboursé jusqu’à 100 en CASH € ✅",
-          "new": "10 € bonus + 10 € freebets"
-        }
-      },
-      "route": "FUSED_UPDATE_BUMP",
-      "runtime_route": "CANARY_PENDING_SKIP",
+      "runtime_route": "FUSED_UPDATE_BUMP",
       "human_command": null
     }
   ],
@@ -445,8 +310,7 @@
       "programs": [
         "boursobank",
         "igraal",
-        "poulpeo",
-        "winamax"
+        "poulpeo"
       ]
     },
     "code-parrainage": {
@@ -454,8 +318,7 @@
       "runtime_route": "AUTO_ON_SAFE_DIFF",
       "programs": [
         "igraal",
-        "poulpeo",
-        "winamax"
+        "poulpeo"
       ]
     },
     "parrainage-co": {
@@ -464,8 +327,7 @@
       "programs": [
         "boursobank",
         "igraal",
-        "poulpeo",
-        "winamax"
+        "poulpeo"
       ]
     },
     "referralcode-tv": {
@@ -476,11 +338,6 @@
         "poulpeo"
       ]
     },
-    "referralcodes": {
-      "route": "NEVER_AUTO_COMMIT",
-      "runtime_route": "NEVER_AUTO_COMMIT",
-      "programs": []
-    },
     "referraldrop": {
       "route": "MANUAL",
       "runtime_route": "AUTH_BLOCKED_MANUAL",
@@ -488,12 +345,10 @@
     },
     "super-parrain": {
       "route": "FUSED_UPDATE_BUMP",
-      "runtime_route": "CANARY_PENDING_SKIP",
+      "runtime_route": "FUSED_UPDATE_BUMP",
       "programs": [
         "boursobank",
-        "igraal",
-        "poulpeo",
-        "winamax"
+        "igraal"
       ]
     }
   },
@@ -509,5 +364,5 @@
     "APP_PERSONALIZED stays Hermes/Telegram",
     "ReferralCodes still NEVER_AUTO_COMMIT pending support"
   ],
-  "at": "2026-08-13T15:48:22.386136+00:00"
+  "at": "2026-08-19T08:54:27.938920+00:00"
 }
