@@ -23,7 +23,7 @@
       "autonomy": "FUSED_UPDATE_BUMP",
       "route": "FUSED_UPDATE_BUMP",
       "canary_program": "poulpeo",
-      "notes": "WRITE_VERIFIED — content-writer proof (login+edit+save+reread+post_match). Historical bumper NOT authorized (fail-closed, independent from this content-writer proof) — bump_super_parrain.yml stays SKIP until an operator calls lib.super_parrain_schedule.authorize_historical_bumper().",
+      "notes": "WRITE_VERIFIED — content-writer proof (login+edit+save+reread+post_match). Historical bumper authorized and restored; runtime NORMAL_BUMP with ~24h cooldown + persistent jitter. FUSED_UPDATE_BUMP active: content update only on real SAFE_DIFF, otherwise bump-only.",
       "last_write_verified_at": "2026-08-15T08:28:55.596484+00:00"
     },
     {
@@ -73,7 +73,7 @@
       "autonomy": "HUMAN_SAVE_REQUIRED",
       "route": "HUMAN_SAVE_REQUIRED",
       "canary_program": "kraken",
-      "notes": "WRITE_VERIFIED headed canary eid=23004. SAVE_REQUIRES_CAPTCHA — HUMAN_SAVE_REQUIRED. No bypass. Telegram must not auto-save. Super bumper still SKIP.",
+      "notes": "WRITE_VERIFIED headed canary eid=23004. SAVE_REQUIRES_CAPTCHA — HUMAN_SAVE_REQUIRED. No bypass. Telegram must not auto-save.",
       "last_write_verified_at": "2026-08-13T12:47:36.402325+00:00"
     },
     {

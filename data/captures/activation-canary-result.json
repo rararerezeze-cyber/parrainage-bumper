@@ -1,8 +1,12 @@
 {
   "platform": "super-parrain",
-  "result": "WAIT",
-  "reason": "cooldown_24h",
+  "result": "WRITE_VERIFIED",
   "runtime_mode": "NORMAL_BUMP",
-  "next_eligible_at": "2026-08-18T12:03:40.871232+00:00",
-  "hours_remaining": 6.02
+  "canary_pending": false,
+  "post_match": true,
+  "historical_bumper_after": {
+    "action": "cycle",
+    "run_bump": true,
+    "runtime_mode": "NORMAL_BUMP"
+  }
 }
