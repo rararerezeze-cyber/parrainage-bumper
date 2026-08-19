@@ -271,10 +271,14 @@ async def main() -> int:
         try:
             await page.goto(LOGIN, wait_until="domcontentloaded", timeout=60000)
             await bumper_mod.human_sleep(1.0, 1.6)
-            if any(
-                x in ((await page.inner_text("body")) or "").lower()
-                for x in ("captcha", "just a moment", "cf-browser")
-            ):
+            # `await` inside a generator-expression's test clause makes the
+            # whole genexpr an async generator (Python treats a comprehension
+            # containing await as async as soon as it appears anywhere in
+            # it) -- any() then fails with "'async_generator' object is not
+            # iterable". Await once into a plain str first, then a normal
+            # sync generator expression over it.
+            login_body_text = ((await page.inner_text("body")) or "").lower()
+            if any(x in login_body_text for x in ("captcha", "just a moment", "cf-browser")):
                 raise RuntimeError("captcha on /login — no bypass")
             if not await bumper_mod.smart_fill(
                 page, ['input[type="email"]', 'input[name="email"]'], email, timeout=10000
