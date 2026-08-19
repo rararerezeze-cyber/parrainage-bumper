@@ -1,5 +1,20 @@
 # HANDOFF — Autofresh / parrainage-bumper
 
+> ⚠️ **STALE — last updated 2026-08-13, superseded by extensive work since.**
+> The per-platform table below (CANARY_PENDING super-parrain, 1/7
+> WRITE_VERIFIED, referraldrop AUTH_BLOCKED_GOOGLE, etc.) no longer
+> reflects reality: as of 2026-08-19, 5/7 platforms are WRITE_VERIFIED
+> (super-parrain, parrainage-co, code-parrainage, 1parrainage,
+> referralcode-tv), the Super-Parrain historical bumper is authorized and
+> running on its normal ~24h schedule, and referraldrop is
+> AUTH_BLOCKED_MANUAL (no public write API, not a Google-OAuth-specific
+> block). **Do not use this file as a source of current status.** The
+> authoritative, live source is `data/platform-write-status.json` (+
+> `data/autofresh-phase.json` for phase/authorization flags) — read those
+> directly, or ask AutoFresh via Telegram (`<programme> statut` /
+> `<programme> plateformes`). Kept below for historical narrative context
+> only (why past decisions were made), not as a resume checklist.
+
 Resume point for the next Codex session. Reconstruct from this file + git + status JSON. Do not restart completed phases.
 
 ## Repo / HEAD
