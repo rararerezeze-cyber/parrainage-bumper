@@ -1,0 +1,39 @@
+name: Diagnose 1Parrainage Save DOM (read-only)
+# Authenticated form/control census at A/B/C. CKEditor DOM changes only:
+# no Save resolution/click, edit-form submit, platform write, or status change.
+on:
+  workflow_dispatch: {}
+permissions:
+  contents: read
+concurrency:
+  group: autofresh-diagnose-1parrainage-save-dom
+  cancel-in-progress: false
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+      - name: Capture Save-control DOM at A/B/C (no Save)
+        env:
+          AUTOFRESH_LIVE_WRITES: "0"
+          ONEPARRAINAGE_EMAIL: ${{ secrets.ONEPARRAINAGE_EMAIL }}
+          ONEPARRAINAGE_PASSWORD: ${{ secrets.ONEPARRAINAGE_PASSWORD }}
+        run: |
+          python -u tools/diagnose_1parrainage_save_dom.py \
+            --output diagnostic-artifacts/1parrainage-save-dom.json
+      - name: Upload sanitized read-only evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagnose-1parrainage-save-dom
+          retention-days: 14
+          if-no-files-found: error
+          path: diagnostic-artifacts/1parrainage-save-dom.json

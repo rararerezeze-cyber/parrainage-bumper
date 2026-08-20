@@ -148,17 +148,19 @@ def test_evidence_probe_gate_requires_existing_write_verified(tmp_path, monkeypa
     assert result["error"] == "WRITE_VERIFIED_REQUIRED_FOR_EVIDENCE_PROBE"
 
 
-def test_script_has_two_save_attempts_and_unconditional_rollback_source_order():
+def test_script_has_two_save_phases_and_rollback_after_started_click_only():
     src = SCRIPT.read_text(encoding="utf-8")
-    assert src.count("await _click_save_once(page)") == 2
+    assert src.count("await _attempt_save_click(") == 2
     assert "No retry loop" in src
     assert "_fill_and_save" not in src
-    idx_canary_flag = src.index("canary_may_have_persisted = True")
-    idx_canary_click = src.index("await _click_save_once(page)", idx_canary_flag)
+    idx_start_callback = src.index("def on_click_started()")
+    idx_actual_count = src.index('report["save_attempts_actual"]', idx_start_callback)
+    idx_canary_click = src.index('"canary",', idx_actual_count)
     idx_finally = src.index("finally:", idx_canary_click)
     idx_rollback_guard = src.index("if canary_may_have_persisted", idx_finally)
-    idx_rollback_click = src.index("await _click_save_once(page)", idx_rollback_guard)
-    assert idx_canary_flag < idx_canary_click < idx_finally < idx_rollback_click
+    idx_rollback_click = src.index('"rollback"', idx_rollback_guard)
+    assert idx_start_callback < idx_actual_count < idx_canary_click
+    assert idx_canary_click < idx_finally < idx_rollback_guard < idx_rollback_click
 
 
 def test_viewport_is_set_on_page_never_browser_context():
@@ -181,7 +183,8 @@ def test_success_requires_canary_public_and_exact_account_rollback():
     src = SCRIPT.read_text(encoding="utf-8")
     assert 'report.get("canary_ok")' in src
     assert 'report.get("rollback_ok")' in src
-    assert 'report.get("save_attempts") == 2' in src
+    assert 'report.get("save_attempts_actual") == 2' in src
+    assert 'report.get("save_click_completed") == 2' in src
     assert '"rollback_account_exact"' in src
     assert '"rollback_public_marker_absent"' in src
     assert "_sha256(rollback_body) == _sha256(original_body)" in src
@@ -358,7 +361,13 @@ def test_run_probe_executes_canary_then_exact_rollback(monkeypatch):
         set_bodies.append(body)
         return {"identity_ok": True, "marker_present": "AUTOFRESH_1P_HEADLESS_CANARY_42" in body}
 
-    async def fake_click(_page):
+    async def fake_click(
+        _page, *, on_control_resolved=None, on_click_started=None
+    ):
+        if on_control_resolved:
+            on_control_resolved({"resolved": True, "label": "Envoyer"})
+        if on_click_started:
+            on_click_started()
         clicks.append(True)
         return {"clicked": True, "label": "Envoyer"}
 
@@ -379,9 +388,113 @@ def test_run_probe_executes_canary_then_exact_rollback(monkeypatch):
     ]
     assert report["canary_ok"] is True
     assert report["rollback_ok"] is True
+    assert report["save_phase_requests"] == 2
+    assert report["save_attempts_actual"] == 2
+    assert report["save_click_completed"] == 2
     assert fake_pw.browser.context.page.viewport_sizes == [
         {"width": 1280, "height": 720}
     ]
+
+
+@pytest.mark.parametrize(
+    "resolution_error",
+    [
+        pytest.param(
+            "unexpected_dom: expected one visible Envoyer/Valider, found 0",
+            id="button-absent",
+        ),
+        pytest.param(
+            "unexpected_dom: expected one visible Envoyer/Valider, found 2",
+            id="button-ambiguous",
+        ),
+    ],
+)
+def test_unresolved_save_control_counts_zero_and_skips_rollback(
+    monkeypatch, resolution_error
+):
+    original = (
+        f"<p>{canary.EXPECTED_CODE} {canary.EXPECTED_LINK} "
+        f"{canary.EXPECTED_REWARD}</p>"
+    )
+    marker = "AUTOFRESH_1P_HEADLESS_CANARY_44"
+    plan = SimpleNamespace(
+        structure_preserved=True,
+        changed_fields={},
+        variables={
+            "personal_code": canary.EXPECTED_CODE,
+            "personal_link": canary.EXPECTED_LINK,
+            "referee_reward": canary.EXPECTED_REWARD,
+        },
+        edit_url="https://www.1parrainage.com/espace_parrain/parrainages/edit/2541207/",
+        announcement_url="https://www.1parrainage.com/list#id=100408",
+        platform_offer_id="100408",
+    )
+    fake_pw = _FakePlaywright()
+    reads = iter(
+        [(original, _stable_account_evidence("before_account", original, marker))]
+    )
+    public = iter([{"identity_ok": True, "marker_present": False}])
+    click_requests = 0
+
+    monkeypatch.setattr(canary, "build_write_plan", lambda *_args: plan)
+    monkeypatch.setattr(
+        canary,
+        "guard_live_evidence_probe",
+        lambda *_args, **_kwargs: {"ok": True, "lock": True},
+    )
+    monkeypatch.setattr(canary, "_login", lambda *_args: asyncio.sleep(0))
+    monkeypatch.setattr(
+        canary,
+        "_resolve_edit_url",
+        lambda *_args: asyncio.sleep(0, result=plan.edit_url),
+    )
+    monkeypatch.setattr(
+        canary, "_detect_challenge", lambda *_args: asyncio.sleep(0)
+    )
+    monkeypatch.setattr(
+        canary,
+        "_read_account",
+        lambda *_args: asyncio.sleep(0, result=next(reads)),
+    )
+    monkeypatch.setattr(
+        canary,
+        "_poll_public",
+        lambda *_args, **_kwargs: asyncio.sleep(0, result=next(public)),
+    )
+    monkeypatch.setattr(
+        canary,
+        "_set_body_without_save",
+        lambda *_args, **_kwargs: asyncio.sleep(
+            0, result={"identity_ok": True, "marker_present": True}
+        ),
+    )
+
+    async def unresolved(_page, **_callbacks):
+        nonlocal click_requests
+        click_requests += 1
+        raise RuntimeError(resolution_error)
+
+    monkeypatch.setattr(canary, "_click_save_once", unresolved)
+    monkeypatch.setattr(
+        canary._bumper(),
+        "new_context",
+        lambda _browser: asyncio.sleep(0, result=fake_pw.browser.context),
+    )
+
+    import playwright.async_api
+
+    monkeypatch.setattr(playwright.async_api, "async_playwright", lambda: fake_pw)
+    report = {"gh_run_id": "44"}
+
+    assert asyncio.run(canary._run_probe(report)) is False
+    assert click_requests == 1
+    assert report["save_phase_requests"] == 1
+    assert report["save_attempts_actual"] == 0
+    assert report["save_click_started"] == 0
+    assert report["save_click_completed"] == 0
+    assert report["canary_may_have_persisted"] is False
+    assert report["rollback_attempted"] is False
+    assert report["save_phases"]["canary"]["control_resolved"] is False
 
 
 def test_canary_click_failure_still_attempts_rollback_and_never_proves(monkeypatch):
@@ -427,8 +540,14 @@ def test_canary_click_failure_still_attempts_rollback_and_never_proves(monkeypat
     monkeypatch.setattr(canary, "_poll_public", lambda *_args, **_kwargs: asyncio.sleep(0, result=next(public)))
     monkeypatch.setattr(canary, "_set_body_without_save", lambda *_args, **_kwargs: asyncio.sleep(0, result={"identity_ok": True}))
 
-    async def fail_then_rollback(_page):
+    async def fail_then_rollback(
+        _page, *, on_control_resolved=None, on_click_started=None
+    ):
         nonlocal clicks
+        if on_control_resolved:
+            on_control_resolved({"resolved": True, "label": "Envoyer"})
+        if on_click_started:
+            on_click_started()
         clicks += 1
         if clicks == 1:
             raise RuntimeError("submit transport failed")
@@ -447,6 +566,9 @@ def test_canary_click_failure_still_attempts_rollback_and_never_proves(monkeypat
     assert report["rollback_attempted"] is True
     assert report["rollback_ok"] is True
     assert report["canary_ok"] is False
+    assert report["save_phase_requests"] == 2
+    assert report["save_attempts_actual"] == 2
+    assert report["save_click_completed"] == 1
 
 
 def test_static_preflight_refuses_business_diff_and_identity_drift():
@@ -553,7 +675,8 @@ def test_workflow_is_manual_confirmed_serialized_and_persists_failure_evidence()
     assert "tools/canary_write_1parrainage.py --execute --force" in workflow
     assert "if: always()" in workflow
     assert "gh_headless_save remains NOT_RUN" in workflow
-    assert 'UNSTAGED="$(git diff --name-only)"' in workflow
-    assert 'if [ "$UNSTAGED" != "data/audit/events.jsonl" ]' in workflow
+    assert "mapfile -t UNSTAGED < <(git diff --name-only)" in workflow
+    assert 'python tools/check_1parrainage_evidence_paths.py "${UNSTAGED[@]}"' in workflow
+    assert "data/circuit-breakers.json" in workflow
     assert "git stash push" in workflow
     assert "git pull --rebase origin main" in workflow

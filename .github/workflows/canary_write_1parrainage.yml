@@ -69,28 +69,24 @@ jobs:
           git config user.name "autofresh-bot"
           git config user.email "autofresh-bot@users.noreply.github.com"
           for p in data/captures/canary-1parrainage-kraken.json \
-                   data/platform-write-status.json; do
+                   data/platform-write-status.json \
+                   data/circuit-breakers.json; do
             if [ -f "$p" ]; then
               git add "$p"
             fi
           done
+          # circuit-breakers.json is durable fail-closed safety state written
+          # by record_live_failure(). The snapshot audit line is runner-only.
+          # Validate every remaining tracked path before creating a commit.
+          mapfile -t UNSTAGED < <(git diff --name-only)
+          python tools/check_1parrainage_evidence_paths.py "${UNSTAGED[@]}"
+          if printf '%s\n' "${UNSTAGED[@]}" | grep -Fxq "data/audit/events.jsonl"; then
+            git stash push -m "runner-only 1parrainage canary audit" -- data/audit/events.jsonl
+          fi
           if git diff --cached --quiet; then
             echo "no commit"
           else
             git commit -m "chore(canary): 1parrainage headless rollback evidence"
-            # snapshot_state() appends one tracked safety-audit event before
-            # the browser starts. Keep that runner-only audit side effect out
-            # of the evidence commit, but refuse every other unstaged tracked
-            # path. Untracked timestamped snapshots do not block rebase and
-            # remain in the ephemeral runner workspace.
-            UNSTAGED="$(git diff --name-only)"
-            if [ -n "$UNSTAGED" ]; then
-              if [ "$UNSTAGED" != "data/audit/events.jsonl" ]; then
-                echo "::error::Unexpected unstaged paths after evidence commit: $UNSTAGED"
-                exit 1
-              fi
-              git stash push -m "runner-only 1parrainage canary audit" -- data/audit/events.jsonl
-            fi
             if ! git pull --rebase origin main; then
               echo "::error::git pull --rebase failed -- evidence was NOT persisted."
               exit 1

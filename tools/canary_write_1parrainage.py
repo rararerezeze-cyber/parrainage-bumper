@@ -27,7 +27,7 @@ import sys
 from datetime import datetime, timezone
 from html import unescape
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -230,9 +230,24 @@ async def _set_body_without_save(page, target_html: str, marker: str, *, expect_
     return evidence
 
 
-async def _click_save_once(page) -> dict[str, Any]:
-    """Exactly one scoped Envoyer/Valider click.  No retry loop."""
-    bumper = _bumper()
+class _ClickStartProxy:
+    """Delegate a Locator while marking the instant its click is invoked."""
+
+    def __init__(self, locator, on_click_started: Callable[[], None] | None):
+        self._locator = locator
+        self._on_click_started = on_click_started
+
+    def __getattr__(self, name):
+        return getattr(self._locator, name)
+
+    async def click(self, *args, **kwargs):
+        if self._on_click_started is not None:
+            self._on_click_started()
+        return await self._locator.click(*args, **kwargs)
+
+
+async def _resolve_save_control(page):
+    """Resolve exactly one visible/enabled Save control without clicking it."""
     form = page.locator(EDIT_FORM).first
     candidates = form.locator(
         'button:has-text("Envoyer"), input[value="Envoyer"], '
@@ -248,8 +263,29 @@ async def _click_save_once(page) -> dict[str, Any]:
         raise RuntimeError(
             f"unexpected_dom: expected one visible Envoyer/Valider, found {len(visible)}"
         )
-    button, label = visible[0]
-    await bumper.human_click(page, button)
+    return visible[0]
+
+
+async def _click_save_once(
+    page,
+    *,
+    on_control_resolved: Callable[[dict[str, Any]], None] | None = None,
+    on_click_started: Callable[[], None] | None = None,
+) -> dict[str, Any]:
+    """Resolve one scoped control, then click once with no retry loop.
+
+    No retry loop is permitted for either phase.
+
+    ``on_click_started`` runs immediately before Playwright's actual
+    ``Locator.click`` invocation.  Resolution/visibility failures therefore
+    cannot inflate the real Save count or trigger an unnecessary rollback.
+    """
+    bumper = _bumper()
+    button, label = await _resolve_save_control(page)
+    control = {"resolved": True, "label": label}
+    if on_control_resolved is not None:
+        on_control_resolved(control)
+    await bumper.human_click(page, _ClickStartProxy(button, on_click_started))
     try:
         await page.wait_for_load_state("networkidle", timeout=25000)
     except Exception:
@@ -257,6 +293,50 @@ async def _click_save_once(page) -> dict[str, Any]:
     await bumper.human_sleep(1.0, 1.8)
     await _detect_challenge(page)
     return {"clicked": True, "label": label}
+
+
+async def _attempt_save_click(
+    page,
+    report: dict[str, Any],
+    phase: str,
+    *,
+    mark_may_have_persisted: Callable[[], None] | None = None,
+) -> dict[str, Any]:
+    """Record a requested phase separately from a real platform click."""
+    record = {
+        "requested": True,
+        "control_resolved": False,
+        "click_started": False,
+        "click_completed": False,
+    }
+    report.setdefault("save_phases", {})[phase] = record
+    report["save_phase_requests"] = int(report.get("save_phase_requests") or 0) + 1
+
+    def on_control_resolved(control: dict[str, Any]) -> None:
+        record["control_resolved"] = True
+        record["label"] = control.get("label")
+
+    def on_click_started() -> None:
+        record["click_started"] = True
+        report["save_click_started"] = int(report.get("save_click_started") or 0) + 1
+        report["save_attempts_actual"] = report["save_click_started"]
+        # Backwards-compatible field now has honest actual-click semantics.
+        report["save_attempts"] = report["save_attempts_actual"]
+        if mark_may_have_persisted is not None:
+            mark_may_have_persisted()
+
+    try:
+        result = await _click_save_once(
+            page,
+            on_control_resolved=on_control_resolved,
+            on_click_started=on_click_started,
+        )
+    except Exception as exc:
+        record["error"] = str(exc)
+        raise
+    record["click_completed"] = True
+    report["save_click_completed"] = int(report.get("save_click_completed") or 0) + 1
+    return result
 
 
 def _static_preflight(plan) -> None:
@@ -292,6 +372,10 @@ def _record_status(report: dict[str, Any], success: bool) -> None:
         "success": success,
         "canary_ok": report.get("canary_ok"),
         "rollback_ok": report.get("rollback_ok"),
+        "save_phase_requests": report.get("save_phase_requests"),
+        "save_click_started": report.get("save_click_started"),
+        "save_click_completed": report.get("save_click_completed"),
+        "save_attempts_actual": report.get("save_attempts_actual"),
         "save_attempts": report.get("save_attempts"),
         "error": report.get("error"),
     }
@@ -355,7 +439,12 @@ async def _run_probe(report: dict[str, Any]) -> bool:
     marker = f"AUTOFRESH_1P_HEADLESS_CANARY_{report['gh_run_id']}"
     report["marker"] = marker
     report["phases"] = {}
+    report["save_phase_requests"] = 0
+    report["save_click_started"] = 0
+    report["save_click_completed"] = 0
+    report["save_attempts_actual"] = 0
     report["save_attempts"] = 0
+    report["save_phases"] = {}
     report["canary_may_have_persisted"] = False
     report["rollback_attempted"] = False
     report["canary_ok"] = False
@@ -410,10 +499,18 @@ async def _run_probe(report: dict[str, Any]) -> bool:
             page, canary_body, marker, expect_marker=True
         )
         report["phases"]["canary_pre_save"] = prepared
-        canary_may_have_persisted = True
-        report["canary_may_have_persisted"] = True
-        report["save_attempts"] += 1
-        report["canary_save"] = await _click_save_once(page)
+
+        def mark_canary_may_have_persisted() -> None:
+            nonlocal canary_may_have_persisted
+            canary_may_have_persisted = True
+            report["canary_may_have_persisted"] = True
+
+        report["canary_save"] = await _attempt_save_click(
+            page,
+            report,
+            "canary",
+            mark_may_have_persisted=mark_canary_may_have_persisted,
+        )
 
         await page.goto(edit_url, wait_until="domcontentloaded", timeout=60000)
         canary_body_read, canary_account = await _read_account(
@@ -451,8 +548,9 @@ async def _run_probe(report: dict[str, Any]) -> bool:
                 await _set_body_without_save(
                     page, original_body, marker, expect_marker=False
                 )
-                report["save_attempts"] += 1
-                report["rollback_save"] = await _click_save_once(page)
+                report["rollback_save"] = await _attempt_save_click(
+                    page, report, "rollback"
+                )
 
                 await page.goto(edit_url, wait_until="domcontentloaded", timeout=60000)
                 rollback_body, rollback_account = await _read_account(
@@ -503,7 +601,11 @@ async def _run_probe(report: dict[str, Any]) -> bool:
     report["checks"] = {
         "authenticated": "login" in (report.get("steps") or []),
         "targeted_body_only": True,
-        "exactly_two_save_attempts": report.get("save_attempts") == 2,
+        "exactly_two_save_attempts": (
+            report.get("save_attempts_actual") == 2
+            and report.get("save_click_started") == 2
+            and report.get("save_click_completed") == 2
+        ),
         "canary_account_verified": bool(
             ((report.get("phases") or {}).get("canary_account") or {}).get(
                 "marker_present"
@@ -546,7 +648,8 @@ async def _run_probe(report: dict[str, Any]) -> bool:
     return bool(
         report.get("canary_ok")
         and report.get("rollback_ok")
-        and report.get("save_attempts") == 2
+        and report.get("save_attempts_actual") == 2
+        and report.get("save_click_completed") == 2
         and all((report.get("checks") or {}).values())
     )
 
