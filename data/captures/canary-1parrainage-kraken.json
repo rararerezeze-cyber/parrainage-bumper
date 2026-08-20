@@ -2,8 +2,8 @@
   "schema_version": 1,
   "platform": "1parrainage",
   "program": "kraken",
-  "started_at": "2026-08-20T19:00:04.170301+00:00",
-  "gh_run_id": "32406216353",
+  "started_at": "2026-08-20T19:50:47.203563+00:00",
+  "gh_run_id": "32410815698",
   "headless": true,
   "status_before": "WRITE_VERIFIED",
   "evidence_field_before": "NOT_RUN",
@@ -22,26 +22,153 @@
     "status": "WRITE_VERIFIED",
     "evidence_field": "gh_headless_save",
     "expected_value": "NOT_RUN",
-    "snapshot_id": "20260820T190004Z",
+    "snapshot_id": "20260820T195047Z",
     "lock": true
   },
-  "marker": "AUTOFRESH_1P_HEADLESS_CANARY_32406216353",
-  "phases": {},
-  "save_attempts": 0,
-  "canary_may_have_persisted": false,
-  "rollback_attempted": false,
+  "marker": "AUTOFRESH_1P_HEADLESS_CANARY_32410815698",
+  "phases": {
+    "before_account": {
+      "phase": "before_account",
+      "side": "account",
+      "body_sha256": "ad2a57ac0e2afc795ca038c936ac2f63a93faaeb141a356bb9692fcf16598afb",
+      "body_len": 1062,
+      "marker_present": false,
+      "identity": {
+        "code_present": true,
+        "link_present": true,
+        "reward_present": true
+      },
+      "identity_ok": true
+    },
+    "before_public": {
+      "phase": "before_public",
+      "side": "public",
+      "raw_html_sha256": "b6caf80b59ccb983ef04c5087145cd87f2e0948fa6ce70b95c61f12363dd5939",
+      "extracted_sha256": "e7799ce644213f3e706a4de59c5dd620f9dc747c14bb1586fc586b11b6a14b38",
+      "extracted_len": 1115,
+      "extracted_preview": "Offre Parrainage Kraken – Jusqu’à 200 € offerts\r\n\r\nBonus : 200 € en cryptomonnaies\r\nRejoignez Kraken, une plateforme d’échange crypto reconnue et sécurisée.\r\n\r\nCode parrain : cpbrgddy\r\n\r\nLien :\r\n\r\nhttps://invite.kraken.com/JDNW/s5qudqe4\r\n\r\n&Eac\n\t\t\t\t\t\t\t\t \t\t\t\t\t\t\t\t ... \n\n\t\t\t\t\t\t\t\t\tLire la suite\n\t\t\t\t\t\t\t\t\n\n\t\t\t\t\t\t\t\n\n\t\t\t\t\t\t\t \n\t\t\t\t\t\t\n\n\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\n\n                    \n\t\t\t\t\t\n\n\t\t\t\t\t\t\t\n\n\t\t\t\t\t\t\t\tJ’en profite  \n\n\t\t\t\t\t\t\n\t \n\t\t\t\t\t\n\t\n                    \n                    \n\t\t\t\t\n\n\t\t\t\n\n\t\t\n\n\t\t                    \n\t\t\n\t\t\n\n\t\t\t\n\n\t\t\t\t\n\n\t\t\t\t\n\t\t\t\t\t\n\n\t\t\t\t\t\t\n\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\n\t\t\t\t\t\t\t\t\t\t\n\n\t\t\t\t\t\t\t\t\t\n\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\n297 parrain(s)\n\n\t\t\t\t\t\n\t\t\t\t\t\t\n\n\t\t\t\t\t\n\n\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\n                    \n                    \n\n\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\n\n\t\t\t\t\t\t\t\n\nPubliée le 29-06-2026\n\n\t\t\t\t\t\t\t\n\n\t\t\t\t\t\t\t\t \t\t\t\t\t\t\t\t\tOffre de parrainage Whatnot – Jusqu'à 200 € offerts\r\n\r\nGagne des récompenses et débloque des avantages en parrainant tes amis.\r\n\r\nComment ça marche :\r\n\r\nParraine un ami et il reçoit un crédit aléatoire entre 25 € et 200 €.\r\n\r\n\n\t\t\t\t\t\t\t\t \t\t\t\t\t\t\t\t ... \n\n\t\t\t\t\t\t\t\t\tLire la suite",
+      "marker_present": false,
+      "identity": {
+        "code_present": true,
+        "link_present": true,
+        "reward_present": true
+      },
+      "identity_ok": true,
+      "poll_attempt": 1
+    },
+    "canary_pre_save": {
+      "phase": "prepared_before_save",
+      "side": "account",
+      "body_sha256": "ab1bbf323cf132c83fdc1250a88e9eaa5fa4a67569fa00d14296413d380ef5a3",
+      "body_len": 1112,
+      "marker_present": true,
+      "identity": {
+        "code_present": true,
+        "link_present": true,
+        "reward_present": true
+      },
+      "identity_ok": true
+    },
+    "canary_account": {
+      "phase": "canary_account",
+      "side": "account",
+      "body_sha256": "ab1bbf323cf132c83fdc1250a88e9eaa5fa4a67569fa00d14296413d380ef5a3",
+      "body_len": 1112,
+      "marker_present": true,
+      "identity": {
+        "code_present": true,
+        "link_present": true,
+        "reward_present": true
+      },
+      "identity_ok": true
+    },
+    "canary_public": {
+      "phase": "canary_public",
+      "side": "public",
+      "raw_html_sha256": "ba93ba062a2c9481c3192e792e0a8e6d44d0db3802214734d71ba87c77680416",
+      "extracted_sha256": "e7799ce644213f3e706a4de59c5dd620f9dc747c14bb1586fc586b11b6a14b38",
+      "extracted_len": 1115,
+      "extracted_preview": "Offre Parrainage Kraken – Jusqu’à 200 € offerts\r\n\r\nBonus : 200 € en cryptomonnaies\r\nRejoignez Kraken, une plateforme d’échange crypto reconnue et sécurisée.\r\n\r\nCode parrain : cpbrgddy\r\n\r\nLien :\r\n\r\nhttps://invite.kraken.com/JDNW/s5qudqe4\r\n\r\n&Eac\n\t\t\t\t\t\t\t\t \t\t\t\t\t\t\t\t ... \n\n\t\t\t\t\t\t\t\t\tLire la suite\n\t\t\t\t\t\t\t\t\n\n\t\t\t\t\t\t\t\n\n\t\t\t\t\t\t\t \n\t\t\t\t\t\t\n\n\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\n\n                    \n\t\t\t\t\t\n\n\t\t\t\t\t\t\t\n\n\t\t\t\t\t\t\t\tJ’en profite  \n\n\t\t\t\t\t\t\n\t \n\t\t\t\t\t\n\t\n                    \n                    \n\t\t\t\t\n\n\t\t\t\n\n\t\t\n\n\t\t                    \n\t\t\n\t\t\n\n\t\t\t\n\n\t\t\t\t\n\n\t\t\t\t\n\t\t\t\t\t\n\n\t\t\t\t\t\t\n\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\n\t\t\t\t\t\t\t\t\t\t\n\n\t\t\t\t\t\t\t\t\t\n\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\n297 parrain(s)\n\n\t\t\t\t\t\n\t\t\t\t\t\t\n\n\t\t\t\t\t\n\n\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\n                    \n                    \n\n\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\n\n\t\t\t\t\t\t\t\n\nPubliée le 29-06-2026\n\n\t\t\t\t\t\t\t\n\n\t\t\t\t\t\t\t\t \t\t\t\t\t\t\t\t\tOffre de parrainage Whatnot – Jusqu'à 200 € offerts\r\n\r\nGagne des récompenses et débloque des avantages en parrainant tes amis.\r\n\r\nComment ça marche :\r\n\r\nParraine un ami et il reçoit un crédit aléatoire entre 25 € et 200 €.\r\n\r\n\n\t\t\t\t\t\t\t\t \t\t\t\t\t\t\t\t ... \n\n\t\t\t\t\t\t\t\t\tLire la suite",
+      "marker_present": false,
+      "identity": {
+        "code_present": true,
+        "link_present": true,
+        "reward_present": true
+      },
+      "identity_ok": true,
+      "poll_attempt": 4
+    },
+    "pre_rollback_account": {
+      "phase": "pre_rollback_account",
+      "side": "account",
+      "body_sha256": "ab1bbf323cf132c83fdc1250a88e9eaa5fa4a67569fa00d14296413d380ef5a3",
+      "body_len": 1112,
+      "marker_present": true,
+      "identity": {
+        "code_present": true,
+        "link_present": true,
+        "reward_present": true
+      },
+      "identity_ok": true
+    },
+    "pre_rollback_body_sha256": "ab1bbf323cf132c83fdc1250a88e9eaa5fa4a67569fa00d14296413d380ef5a3",
+    "rollback_account": {
+      "phase": "rollback_account",
+      "side": "account",
+      "body_sha256": "48d1ad78c24536e00e4e2bb8b5fd674b7a65466d6c16f5a72e7772affd0af3e7",
+      "body_len": 1063,
+      "marker_present": false,
+      "identity": {
+        "code_present": true,
+        "link_present": true,
+        "reward_present": true
+      },
+      "identity_ok": true
+    },
+    "rollback_public": {
+      "phase": "rollback_public",
+      "side": "public",
+      "raw_html_sha256": "ba93ba062a2c9481c3192e792e0a8e6d44d0db3802214734d71ba87c77680416",
+      "extracted_sha256": "e7799ce644213f3e706a4de59c5dd620f9dc747c14bb1586fc586b11b6a14b38",
+      "extracted_len": 1115,
+      "extracted_preview": "Offre Parrainage Kraken – Jusqu’à 200 € offerts\r\n\r\nBonus : 200 € en cryptomonnaies\r\nRejoignez Kraken, une plateforme d’échange crypto reconnue et sécurisée.\r\n\r\nCode parrain : cpbrgddy\r\n\r\nLien :\r\n\r\nhttps://invite.kraken.com/JDNW/s5qudqe4\r\n\r\n&Eac\n\t\t\t\t\t\t\t\t \t\t\t\t\t\t\t\t ... \n\n\t\t\t\t\t\t\t\t\tLire la suite\n\t\t\t\t\t\t\t\t\n\n\t\t\t\t\t\t\t\n\n\t\t\t\t\t\t\t \n\t\t\t\t\t\t\n\n\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\n\n                    \n\t\t\t\t\t\n\n\t\t\t\t\t\t\t\n\n\t\t\t\t\t\t\t\tJ’en profite  \n\n\t\t\t\t\t\t\n\t \n\t\t\t\t\t\n\t\n                    \n                    \n\t\t\t\t\n\n\t\t\t\n\n\t\t\n\n\t\t                    \n\t\t\n\t\t\n\n\t\t\t\n\n\t\t\t\t\n\n\t\t\t\t\n\t\t\t\t\t\n\n\t\t\t\t\t\t\n\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\n\t\t\t\t\t\t\t\t\t\t\n\n\t\t\t\t\t\t\t\t\t\n\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\n297 parrain(s)\n\n\t\t\t\t\t\n\t\t\t\t\t\t\n\n\t\t\t\t\t\n\n\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\n                    \n                    \n\n\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\n\n\t\t\t\t\t\t\t\n\nPubliée le 29-06-2026\n\n\t\t\t\t\t\t\t\n\n\t\t\t\t\t\t\t\t \t\t\t\t\t\t\t\t\tOffre de parrainage Whatnot – Jusqu'à 200 € offerts\r\n\r\nGagne des récompenses et débloque des avantages en parrainant tes amis.\r\n\r\nComment ça marche :\r\n\r\nParraine un ami et il reçoit un crédit aléatoire entre 25 € et 200 €.\r\n\r\n\n\t\t\t\t\t\t\t\t \t\t\t\t\t\t\t\t ... \n\n\t\t\t\t\t\t\t\t\tLire la suite",
+      "marker_present": false,
+      "identity": {
+        "code_present": true,
+        "link_present": true,
+        "reward_present": true
+      },
+      "identity_ok": true,
+      "poll_attempt": 1
+    }
+  },
+  "save_attempts": 2,
+  "canary_may_have_persisted": true,
+  "rollback_attempted": true,
   "canary_ok": false,
   "rollback_ok": false,
-  "error": "CONSENT_BLOCKED: banner visible but no standard Accepter/Tout accepter/Autoriser button",
+  "steps": [
+    "login",
+    "edit_resolved"
+  ],
+  "canary_save": {
+    "clicked": true,
+    "label": "Envoyer"
+  },
+  "error": "canary post-verify incomplete",
+  "rollback_save": {
+    "clicked": true,
+    "label": "Envoyer"
+  },
   "checks": {
-    "authenticated": false,
+    "authenticated": true,
     "targeted_body_only": true,
-    "exactly_two_save_attempts": false,
-    "canary_account_verified": false,
+    "exactly_two_save_attempts": true,
+    "canary_account_verified": true,
     "canary_public_verified": false,
     "rollback_account_exact": false,
-    "rollback_public_marker_absent": false
+    "rollback_public_marker_absent": true
   },
   "success": false,
-  "finished_at": "2026-08-20T19:00:16.410337+00:00"
+  "finished_at": "2026-08-20T19:51:33.879270+00:00"
 }
