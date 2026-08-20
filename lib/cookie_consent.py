@@ -246,6 +246,50 @@ async def _click_known_accept(page) -> str | None:
     return None
 
 
+SIRDATA_CCPA_DIALOG = '#sd-cmp [role="dialog"]:has(#sd-cmp-title-ccpa)'
+SIRDATA_CCPA_CLOSE = '[role="button"][title="Close"]'
+
+
+async def _click_known_continue(page) -> str | None:
+    """Dismiss only Sirdata's exact non-GDPR/CCPA informational notice.
+
+    GitHub-hosted runner evidence (diagnostic run 32408914580) shows the
+    server-selected ``gdpr=0`` / ``us_privacy=1YNN`` variant.  It has no
+    Accept/Reject controls: its sole legitimate continuation action is the
+    Close control inside the stable CCPA dialog.  The control's own box is
+    zero-sized even though its CSS child renders the visible X, so Playwright
+    cannot perform a normal pointer click.  Dispatching the element's native
+    click is limited to this exact dialog/control pair; no generic overlay or
+    text fallback is allowed.
+    """
+    for owner in _consent_owners(page):
+        try:
+            dialogs = owner.locator(SIRDATA_CCPA_DIALOG)
+            dialog_count = await dialogs.count()
+        except Exception:
+            continue
+        if dialog_count == 0:
+            continue
+        if dialog_count != 1:
+            raise ConsentBlocked(f"ambiguous Sirdata CCPA dialogs: {dialog_count}")
+        dialog = dialogs.first
+        try:
+            if not await dialog.is_visible():
+                continue
+            controls = dialog.locator(SIRDATA_CCPA_CLOSE)
+            control_count = await controls.count()
+        except Exception as exc:
+            raise ConsentBlocked(f"could not inspect Sirdata CCPA Close control: {exc}") from exc
+        if control_count != 1:
+            raise ConsentBlocked(f"ambiguous Sirdata CCPA Close controls: {control_count}")
+        try:
+            await controls.first.evaluate("(el) => el.click()")
+            return "Close"
+        except Exception as exc:
+            raise ConsentBlocked(f"could not activate Sirdata CCPA Close control: {exc}") from exc
+    return None
+
+
 async def _scan_consent_ui(page) -> dict[str, Any]:
     """One read-only pass: is a banner visible, and what accept/reject
     buttons can currently be seen on page + all frames."""
@@ -351,6 +395,29 @@ async def handle_cookie_consent(page, *, timeout_s: float = 8.0) -> dict[str, An
         }
 
     if banner and not accept_candidates:
+        continued = await _click_known_continue(page)
+        if continued:
+            deadline = asyncio.get_event_loop().time() + timeout_s
+            while asyncio.get_event_loop().time() < deadline:
+                await asyncio.sleep(0.4)
+                form_visible = await _username_visible(page)
+                banner = await _consent_ui_visible(page)
+                if form_visible and not banner:
+                    break
+            form_visible = await _username_visible(page)
+            banner = await _consent_ui_visible(page)
+            if not form_visible or banner:
+                raise ConsentBlocked(
+                    "Sirdata CCPA Close did not expose a clear login state "
+                    f"(form_visible={form_visible} banner_visible={banner})"
+                )
+            return {
+                "cookie_consent_handled": "YES",
+                "button": continued,
+                "login_form_visible": True,
+                "overlay_gone": True,
+                "via": "known_sirdata_ccpa_continue",
+            }
         raise ConsentBlocked(
             "banner visible but no standard Accepter/Tout accepter/Autoriser button"
             + (f" (saw {[b.get('text') for b in settings_or_reject][:4]})" if settings_or_reject else "")

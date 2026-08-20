@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Read-only 1Parrainage/Sirdata rendering diagnostic.
 
-This script only opens the public login page and observes it.  It never reads
-browser storage, never supplies credentials, never clicks, fills, submits, or
-navigates to an account/edit URL.  Artifacts contain only public CMP structure
-and browser/network diagnostics with query strings removed from URLs.
+This script only opens the public login page.  Its observation phase never
+interacts with the page.  An optional post-capture validation may invoke the
+production consent helper's exact CMP action, but it still never reads browser
+storage, supplies credentials, fills/submits a form, or navigates to an
+account/edit URL.  Artifacts contain only public CMP structure and minimized
+browser/network diagnostics.
 """
 from __future__ import annotations
 
@@ -294,13 +296,16 @@ async def _helper_observation(page) -> dict:
     }
 
 
-async def run_diagnostic(output_dir: Path, *, wait_seconds: float) -> dict:
+async def run_diagnostic(
+    output_dir: Path, *, wait_seconds: float, validate_helper_after_capture: bool = False
+) -> dict:
     import bumper as bumper_mod
     from playwright.async_api import async_playwright
 
     output_dir.mkdir(parents=True, exist_ok=True)
     before_path = output_dir / "1parrainage-consent-before.png"
     after_path = output_dir / "1parrainage-consent-after.png"
+    helper_path = output_dir / "1parrainage-consent-after-helper.png"
     network: list[dict] = []
     console: list[dict] = []
     timeline: list[dict] = []
@@ -356,9 +361,10 @@ async def run_diagnostic(output_dir: Path, *, wait_seconds: float) -> dict:
         "safety": {
             "credentials_loaded": False,
             "storage_read": False,
-            "clicks": 0,
             "fills": 0,
             "submits": 0,
+            "login_or_save_clicks": 0,
+            "consent_helper_enabled": validate_helper_after_capture,
             "account_navigation": False,
             "platform_writes": 0,
         },
@@ -418,7 +424,27 @@ async def run_diagnostic(output_dir: Path, *, wait_seconds: float) -> dict:
                 "helper_observation": await _helper_observation(page),
                 "screenshot": after_path.name,
             }
-            report["ok"] = True
+            if validate_helper_after_capture:
+                from lib.cookie_consent import handle_cookie_consent
+
+                try:
+                    helper_result = await handle_cookie_consent(page, timeout_s=8.0)
+                    await page.screenshot(path=str(helper_path), full_page=True)
+                    report["helper_validation"] = {
+                        "ok": True,
+                        "result": helper_result,
+                        "post_helper_observation": await _helper_observation(page),
+                        "screenshot": helper_path.name,
+                    }
+                except Exception as exc:  # noqa: BLE001 - preserve exact fail-closed proof
+                    report["helper_validation"] = {
+                        "ok": False,
+                        "error": _safe_text(str(exc)),
+                    }
+            report["ok"] = (
+                not validate_helper_after_capture
+                or bool(report.get("helper_validation", {}).get("ok"))
+            )
         except Exception as exc:  # noqa: BLE001
             report["ok"] = False
             report["fatal_error"] = _safe_text(str(exc))
@@ -471,10 +497,17 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--wait-seconds", type=float, default=DEFAULT_WAIT_SECONDS)
+    parser.add_argument("--validate-helper-after-capture", action="store_true")
     args = parser.parse_args()
     if args.wait_seconds < 1 or args.wait_seconds > 60:
         parser.error("--wait-seconds must be between 1 and 60")
-    report = asyncio.run(run_diagnostic(args.output_dir, wait_seconds=args.wait_seconds))
+    report = asyncio.run(
+        run_diagnostic(
+            args.output_dir,
+            wait_seconds=args.wait_seconds,
+            validate_helper_after_capture=args.validate_helper_after_capture,
+        )
+    )
     return 0 if report.get("ok") else 1
 
 

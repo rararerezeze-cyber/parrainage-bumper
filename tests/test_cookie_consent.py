@@ -218,5 +218,127 @@ def test_ambiguous_accept_ui_fails_closed_without_click(monkeypatch):
 def test_consent_helper_has_strict_sirdata_target_and_no_save_path():
     src = Path(cc.__file__).read_text(encoding="utf-8")
     assert '#sd-cmp button:has-text("Tout accepter")' in src
+    assert '#sd-cmp [role="dialog"]:has(#sd-cmp-title-ccpa)' in src
+    assert '[role="button"][title="Close"]' in src
     for forbidden in ("parrainages/edit", "Envoyer", "_click_save", "CKEDITOR"):
         assert forbidden not in src
+
+
+def test_known_sirdata_ccpa_continue_uses_only_exact_dialog_control():
+    state = {"native_clicks": 0, "selectors": []}
+
+    class Control:
+        first = None
+
+        def __init__(self):
+            self.first = self
+
+        async def count(self):
+            return 1
+
+        async def evaluate(self, script):
+            assert script == "(el) => el.click()"
+            state["native_clicks"] += 1
+
+    class Dialog:
+        first = None
+
+        def __init__(self):
+            self.first = self
+
+        async def count(self):
+            return 1
+
+        async def is_visible(self):
+            return True
+
+        def locator(self, selector):
+            state["selectors"].append(selector)
+            return Control()
+
+    class Page(_FakePage):
+        def locator(self, selector):
+            state["selectors"].append(selector)
+            return Dialog()
+
+    result = asyncio.run(cc._click_known_continue(Page()))
+
+    assert result == "Close"
+    assert state == {
+        "native_clicks": 1,
+        "selectors": [cc.SIRDATA_CCPA_DIALOG, cc.SIRDATA_CCPA_CLOSE],
+    }
+
+
+def test_sirdata_ccpa_ambiguous_close_controls_fail_closed():
+    class Controls:
+        async def count(self):
+            return 2
+
+    class Dialog:
+        first = None
+
+        def __init__(self):
+            self.first = self
+
+        async def count(self):
+            return 1
+
+        async def is_visible(self):
+            return True
+
+        def locator(self, selector):
+            assert selector == cc.SIRDATA_CCPA_CLOSE
+            return Controls()
+
+    class Page(_FakePage):
+        def locator(self, selector):
+            assert selector == cc.SIRDATA_CCPA_DIALOG
+            return Dialog()
+
+    try:
+        asyncio.run(cc._click_known_continue(Page()))
+        raised = False
+    except cc.ConsentBlocked as exc:
+        raised = "ambiguous Sirdata CCPA Close controls: 2" in str(exc)
+    assert raised is True
+
+
+def test_handle_cookie_consent_accepts_exact_sirdata_ccpa_continue(monkeypatch):
+    state = {"closed": False}
+
+    async def fake_username_visible(page):
+        return True
+
+    async def fake_scan(page):
+        return {
+            "banner": not state["closed"],
+            "accept_candidates": [],
+            "settings_or_reject": [],
+        }
+
+    async def fake_known_accept(page):
+        return None
+
+    async def fake_continue(page):
+        state["closed"] = True
+        return "Close"
+
+    async def fake_banner(page):
+        return not state["closed"]
+
+    monkeypatch.setattr(cc, "_username_visible", fake_username_visible)
+    monkeypatch.setattr(cc, "_scan_consent_ui", fake_scan)
+    monkeypatch.setattr(cc, "_click_known_accept", fake_known_accept)
+    monkeypatch.setattr(cc, "_click_known_continue", fake_continue)
+    monkeypatch.setattr(cc, "_consent_ui_visible", fake_banner)
+
+    result = asyncio.run(cc.handle_cookie_consent(_FakePage(), timeout_s=0.1))
+
+    assert result == {
+        "cookie_consent_handled": "YES",
+        "button": "Close",
+        "login_form_visible": True,
+        "overlay_gone": True,
+        "via": "known_sirdata_ccpa_continue",
+    }

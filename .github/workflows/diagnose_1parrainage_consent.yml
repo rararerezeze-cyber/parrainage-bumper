@@ -1,6 +1,7 @@
 name: Diagnose 1Parrainage consent (read-only)
-# Public login-page observation only: no secrets, credentials, clicks, form
-# fills/submits, account navigation, cookies/storage capture, or platform write.
+# Public login-page observation plus one exact post-capture CMP continuation
+# action: no secrets, credentials, form fills/submits, login/save clicks,
+# account navigation, cookies/storage capture, or platform write.
 on:
   workflow_dispatch: {}
 permissions:
@@ -27,7 +28,8 @@ jobs:
         run: |
           python -u tools/diagnose_1parrainage_consent.py \
             --output-dir diagnostic-artifacts/1parrainage-consent \
-            --wait-seconds 30
+            --wait-seconds 30 \
+            --validate-helper-after-capture
       - name: Upload sanitized CMP diagnostic
         if: always()
         uses: actions/upload-artifact@v4

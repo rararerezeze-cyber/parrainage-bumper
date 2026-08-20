@@ -30,6 +30,8 @@ def test_diagnostic_is_public_login_only_and_has_no_interaction_primitives():
         "parrainages/edit",
     ):
         assert forbidden not in source
+    assert "handle_cookie_consent(page, timeout_s=8.0)" in source
+    assert 'report.get("helper_validation", {}).get("ok")' in source
 
 
 def test_diagnostic_captures_required_cmp_evidence_without_cookie_values():
@@ -86,6 +88,7 @@ def test_workflow_has_no_secrets_and_read_only_permissions():
     assert "canary_write_1parrainage" not in workflow
     assert "diagnose_1parrainage_consent.py" in workflow
     assert "--wait-seconds 30" in workflow
+    assert "--validate-helper-after-capture" in workflow
 
 
 def test_workflow_uploads_only_dedicated_diagnostic_directory():
