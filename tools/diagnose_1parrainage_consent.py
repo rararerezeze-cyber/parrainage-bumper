@@ -16,17 +16,18 @@ import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from urllib.parse import urlsplit, urlunsplit
+from urllib.parse import parse_qs, urlsplit, urlunsplit
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 LOGIN_URL = "https://www.1parrainage.com/login"
-CMP_HOST_HINTS = (
-    "consentframework.com",
-    "sirdata",
-    "sddan",
-)
+CMP_ENDPOINTS = {
+    "cache.consentframework.com": None,
+    "choices.consentframework.com": None,
+    "api.consentframework.com": None,
+    "js.sddan.com": {"/GS.d"},
+}
 DIAGNOSTIC_SEED = 1001
 DEFAULT_WAIT_SECONDS = 30.0
 
@@ -45,8 +46,31 @@ def _safe_url(url: str) -> str:
 
 
 def _is_cmp_url(url: str) -> bool:
-    low = (url or "").lower()
-    return any(hint in low for hint in CMP_HOST_HINTS)
+    try:
+        parts = urlsplit(url or "")
+        host = (parts.hostname or "").lower()
+        allowed_paths = CMP_ENDPOINTS.get(host, "missing")
+        if allowed_paths == "missing":
+            return False
+        return allowed_paths is None or parts.path in allowed_paths
+    except Exception:
+        return False
+
+
+def _privacy_signals(url: str) -> dict[str, str]:
+    """Retain only non-identifying CMP mode flags needed for geo comparison."""
+    try:
+        query = parse_qs(urlsplit(url or "").query, keep_blank_values=True)
+    except Exception:
+        return {}
+    signals: dict[str, str] = {}
+    for key in ("gdpr", "cmp", "us_privacy"):
+        if key not in query:
+            continue
+        value = (query.get(key) or [""])[0]
+        if re.fullmatch(r"[0-9A-Za-z_-]{0,16}", value):
+            signals[key] = value
+    return signals
 
 
 def _safe_text(text: str, *, limit: int = 600) -> str:
@@ -171,7 +195,7 @@ _DEEP_SNAPSHOT_JS = r"""
       ...style(el),
     }));
 
-  const scripts = Array.from(document.scripts)
+    const scripts = Array.from(document.scripts)
     .map((script) => script.src || '')
     .filter((src) => /consentframework|sirdata|sddan/i.test(src));
   const rootStyle = root ? style(root) : null;
@@ -199,6 +223,15 @@ _DEEP_SNAPSHOT_JS = r"""
         return el ? style(el).visible : false;
       })(),
     },
+    consent_text_signals: (() => {
+      const body = (document.body && document.body.innerText || '').toLowerCase();
+      return {
+        cookie: body.includes('cookie'),
+        accept_fr: body.includes('accepter'),
+        accept_en: body.includes('accept'),
+        consent: body.includes('consent'),
+      };
+    })(),
     cmp: {
       present: !!root,
       visible: rootStyle ? rootStyle.visible : false,
@@ -229,10 +262,36 @@ async def _frame_snapshots(page) -> list[dict]:
         }
         try:
             item["snapshot"] = await frame.evaluate(_DEEP_SNAPSHOT_JS)
+            cmp = item["snapshot"].get("cmp", {})
+            cmp["scripts"] = [
+                {
+                    "url": _safe_url(url),
+                    "privacy_signals": _privacy_signals(url),
+                }
+                for url in cmp.get("scripts", [])
+                if _is_cmp_url(url)
+            ]
         except Exception as exc:  # noqa: BLE001 - evidence must survive inaccessible frames
             item["snapshot_error"] = _safe_text(str(exc))
         snapshots.append(item)
     return snapshots
+
+
+async def _helper_observation(page) -> dict:
+    """Observe the production helper's classification without invoking clicks."""
+    from lib.cookie_consent import _scan_consent_ui
+
+    scan = await _scan_consent_ui(page)
+    return {
+        "banner": bool(scan.get("banner")),
+        "accept_labels": [
+            button.get("text")
+            for _owner, button in scan.get("accept_candidates", [])
+        ],
+        "settings_or_reject_labels": [
+            button.get("text") for button in scan.get("settings_or_reject", [])
+        ],
+    }
 
 
 async def run_diagnostic(output_dir: Path, *, wait_seconds: float) -> dict:
@@ -259,6 +318,7 @@ async def run_diagnostic(output_dir: Path, *, wait_seconds: float) -> dict:
                     "method": request.method,
                     "resource_type": request.resource_type,
                     "url": _safe_url(request.url),
+                    "privacy_signals": _privacy_signals(request.url),
                     "failure": _safe_text(str(request.failure or "unknown")),
                 }
             )
@@ -272,6 +332,7 @@ async def run_diagnostic(output_dir: Path, *, wait_seconds: float) -> dict:
                     "status": response.status,
                     "resource_type": response.request.resource_type,
                     "url": _safe_url(response.url),
+                    "privacy_signals": _privacy_signals(response.url),
                 }
             )
 
@@ -329,12 +390,13 @@ async def run_diagnostic(output_dir: Path, *, wait_seconds: float) -> dict:
                 "status": response.status if response else None,
                 "final_url": _safe_url(page.url),
             }
-            await page.screenshot(path=str(before_path), full_page=True)
             report["before"] = {
                 "at_ms": elapsed_ms(),
                 "frames": await _frame_snapshots(page),
+                "helper_observation": await _helper_observation(page),
                 "screenshot": before_path.name,
             }
+            await page.screenshot(path=str(before_path), full_page=True)
 
             deadline = asyncio.get_running_loop().time() + wait_seconds
             while True:
@@ -353,6 +415,7 @@ async def run_diagnostic(output_dir: Path, *, wait_seconds: float) -> dict:
             report["after"] = {
                 "at_ms": elapsed_ms(),
                 "frames": await _frame_snapshots(page),
+                "helper_observation": await _helper_observation(page),
                 "screenshot": after_path.name,
             }
             report["ok"] = True

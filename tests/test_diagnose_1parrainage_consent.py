@@ -62,9 +62,18 @@ def test_urls_are_sanitized_before_artifact_persistence():
 
 def test_network_filter_is_strictly_cmp_related():
     assert diag._is_cmp_url("https://choices.consentframework.com/js/cmp")
-    assert diag._is_cmp_url("https://cdn.sirdata.io/a.js")
-    assert diag._is_cmp_url("https://x.test/sddan.js")
+    assert diag._is_cmp_url("https://api.consentframework.com/api/v1/public/profile")
+    assert diag._is_cmp_url("https://js.sddan.com/GS.d?gdpr=0")
+    assert not diag._is_cmp_url("https://js.sddan.com/MAP.d?gdpr=0")
+    assert not diag._is_cmp_url(
+        "https://tracker.test/path?redirect=https%3A%2F%2Fmap.sddan.com"
+    )
     assert not diag._is_cmp_url("https://www.1parrainage.com/login")
+
+
+def test_only_non_identifying_privacy_flags_are_retained():
+    url = "https://js.sddan.com/GS.d?gdpr=0&cmp=0&rand=123&token=secret"
+    assert diag._privacy_signals(url) == {"gdpr": "0", "cmp": "0"}
 
 
 def test_workflow_has_no_secrets_and_read_only_permissions():
