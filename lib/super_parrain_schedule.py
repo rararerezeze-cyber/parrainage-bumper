@@ -10,7 +10,7 @@ import json
 import random
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping
 
 from lib.paths import DATA_DIR, ROOT
 from lib.sync_state import SyncStateStore
@@ -193,14 +193,93 @@ def enqueue_pending(
     return item
 
 
-def mark_pending_done(platform: str, program: str, language: str = "fr") -> None:
+def mark_pending_done(platform: str, program: str, language: str = "fr") -> bool:
     data = load_pending()
     key = f"{platform}:{program}:{language}"
+    changed = False
     for it in data.get("items") or []:
         if it.get("key") == key and it.get("status") == "pending":
             it["status"] = "done"
             it["done_at"] = datetime.now(timezone.utc).isoformat()
-    save_pending(data)
+            changed = True
+    if changed:
+        save_pending(data)
+    return changed
+
+
+def close_verified_fused_pending(cycle_report: Mapping[str, Any]) -> list[str]:
+    """Close only pending items backed by a completed fused-write proof.
+
+    The outer cycle must have completed successfully.  Within its fresh bumper
+    report, the matching program must have received a real prefill/save and a
+    successful public reread.  Body writes additionally require the strongest
+    existing invariant: an exact body match.  Missing or malformed evidence is
+    deliberately treated as unverified, so failures, skips and interrupted
+    runs cannot clear pending state.
+    """
+    if cycle_report.get("bumper_returncode") != 0:
+        return []
+
+    stats = cycle_report.get("bumper_stats")
+    if not isinstance(stats, Mapping):
+        return []
+    if stats.get("mode") not in {"fused_bumper", "fused_bumper_canary"}:
+        return []
+    if stats.get("canary_content_failed") is not False:
+        return []
+    if stats.get("write_status") != "WRITE_VERIFIED":
+        return []
+
+    autofresh = stats.get("autofresh")
+    if not isinstance(autofresh, Mapping):
+        return []
+
+    written: dict[str, set[str]] = {}
+    for detail in autofresh.get("details") or []:
+        if not isinstance(detail, Mapping):
+            continue
+        program = str(detail.get("program") or "").strip().lower()
+        fields = {
+            str(field).strip().lower()
+            for field in (detail.get("fields_filled") or [])
+            if str(field).strip()
+        }
+        if (
+            program
+            and fields
+            and detail.get("needs_update") is True
+            and detail.get("skipped") is False
+        ):
+            written[program] = fields
+
+    verified: set[str] = set()
+    for proof in autofresh.get("canary_post_verify") or []:
+        if not isinstance(proof, Mapping):
+            continue
+        program = str(proof.get("program") or "").strip().lower()
+        fields = written.get(program)
+        if not fields:
+            continue
+        if not (
+            proof.get("ok") is True
+            and proof.get("post_match") is True
+            and proof.get("immutable_ok") is True
+        ):
+            continue
+        if "body" in fields and proof.get("exact_body_match") is not True:
+            continue
+        verified.add(program)
+
+    pending_programs = {
+        str(item.get("program") or "").strip().lower()
+        for item in list_pending_super_parrain()
+        if str(item.get("language") or "fr").strip().lower() == "fr"
+    }
+    closed: list[str] = []
+    for program in sorted(verified & pending_programs):
+        if mark_pending_done("super-parrain", program, "fr"):
+            closed.append(f"super-parrain:{program}:fr")
+    return closed
 
 
 def is_super_parrain_canary_pending() -> bool:

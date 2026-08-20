@@ -18,6 +18,7 @@ from lib.super_parrain_schedule import (  # noqa: E402
     mark_pending_done,
     record_super_action_now,
 )
+from lib.write_status import get_platform_status  # noqa: E402
 from platforms.super_parrain.writer import (  # noqa: E402
     build_write_plan,
     execute_write,
@@ -183,12 +184,15 @@ def main() -> int:
                     "ok": True,
                     "result": "NO_SAFE_DIFF",
                     "post_match": None,
-                    "write_status": "CANARY_READY",
+                    "write_status": get_platform_status(plan.platform),
+                    "status_scope": "CURRENT_PLATFORM_STATUS_AT_CAPTURE",
+                    "current_status_authority": "data/platform-write-status.json",
                     "changed_fields": {},
                     "note": (
                         "Published Super-Parrain text already equals OPERATOR_VALIDATED "
                         "cpbrgddy / invite.kraken.com/JDNW/s5qudqe4 / 200 € en cryptomonnaies. "
-                        "A no-op does not satisfy targeted_edit/submit/reread. "
+                        "A no-op does not establish new targeted_edit/submit/reread proof "
+                        "and never changes the authoritative platform status. "
                         "Do not invent a dummy field change."
                     ),
                 },

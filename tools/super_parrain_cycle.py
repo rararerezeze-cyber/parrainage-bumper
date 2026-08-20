@@ -23,7 +23,12 @@ sys.path.insert(0, str(ROOT))
 
 from lib.super_parrain_content import compare_from_mapping_platform_values
 from lib.super_parrain_policy import parse_canary_programs, policy_snapshot
-from lib.super_parrain_schedule import decide_super_parrain_action, is_eligible, save_cycle_report
+from lib.super_parrain_schedule import (
+    close_verified_fused_pending,
+    decide_super_parrain_action,
+    is_eligible,
+    save_cycle_report,
+)
 from lib.inventory import list_mapping_refs
 
 
@@ -234,6 +239,11 @@ def main() -> int:
         "autofresh_bump_only": (bumper_stats.get("autofresh") or {}).get("bump_only"),
         "canary_skipped": (bumper_stats.get("autofresh") or {}).get("canary_skipped"),
     }
+    try:
+        report["pending_closed"] = close_verified_fused_pending(report)
+    except Exception as exc:  # fail closed: a cleanup error never clears pending
+        report["pending_closed"] = []
+        report["pending_close_error"] = str(exc)
     path = save_cycle_report(report)
     print("--- CYCLE SUMMARY ---")
     print(json.dumps(report["summary"], ensure_ascii=False, indent=2))
