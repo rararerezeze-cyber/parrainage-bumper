@@ -53,6 +53,7 @@ def test_diagnostic_reaches_three_checkpoints_without_save_path():
     assert "edit_form_html_minimized" in source
     assert "<redacted-textarea-body>" in source
     assert "<redacted-non-control-value>" in source
+    assert "el.innerText || el.value" not in source
     for forbidden in (
         "_click_save_once",
         "_attempt_save_click",

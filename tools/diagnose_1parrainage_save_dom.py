@@ -76,7 +76,9 @@ _CENSUS_JS = r"""
       return value === null ? [] : [`${name}="${clean(value, 180)}"`];
     });
     if (includeSafeValue && safeValue(el)) attrs.push(`value="${safeValue(el)}"`);
-    const text = clean(el.innerText || el.value || '', 180);
+    // Never fall back to a raw form value here: hidden CSRF/token inputs must
+    // remain redacted in both attributes and element text.
+    const text = clean(el.innerText || '', 180);
     return `<${el.tagName.toLowerCase()} ${attrs.join(' ')}>${text}</${el.tagName.toLowerCase()}>`;
   };
   const controls = Array.from(document.querySelectorAll(
