@@ -1,0 +1,38 @@
+name: Diagnose 1Parrainage consent (read-only)
+# Public login-page observation only: no secrets, credentials, clicks, form
+# fills/submits, account navigation, cookies/storage capture, or platform write.
+on:
+  workflow_dispatch: {}
+permissions:
+  contents: read
+concurrency:
+  group: autofresh-diagnose-1parrainage-consent
+  cancel-in-progress: false
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+      - name: Observe public login CMP (read-only, no interaction)
+        env:
+          AUTOFRESH_LIVE_WRITES: "0"
+        run: |
+          python -u tools/diagnose_1parrainage_consent.py \
+            --output-dir diagnostic-artifacts/1parrainage-consent \
+            --wait-seconds 30
+      - name: Upload sanitized CMP diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagnose-1parrainage-consent
+          retention-days: 14
+          if-no-files-found: error
+          path: diagnostic-artifacts/1parrainage-consent/
