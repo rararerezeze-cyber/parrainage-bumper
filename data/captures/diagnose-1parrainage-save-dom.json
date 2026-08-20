@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "kind": "authenticated_readonly_save_dom_diagnostic_summary",
+  "platform": "1parrainage",
+  "program": "kraken",
+  "source_run_id": "32419280860",
+  "source_head_sha": "8fddf57eb7f4669a5c29275e0fad2a6fdd22034b",
+  "source_artifact": "diagnose-1parrainage-save-dom/1parrainage-save-dom.json",
+  "started_at": "2026-08-20T21:25:37.801809+00:00",
+  "finished_at": "2026-08-20T21:25:56.996260+00:00",
+  "safety": {
+    "platform_writes": 0,
+    "save_clicks": 0,
+    "edit_form_submits_after_login": 0,
+    "credentials_or_tokens_persisted": false
+  },
+  "account": {
+    "body_len": 1062,
+    "body_sha256": "ad2a57ac0e2afc795ca038c936ac2f63a93faaeb141a356bb9692fcf16598afb",
+    "marker_present": false,
+    "identity_ok": true,
+    "normalized_body_len": 1063,
+    "normalized_body_sha256": "48d1ad78c24536e00e4e2bb8b5fd674b7a65466d6c16f5a72e7772affd0af3e7",
+    "normalization_idempotent": true
+  },
+  "checkpoints": {
+    "A_AFTER_EDIT_OPEN": {
+      "edit_form_count": 1,
+      "edit_form_action_path": "/espace_parrain/parrainages/edit/2541207/",
+      "edit_form_method": "POST",
+      "edit_form_visible": true,
+      "edit_form_interactive_count": 4,
+      "visible_save_controls": 0,
+      "document_standard_controls": 1,
+      "document_control_summary": "one visible enabled Rechercher submit associated with searchForm, not the edit form",
+      "daily_quota_notice": "2 edits per announcement per day; editing available again tomorrow"
+    },
+    "B_AFTER_ACCOUNT_READ_AND_NORMALIZATION": {
+      "edit_form_count": 1,
+      "edit_form_interactive_count": 4,
+      "visible_save_controls": 0,
+      "document_standard_controls": 1
+    },
+    "C_AFTER_MARKER_PREP_DOM_ONLY": {
+      "edit_form_count": 1,
+      "edit_form_interactive_count": 4,
+      "visible_save_controls": 0,
+      "document_standard_controls": 1,
+      "marker_present_in_dom_editor": true,
+      "identity_ok": true
+    }
+  },
+  "comparisons": {
+    "A_to_B_controls_added": 0,
+    "A_to_B_controls_removed": 0,
+    "A_to_B_controls_changed": 0,
+    "B_to_C_controls_added": 0,
+    "B_to_C_controls_removed": 0,
+    "B_to_C_controls_changed": 0,
+    "normalization_causes_control_dom_change": false
+  },
+  "root_cause": "The authenticated server-rendered edit form explicitly reports that the two-edits-per-day quota is exhausted until tomorrow and omits the Save submit control from checkpoint A onward. CKEditor normalization and DOM-only marker preparation do not remove or alter a Save control.",
+  "selector_conclusion": "No selector expansion is justified. Keep the exact edit-form-scoped Envoyer/Valider selector and classify the proven quota notice as a pre-write blocker."
+}

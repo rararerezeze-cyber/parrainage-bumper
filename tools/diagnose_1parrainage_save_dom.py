@@ -158,6 +158,11 @@ _CENSUS_JS = r"""
       node.textContent = '<redacted-textarea-body>';
       node.removeAttribute('value');
     });
+    clone.querySelectorAll('select').forEach((node) => {
+      const options = Array.from(node.querySelectorAll('option'));
+      node.setAttribute('data-redacted-option-count', String(options.length));
+      options.filter((option) => !option.selected).forEach((option) => option.remove());
+    });
     clone.querySelectorAll('input').forEach((node) => {
       const type = (node.getAttribute('type') || '').toLowerCase();
       if (!['submit', 'button', 'image', 'reset'].includes(type)) {

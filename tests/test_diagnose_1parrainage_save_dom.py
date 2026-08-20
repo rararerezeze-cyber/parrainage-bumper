@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from tools import diagnose_1parrainage_save_dom as diagnostic
@@ -8,6 +9,14 @@ from tools import diagnose_1parrainage_save_dom as diagnostic
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "tools" / "diagnose_1parrainage_save_dom.py"
 WORKFLOW = ROOT / ".github" / "workflows" / "diagnose_1parrainage_save_dom.yml"
+CAPTURE = ROOT / "data" / "captures" / "diagnose-1parrainage-save-dom.json"
+RECONCILIATION = (
+    ROOT
+    / "data"
+    / "captures"
+    / "canary-1parrainage-run-32416840267-reconciled.json"
+)
+STATUS = ROOT / "data" / "platform-write-status.json"
 
 
 def _control(label: str, *, visible: bool = True):
@@ -53,6 +62,7 @@ def test_diagnostic_reaches_three_checkpoints_without_save_path():
     assert "edit_form_html_minimized" in source
     assert "<redacted-textarea-body>" in source
     assert "<redacted-non-control-value>" in source
+    assert "data-redacted-option-count" in source
     assert "el.innerText || el.value" not in source
     for forbidden in (
         "_click_save_once",
@@ -77,3 +87,26 @@ def test_workflow_is_manual_read_only_and_uses_no_canary_command():
     assert "canary_write_1parrainage.py" not in source
     assert "WRITE_1P_CANARY_ROLLBACK" not in source
     assert "git push" not in source
+
+
+def test_persisted_diagnostic_and_historical_reconciliation_are_fail_closed():
+    capture = json.loads(CAPTURE.read_text(encoding="utf-8"))
+    reconciliation = json.loads(RECONCILIATION.read_text(encoding="utf-8"))
+    status = json.loads(STATUS.read_text(encoding="utf-8"))["platforms"][
+        "1parrainage"
+    ]
+
+    assert capture["source_run_id"] == "32419280860"
+    assert capture["safety"] == {
+        "platform_writes": 0,
+        "save_clicks": 0,
+        "edit_form_submits_after_login": 0,
+        "credentials_or_tokens_persisted": False,
+    }
+    assert capture["comparisons"]["normalization_causes_control_dom_change"] is False
+    assert reconciliation["historical_reported_state"]["save_attempts"] == 2
+    assert reconciliation["reconciled_state"]["save_attempts_actual"] == 0
+    assert reconciliation["reconciled_state"]["rollback_required"] is False
+    assert status["gh_headless_save"] == "NOT_RUN"
+    assert status["last_headless_canary_attempt"]["gh_run_id"] == "32416840267"
+    assert status["last_headless_readonly_diagnostic"]["gh_run_id"] == "32419280860"

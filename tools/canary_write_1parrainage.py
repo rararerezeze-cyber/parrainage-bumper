@@ -24,6 +24,7 @@ import json
 import os
 import re
 import sys
+import unicodedata
 from datetime import datetime, timezone
 from html import unescape
 from pathlib import Path
@@ -246,6 +247,22 @@ class _ClickStartProxy:
         return await self._locator.click(*args, **kwargs)
 
 
+def _save_unavailable_reason(form_text: str) -> str | None:
+    """Recognize only a proven, explicit pre-write platform blocker."""
+    folded = "".join(
+        char
+        for char in unicodedata.normalize("NFKD", form_text or "")
+        if not unicodedata.combining(char)
+    ).casefold()
+    if (
+        "fois par jour" in folded
+        and "a nouveau" in folded
+        and "des demain" in folded
+    ):
+        return "daily_edit_quota_exhausted"
+    return None
+
+
 async def _resolve_save_control(page):
     """Resolve exactly one visible/enabled Save control without clicking it."""
     form = page.locator(EDIT_FORM).first
@@ -259,6 +276,10 @@ async def _resolve_save_control(page):
         if await item.is_visible() and await item.is_enabled():
             label = ((await item.inner_text()) or (await item.get_attribute("value") or "")).strip()
             visible.append((item, label))
+    if not visible:
+        reason = _save_unavailable_reason(await form.inner_text())
+        if reason:
+            raise RuntimeError(f"prewrite_blocked: {reason}")
     if len(visible) != 1:
         raise RuntimeError(
             f"unexpected_dom: expected one visible Envoyer/Valider, found {len(visible)}"

@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "kind": "historical_canary_accounting_reconciliation",
+  "platform": "1parrainage",
+  "program": "kraken",
+  "source_run_id": "32416840267",
+  "source_head_sha": "b5d4ba336de0869e5308cc229854bba67749108f",
+  "source_artifact": "canary-1parrainage-headless/canary-1parrainage-kraken.json",
+  "source_started_at": "2026-08-20T20:57:57.084050+00:00",
+  "source_finished_at": "2026-08-20T20:58:23.917543+00:00",
+  "workflow_conclusion": "failure",
+  "historical_reported_state": {
+    "save_attempts": 2,
+    "canary_may_have_persisted": true,
+    "rollback_attempted": true,
+    "canary_save": null,
+    "rollback_save": null,
+    "error": "unexpected_dom: expected one visible Envoyer/Valider, found 0",
+    "rollback_error": "unexpected_dom: expected one visible Envoyer/Valider, found 0"
+  },
+  "reconciled_state": {
+    "save_phase_requests": 2,
+    "save_controls_resolved": 0,
+    "save_clicks_started": 0,
+    "save_clicks_completed": 0,
+    "save_attempts_actual": 0,
+    "canary_may_have_persisted": false,
+    "rollback_required": false,
+    "rollback_attempt_was_unnecessary": true,
+    "platform_writes": 0
+  },
+  "unchanged_state": {
+    "account_body_len": 1062,
+    "account_body_sha256": "ad2a57ac0e2afc795ca038c936ac2f63a93faaeb141a356bb9692fcf16598afb",
+    "account_marker_present": false,
+    "account_identity_ok": true,
+    "public_full_extracted_len": 1099,
+    "public_full_extracted_sha256": "326b232e8dd16d59b5271f6d75335af9daec17032dd20e995e67899ee01b408e",
+    "public_marker_present": false,
+    "public_identity_ok": true
+  },
+  "evidence_status": {
+    "gh_headless_save": "NOT_RUN",
+    "promotion_allowed": false
+  },
+  "note": "This file preserves the original failed report semantics and adds a later accounting reconciliation. It does not rewrite the historical artifact as if the corrected counters had existed during the run."
+}

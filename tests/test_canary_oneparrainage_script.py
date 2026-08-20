@@ -497,6 +497,42 @@ def test_unresolved_save_control_counts_zero_and_skips_rollback(
     assert report["save_phases"]["canary"]["control_resolved"] is False
 
 
+def test_daily_edit_quota_is_classified_without_relaxing_save_selector():
+    class EmptyCandidates:
+        async def count(self):
+            return 0
+
+    class QuotaForm:
+        first = None
+
+        def __init__(self, text):
+            self.first = self
+            self.text = text
+
+        def locator(self, _selector):
+            return EmptyCandidates()
+
+        async def inner_text(self):
+            return self.text
+
+    class QuotaPage:
+        def __init__(self, text):
+            self.form = QuotaForm(text)
+
+        def locator(self, _selector):
+            return self.form
+
+    message = (
+        "Il est possible de modifier chacune de vos annonces 2 fois par jour. "
+        "Vous pourrez à nouveau éditer cette annonce dès demain."
+    )
+    with pytest.raises(RuntimeError, match="prewrite_blocked: daily_edit_quota_exhausted"):
+        asyncio.run(canary._resolve_save_control(QuotaPage(message)))
+
+    with pytest.raises(RuntimeError, match="unexpected_dom: .* found 0"):
+        asyncio.run(canary._resolve_save_control(QuotaPage("Aucun contrôle disponible")))
+
+
 def test_canary_click_failure_still_attempts_rollback_and_never_proves(monkeypatch):
     original = (
         f"<p>{canary.EXPECTED_CODE} {canary.EXPECTED_LINK} "

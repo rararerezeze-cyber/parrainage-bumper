@@ -1,13 +1,14 @@
 name: Canary write (1Parrainage headless proof)
-# Manual evidence probe only.  One Kraken CKEditor body marker, exactly two
-# save attempts maximum (canary + mandatory rollback), one browser session.
+# Manual evidence probe only. One Kraken CKEditor body marker, at most two
+# actual Save clicks (canary + rollback if the canary click may have persisted),
+# one browser session. Requested phases and actual clicks are reported separately.
 # This workflow never promotes platform status; it may only change
 # gh_headless_save from NOT_RUN to PROVEN after the complete proof chain.
 on:
   workflow_dispatch:
     inputs:
       confirmation:
-        description: "Type WRITE_1P_CANARY_ROLLBACK to authorize the two-save live probe"
+        description: "Type WRITE_1P_CANARY_ROLLBACK to authorize at most two actual Save clicks"
         required: true
         default: ""
 permissions:
@@ -38,7 +39,7 @@ jobs:
         run: |
           pip install -r requirements.txt
           playwright install --with-deps chromium
-      - name: Canary + mandatory rollback
+      - name: Canary + rollback if the canary click may have persisted
         id: canary
         # cancel-in-progress is disabled above. A hard runner termination can
         # still interrupt any finally block, so the persisted evidence is the
