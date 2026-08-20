@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "platform": "1parrainage",
+  "program": "kraken",
+  "started_at": "2026-08-20T19:00:04.170301+00:00",
+  "gh_run_id": "32406216353",
+  "headless": true,
+  "status_before": "WRITE_VERIFIED",
+  "evidence_field_before": "NOT_RUN",
+  "live_write_authorized": true,
+  "plan": {
+    "program": "kraken",
+    "platform_offer_id": "100408",
+    "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100408",
+    "edit_url": "https://www.1parrainage.com/espace_parrain/parrainages/edit/2541207/",
+    "changed_fields": {},
+    "structure_preserved": true
+  },
+  "gate": {
+    "ok": true,
+    "platform": "1parrainage",
+    "status": "WRITE_VERIFIED",
+    "evidence_field": "gh_headless_save",
+    "expected_value": "NOT_RUN",
+    "snapshot_id": "20260820T190004Z",
+    "lock": true
+  },
+  "marker": "AUTOFRESH_1P_HEADLESS_CANARY_32406216353",
+  "phases": {},
+  "save_attempts": 0,
+  "canary_may_have_persisted": false,
+  "rollback_attempted": false,
+  "canary_ok": false,
+  "rollback_ok": false,
+  "error": "CONSENT_BLOCKED: banner visible but no standard Accepter/Tout accepter/Autoriser button",
+  "checks": {
+    "authenticated": false,
+    "targeted_body_only": true,
+    "exactly_two_save_attempts": false,
+    "canary_account_verified": false,
+    "canary_public_verified": false,
+    "rollback_account_exact": false,
+    "rollback_public_marker_absent": false
+  },
+  "success": false,
+  "finished_at": "2026-08-20T19:00:16.410337+00:00"
+}
