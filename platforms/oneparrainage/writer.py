@@ -17,6 +17,7 @@ from dataclasses import dataclass
 from html import unescape
 from pathlib import Path
 from typing import Any
+from urllib.parse import urljoin, urlsplit
 
 _ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(_ROOT))
@@ -698,6 +699,80 @@ def _extract_public_block(html: str, plan: WritePlan) -> str:
         i = text.find(needle)
         return re.sub(r"\n{3,}", "\n\n", text[i : i + 1200]).strip()
     return re.sub(r"\n{3,}", "\n\n", text).strip()[:4000]
+
+
+def _strict_public_url(url: str) -> str:
+    parts = urlsplit(url)
+    if parts.scheme != "https" or parts.hostname != "www.1parrainage.com":
+        raise RuntimeError(f"unexpected public detail host: {parts.hostname!r}")
+    return url
+
+
+def _extract_public_bridge_url(html: str, plan: WritePlan) -> str:
+    """Resolve the exact public ``Lire la suite`` bridge for one offer."""
+    offer_id = str(plan.platform_offer_id or "")
+    if not offer_id:
+        raise RuntimeError("public offer id missing")
+    match = re.search(
+        rf"pr_open_window\(\s*['\"]([^'\"]*parrain_definit\.php\?"
+        rf"id_par=\d+&(?:amp;)?id={re.escape(offer_id)})['\"]",
+        html,
+        flags=re.I,
+    )
+    if not match:
+        raise RuntimeError("public read-more bridge not found for target offer")
+    list_url = (plan.announcement_url or "").split("#", 1)[0]
+    return _strict_public_url(urljoin(list_url, unescape(match.group(1))))
+
+
+def _extract_public_detail_url(html: str, bridge_url: str) -> str:
+    """Resolve the full announcement iframe embedded by the bridge page."""
+    match = re.search(
+        r"<iframe\b(?=[^>]*\bid=['\"]offreDetail['\"])[^>]*"
+        r"\bsrc=['\"]([^'\"]+)['\"]",
+        html,
+        flags=re.I,
+    )
+    if not match:
+        raise RuntimeError("public full-content iframe not found")
+    return _strict_public_url(urljoin(bridge_url, unescape(match.group(1))))
+
+
+def _extract_public_detail_block(html: str) -> str:
+    """Return the complete user-authored body from the public detail page."""
+    match = re.search(
+        r"<div\b(?=[^>]*\bid=['\"]desc_detail['\"])[^>]*>([\s\S]*?)</div>",
+        html,
+        flags=re.I,
+    )
+    if not match:
+        raise RuntimeError("public #desc_detail block not found")
+    return match.group(1).strip()
+
+
+def fetch_public_full_view(plan: WritePlan) -> dict[str, str]:
+    """Fetch the legitimate full public view behind ``Lire la suite``.
+
+    This is deliberately fail-closed: the truncated list is never accepted as
+    a substitute when a caller needs to verify content located near the end of
+    the announcement body.
+    """
+    list_url = (plan.announcement_url or "").split("#", 1)[0]
+    if not list_url:
+        raise RuntimeError("public list URL missing")
+    list_html = fetch_text(list_url)
+    bridge_url = _extract_public_bridge_url(list_html, plan)
+    bridge_html = fetch_text(bridge_url)
+    detail_url = _extract_public_detail_url(bridge_html, bridge_url)
+    detail_html = fetch_text(detail_url)
+    return {
+        "list_url": list_url,
+        "list_html": list_html,
+        "bridge_url": bridge_url,
+        "detail_url": detail_url,
+        "detail_html": detail_html,
+        "block": _extract_public_detail_block(detail_html),
+    }
 
 
 async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult:

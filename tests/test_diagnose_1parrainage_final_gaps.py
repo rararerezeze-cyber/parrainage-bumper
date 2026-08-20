@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from types import SimpleNamespace
 
 from tools import diagnose_1parrainage_final_gaps as diag
 
@@ -16,11 +17,13 @@ def test_public_full_view_is_derived_from_exact_read_more_chain():
         visible prefix ... <a>Lire la suite</a>
       </p>
     """
-    bridge = diag._extract_bridge_url(
-        list_html,
-        "https://www.1parrainage.com/listeannonces_98906_Adrien89.php",
-        "100408",
+    plan = SimpleNamespace(
+        announcement_url=(
+            "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100408"
+        ),
+        platform_offer_id="100408",
     )
+    bridge = diag._extract_public_bridge_url(list_html, plan)
     assert bridge == (
         "https://www.1parrainage.com/parrain_definit.php?id_par=98906&id=100408"
     )
@@ -29,7 +32,7 @@ def test_public_full_view_is_derived_from_exact_read_more_chain():
         '<iframe id="offreDetail" '
         'src="/detail_parrain.php?par=98906&amp;offre=100408"></iframe>'
     )
-    assert diag._extract_detail_url(bridge_html, bridge) == (
+    assert diag._extract_public_detail_url(bridge_html, bridge) == (
         "https://www.1parrainage.com/detail_parrain.php?par=98906&offre=100408"
     )
 
@@ -44,7 +47,7 @@ def test_public_detail_extracts_complete_desc_detail_not_list_excerpt():
       </div>
       <div>after</div>
     """
-    block = diag._extract_detail_block(html)
+    block = diag._extract_public_detail_block(html)
     assert "terminal-marker" in block
     assert "after" not in block
 

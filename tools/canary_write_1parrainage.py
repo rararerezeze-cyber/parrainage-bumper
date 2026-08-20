@@ -37,13 +37,13 @@ from lib.canary_gate import (  # noqa: E402
     record_live_failure,
     record_live_success,
 )
-from lib.http_fetch import fetch_text  # noqa: E402
 from lib.write_status import (  # noqa: E402
     STATUS_WRITE_VERIFIED,
     load_write_status,
     save_write_status,
 )
 from platforms.oneparrainage.writer import (  # noqa: E402
+    CK_ID,
     EDIT_FORM,
     _bumper,
     _cfg,
@@ -51,10 +51,10 @@ from platforms.oneparrainage.writer import (  # noqa: E402
     _ck_ready,
     _ck_set,
     _detect_challenge,
-    _extract_public_block,
     _login,
     _resolve_edit_url,
     build_write_plan,
+    fetch_public_full_view,
 )
 
 PLATFORM = "1parrainage"
@@ -114,11 +114,10 @@ def _account_evidence(label: str, body_html: str | None, marker: str) -> dict[st
 
 async def _public_evidence(label: str, plan, marker: str) -> dict[str, Any]:
     try:
-        url = (plan.announcement_url or "").split("#", 1)[0]
-        html = await asyncio.to_thread(fetch_text, url)
-        extracted = _extract_public_block(html, plan)
+        view = await asyncio.to_thread(fetch_public_full_view, plan)
+        html = view["detail_html"]
+        extracted = view["block"]
         checks = _identity_checks(extracted)
-        decoded = unescape(html)
         return {
             "phase": label,
             "side": "public",
@@ -126,7 +125,9 @@ async def _public_evidence(label: str, plan, marker: str) -> dict[str, Any]:
             "extracted_sha256": _sha256(extracted),
             "extracted_len": len(extracted or ""),
             "extracted_preview": (extracted or "")[:1200],
-            "marker_present": marker in decoded or marker in unescape(extracted or ""),
+            "public_view_type": "full_detail_desc_detail",
+            "public_full_content_url": view["detail_url"],
+            "marker_present": marker in unescape(extracted or ""),
             "identity": checks,
             "identity_ok": _identity_ok(checks),
         }
@@ -155,10 +156,59 @@ async def _poll_public(label: str, plan, marker: str, *, expect_marker: bool) ->
 async def _read_account(page, label: str, marker: str) -> tuple[str, dict[str, Any]]:
     if not await _ck_ready(page):
         raise RuntimeError("unexpected_dom: CKEditor not ready")
-    body = await _ck_get(page)
-    if not body:
-        raise RuntimeError("unexpected_dom: empty CKEditor body")
-    return body, _account_evidence(label, body, marker)
+    source = (
+        await page.evaluate(
+            """
+            (id) => {
+              const textarea = document.getElementById(id);
+              return textarea ? (textarea.value || '') : '';
+            }
+            """,
+            CK_ID,
+        )
+        or ""
+    )
+    if not source:
+        raise RuntimeError("unexpected_dom: empty server-backed CKEditor source")
+    editor_before = await _ck_get(page)
+
+    async def normalize_once(value: str) -> str:
+        result = await _ck_set(page, value)
+        if not isinstance(result, dict) or not result.get("ok"):
+            raise RuntimeError(f"unexpected_dom: CKEditor normalization failed: {result}")
+        await page.wait_for_timeout(700)
+        normalized = await _ck_get(page)
+        if not normalized:
+            raise RuntimeError("unexpected_dom: empty normalized CKEditor body")
+        return normalized
+
+    normalized_once = await normalize_once(source)
+    normalized_twice = await normalize_once(normalized_once)
+    if normalized_once != normalized_twice:
+        raise RuntimeError("CKEDITOR_NORMALIZATION_UNSTABLE")
+
+    evidence = _account_evidence(label, source, marker)
+    normalized_evidence = _account_evidence(
+        f"{label}_ckeditor_normalized", normalized_twice, marker
+    )
+    if (
+        evidence.get("marker_present") != normalized_evidence.get("marker_present")
+        or not normalized_evidence.get("identity_ok")
+    ):
+        raise RuntimeError("CKEDITOR_NORMALIZATION_CHANGED_GUARDED_CONTENT")
+    evidence.update(
+        {
+            "editor_before_sha256": _sha256(editor_before),
+            "editor_before_len": len(editor_before or ""),
+            "normalized_body_sha256": normalized_evidence["body_sha256"],
+            "normalized_body_len": normalized_evidence["body_len"],
+            "normalization_idempotent": True,
+            "normalization_added_terminal_lf": (
+                normalized_twice == source + "\n"
+            ),
+        }
+    )
+    return source, evidence
 
 
 async def _set_body_without_save(page, target_html: str, marker: str, *, expect_marker: bool) -> dict[str, Any]:
@@ -260,7 +310,13 @@ def _record_status(report: dict[str, Any], success: bool) -> None:
             "account_rollback_sha256": (
                 (report.get("phases") or {}).get("rollback_account") or {}
             ).get("body_sha256"),
-        "source": "github_headless_canary_with_mandatory_rollback",
+            "account_before_normalized_sha256": (
+                (report.get("phases") or {}).get("before_account") or {}
+            ).get("normalized_body_sha256"),
+            "account_rollback_normalized_sha256": (
+                (report.get("phases") or {}).get("rollback_account") or {}
+            ).get("normalized_body_sha256"),
+            "source": "github_headless_canary_with_mandatory_rollback",
         }
         suffix = (
             " GH headless save PROVEN by rollback-enforced Kraken body-marker "
@@ -409,6 +465,9 @@ async def _run_probe(report: dict[str, Any]) -> bool:
                 report["phases"]["rollback_public"] = rollback_public
                 report["rollback_ok"] = bool(
                     _sha256(rollback_body) == _sha256(original_body)
+                    and bool(before_account.get("normalized_body_sha256"))
+                    and rollback_account.get("normalized_body_sha256")
+                    == before_account.get("normalized_body_sha256")
                     and not rollback_account.get("marker_present")
                     and rollback_account.get("identity_ok")
                     and not rollback_public.get("marker_present")
@@ -463,6 +522,19 @@ async def _run_probe(report: dict[str, Any]) -> bool:
                 "body_sha256"
             )
             and bool((report.get("phases") or {}).get("rollback_account"))
+            and bool(
+                ((report.get("phases") or {}).get("before_account") or {}).get(
+                    "normalized_body_sha256"
+                )
+            )
+            and (
+                ((report.get("phases") or {}).get("before_account") or {}).get(
+                    "normalized_body_sha256"
+                )
+                == ((report.get("phases") or {}).get("rollback_account") or {}).get(
+                    "normalized_body_sha256"
+                )
+            )
         ),
         "rollback_public_marker_absent": (
             ((report.get("phases") or {}).get("rollback_public") or {}).get(

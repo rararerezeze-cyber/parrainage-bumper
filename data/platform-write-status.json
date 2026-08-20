@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-08-20T19:51:33.880029+00:00",
+  "updated_at": "2026-08-20T20:29:18.993036+00:00",
   "note": "Strict write readiness. WRITE_VERIFIED requires full post-verify evidence. Telegram live writes only for WRITE_VERIFIED platforms.",
   "write_verified_count": 5,
   "write_verified_ratio": "5/7",
@@ -154,7 +154,7 @@
       "status": "WRITE_VERIFIED",
       "canary_program": "kraken",
       "autonomy": "PC_OFF_READY",
-      "notes": "PC_OFF_READY — headed WRITE_VERIFIED remains authoritative; unattended GH save is still NOT_RUN. A manual-only, body-marker canary with account+public post-verify and mandatory exact rollback is repository-ready in canary_write_1parrainage.yml, but has not run and requires explicit operator authorization. Auto only on a real SAFE_DIFF. No fake write.",
+      "notes": "PC_OFF_READY — headed WRITE_VERIFIED remains authoritative; unattended GH save is still NOT_RUN. Run 32410815698 proved consent, headless login/edit, one canary Save, account marker persistence, and rollback Save, but did not complete the public/exact-rollback proof. Read-only run 32414266066 proved that the list is truncated, the complete public body is in detail_parrain.php #desc_detail, and CKEditor deterministically adds one terminal LF on setData while a fresh account read remains the original 1062-byte SHA. The manual-only canary remains fail-closed and requires fresh explicit operator authorization. Auto only on a real SAFE_DIFF. No fake write.",
       "last_compare_class": "NO_SAFE_DIFF",
       "last_compare_at": "2026-08-13T10:32:53.322453+00:00",
       "last_compare_note": "headed canary Envoyer + independent public reread: s5qudqe4 present, 4jdp7sea absent, cpbrgddy + 200 EUR unchanged",
@@ -196,8 +196,8 @@
         "workflow": ".github/workflows/canary_write_1parrainage.yml",
         "confirmation": "WRITE_1P_CANARY_ROLLBACK",
         "writes_if_authorized": 2,
-        "proof_required": "canary account+public marker present, then exact account body hash restored and public marker absent",
-        "live_run": "NOT_RUN"
+        "proof_required": "canary account marker plus full public #desc_detail marker, then exact fresh-source and idempotent CKEditor-normalized account hashes restored and public marker absent",
+        "live_run": "LAST_ATTEMPT_INCOMPLETE"
       },
       "last_headless_canary_attempt": {
         "gh_run_id": "32410815698",
@@ -208,6 +208,18 @@
         "rollback_ok": false,
         "save_attempts": 2,
         "error": "canary post-verify incomplete"
+      },
+      "last_headless_readonly_diagnostic": {
+        "gh_run_id": "32414266066",
+        "at": "2026-08-20T20:29:18.993036+00:00",
+        "report": "data/captures/diagnose-1parrainage-final-gaps.json",
+        "platform_writes": 0,
+        "current_account_len": 1062,
+        "current_account_sha256": "ad2a57ac0e2afc795ca038c936ac2f63a93faaeb141a356bb9692fcf16598afb",
+        "ckeditor_normalized_len": 1063,
+        "ckeditor_normalized_sha256": "48d1ad78c24536e00e4e2bb8b5fd674b7a65466d6c16f5a72e7772affd0af3e7",
+        "normalization_idempotent": true,
+        "public_full_content_url": "https://www.1parrainage.com/detail_parrain.php?par=98906&offre=100408"
       }
     },
     "referralcodes": {

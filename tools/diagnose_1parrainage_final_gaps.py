@@ -23,20 +23,22 @@ from datetime import datetime, timezone
 from html import unescape
 from pathlib import Path
 from typing import Any
-from urllib.parse import urljoin, urlsplit
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from lib.http_fetch import fetch_text  # noqa: E402
 from platforms.oneparrainage.writer import (  # noqa: E402
     _bumper,
     _cfg,
     _ck_get,
     _ck_ready,
     _detect_challenge,
+    _extract_public_bridge_url,
+    _extract_public_detail_block,
+    _extract_public_detail_url,
     _login,
     build_write_plan,
+    fetch_public_full_view,
 )
 
 PLATFORM = "1parrainage"
@@ -46,7 +48,6 @@ EXPECTED_CODE = "cpbrgddy"
 EXPECTED_LINK = "https://invite.kraken.com/JDNW/s5qudqe4"
 EXPECTED_REWARD = "200 € en cryptomonnaies"
 DEFAULT_OUTPUT = ROOT / "diagnostic-artifacts" / "1parrainage-final-gaps.json"
-ALLOWED_HOST = "www.1parrainage.com"
 
 
 def _now() -> str:
@@ -75,47 +76,6 @@ def _identity(value: str) -> dict[str, bool]:
 
 def _identity_ok(checks: dict[str, bool]) -> bool:
     return all(checks.values())
-
-
-def _assert_public_1p_url(url: str) -> str:
-    parts = urlsplit(url)
-    if parts.scheme != "https" or parts.hostname != ALLOWED_HOST:
-        raise RuntimeError(f"unexpected public detail host: {parts.hostname!r}")
-    return url
-
-
-def _extract_bridge_url(list_html: str, list_url: str, offer_id: str) -> str:
-    match = re.search(
-        rf"pr_open_window\(\s*['\"]([^'\"]*parrain_definit\.php\?"
-        rf"id_par=\d+&(?:amp;)?id={re.escape(offer_id)})['\"]",
-        list_html,
-        flags=re.I,
-    )
-    if not match:
-        raise RuntimeError("public read-more bridge not found for target offer")
-    return _assert_public_1p_url(urljoin(list_url, unescape(match.group(1))))
-
-
-def _extract_detail_url(bridge_html: str, bridge_url: str) -> str:
-    match = re.search(
-        r"<iframe\b(?=[^>]*\bid=['\"]offreDetail['\"])[^>]*\bsrc=['\"]([^'\"]+)['\"]",
-        bridge_html,
-        flags=re.I,
-    )
-    if not match:
-        raise RuntimeError("public full-content iframe not found")
-    return _assert_public_1p_url(urljoin(bridge_url, unescape(match.group(1))))
-
-
-def _extract_detail_block(detail_html: str) -> str:
-    match = re.search(
-        r"<div\b(?=[^>]*\bid=['\"]desc_detail['\"])[^>]*>([\s\S]*?)</div>",
-        detail_html,
-        flags=re.I,
-    )
-    if not match:
-        raise RuntimeError("public #desc_detail block not found")
-    return match.group(1).strip()
 
 
 def _list_target_excerpt(list_html: str, offer_id: str) -> str:
@@ -165,15 +125,12 @@ def _first_diff(before: str, after: str) -> dict[str, Any] | None:
 
 
 async def _public_probe(plan) -> dict[str, Any]:
-    list_url = (plan.announcement_url or "").split("#", 1)[0]
-    list_html = await asyncio.to_thread(fetch_text, list_url)
+    view = await asyncio.to_thread(fetch_public_full_view, plan)
+    list_url = view["list_url"]
+    list_html = view["list_html"]
     offer_id = str(plan.platform_offer_id)
     excerpt = _list_target_excerpt(list_html, offer_id)
-    bridge_url = _extract_bridge_url(list_html, list_url, offer_id)
-    bridge_html = await asyncio.to_thread(fetch_text, bridge_url)
-    detail_url = _extract_detail_url(bridge_html, bridge_url)
-    detail_html = await asyncio.to_thread(fetch_text, detail_url)
-    full_block = _extract_detail_block(detail_html)
+    full_block = view["block"]
     list_identity = _identity(excerpt)
     detail_identity = _identity(full_block)
     return {
@@ -185,8 +142,8 @@ async def _public_probe(plan) -> dict[str, Any]:
         "list_has_explicit_truncation": " ... " in unescape(excerpt),
         "list_identity": list_identity,
         "list_identity_ok": _identity_ok(list_identity),
-        "read_more_bridge_url": bridge_url,
-        "full_content_url": detail_url,
+        "read_more_bridge_url": view["bridge_url"],
+        "full_content_url": view["detail_url"],
         "full_block_len": len(full_block),
         "full_block_sha256": _sha256(full_block),
         "full_identity": detail_identity,

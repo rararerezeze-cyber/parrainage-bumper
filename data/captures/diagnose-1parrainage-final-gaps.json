@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "source": "github_actions_readonly_diagnostic",
+  "gh_run_id": "32414266066",
+  "head_sha": "9ce0c5dd1944394c2db5f8c3fbac4a3437c40f9e",
+  "started_at": "2026-08-20T20:29:06.998577+00:00",
+  "finished_at": "2026-08-20T20:29:18.993036+00:00",
+  "platform": "1parrainage",
+  "program": "kraken",
+  "platform_writes": 0,
+  "public": {
+    "view_type": "truncated_list_plus_full_detail_iframe",
+    "list_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php",
+    "offer_id": "100408",
+    "list_has_read_more": true,
+    "list_has_explicit_truncation": true,
+    "list_identity_ok": true,
+    "read_more_bridge_url": "https://www.1parrainage.com/parrain_definit.php?id_par=98906&id=100408",
+    "full_content_url": "https://www.1parrainage.com/detail_parrain.php?par=98906&offre=100408",
+    "full_content_selector": "#desc_detail",
+    "full_block_len": 1099,
+    "full_block_sha256": "326b232e8dd16d59b5271f6d75335af9daec17032dd20e995e67899ee01b408e",
+    "full_identity_ok": true,
+    "full_block_has_terminal_content": true
+  },
+  "account": {
+    "authenticated": true,
+    "target_edit_loaded": true,
+    "current": {
+      "len": 1062,
+      "sha256": "ad2a57ac0e2afc795ca038c936ac2f63a93faaeb141a356bb9692fcf16598afb",
+      "bare_lf_count": 30,
+      "trailing_whitespace_len": 0,
+      "identity_ok": true
+    },
+    "ckeditor_roundtrip_1": {
+      "len": 1063,
+      "sha256": "48d1ad78c24536e00e4e2bb8b5fd674b7a65466d6c16f5a72e7772affd0af3e7",
+      "bare_lf_count": 31,
+      "trailing_whitespace_len": 1,
+      "trailing_codepoints": [
+        "U+000A"
+      ]
+    },
+    "ckeditor_roundtrip_2": {
+      "len": 1063,
+      "sha256": "48d1ad78c24536e00e4e2bb8b5fd674b7a65466d6c16f5a72e7772affd0af3e7"
+    },
+    "first_difference": {
+      "index": 1062,
+      "before_codepoint": null,
+      "after_codepoint": "U+000A",
+      "before_remaining": 0,
+      "after_remaining": 1
+    },
+    "normalization_idempotent": true,
+    "save_attempts": 0,
+    "form_submits_after_login": 0
+  }
+}

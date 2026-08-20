@@ -7,6 +7,8 @@ import sys
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+
 from lib import canary_gate as gate
 from lib import write_status as ws
 from tools import canary_write_1parrainage as canary
@@ -183,6 +185,124 @@ def test_success_requires_canary_public_and_exact_account_rollback():
     assert '"rollback_account_exact"' in src
     assert '"rollback_public_marker_absent"' in src
     assert "_sha256(rollback_body) == _sha256(original_body)" in src
+    assert 'rollback_account.get("normalized_body_sha256")' in src
+    assert 'before_account.get("normalized_body_sha256")' in src
+
+
+def _stable_account_evidence(label: str, body: str, marker: str):
+    evidence = canary._account_evidence(label, body, marker)
+    evidence["normalized_body_sha256"] = canary._sha256(body + "\n")
+    evidence["normalized_body_len"] = len(body) + 1
+    evidence["normalization_idempotent"] = True
+    return evidence
+
+
+def test_public_evidence_reads_full_detail_surface(monkeypatch):
+    marker = "AUTOFRESH_1P_HEADLESS_CANARY_42"
+    block = (
+        f"<p>{canary.EXPECTED_CODE} {canary.EXPECTED_LINK} "
+        f"{canary.EXPECTED_REWARD}</p><p>{marker}</p>"
+    )
+    monkeypatch.setattr(
+        canary,
+        "fetch_public_full_view",
+        lambda _plan: {
+            "detail_html": f'<div id="desc_detail">{block}</div>',
+            "block": block,
+            "detail_url": (
+                "https://www.1parrainage.com/detail_parrain.php?par=98906&offre=100408"
+            ),
+        },
+    )
+
+    evidence = asyncio.run(
+        canary._public_evidence("canary_public", SimpleNamespace(), marker)
+    )
+
+    assert evidence["marker_present"] is True
+    assert evidence["identity_ok"] is True
+    assert evidence["public_view_type"] == "full_detail_desc_detail"
+    assert "detail_parrain.php" in evidence["public_full_content_url"]
+
+
+def test_public_marker_outside_full_detail_block_does_not_prove_canary(monkeypatch):
+    marker = "AUTOFRESH_1P_HEADLESS_CANARY_42"
+    block = (
+        f"<p>{canary.EXPECTED_CODE} {canary.EXPECTED_LINK} "
+        f"{canary.EXPECTED_REWARD}</p>"
+    )
+    monkeypatch.setattr(
+        canary,
+        "fetch_public_full_view",
+        lambda _plan: {
+            "detail_html": f"<script>{marker}</script><div>{block}</div>",
+            "block": block,
+            "detail_url": (
+                "https://www.1parrainage.com/detail_parrain.php?par=98906&offre=100408"
+            ),
+        },
+    )
+
+    evidence = asyncio.run(
+        canary._public_evidence("canary_public", SimpleNamespace(), marker)
+    )
+
+    assert evidence["marker_present"] is False
+    assert evidence["identity_ok"] is True
+
+
+class _AccountReadPage:
+    async def evaluate(self, _script, _arg):
+        return (
+            f"<p>{canary.EXPECTED_CODE} {canary.EXPECTED_LINK} "
+            f"{canary.EXPECTED_REWARD}</p>"
+        )
+
+    async def wait_for_timeout(self, _milliseconds):
+        return None
+
+
+def test_account_read_pins_source_and_idempotent_ckeditor_form(monkeypatch):
+    source = (
+        f"<p>{canary.EXPECTED_CODE} {canary.EXPECTED_LINK} "
+        f"{canary.EXPECTED_REWARD}</p>"
+    )
+    reads = iter([source, source + "\n", source + "\n"])
+    monkeypatch.setattr(canary, "_ck_ready", lambda _page: asyncio.sleep(0, result=True))
+    monkeypatch.setattr(canary, "_ck_get", lambda _page: asyncio.sleep(0, result=next(reads)))
+    monkeypatch.setattr(
+        canary, "_ck_set", lambda *_args: asyncio.sleep(0, result={"ok": True})
+    )
+
+    body, evidence = asyncio.run(
+        canary._read_account(_AccountReadPage(), "before_account", "ABSENT_MARKER")
+    )
+
+    assert body == source
+    assert evidence["body_len"] == len(source)
+    assert evidence["normalized_body_len"] == len(source) + 1
+    assert evidence["normalization_added_terminal_lf"] is True
+    assert evidence["normalization_idempotent"] is True
+
+
+def test_account_read_fails_closed_on_unstable_ckeditor_normalization(monkeypatch):
+    source = (
+        f"<p>{canary.EXPECTED_CODE} {canary.EXPECTED_LINK} "
+        f"{canary.EXPECTED_REWARD}</p>"
+    )
+    reads = iter([source, source + "\n", source + "\n\n"])
+    monkeypatch.setattr(canary, "_ck_ready", lambda _page: asyncio.sleep(0, result=True))
+    monkeypatch.setattr(canary, "_ck_get", lambda _page: asyncio.sleep(0, result=next(reads)))
+    monkeypatch.setattr(
+        canary, "_ck_set", lambda *_args: asyncio.sleep(0, result={"ok": True})
+    )
+
+    with pytest.raises(RuntimeError, match="CKEDITOR_NORMALIZATION_UNSTABLE"):
+        asyncio.run(
+            canary._read_account(
+                _AccountReadPage(), "before_account", "ABSENT_MARKER"
+            )
+        )
 
 
 def test_run_probe_executes_canary_then_exact_rollback(monkeypatch):
@@ -206,10 +326,10 @@ def test_run_probe_executes_canary_then_exact_rollback(monkeypatch):
     fake_pw = _FakePlaywright()
     reads = iter(
         [
-            (original, canary._account_evidence("before_account", original, "AUTOFRESH_1P_HEADLESS_CANARY_42")),
-            (marked, canary._account_evidence("canary_account", marked, "AUTOFRESH_1P_HEADLESS_CANARY_42")),
-            (marked, canary._account_evidence("pre_rollback_account", marked, "AUTOFRESH_1P_HEADLESS_CANARY_42")),
-            (original, canary._account_evidence("rollback_account", original, "AUTOFRESH_1P_HEADLESS_CANARY_42")),
+            (original, _stable_account_evidence("before_account", original, "AUTOFRESH_1P_HEADLESS_CANARY_42")),
+            (marked, _stable_account_evidence("canary_account", marked, "AUTOFRESH_1P_HEADLESS_CANARY_42")),
+            (marked, _stable_account_evidence("pre_rollback_account", marked, "AUTOFRESH_1P_HEADLESS_CANARY_42")),
+            (original, _stable_account_evidence("rollback_account", original, "AUTOFRESH_1P_HEADLESS_CANARY_42")),
         ]
     )
     public = iter(
@@ -285,9 +405,9 @@ def test_canary_click_failure_still_attempts_rollback_and_never_proves(monkeypat
     fake_pw = _FakePlaywright()
     reads = iter(
         [
-            (original, canary._account_evidence("before_account", original, "AUTOFRESH_1P_HEADLESS_CANARY_43")),
-            (marked, canary._account_evidence("pre_rollback_account", marked, "AUTOFRESH_1P_HEADLESS_CANARY_43")),
-            (original, canary._account_evidence("rollback_account", original, "AUTOFRESH_1P_HEADLESS_CANARY_43")),
+            (original, _stable_account_evidence("before_account", original, "AUTOFRESH_1P_HEADLESS_CANARY_43")),
+            (marked, _stable_account_evidence("pre_rollback_account", marked, "AUTOFRESH_1P_HEADLESS_CANARY_43")),
+            (original, _stable_account_evidence("rollback_account", original, "AUTOFRESH_1P_HEADLESS_CANARY_43")),
         ]
     )
     public = iter(
