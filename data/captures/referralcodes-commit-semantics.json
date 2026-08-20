@@ -20,9 +20,23 @@
   "existing_listing_identifier_found": null,
   "shop_id_meaning": "catalog brand id, not a user listing id",
   "update_semantics_proven": false,
-  "duplicate_risk": "UNKNOWN",
+  "duplicate_risk": "REJECT_OR_SPAM_FLAG_NOT_UPDATE",
   "pc_off_ready_possible": false,
-  "support_question_required": true,
-  "official_docs": "https://referralcodes.com/agents — Validate then Commit; no upsert/update/duplicate rule",
+  "support_question_required": false,
+  "official_docs": "https://referralcodes.com/agents — Validate then Commit; no upsert/update/overwrite contract",
+  "official_documentation_review": {
+    "reviewed_at": "2026-08-20",
+    "sources": [
+      "https://referralcodes.com/agents",
+      "https://referralcodes.com/faq/"
+    ],
+    "findings": [
+      "Agent Import is documented as a bulk upload flow: paste, Validate, then Commit.",
+      "Existing referrals are documented as editable through the account Edit icon.",
+      "Only one referral per shop/app is allowed; duplicates are not added.",
+      "Repeated duplicate submissions may be treated as spam."
+    ],
+    "conclusion": "Agent Import is not a documented update path for an existing referral. Keep NEVER_AUTO_COMMIT; use the explicit account Edit path if it becomes available."
+  },
   "runs": ["31706463195", "31712722277", "31712891305"]
 }

@@ -21,6 +21,7 @@ from lib.write_status import (
     STATUS_WRITE_PREPARED,
     STATUS_WRITE_VERIFIED,
     get_compare_class,
+    get_platform_meta,
     get_platform_status,
     is_blocked_compare,
     is_sequence_cleared,
@@ -293,6 +294,81 @@ def guard_live_execute(platform: str, *, for_super: bool = False) -> dict[str, A
     gate["snapshot_id"] = snap.get("id")
     gate["lock"] = True
     return gate
+
+
+def guard_live_evidence_probe(
+    platform: str,
+    *,
+    evidence_field: str,
+    expected_value: str = "NOT_RUN",
+) -> dict[str, Any]:
+    """Narrow gate for a rollback-guaranteed proof on an already verified platform.
+
+    This is deliberately separate from ``guard_live_execute``: the normal
+    canary ladder must continue to reject platforms that are already
+    WRITE_VERIFIED.  An evidence probe may only fill a specifically named,
+    still-missing proof field; it never promotes the platform status itself.
+    """
+    plat = (platform or "").strip().lower()
+    if (
+        plat != "1parrainage"
+        or evidence_field != "gh_headless_save"
+        or expected_value != "NOT_RUN"
+    ):
+        return {
+            "ok": False,
+            "platform": plat,
+            "error": "unsupported_live_evidence_probe",
+        }
+    blocked = live_write_blocked_reason(plat)
+    if blocked:
+        return {"ok": False, "platform": plat, "error": f"CIRCUIT_OPEN: {blocked}"}
+    if get_platform_status(plat) != STATUS_WRITE_VERIFIED:
+        return {
+            "ok": False,
+            "platform": plat,
+            "error": "WRITE_VERIFIED_REQUIRED_FOR_EVIDENCE_PROBE",
+        }
+    current = get_platform_meta(plat).get(evidence_field)
+    if current != expected_value:
+        return {
+            "ok": False,
+            "platform": plat,
+            "error": f"evidence_field_not_{expected_value}:{current}",
+            "done": current == "PROVEN",
+        }
+    if LOCK_PATH.exists():
+        try:
+            prev = json.loads(LOCK_PATH.read_text(encoding="utf-8"))
+        except Exception:
+            prev = {}
+        return {
+            "ok": False,
+            "platform": plat,
+            "error": f"CANARY_LOCK_HELD:{prev.get('platform')}",
+            "lock": prev,
+        }
+
+    snap = snapshot_state(f"evidence-probe:{plat}:{evidence_field}")
+    lock = {
+        "platform": plat,
+        "kind": "live_evidence_probe",
+        "evidence_field": evidence_field,
+        "at": _now(),
+        "snapshot_id": snap.get("id"),
+        "one_at_a_time": True,
+    }
+    LOCK_PATH.parent.mkdir(parents=True, exist_ok=True)
+    LOCK_PATH.write_text(json.dumps(lock, indent=2) + "\n", encoding="utf-8")
+    return {
+        "ok": True,
+        "platform": plat,
+        "status": STATUS_WRITE_VERIFIED,
+        "evidence_field": evidence_field,
+        "expected_value": expected_value,
+        "snapshot_id": snap.get("id"),
+        "lock": True,
+    }
 
 
 def release_canary_lock(platform: str | None = None) -> None:

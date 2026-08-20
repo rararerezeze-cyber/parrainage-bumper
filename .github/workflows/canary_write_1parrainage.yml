@@ -1,0 +1,98 @@
+name: Canary write (1Parrainage headless proof)
+# Manual evidence probe only.  One Kraken CKEditor body marker, exactly two
+# save attempts maximum (canary + mandatory rollback), one browser session.
+# This workflow never promotes platform status; it may only change
+# gh_headless_save from NOT_RUN to PROVEN after the complete proof chain.
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: "Type WRITE_1P_CANARY_ROLLBACK to authorize the two-save live probe"
+        required: true
+        default: ""
+permissions:
+  contents: write
+concurrency:
+  # Serialize with activation_canary.yml and the Super-Parrain bumper so no
+  # other repository-owned live writer starts alongside this evidence probe.
+  group: parrainage-bumper-super
+  cancel-in-progress: false
+jobs:
+  canary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate explicit authorization
+        env:
+          CONFIRMATION: ${{ github.event.inputs.confirmation }}
+        run: |
+          if [ "$CONFIRMATION" != "WRITE_1P_CANARY_ROLLBACK" ]; then
+            echo "::error::Exact confirmation WRITE_1P_CANARY_ROLLBACK required. No browser started."
+            exit 1
+          fi
+      - name: Dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+      - name: Canary + mandatory rollback
+        id: canary
+        # cancel-in-progress is disabled above. A hard runner termination can
+        # still interrupt any finally block, so the persisted evidence is the
+        # authority and NOT_RUN is retained unless rollback is fully verified.
+        env:
+          ONEPARRAINAGE_EMAIL: ${{ secrets.ONEPARRAINAGE_EMAIL }}
+          ONEPARRAINAGE_PASSWORD: ${{ secrets.ONEPARRAINAGE_PASSWORD }}
+          AUTOFRESH_1P_HEADLESS_CANARY: "1"
+        run: |
+          set +e
+          python -u tools/canary_write_1parrainage.py --execute --force
+          echo "canary_exit=$?" >> "$GITHUB_OUTPUT"
+      - name: Logs
+        if: always()
+        run: |
+          cat data/captures/canary-1parrainage-kraken.json || true
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: canary-1parrainage-headless
+          retention-days: 14
+          if-no-files-found: ignore
+          path: data/captures/canary-1parrainage-kraken.json
+      - name: Persist result
+        if: always()
+        run: |
+          git config user.name "autofresh-bot"
+          git config user.email "autofresh-bot@users.noreply.github.com"
+          for p in data/captures/canary-1parrainage-kraken.json \
+                   data/platform-write-status.json; do
+            if [ -f "$p" ]; then
+              git add "$p"
+            fi
+          done
+          if git diff --cached --quiet; then
+            echo "no commit"
+          else
+            git commit -m "chore(canary): 1parrainage headless rollback evidence"
+            if ! git pull --rebase origin main; then
+              echo "::error::git pull --rebase failed -- evidence was NOT persisted."
+              exit 1
+            fi
+            if ! git push origin HEAD:main; then
+              echo "::error::git push failed -- evidence was NOT persisted."
+              exit 1
+            fi
+          fi
+      - name: Fail unless the full proof passed
+        if: always()
+        run: |
+          EXIT="${{ steps.canary.outputs.canary_exit }}"
+          echo "canary script exit=$EXIT"
+          if [ "$EXIT" != "0" ]; then
+            echo "::error::1Parrainage headless proof incomplete. gh_headless_save remains NOT_RUN. Inspect the persisted report for rollback state."
+            exit 1
+          fi

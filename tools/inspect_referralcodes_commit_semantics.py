@@ -38,6 +38,23 @@ KEYWORDS = (
     "referral_id",
     "profile",
 )
+OFFICIAL_DOCUMENTATION_REVIEW = {
+    "reviewed_at": "2026-08-20",
+    "sources": [
+        "https://referralcodes.com/agents",
+        "https://referralcodes.com/faq/",
+    ],
+    "findings": [
+        "Agent Import is documented as a bulk upload flow: paste, Validate, then Commit.",
+        "Existing referrals are documented as editable through the account Edit icon.",
+        "Only one referral per shop/app is allowed; duplicates are not added.",
+        "Repeated duplicate submissions may be treated as spam.",
+    ],
+    "conclusion": (
+        "Agent Import is not a documented update path for an existing referral. "
+        "Keep NEVER_AUTO_COMMIT; use the explicit account Edit path if it becomes available."
+    ),
+}
 
 
 def _now() -> str:
@@ -418,9 +435,10 @@ async def main() -> int:
         "commit_payload": None,
         "existing_listing_identifier_found": None,
         "update_semantics_proven": False,
-        "duplicate_risk": "UNKNOWN",
+        "duplicate_risk": "REJECT_OR_SPAM_FLAG_NOT_UPDATE",
         "pc_off_ready_possible": False,
-        "support_question_required": True,
+        "support_question_required": False,
+        "official_documentation_review": OFFICIAL_DOCUMENTATION_REVIEW,
     }
     blob = json.dumps(report, ensure_ascii=False).lower()
     after_btns = ((report.get("after_validate") or {}).get("buttons")) or []
