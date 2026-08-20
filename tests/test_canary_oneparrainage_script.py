@@ -20,6 +20,10 @@ WORKFLOW = ROOT / ".github" / "workflows" / "canary_write_1parrainage.yml"
 class _FakePage:
     def __init__(self):
         self.url = "about:blank"
+        self.viewport_sizes = []
+
+    async def set_viewport_size(self, size):
+        self.viewport_sizes.append(size)
 
     async def goto(self, url, **_kwargs):
         self.url = url
@@ -31,9 +35,6 @@ class _FakePage:
 class _FakeContext:
     def __init__(self):
         self.page = _FakePage()
-
-    async def set_viewport_size(self, _size):
-        return None
 
     async def new_page(self):
         return self.page
@@ -158,6 +159,22 @@ def test_script_has_two_save_attempts_and_unconditional_rollback_source_order():
     assert idx_canary_flag < idx_canary_click < idx_finally < idx_rollback_click
 
 
+def test_viewport_is_set_on_page_never_browser_context():
+    canary_src = SCRIPT.read_text(encoding="utf-8")
+    writer_path = (
+        Path(canary.__file__).parents[1]
+        / "platforms"
+        / "oneparrainage"
+        / "writer.py"
+    )
+    writer_src = writer_path.read_text(encoding="utf-8")
+
+    assert "ctx.set_viewport_size" not in canary_src
+    assert "ctx.set_viewport_size" not in writer_src
+    assert 'page.set_viewport_size({"width": 1280, "height": 720})' in canary_src
+    assert 'page.set_viewport_size({"width": 1280, "height": 720})' in writer_src
+
+
 def test_success_requires_canary_public_and_exact_account_rollback():
     src = SCRIPT.read_text(encoding="utf-8")
     assert 'report.get("canary_ok")' in src
@@ -242,6 +259,9 @@ def test_run_probe_executes_canary_then_exact_rollback(monkeypatch):
     ]
     assert report["canary_ok"] is True
     assert report["rollback_ok"] is True
+    assert fake_pw.browser.context.page.viewport_sizes == [
+        {"width": 1280, "height": 720}
+    ]
 
 
 def test_canary_click_failure_still_attempts_rollback_and_never_proves(monkeypatch):

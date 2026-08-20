@@ -326,8 +326,8 @@ async def _run_probe(report: dict[str, Any]) -> bool:
             ],
         )
         ctx = await _bumper().new_context(browser)
-        await ctx.set_viewport_size({"width": 1280, "height": 720})
         page = await ctx.new_page()
+        await page.set_viewport_size({"width": 1280, "height": 720})
 
         await _login(page, _cfg())
         report["steps"] = ["login"]

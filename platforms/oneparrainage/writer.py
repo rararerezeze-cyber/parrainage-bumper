@@ -769,11 +769,8 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
             ],
         )
         ctx = await bumper.new_context(browser)
-        try:
-            await ctx.set_viewport_size({"width": 1280, "height": 720})
-        except Exception:
-            pass
         page = await ctx.new_page()
+        await page.set_viewport_size({"width": 1280, "height": 720})
         try:
             steps.append("login")
             await _login(page, cfg)
