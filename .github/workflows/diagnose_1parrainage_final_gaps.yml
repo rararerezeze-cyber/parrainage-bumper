@@ -1,0 +1,39 @@
+name: Diagnose 1Parrainage final gaps (read-only)
+# Authenticated CKEditor read plus DOM-only setData(current)->getData checks.
+# There is no edit-form submit, Save click, platform write, or status mutation.
+on:
+  workflow_dispatch: {}
+permissions:
+  contents: read
+concurrency:
+  group: autofresh-diagnose-1parrainage-final-gaps
+  cancel-in-progress: false
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+      - name: Read public full view and account CKEditor (no Save)
+        env:
+          AUTOFRESH_LIVE_WRITES: "0"
+          ONEPARRAINAGE_EMAIL: ${{ secrets.ONEPARRAINAGE_EMAIL }}
+          ONEPARRAINAGE_PASSWORD: ${{ secrets.ONEPARRAINAGE_PASSWORD }}
+        run: |
+          python -u tools/diagnose_1parrainage_final_gaps.py \
+            --output diagnostic-artifacts/1parrainage-final-gaps.json
+      - name: Upload sanitized read-only evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagnose-1parrainage-final-gaps
+          retention-days: 14
+          if-no-files-found: error
+          path: diagnostic-artifacts/1parrainage-final-gaps.json
