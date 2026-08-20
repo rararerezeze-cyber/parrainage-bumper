@@ -63,7 +63,7 @@
       "autonomy": "IMPORT_UI_BETA_NOT_PROVEN",
       "route": "NEVER_AUTO_COMMIT",
       "canary_program": "kraken",
-      "notes": "GH 31706463195 VALIDATE ONLY: login OK, shop_id=4769 Kraken valid, draft_id=124, commit=false. Official result matches shop catalog — does NOT prove listing UPDATE vs DUPLICATE. Not PC_OFF_READY. Keep native $200.",
+      "notes": "GH 32265735051 (2026-08-19) VALIDATE ONLY, read-only, never clicked Commit: login OK, shop_id=4769 Kraken valid, draft_id=135, commit=false. Official UI copy itself states 'Commit adds the valid referrals to your profile (status = pending)' -- wording is additive ('adds'), not 'update'/'upsert'/'overwrite'; no existing-listing identifier was ever surfaced by Validate (existing_listing_identifier_found=null). This is evidence AGAINST update semantics, not just absence of proof -- Commit very likely creates a DUPLICATE pending referral alongside the native $200 listing rather than updating it. NEVER_AUTO_COMMIT stands; a definitive answer would need referralcodes.com support confirmation. Keep native $200.",
       "last_write_verified_at": null
     },
     {
