@@ -1,5 +1,6 @@
 """Cookie-consent label classification — no network."""
 import asyncio
+from pathlib import Path
 
 from lib import cookie_consent as cc
 from lib.cookie_consent import classify_consent_label, pick_accept_button
@@ -31,6 +32,16 @@ class _FakePage:
     frames: list = []
 
 
+def test_consent_owners_do_not_scan_main_frame_twice():
+    main = object()
+    child = object()
+    page = _FakePage()
+    page.main_frame = main
+    page.frames = [main, child]
+
+    assert cc._consent_owners(page) == [page, child]
+
+
 def test_handle_cookie_consent_polls_for_late_rendering_button(monkeypatch):
     """Regression: keep polling while a banner is visible but no accept
     button has rendered yet, instead of giving up after one fixed-delay
@@ -38,8 +49,8 @@ def test_handle_cookie_consent_polls_for_late_rendering_button(monkeypatch):
 
     Evidence: 1parrainage GH Actions DOM census (data/captures/
     1parrainage-edit-map.json, 2026-08-15) showed input#_username
-    visible=1 from the very first census -- alongside a Sourcepoint
-    consent banner (sd-cmp-* nodes) whose Accept button had not rendered
+    visible=1 from the very first census -- alongside a Sirdata
+    ConsentFramework banner (sd-cmp-* nodes) whose Accept button had not rendered
     yet within the single original fixed-delay scan, raising
     CONSENT_BLOCKED even though the field being "visible" said nothing
     about whether the CMP widget itself was ready.
@@ -107,3 +118,105 @@ def test_handle_cookie_consent_still_blocks_if_never_found(monkeypatch):
     except cc.ConsentBlocked:
         raised = True
     assert raised is True
+
+
+def test_consent_absent_takes_no_action(monkeypatch):
+    clicked = {"value": False}
+
+    async def fake_username_visible(page):
+        return True
+
+    async def fake_scan(page):
+        return {"banner": False, "accept_candidates": [], "settings_or_reject": []}
+
+    async def fake_known(page):
+        clicked["value"] = True
+        return "unexpected"
+
+    monkeypatch.setattr(cc, "_username_visible", fake_username_visible)
+    monkeypatch.setattr(cc, "_scan_consent_ui", fake_scan)
+    monkeypatch.setattr(cc, "_click_known_accept", fake_known)
+
+    result = asyncio.run(cc.handle_cookie_consent(_FakePage(), timeout_s=0.1))
+
+    assert result["cookie_consent_handled"] == "NO"
+    assert result["reason"] == "no_visible_consent_banner"
+    assert clicked["value"] is False
+
+
+def test_iframe_consent_uses_the_candidate_owner(monkeypatch):
+    frame = object()
+    page = _FakePage()
+    page.frames = [frame]
+    state = {"clicked": False, "owner": None}
+    button = {"text": "Tout accepter", "id": "", "visible": True}
+
+    async def fake_username_visible(page):
+        return True
+
+    async def fake_scan(page):
+        return {
+            "banner": not state["clicked"],
+            "accept_candidates": [] if state["clicked"] else [(frame, button)],
+            "settings_or_reject": [],
+        }
+
+    async def fake_known(page):
+        return None
+
+    async def fake_click(owner, picked):
+        state["owner"] = owner
+        state["clicked"] = True
+        return True
+
+    async def fake_banner(page):
+        return not state["clicked"]
+
+    monkeypatch.setattr(cc, "_username_visible", fake_username_visible)
+    monkeypatch.setattr(cc, "_scan_consent_ui", fake_scan)
+    monkeypatch.setattr(cc, "_click_known_accept", fake_known)
+    monkeypatch.setattr(cc, "_click_in_owner", fake_click)
+    monkeypatch.setattr(cc, "_consent_ui_visible", fake_banner)
+
+    result = asyncio.run(cc.handle_cookie_consent(page, timeout_s=0.1))
+
+    assert result["cookie_consent_handled"] == "YES"
+    assert state["owner"] is frame
+
+
+def test_ambiguous_accept_ui_fails_closed_without_click(monkeypatch):
+    clicked = {"value": False}
+    buttons = [
+        (object(), {"text": "Tout accepter", "id": "a", "visible": True}),
+        (object(), {"text": "Accept all", "id": "b", "visible": True}),
+    ]
+
+    async def fake_username_visible(page):
+        return True
+
+    async def fake_scan(page):
+        return {"banner": True, "accept_candidates": buttons, "settings_or_reject": []}
+
+    async def fake_click(owner, picked):
+        clicked["value"] = True
+        return True
+
+    monkeypatch.setattr(cc, "_username_visible", fake_username_visible)
+    monkeypatch.setattr(cc, "_scan_consent_ui", fake_scan)
+    monkeypatch.setattr(cc, "_click_in_owner", fake_click)
+
+    try:
+        asyncio.run(cc.handle_cookie_consent(_FakePage(), timeout_s=0.1))
+        raised = False
+    except cc.ConsentBlocked as exc:
+        raised = "ambiguous consent buttons" in str(exc)
+
+    assert raised is True
+    assert clicked["value"] is False
+
+
+def test_consent_helper_has_strict_sirdata_target_and_no_save_path():
+    src = Path(cc.__file__).read_text(encoding="utf-8")
+    assert '#sd-cmp button:has-text("Tout accepter")' in src
+    for forbidden in ("parrainages/edit", "Envoyer", "_click_save", "CKEDITOR"):
+        assert forbidden not in src

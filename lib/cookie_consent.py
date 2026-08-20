@@ -186,7 +186,24 @@ async def _click_in_owner(owner, button: dict[str, str]) -> bool:
         return False
 
 
+def _consent_owners(page) -> list[Any]:
+    """Page plus child frames, without scanning the main frame twice."""
+    owners: list[Any] = [page]
+    main_frame = getattr(page, "main_frame", None)
+    for frame in list(getattr(page, "frames", []) or []):
+        if main_frame is not None and frame == main_frame:
+            continue
+        owners.append(frame)
+    return owners
+
+
 KNOWN_ACCEPT_SELECTORS = (
+    # 1Parrainage's Sirdata ConsentFramework CMP. The generated sd-cmp-*
+    # classes are build hashes and must not be used as selectors. Runtime
+    # evidence on 2026-08-20 showed one exact Tout accepter button under this
+    # stable root, in the main document (not a CMP iframe).
+    '#sd-cmp button:has-text("Tout accepter")',
+    '#sd-cmp button:has-text("Accept all")',
     "#didomi-notice-agree-button",
     "button#didomi-notice-agree-button",
     "[id*='didomi'] button[aria-label*='Accept' i]",
@@ -204,7 +221,7 @@ KNOWN_ACCEPT_SELECTORS = (
 
 async def _click_known_accept(page) -> str | None:
     """Standard CMP accept IDs only. No reject/customize, no overlay bypass."""
-    owners = [page, *list(page.frames)]
+    owners = _consent_owners(page)
     for owner in owners:
         for sel in KNOWN_ACCEPT_SELECTORS:
             try:
@@ -233,7 +250,7 @@ async def _scan_consent_ui(page) -> dict[str, Any]:
     """One read-only pass: is a banner visible, and what accept/reject
     buttons can currently be seen on page + all frames."""
     banner = await _consent_ui_visible(page)
-    owners = [page, *list(page.frames)]
+    owners = _consent_owners(page)
     visible_buttons: list[tuple[Any, dict[str, str]]] = []
     for owner in owners:
         for b in await _visible_buttons(owner):
@@ -265,7 +282,7 @@ async def handle_cookie_consent(page, *, timeout_s: float = 8.0) -> dict[str, An
     await asyncio.sleep(0.6)
     form_visible = await _username_visible(page)
 
-    # Give late Didomi/Sourcepoint widgets time to finish rendering their
+    # Give late CMP widgets time to finish rendering their
     # accept button. Previously this extra wait was gated on the login field
     # NOT being visible yet -- but on sites where the field is present in the
     # DOM (and thus Playwright-"visible") well before a slow CMP widget has
@@ -273,13 +290,17 @@ async def handle_cookie_consent(page, *, timeout_s: float = 8.0) -> dict[str, An
     # extra wait never actually fired. Evidence: 1parrainage GH Actions probe
     # (data/captures/1parrainage-edit-map.json, dom_census, 2026-08-15)
     # showed input#_username visible=1 from the very first census, alongside
-    # a Sourcepoint banner (sd-cmp-* nodes) that never exposed a matching
-    # Accept button within the original single fixed-delay scan --
+    # a Sirdata ConsentFramework banner (sd-cmp-* nodes) that never exposed a
+    # matching Accept button within the original single fixed-delay scan --
     # CONSENT_BLOCKED even though a real form and a real banner both exist.
     # Poll banner+button state directly instead of inferring readiness from
     # the login field.
     scan = await _scan_consent_ui(page)
-    deadline0 = asyncio.get_event_loop().time() + 1.8
+    # Sirdata's script is async and GitHub-hosted Chromium can render the
+    # #sd-cmp buttons several seconds after the overlay itself. Poll for the
+    # caller's full consent timeout; never infer readiness from #_username,
+    # which is visible underneath the fixed overlay.
+    deadline0 = asyncio.get_event_loop().time() + timeout_s
     while (
         scan["banner"]
         and not scan["accept_candidates"]
@@ -299,6 +320,12 @@ async def handle_cookie_consent(page, *, timeout_s: float = 8.0) -> dict[str, An
             "login_form_visible": True,
         }
 
+    if len(accept_candidates) > 1:
+        raise ConsentBlocked(
+            "ambiguous consent buttons: "
+            f"{[b.get('text') for _, b in accept_candidates][:4]}"
+        )
+
     known = await _click_known_accept(page)
     if known:
         deadline = asyncio.get_event_loop().time() + timeout_s
@@ -309,8 +336,12 @@ async def handle_cookie_consent(page, *, timeout_s: float = 8.0) -> dict[str, An
             if form_visible and not banner:
                 break
         form_visible = await _username_visible(page)
-        if not form_visible:
-            raise ConsentBlocked("overlay still covering #_username after known CMP accept")
+        banner = await _consent_ui_visible(page)
+        if not form_visible or banner:
+            raise ConsentBlocked(
+                "CMP accept did not expose a clear login state "
+                f"(form_visible={form_visible} banner_visible={banner})"
+            )
         return {
             "cookie_consent_handled": "YES",
             "button": known,
@@ -349,8 +380,12 @@ async def handle_cookie_consent(page, *, timeout_s: float = 8.0) -> dict[str, An
             break
 
     form_visible = await _username_visible(page)
-    if not form_visible:
-        raise ConsentBlocked("overlay still covering #_username after accept")
+    banner = await _consent_ui_visible(page)
+    if not form_visible or banner:
+        raise ConsentBlocked(
+            "consent click did not expose a clear login state "
+            f"(form_visible={form_visible} banner_visible={banner})"
+        )
 
     return {
         "cookie_consent_handled": "YES",

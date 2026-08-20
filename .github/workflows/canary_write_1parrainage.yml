@@ -78,6 +78,19 @@ jobs:
             echo "no commit"
           else
             git commit -m "chore(canary): 1parrainage headless rollback evidence"
+            # snapshot_state() appends one tracked safety-audit event before
+            # the browser starts. Keep that runner-only audit side effect out
+            # of the evidence commit, but refuse every other unstaged tracked
+            # path. Untracked timestamped snapshots do not block rebase and
+            # remain in the ephemeral runner workspace.
+            UNSTAGED="$(git diff --name-only)"
+            if [ -n "$UNSTAGED" ]; then
+              if [ "$UNSTAGED" != "data/audit/events.jsonl" ]; then
+                echo "::error::Unexpected unstaged paths after evidence commit: $UNSTAGED"
+                exit 1
+              fi
+              git stash push -m "runner-only 1parrainage canary audit" -- data/audit/events.jsonl
+            fi
             if ! git pull --rebase origin main; then
               echo "::error::git pull --rebase failed -- evidence was NOT persisted."
               exit 1

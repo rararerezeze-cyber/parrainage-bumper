@@ -433,3 +433,7 @@ def test_workflow_is_manual_confirmed_serialized_and_persists_failure_evidence()
     assert "tools/canary_write_1parrainage.py --execute --force" in workflow
     assert "if: always()" in workflow
     assert "gh_headless_save remains NOT_RUN" in workflow
+    assert 'UNSTAGED="$(git diff --name-only)"' in workflow
+    assert 'if [ "$UNSTAGED" != "data/audit/events.jsonl" ]' in workflow
+    assert "git stash push" in workflow
+    assert "git pull --rebase origin main" in workflow
