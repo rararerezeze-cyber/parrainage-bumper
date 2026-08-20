@@ -60,14 +60,22 @@ _CENSUS_JS = r"""
     action: clean(form.action || form.getAttribute('action')),
     method: clean(form.method || form.getAttribute('method')).toUpperCase(),
     matches_edit_form: (form.action || '').includes('parrainages/edit'),
+    visible: visible(form),
+    bbox: box(form),
   } : null;
-  const minimalOuter = (el) => {
+  const safeValue = (el) => {
+    const type = (el.getAttribute('type') || '').toLowerCase();
+    return ['submit', 'button', 'image', 'reset'].includes(type)
+      ? clean(el.value, 180) : (el.value ? '<redacted-non-control-value>' : '');
+  };
+  const minimalOuter = (el, includeSafeValue = true) => {
     const names = ['id', 'class', 'name', 'type', 'role', 'form',
       'disabled', 'aria-disabled', 'aria-label', 'title'];
     const attrs = names.flatMap((name) => {
       const value = el.getAttribute(name);
       return value === null ? [] : [`${name}="${clean(value, 180)}"`];
     });
+    if (includeSafeValue && safeValue(el)) attrs.push(`value="${safeValue(el)}"`);
     const text = clean(el.innerText || el.value || '', 180);
     return `<${el.tagName.toLowerCase()} ${attrs.join(' ')}>${text}</${el.tagName.toLowerCase()}>`;
   };
@@ -102,14 +110,80 @@ _CENSUS_JS = r"""
       outer_html_minimized: minimalOuter(el),
     };
   });
-  const editForms = Array.from(document.querySelectorAll('form'))
-    .filter((form) => (form.action || '').includes('parrainages/edit'))
-    .map(formInfo);
+  const editFormNodes = Array.from(document.querySelectorAll('form'))
+    .filter((form) => (form.action || '').includes('parrainages/edit'));
+  const editForms = editFormNodes.map(formInfo);
+  const editInteractives = editFormNodes.flatMap((form, formIndex) =>
+    Array.from(form.querySelectorAll('input, button, a, [role="button"], [onclick]'))
+      .map((el, index) => {
+        const type = clean(el.getAttribute('type')).toLowerCase();
+        const text = clean(el.innerText);
+        const value = safeValue(el);
+        const label = clean(text || value || el.getAttribute('aria-label') || el.title);
+        const isVisible = visible(el);
+        const disabled = !!el.disabled || el.getAttribute('aria-disabled') === 'true';
+        return {
+          form_index: formIndex,
+          index,
+          tag: el.tagName.toLowerCase(),
+          text,
+          value,
+          label,
+          name: clean(el.getAttribute('name')),
+          id: clean(el.id),
+          class: clean(el.className),
+          type,
+          role: clean(el.getAttribute('role')),
+          href_path: (() => {
+            const href = el.getAttribute('href') || '';
+            try { const parsed = new URL(href, location.href); return parsed.pathname; }
+            catch (_) { return clean(href); }
+          })(),
+          has_onclick: !!el.getAttribute('onclick'),
+          visible: isVisible,
+          enabled: !disabled,
+          disabled,
+          bbox: box(el),
+          matches_save_term: /envoyer|valider|modifier|enregistrer|sauvegarder/i.test(label),
+          outer_html_minimized: minimalOuter(el),
+        };
+      })
+  );
+  const sanitizedForms = editFormNodes.map((form) => {
+    const clone = form.cloneNode(true);
+    clone.querySelectorAll('script, style').forEach((node) => node.remove());
+    clone.querySelectorAll('textarea').forEach((node) => {
+      node.textContent = '<redacted-textarea-body>';
+      node.removeAttribute('value');
+    });
+    clone.querySelectorAll('input').forEach((node) => {
+      const type = (node.getAttribute('type') || '').toLowerCase();
+      if (!['submit', 'button', 'image', 'reset'].includes(type)) {
+        node.setAttribute('value', '<redacted-non-control-value>');
+      }
+    });
+    clone.querySelectorAll('*').forEach((node) => {
+      Array.from(node.attributes).forEach((attr) => {
+        if (/token|csrf|nonce|secret/i.test(attr.name)) node.removeAttribute(attr.name);
+      });
+    });
+    return clone.outerHTML.slice(0, 30000);
+  });
+  const notices = Array.from(document.querySelectorAll(
+    '.alert, .error, .warning, .notice, [role="alert"]'
+  )).map((el) => clean(el.innerText, 500)).filter(Boolean).slice(0, 20);
   return {
     url: location.origin + location.pathname,
     viewport: {width: innerWidth, height: innerHeight},
     edit_form_count: editForms.length,
     edit_forms: editForms,
+    edit_form_html_minimized: sanitizedForms,
+    edit_form_interactive_count: editInteractives.length,
+    edit_form_interactives: editInteractives,
+    edit_form_save_term_interactives: editInteractives.filter(
+      (control) => control.matches_save_term
+    ),
+    notices,
     control_count: controls.length,
     controls,
     save_term_controls: controls.filter((control) => control.matches_save_term),
@@ -210,6 +284,7 @@ async def run(output: Path) -> dict[str, Any]:
             )
         await page.goto(edit_url, wait_until="domcontentloaded", timeout=60000)
         await _detect_challenge(page)
+        await page.wait_for_timeout(4000)
 
         checkpoint_a = await _census(page, "A_AFTER_EDIT_OPEN")
         original_body, account = await _read_account(

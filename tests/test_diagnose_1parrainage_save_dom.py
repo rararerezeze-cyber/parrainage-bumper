@@ -49,6 +49,10 @@ def test_diagnostic_reaches_three_checkpoints_without_save_path():
     ) < source.index('"C_AFTER_MARKER_PREP"')
     assert "_read_account(" in source
     assert "_set_body_without_save(" in source
+    assert "edit_form_interactives" in source
+    assert "edit_form_html_minimized" in source
+    assert "<redacted-textarea-body>" in source
+    assert "<redacted-non-control-value>" in source
     for forbidden in (
         "_click_save_once",
         "_attempt_save_click",
