@@ -53,7 +53,7 @@
       "autonomy": "PC_OFF_READY",
       "route": "AUTO_ON_SAFE_DIFF",
       "canary_program": "kraken",
-      "notes": "PC_OFF_READY — not a proven unattended GH save. Writer ready (CKEditor + Envoyer). Auto only on a real SAFE_DIFF. gh_headless_save=NOT_RUN. No fake write.",
+      "notes": "PC_OFF_READY — headed WRITE_VERIFIED remains authoritative; unattended GH save is still NOT_RUN. Run 32410815698 proved consent, headless login/edit, one canary Save, account marker persistence, and rollback Save, but did not complete the public/exact-rollback proof. Run 32416840267 made zero actual Save clicks; its legacy harness counted two requested phases and triggered an unnecessary rollback. Read-only run 32419280860 proved the server omitted Save because the two-edits-per-day quota was exhausted until tomorrow; CKEditor normalization did not change the controls. The corrected harness counts only click starts, rolls back only after a potentially persistent click, and keeps the exact scoped selector. A final canary requires quota reset plus fresh explicit operator authorization. Auto only on a real SAFE_DIFF. No fake write.",
       "last_write_verified_at": "2026-08-13T10:29:40.550997+00:00"
     },
     {
@@ -63,7 +63,7 @@
       "autonomy": "IMPORT_UI_BETA_NOT_PROVEN",
       "route": "NEVER_AUTO_COMMIT",
       "canary_program": "kraken",
-      "notes": "GH 32265735051 (2026-08-19) VALIDATE ONLY, read-only, never clicked Commit: login OK, shop_id=4769 Kraken valid, draft_id=135, commit=false. Official UI copy itself states 'Commit adds the valid referrals to your profile (status = pending)' -- wording is additive ('adds'), not 'update'/'upsert'/'overwrite'; no existing-listing identifier was ever surfaced by Validate (existing_listing_identifier_found=null). This is evidence AGAINST update semantics, not just absence of proof -- Commit very likely creates a DUPLICATE pending referral alongside the native $200 listing rather than updating it. NEVER_AUTO_COMMIT stands; a definitive answer would need referralcodes.com support confirmation. Keep native $200.",
+      "notes": "GH 32265735051 (2026-08-19) VALIDATE ONLY, read-only, never clicked Commit: login OK, shop_id=4769 Kraken valid, draft_id=135, commit=false; Validate surfaced no existing-listing identifier. Official Agent Import docs describe bulk upload, while the official FAQ directs changes to the account Edit icon, limits a profile to one referral per shop/app, rejects duplicates, and warns repeated duplicate submissions may be flagged as spam. Therefore Agent Import is not a documented update path: NEVER_AUTO_COMMIT is durable without needing a speculative Commit. Keep native $200.",
       "last_write_verified_at": null
     },
     {
