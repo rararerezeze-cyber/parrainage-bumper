@@ -76,6 +76,14 @@ this workflow instead of the current one on `main`.
 
 Then Hermes downloads artifact `hermes-autofresh-result` → `hermes-last-result.json`.
 
+For mutating commands, the workflow commit is part of success. Durable snapshots
+and circuit-breaker state are staged with the override/result; the runner-only
+`data/audit/events.jsonl` line is stashed before the single rebase/push attempt.
+Any other residual tracked or untracked path fails closed. A JSON artifact may
+therefore describe the runner's attempted mutation while a red workflow means
+that mutation was not durably persisted; Hermes must report the persistence
+failure rather than claiming success.
+
 Legacy workflow `telegram_sync.yml` remains for compatibility (still message-driven). Prefer `hermes_operator.yml` for Hermes.
 
 ## Response (always JSON)

@@ -161,9 +161,11 @@ jobs:
           for p in data/operator-overrides.json \
                    data/platform-write-status.json \
                    data/captures \
+                   data/circuit-breakers.json \
                    data/pending_writes.json \
                    data/platform-mappings \
                    data/platform-templates \
+                   data/snapshots \
                    data/sync-state.json \
                    last_super_run.txt \
                    data/autofresh-phase.json \
@@ -172,6 +174,19 @@ jobs:
               git add "$p"
             fi
           done
+          # Hermes set/remove commands create a durable pre-mutation snapshot.
+          # A writer failure may also open a durable circuit breaker. Keep both
+          # in the evidence commit. The append-only audit line is runner-only:
+          # it must not make pull --rebase fail, but no other residual path is
+          # accepted.
+          mapfile -t UNSTAGED < <(git diff --name-only)
+          mapfile -t UNTRACKED < <(git ls-files --others --exclude-standard)
+          python tools/check_hermes_evidence_paths.py \
+            --unstaged "${UNSTAGED[@]}" \
+            --untracked "${UNTRACKED[@]}"
+          if printf '%s\n' "${UNSTAGED[@]}" | grep -Fxq "data/audit/events.jsonl"; then
+            git stash push -m "runner-only Hermes audit" -- data/audit/events.jsonl
+          fi
           if git diff --cached --quiet; then
             echo "no commit"
             exit 0

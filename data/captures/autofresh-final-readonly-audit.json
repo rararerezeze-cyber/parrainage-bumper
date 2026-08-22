@@ -76,7 +76,7 @@
       "source": "parrainage-co-capture-report.json"
     },
     "code-parrainage": {
-      "count": 24,
+      "count": 29,
       "identified_programs": [
         "airbnb",
         "betclic",
@@ -86,12 +86,16 @@
         "coinbase",
         "deblock",
         "ebuyclub",
+        "fdj-francaise-des-jeux",
         "heetch",
         "igraal",
         "joko",
         "kraken",
         "ledger",
+        "nrj-mobile",
+        "okx",
         "paypal",
+        "plum",
         "poulpeo",
         "revolut",
         "robinhood",
@@ -99,6 +103,7 @@
         "totalenergies",
         "traderepublic",
         "unibet",
+        "vinted",
         "widilo",
         "winamax",
         "wise"
@@ -113,23 +118,26 @@
         "bybit",
         "ebuyclub",
         "gemini",
+        "igraal",
         "joko",
         "kraken",
         "ledger",
         "okx",
         "paypal",
+        "poulpeo",
         "revolut",
         "robinhood",
         "stake",
         "swissborg",
+        "traderepublic",
         "unibet",
+        "vinted",
         "whatnot",
-        "widilo",
-        "wise"
+        "widilo"
       ],
       "source": "referralcode-tv-raw.txt + edit-map auth (23 live)",
-      "identified": 18,
-      "unidentified": 5,
+      "identified": 21,
+      "unidentified": 2,
       "auth_snippet": "My Referral Codes 23",
       "kraken": "KRAKEN_EXISTS"
     },
@@ -225,13 +233,12 @@
     }
   },
   "class_counts": {
-    "READY": 128,
-    "CANONICAL_ONLY": 80,
-    "SYNC": 3,
+    "READY": 140,
+    "CANONICAL_ONLY": 72,
+    "SYNC": 5,
     "STALE_MAPPING": 1,
-    "DOM_BLOCKED": 1,
-    "MISSING_MAPPING": 6,
     "ACCOUNT_ONLY": 3,
+    "MISSING_MAPPING": 1,
     "MANUAL_WRITE": 9,
     "AUTH_BLOCKED": 38
   },
@@ -652,7 +659,7 @@
         "meta": true
       },
       "writer": "WRITER_PRESENT",
-      "edit_url": null
+      "edit_url": "https://www.super-parrain.com/offres/poulpeo/parrainage-poulpeo/annonces/adrien-b-8/edit"
     },
     {
       "platform": "super-parrain",
@@ -1503,11 +1510,18 @@
     {
       "platform": "code-parrainage",
       "program": "fdj-francaise-des-jeux",
-      "class": "CANONICAL_ONLY",
-      "on_account": false,
+      "class": "READY",
+      "on_account": true,
       "in_offers": true,
-      "mapping": false,
-      "writer": "WRITER_PRESENT"
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://code-parrainage.net/annonce/83441"
     },
     {
       "platform": "code-parrainage",
@@ -1587,7 +1601,7 @@
     {
       "platform": "code-parrainage",
       "program": "kraken",
-      "class": "DOM_BLOCKED",
+      "class": "SYNC",
       "on_account": true,
       "in_offers": true,
       "mapping": true,
@@ -1628,20 +1642,34 @@
     {
       "platform": "code-parrainage",
       "program": "nrj-mobile",
-      "class": "CANONICAL_ONLY",
-      "on_account": false,
+      "class": "READY",
+      "on_account": true,
       "in_offers": true,
-      "mapping": false,
-      "writer": "WRITER_PRESENT"
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://code-parrainage.net/annonce/87488"
     },
     {
       "platform": "code-parrainage",
       "program": "okx",
-      "class": "CANONICAL_ONLY",
-      "on_account": false,
+      "class": "READY",
+      "on_account": true,
       "in_offers": true,
-      "mapping": false,
-      "writer": "WRITER_PRESENT"
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://code-parrainage.net/annonce/86831"
     },
     {
       "platform": "code-parrainage",
@@ -1680,11 +1708,18 @@
     {
       "platform": "code-parrainage",
       "program": "plum",
-      "class": "CANONICAL_ONLY",
-      "on_account": false,
+      "class": "READY",
+      "on_account": true,
       "in_offers": true,
-      "mapping": false,
-      "writer": "WRITER_PRESENT"
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://code-parrainage.net/annonce/86437"
     },
     {
       "platform": "code-parrainage",
@@ -1801,11 +1836,18 @@
     {
       "platform": "code-parrainage",
       "program": "vinted",
-      "class": "CANONICAL_ONLY",
-      "on_account": false,
+      "class": "READY",
+      "on_account": true,
       "in_offers": true,
-      "mapping": false,
-      "writer": "WRITER_PRESENT"
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://code-parrainage.net/annonce/58869"
     },
     {
       "platform": "code-parrainage",
@@ -1930,7 +1972,7 @@
         "meta": true
       },
       "writer": "WRITER_PRESENT",
-      "edit_url": null
+      "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23070"
     },
     {
       "platform": "referralcode-tv",
@@ -1980,7 +2022,7 @@
         "meta": true
       },
       "writer": "WRITER_PRESENT",
-      "edit_url": null
+      "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23055"
     },
     {
       "platform": "referralcode-tv",
@@ -2037,11 +2079,18 @@
     {
       "platform": "referralcode-tv",
       "program": "igraal",
-      "class": "CANONICAL_ONLY",
-      "on_account": false,
+      "class": "READY",
+      "on_account": true,
       "in_offers": true,
-      "mapping": false,
-      "writer": "WRITER_PRESENT"
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23067"
     },
     {
       "platform": "referralcode-tv",
@@ -2057,23 +2106,23 @@
         "meta": true
       },
       "writer": "WRITER_PRESENT",
-      "edit_url": null
+      "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23052"
     },
     {
       "platform": "referralcode-tv",
       "program": "kraken",
-      "class": "MISSING_MAPPING",
+      "class": "SYNC",
       "on_account": true,
       "in_offers": true,
-      "mapping": false,
-      "mapping_quality": null,
+      "mapping": true,
+      "mapping_quality": "captured",
       "template": {
-        "golden": false,
-        "template": false,
-        "meta": false
+        "golden": true,
+        "template": true,
+        "meta": true
       },
       "writer": "WRITER_PRESENT",
-      "edit_url": null
+      "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23004"
     },
     {
       "platform": "referralcode-tv",
@@ -2112,18 +2161,18 @@
     {
       "platform": "referralcode-tv",
       "program": "okx",
-      "class": "MISSING_MAPPING",
+      "class": "READY",
       "on_account": true,
       "in_offers": true,
-      "mapping": false,
-      "mapping_quality": null,
+      "mapping": true,
+      "mapping_quality": "captured",
       "template": {
-        "golden": false,
-        "template": false,
-        "meta": false
+        "golden": true,
+        "template": true,
+        "meta": true
       },
       "writer": "WRITER_PRESENT",
-      "edit_url": null
+      "edit_url": "https://referralcode.tv/add-referral-code/?eid=23010"
     },
     {
       "platform": "referralcode-tv",
@@ -2146,18 +2195,18 @@
     {
       "platform": "referralcode-tv",
       "program": "paypal",
-      "class": "MISSING_MAPPING",
+      "class": "READY",
       "on_account": true,
       "in_offers": true,
-      "mapping": false,
-      "mapping_quality": null,
+      "mapping": true,
+      "mapping_quality": "captured",
       "template": {
-        "golden": false,
-        "template": false,
-        "meta": false
+        "golden": true,
+        "template": true,
+        "meta": true
       },
       "writer": "WRITER_PRESENT",
-      "edit_url": null
+      "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23061"
     },
     {
       "platform": "referralcode-tv",
@@ -2171,11 +2220,18 @@
     {
       "platform": "referralcode-tv",
       "program": "poulpeo",
-      "class": "CANONICAL_ONLY",
-      "on_account": false,
+      "class": "READY",
+      "on_account": true,
       "in_offers": true,
-      "mapping": false,
-      "writer": "WRITER_PRESENT"
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23064"
     },
     {
       "platform": "referralcode-tv",
@@ -2191,23 +2247,23 @@
         "meta": true
       },
       "writer": "WRITER_PRESENT",
-      "edit_url": null
+      "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23058"
     },
     {
       "platform": "referralcode-tv",
       "program": "robinhood",
-      "class": "MISSING_MAPPING",
+      "class": "READY",
       "on_account": true,
       "in_offers": true,
-      "mapping": false,
-      "mapping_quality": null,
+      "mapping": true,
+      "mapping_quality": "captured",
       "template": {
-        "golden": false,
-        "template": false,
-        "meta": false
+        "golden": true,
+        "template": true,
+        "meta": true
       },
       "writer": "WRITER_PRESENT",
-      "edit_url": null
+      "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23073"
     },
     {
       "platform": "referralcode-tv",
@@ -2215,15 +2271,15 @@
       "class": "ACCOUNT_ONLY",
       "on_account": true,
       "in_offers": false,
-      "mapping": false,
-      "mapping_quality": null,
+      "mapping": true,
+      "mapping_quality": "captured",
       "template": {
-        "golden": false,
-        "template": false,
-        "meta": false
+        "golden": true,
+        "template": true,
+        "meta": true
       },
       "writer": "WRITER_PRESENT",
-      "edit_url": null
+      "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23076"
     },
     {
       "platform": "referralcode-tv",
@@ -2253,11 +2309,18 @@
     {
       "platform": "referralcode-tv",
       "program": "traderepublic",
-      "class": "CANONICAL_ONLY",
-      "on_account": false,
+      "class": "READY",
+      "on_account": true,
       "in_offers": true,
-      "mapping": false,
-      "writer": "WRITER_PRESENT"
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23049"
     },
     {
       "platform": "referralcode-tv",
@@ -2278,11 +2341,18 @@
     {
       "platform": "referralcode-tv",
       "program": "vinted",
-      "class": "CANONICAL_ONLY",
-      "on_account": false,
+      "class": "READY",
+      "on_account": true,
       "in_offers": true,
-      "mapping": false,
-      "writer": "WRITER_PRESENT"
+      "mapping": true,
+      "mapping_quality": "captured",
+      "template": {
+        "golden": true,
+        "template": true,
+        "meta": true
+      },
+      "writer": "WRITER_PRESENT",
+      "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23046"
     },
     {
       "platform": "referralcode-tv",
@@ -2314,7 +2384,7 @@
         "meta": true
       },
       "writer": "WRITER_PRESENT",
-      "edit_url": null
+      "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23043"
     },
     {
       "platform": "referralcode-tv",
@@ -2328,18 +2398,11 @@
     {
       "platform": "referralcode-tv",
       "program": "wise",
-      "class": "MISSING_MAPPING",
-      "on_account": true,
+      "class": "CANONICAL_ONLY",
+      "on_account": false,
       "in_offers": true,
       "mapping": false,
-      "mapping_quality": null,
-      "template": {
-        "golden": false,
-        "template": false,
-        "meta": false
-      },
-      "writer": "WRITER_PRESENT",
-      "edit_url": null
+      "writer": "WRITER_PRESENT"
     },
     {
       "platform": "referralcodes",
@@ -3774,87 +3837,7 @@
   "missing_mapping": [
     {
       "platform": "referralcode-tv",
-      "program": "kraken",
-      "class": "MISSING_MAPPING",
-      "on_account": true,
-      "in_offers": true,
-      "mapping": false,
-      "mapping_quality": null,
-      "template": {
-        "golden": false,
-        "template": false,
-        "meta": false
-      },
-      "writer": "WRITER_PRESENT",
-      "edit_url": null
-    },
-    {
-      "platform": "referralcode-tv",
-      "program": "okx",
-      "class": "MISSING_MAPPING",
-      "on_account": true,
-      "in_offers": true,
-      "mapping": false,
-      "mapping_quality": null,
-      "template": {
-        "golden": false,
-        "template": false,
-        "meta": false
-      },
-      "writer": "WRITER_PRESENT",
-      "edit_url": null
-    },
-    {
-      "platform": "referralcode-tv",
-      "program": "paypal",
-      "class": "MISSING_MAPPING",
-      "on_account": true,
-      "in_offers": true,
-      "mapping": false,
-      "mapping_quality": null,
-      "template": {
-        "golden": false,
-        "template": false,
-        "meta": false
-      },
-      "writer": "WRITER_PRESENT",
-      "edit_url": null
-    },
-    {
-      "platform": "referralcode-tv",
-      "program": "robinhood",
-      "class": "MISSING_MAPPING",
-      "on_account": true,
-      "in_offers": true,
-      "mapping": false,
-      "mapping_quality": null,
-      "template": {
-        "golden": false,
-        "template": false,
-        "meta": false
-      },
-      "writer": "WRITER_PRESENT",
-      "edit_url": null
-    },
-    {
-      "platform": "referralcode-tv",
       "program": "whatnot",
-      "class": "MISSING_MAPPING",
-      "on_account": true,
-      "in_offers": true,
-      "mapping": false,
-      "mapping_quality": null,
-      "template": {
-        "golden": false,
-        "template": false,
-        "meta": false
-      },
-      "writer": "WRITER_PRESENT",
-      "edit_url": null
-    },
-    {
-      "platform": "referralcode-tv",
-      "program": "wise",
       "class": "MISSING_MAPPING",
       "on_account": true,
       "in_offers": true,
@@ -3889,28 +3872,31 @@
   ],
   "real_safe_diffs": [],
   "summary": {
-    "total_account_announcements": 166,
-    "fully_mapped": 149,
-    "missing_mapping": 6,
+    "total_account_announcements": 171,
+    "fully_mapped": 162,
+    "missing_mapping": 1,
     "stale_mapping": 1,
     "real_safe_diffs": 0,
     "manual_only": 9,
-    "blocked": 39,
+    "blocked": 38,
     "write_verified_platforms": [
-      "1parrainage"
+      "super-parrain",
+      "parrainage-co",
+      "code-parrainage",
+      "1parrainage",
+      "referralcode-tv"
     ],
     "live_capable_platforms": [
+      "parrainage-co",
+      "code-parrainage",
       "1parrainage"
     ],
-    "write_verified_count": "1/7"
+    "write_verified_count": "5/7"
   },
   "remaining_work": [
-    "1parrainage: GH headless login still unproven (not PC-off)",
-    "super-parrain: CANARY_PENDING, bumper SKIP until WRITE_VERIFIED",
-    "code-parrainage: DOM_BLOCKED slider, no bypass",
-    "referralcode-tv: resolve Kraken EID read-only (KRAKEN_EXISTS)",
-    "referraldrop: AUTH_BLOCKED_GOOGLE",
-    "map ACCOUNT_ONLY (bitget, ubereats, rctv extras) only after offers.json entries",
-    "no second canary until operator agrees"
+    "referralcodes: NEVER_AUTO_COMMIT until an official existing-referral update path exists",
+    "referralcode-tv: HUMAN_SAVE_REQUIRED (CAPTCHA)",
+    "referraldrop: AUTH_BLOCKED_MANUAL",
+    "map ACCOUNT_ONLY programs only after a canonical offer and verified account identity exist"
   ]
 }

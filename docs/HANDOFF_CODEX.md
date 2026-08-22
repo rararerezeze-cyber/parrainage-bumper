@@ -88,8 +88,22 @@ URLs are stored in `data/captures/referralcodes-commit-semantics.json`.
 
 Hermes owns the Telegram operator interface. This repository exposes the
 AutoFresh command workflow and result contract but does not contain the Hermes
-plugin runtime. `/autofresh_valeur` remains an operator pause / known issue in
-Hermes and must not be resumed or represented as locally guarded here.
+plugin runtime. The installed standalone Hermes plugin was corrected and
+live-confirmed on 2026-08-22: the real Telegram → `MessageEvent` → plugin path
+preserved the complete 28-character multi-word test value, emitted the expected
+privacy-safe digest trace, and displayed the confirmation screen. The old
+`/autofresh_valeur` "Valeur vide" issue is closed; no fake guard was added to
+this repository and the Hermes core was not changed.
+
+The tester accidentally clicked the final confirmation. The resulting set run
+`32563740744` invoked no writer and made no platform write. Its test override
+remained only on the ephemeral runner because the evidence commit was blocked
+by the runner-only audit log, so `origin/main`'s override file stayed unchanged.
+The repository workflow now stages durable mutation snapshots and circuit-
+breaker state, stashes only `data/audit/events.jsonl`, and refuses every other
+residual tracked or untracked path before rebasing. A synthetic mutation must
+not be repeated merely to prove persistence; the next legitimate operator
+change can provide that final live confirmation.
 
 Do not change `monitor_auto_accept`. Monitor decisions remain observation-only
 unless the existing explicit operator flow authorizes otherwise.
@@ -112,8 +126,9 @@ come from the next already-scheduled bump cycle.
    available.
 2. ReferralCode.tv: human CAPTCHA save remains required.
 3. ReferralDrop: manual authentication/write-path blocker remains.
-4. Telegram mutation bug: separate Hermes-owned chantier; 1Parrainage no longer
-   blocks starting that work.
+4. Hermes mutation persistence: repository and installed-plugin fixes are
+   complete; live persistence after the workflow fix is intentionally deferred
+   to the next legitimate operator change, not a synthetic override.
 
 ## Validation
 

@@ -32,6 +32,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
+from tools import check_hermes_evidence_paths as evidence_policy
+
 ROOT = Path(__file__).resolve().parent.parent
 WORKFLOW = ROOT / ".github" / "workflows" / "hermes_operator.yml"
 TEXT = WORKFLOW.read_text(encoding="utf-8")
@@ -176,3 +180,43 @@ def test_every_previously_grouped_path_is_still_staged_individually():
         "data/autofresh-phase.json",
     ):
         assert p in COMMIT_STEP_CODE, f"missing path in the per-file loop: {p}"
+
+
+def test_durable_safety_state_and_snapshots_are_staged():
+    assert "data/circuit-breakers.json" in COMMIT_STEP_CODE
+    assert "data/snapshots" in COMMIT_STEP_CODE
+
+
+def test_runner_audit_is_stashed_only_after_fail_closed_validation():
+    assert 'git diff --name-only' in COMMIT_STEP_CODE
+    assert 'git ls-files --others --exclude-standard' in COMMIT_STEP_CODE
+    assert "python tools/check_hermes_evidence_paths.py" in COMMIT_STEP_CODE
+    assert 'git stash push -m "runner-only Hermes audit"' in COMMIT_STEP_CODE
+    assert COMMIT_STEP_CODE.index("check_hermes_evidence_paths.py") < (
+        COMMIT_STEP_CODE.index('git commit -m "chore(hermes): operator command result"')
+    )
+
+
+def test_hermes_evidence_policy_accepts_only_the_runner_audit():
+    assert evidence_policy.TRANSIENT_TRACKED_PATHS == ("data/audit/events.jsonl",)
+    accepted = evidence_policy.validate_remaining_paths(
+        unstaged=["data/audit/events.jsonl"], untracked=[]
+    )
+    assert accepted["transient"] == ["data/audit/events.jsonl"]
+    assert accepted["unexpected"] == []
+
+
+@pytest.mark.parametrize(
+    ("unstaged", "untracked", "unexpected"),
+    [
+        (["data/pending_writes.json"], [], "data/pending_writes.json"),
+        ([], ["data/unexpected.json"], "data/unexpected.json"),
+    ],
+)
+def test_hermes_evidence_policy_rejects_every_other_residual_path(
+    unstaged, untracked, unexpected
+):
+    with pytest.raises(ValueError, match=unexpected):
+        evidence_policy.validate_remaining_paths(
+            unstaged=unstaged, untracked=untracked
+        )
