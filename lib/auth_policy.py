@@ -173,6 +173,42 @@ def should_stop_platform(kind: AuthFailureKind) -> bool:
     }
 
 
+async def detect_cloudflare_challenge(page) -> bool:
+    """Detect the real Cloudflare interstitial without solving or clicking it."""
+    try:
+        return bool(
+            await page.evaluate(
+                """
+                () => {
+                  const title = (document.title || '').toLowerCase();
+                  const body = (document.body && document.body.innerText || '').toLowerCase();
+                  const turnstile = !!document.querySelector(
+                    'input[name="cf-turnstile-response"], [id^="cf-chl-widget-"]'
+                  );
+                  const loginField = !!document.querySelector(
+                    'input[type="email"], input[type="password"], input[name="username"]'
+                  );
+                  const interstitialTitle = title.includes('just a moment')
+                    || title.includes('un instant');
+                  const verificationText = body.includes('vérification de sécurité')
+                    || body.includes('verify you are human')
+                    || body.includes('vérifiez que vous êtes humain');
+                  // A Turnstile widget can legitimately be embedded in a real
+                  // login form. Only classify the standalone Cloudflare gate
+                  // proven by the diagnostic: no login fields plus coherent
+                  // interstitial signals.
+                  return !loginField && (
+                    (interstitialTitle && (turnstile || verificationText))
+                    || (turnstile && verificationText)
+                  );
+                }
+                """
+            )
+        )
+    except Exception:
+        return False
+
+
 def policy_snapshot() -> dict[str, Any]:
     return {
         "session": session_rules(),

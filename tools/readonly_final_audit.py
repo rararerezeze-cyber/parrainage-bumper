@@ -318,6 +318,10 @@ def _remaining_work(plats_meta: dict[str, dict]) -> list[str]:
         )
 
     rctv = plats_meta.get("referralcode-tv") or {}
+    if rctv.get("scheduled_bump_runtime") == "AUTH_BLOCKED_CHALLENGE_GITHUB":
+        remaining.append(
+            "referralcode-tv: scheduled GitHub bump blocked by Cloudflare challenge (no bypass)"
+        )
     if (
         rctv.get("autonomy") == AUTONOMY_HUMAN_SAVE_REQUIRED
         or rctv.get("save_requires_captcha")

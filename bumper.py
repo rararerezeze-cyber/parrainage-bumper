@@ -336,10 +336,17 @@ async def solve_slider(page):
     return False
 
 # -- RETRY --------------------------------------------------------------------
+class NonRetryableError(RuntimeError):
+    """A retry would be unsafe or useless (CAPTCHA, anti-bot, rate limit)."""
+
+
 async def retry(fn, retries=3, delay=10.0, label=""):
     for attempt in range(1, retries + 1):
         try:
             return await fn()
+        except NonRetryableError as e:
+            log.error(f"[{label}] Echec non-retryable: {e}")
+            raise
         except Exception as e:
             if attempt == retries:
                 log.error(f"[{label}] Echec ({retries} tentatives): {e}")
@@ -967,6 +974,7 @@ async def run_parrainage(browser):
 
 
 async def run_referralcode(browser):
+    from lib.auth_policy import detect_cloudflare_challenge
     from lib.cookie_consent import handle_cookie_consent
 
     cfg = CONFIG["referralcode"]
@@ -988,6 +996,9 @@ async def run_referralcode(browser):
                 timeout=45000,
             )
             await human_sleep(2, 4)
+            if await detect_cloudflare_challenge(page):
+                await page.screenshot(path="debug_referralcode_login.png")
+                raise NonRetryableError("cloudflare_turnstile_challenge")
             consent = await handle_cookie_consent(page, timeout_s=8.0)
             log.info(
                 "  Consent %s via=%s",

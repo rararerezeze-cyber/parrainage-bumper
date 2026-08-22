@@ -3895,6 +3895,7 @@
   },
   "remaining_work": [
     "referralcodes: NEVER_AUTO_COMMIT until an official existing-referral update path exists",
+    "referralcode-tv: scheduled GitHub bump blocked by Cloudflare challenge (no bypass)",
     "referralcode-tv: HUMAN_SAVE_REQUIRED (CAPTCHA)",
     "referraldrop: AUTH_BLOCKED_MANUAL",
     "map ACCOUNT_ONLY programs only after a canonical offer and verified account identity exist"

@@ -30,6 +30,7 @@ sys.path.insert(0, str(ROOT))
 from lib.auth_policy import (
     AuthFailureKind,
     classify_auth_failure,
+    detect_cloudflare_challenge,
     policy_snapshot,
     should_stop_platform,
 )
@@ -965,6 +966,11 @@ async def capture_referralcode_tv(browser, offers: OffersRepository) -> dict:
             f"{cfg['url']}/login/", wait_until="domcontentloaded", timeout=60000
         )
         await bumper_mod.human_sleep(1, 2)
+        if await detect_cloudflare_challenge(page):
+            report["login_diagnostic"] = await _write_rctv_login_diagnostic(
+                page, "cloudflare_turnstile_challenge"
+            )
+            raise RuntimeError("cloudflare_turnstile_challenge")
         report["consent"] = await handle_cookie_consent(page, timeout_s=8.0)
         EMAIL_SEL = [
             'input[type="email"]',
@@ -1071,7 +1077,8 @@ async def capture_referralcode_tv(browser, offers: OffersRepository) -> dict:
                 }
             )
     except Exception as exc:  # noqa: BLE001
-        report["errors"].append({"error": str(exc)})
+        kind = classify_auth_failure(str(exc))
+        report["errors"].append({"error": str(exc), "kind": kind.value})
     finally:
         await page.close()
         await ctx.close()

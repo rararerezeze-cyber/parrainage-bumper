@@ -30,9 +30,11 @@ jobs:
           PARRAINAGE_CO_EMAIL:       ${{ secrets.PARRAINAGE_CO_EMAIL }}
           PARRAINAGE_CO_PASSWORD:    ${{ secrets.PARRAINAGE_CO_PASSWORD }}
           PARRAINAGE_CO_RM_COOKIE:   ${{ secrets.PARRAINAGE_CO_RM_COOKIE }}
-          REFERRALCODE_EMAIL:        ${{ secrets.REFERRALCODE_EMAIL }}
-          REFERRALCODE_PASSWORD:     ${{ secrets.REFERRALCODE_PASSWORD }}
-          TARGET_SITES:              "code,parrainage,referralcode"
+          # ReferralCode.tv currently serves GitHub-hosted Chromium a real
+          # Cloudflare Turnstile interstitial before login (read-only run
+          # 32565187359). Do not retry or bypass it and do not let that external
+          # blocker fail the healthy Code-Parrainage/Parrainage.co cycle.
+          TARGET_SITES:              "code,parrainage"
         run: |
           python bumper.py
       - name: 📋 Logs

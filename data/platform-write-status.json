@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-08-22T07:29:13.840357+00:00",
+  "updated_at": "2026-08-22T09:36:01+00:00",
   "note": "Strict write readiness. WRITE_VERIFIED requires full post-verify evidence. Telegram live writes only for WRITE_VERIFIED platforms.",
   "write_verified_count": 5,
   "write_verified_ratio": "5/7",
@@ -299,11 +299,22 @@
       "status": "WRITE_VERIFIED",
       "canary_program": "kraken",
       "autonomy": "HUMAN_SAVE_REQUIRED",
-      "notes": "WRITE_VERIFIED headed canary eid=23004. SAVE_REQUIRES_CAPTCHA — HUMAN_SAVE_REQUIRED. No bypass. Telegram must not auto-save.",
+      "notes": "WRITE_VERIFIED headed canary eid=23004. SAVE_REQUIRES_CAPTCHA — HUMAN_SAVE_REQUIRED. GitHub-hosted Chromium now receives a Cloudflare Turnstile interstitial before login (read-only run 32565187359); scheduled unattended RCTV bump disabled, no bypass. Telegram must not auto-save.",
       "kraken_listing": "KRAKEN_EXISTS",
       "eid_status": "23004",
       "auth_edit_path": "AUTH_EDIT_PATH_PROVEN",
       "save_requires_captcha": true,
+      "scheduled_bump_runtime": "AUTH_BLOCKED_CHALLENGE_GITHUB",
+      "last_headless_readonly_diagnostic": {
+        "gh_run_id": "32565187359",
+        "at": "2026-08-22T09:31:46+00:00",
+        "classification": "CAPTCHA_OR_ANTIBOT",
+        "page_title": "Un instant…",
+        "turnstile_response_input_present": true,
+        "login_form_present": false,
+        "platform_writes": 0,
+        "canonical_capture_preserved": true
+      },
       "last_compare_class": "NO_SAFE_DIFF",
       "last_compare_note": "headed View+account: cpbrgddy / s5qudqe4 / $200; old 85d3qj9p / 2seeom3g absent",
       "last_compare_observed": {

@@ -23,7 +23,7 @@
     ],
     "mode": "canary"
   },
-  "note": "STRICT: auto writers only PC_OFF_READY (1P, Code-P) on a real SAFE_DIFF. RCTV HUMAN_SAVE_REQUIRED (local command). ReferralCodes NEVER_AUTO_COMMIT. ReferralDrop AUTH_BLOCKED_MANUAL. Parrainage.co COOKIE_SESSION_NOT_PC_OFF. Monitor=OBSERVATION_ONLY. Super-Parrain content-writer WRITE_VERIFIED; historical bumper authorized — runtime NORMAL_BUMP (FUSED_UPDATE_BUMP).",
+  "note": "STRICT: auto writers only PC_OFF_READY (1P, Code-P) on a real SAFE_DIFF. RCTV HUMAN_SAVE_REQUIRED (local command); GitHub unattended login blocked by proven Cloudflare Turnstile, scheduled RCTV bump disabled with no bypass. ReferralCodes NEVER_AUTO_COMMIT. ReferralDrop AUTH_BLOCKED_MANUAL. Parrainage.co COOKIE_SESSION_NOT_PC_OFF. Monitor=OBSERVATION_ONLY. Super-Parrain content-writer WRITE_VERIFIED; historical bumper authorized — runtime NORMAL_BUMP (FUSED_UPDATE_BUMP).",
   "monitor_auto_accept": false,
   "super_parrain_runtime": "NORMAL_BUMP",
   "live_canary_waiter": "ENABLED_FOR_SUPER_PARRAIN_ONLY",

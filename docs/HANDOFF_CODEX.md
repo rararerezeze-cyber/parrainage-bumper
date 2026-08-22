@@ -110,21 +110,23 @@ unless the existing explicit operator flow authorizes otherwise.
 
 ## Scheduled bump health
 
-GitHub run `32553935584` completed the Parrainage.co boost and all 36
-Code-Parrainage refreshes, but the combined job failed because ReferralCode.tv's
-initial `/login/` navigation waited for `networkidle` while that page kept
-background requests alive. The login navigation now stops at
-`domcontentloaded`; authentication remains independently validated from the
-post-submit URL. A regression test reproduces the never-idle background-request
-case. No manual workflow was dispatched for this fix, so live confirmation must
-come from the next already-scheduled bump cycle.
+GitHub read-only run `32565187359` proved the current remaining ReferralCode.tv
+blocker: GitHub-hosted Chromium receives a real Cloudflare Turnstile security
+interstitial before the login form (`Un instant…`, hidden
+`cf-turnstile-response`, no email field). This is not selector drift or cookie
+consent and must not be bypassed. The runtime detects it before login, performs
+no retry, and records `CAPTCHA_OR_ANTIBOT`. ReferralCode.tv was removed from the
+combined scheduled target so this external blocker no longer fails the healthy
+Code-Parrainage/Parrainage.co cycle. Local headed human operation remains the
+supported RCTV path.
 
 ## Remaining gaps
 
 1. ReferralCodes: durable product limitation, not an invitation to test Commit.
    Revisit only if an official existing-referral Edit path or update API becomes
    available.
-2. ReferralCode.tv: human CAPTCHA save remains required.
+2. ReferralCode.tv: GitHub-hosted unattended login is blocked by the proven
+   Cloudflare Turnstile interstitial; the human CAPTCHA save remains required.
 3. ReferralDrop: manual authentication/write-path blocker remains.
 4. Hermes mutation persistence: repository and installed-plugin fixes are
    complete; live persistence after the workflow fix is intentionally deferred
@@ -132,8 +134,11 @@ come from the next already-scheduled bump cycle.
 5. Inventory metadata: `parrainage-co/paypal` is an intentional historical
    tombstone (`NOT_PRESENT_ON_ACCOUNT`, no edit URL, never write or recreate),
    not an active stale target. ReferralCode.tv's account inventory contains
-   Whatnot, but no authenticated edit EID is proven in the persisted captures;
-   do not invent a mapping until a read-only account capture resolves it.
+   Whatnot, but no authenticated edit EID is proven in the persisted captures.
+   GitHub cannot currently refresh that inventory because the same Turnstile
+   gate appears before login; resolve the EID only through a legitimate local
+   headed human read-only session, never by inventing a mapping or bypassing
+   the challenge.
 
 ## Validation
 

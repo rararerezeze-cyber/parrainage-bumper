@@ -21,6 +21,7 @@ def test_remaining_work_uses_current_proof_state():
                 "status": "WRITE_VERIFIED",
                 "autonomy": "HUMAN_SAVE_REQUIRED",
                 "save_requires_captcha": True,
+                "scheduled_bump_runtime": "AUTH_BLOCKED_CHALLENGE_GITHUB",
             },
             "referraldrop": {"status": "AUTH_BLOCKED_MANUAL"},
         }
@@ -31,6 +32,7 @@ def test_remaining_work_uses_current_proof_state():
     assert "super-parrain:" not in joined
     assert "code-parrainage:" not in joined
     assert "NEVER_AUTO_COMMIT" in joined
+    assert "scheduled GitHub bump blocked by Cloudflare challenge" in joined
     assert "HUMAN_SAVE_REQUIRED" in joined
     assert "AUTH_BLOCKED_MANUAL" in joined
 
