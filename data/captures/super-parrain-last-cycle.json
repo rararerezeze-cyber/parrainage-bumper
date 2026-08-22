@@ -3,13 +3,13 @@
   "decision": {
     "runtime_mode": "NORMAL_BUMP",
     "canary_pending": false,
-    "next_eligible_at": "2026-08-21T12:59:05.315030+00:00",
+    "next_eligible_at": "2026-08-22T16:51:11.912451+00:00",
     "hours_remaining": 0.0,
     "pending_count": 0,
     "pending_programs": [],
     "activation_canary_owns_save": false,
     "historical_bumper_authorized": true,
-    "jitter_minutes": 21,
+    "jitter_minutes": 137,
     "action": "cycle",
     "reason": "slot_reached_write_verified_precheck_then_bump",
     "skip_bump": false,
@@ -19,7 +19,7 @@
     "eligible_now": true
   },
   "eligible": true,
-  "next_eligible_at": "2026-08-21T12:59:05.315030+00:00",
+  "next_eligible_at": "2026-08-22T16:51:11.912451+00:00",
   "hours_remaining": 0.0,
   "pre_check": {
     "programs_scanned": 35,
@@ -162,7 +162,7 @@
   "bumper_stats": {
     "mode": "fused_bumper_canary",
     "total_edit_urls": 39,
-    "saves": 38,
+    "saves": 39,
     "autofresh": {
       "updated": 1,
       "bump_only": 38,
@@ -624,7 +624,7 @@
     "CANARY_POST_MATCH": true,
     "WRITE_STATUS": "WRITE_VERIFIED",
     "BUMP_CYCLE_24H": "OK",
-    "server_actions": 38,
+    "server_actions": 39,
     "programs_needing_update": 16,
     "canary_need_update": 0,
     "autofresh_updated": 1,
@@ -632,5 +632,5 @@
     "canary_skipped": 24
   },
   "pending_closed": [],
-  "at": "2026-08-21T14:34:16.831712+00:00"
+  "at": "2026-08-22T18:24:42.399614+00:00"
 }
