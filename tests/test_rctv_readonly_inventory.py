@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from tools.capture_auth_readonly import _rctv_classify_account_links
+from tools.capture_auth_readonly import _capture_failures, _rctv_classify_account_links
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -64,3 +64,47 @@ def test_workflow_uses_one_authenticated_rctv_capture_session():
     workflow = WORKFLOW.read_text(encoding="utf-8")
     assert "python tools/capture_auth_readonly.py" in workflow
     assert "python tools/probe_referralcode_tv_edit.py --public --auth" not in workflow
+    assert "diagnostic-artifacts/rctv-login-readonly.json" in workflow
+
+
+def test_focused_capture_fails_closed_on_error_or_empty_result():
+    summary = {
+        "sites": {
+            "referralcode-tv": {
+                "items": [],
+                "errors": [{"error": "email_field_not_found"}],
+            }
+        },
+        "missing_credentials": [],
+    }
+    assert _capture_failures(summary, ["referralcode"]) == [
+        "referralcode-tv:capture_errors",
+        "referralcode-tv:empty_capture",
+    ]
+
+
+def test_focused_capture_accepts_nonempty_error_free_result():
+    summary = {
+        "sites": {
+            "referralcode-tv": {
+                "items": [{"program": "whatnot", "status": "ok"}],
+                "errors": [],
+            }
+        },
+        "missing_credentials": [],
+    }
+    assert _capture_failures(summary, ["referralcode"]) == []
+
+
+def test_rctv_login_diagnostic_never_reads_input_values_or_cookies():
+    source = CAPTURE.read_text(encoding="utf-8")
+    block = source[
+        source.index("async def _write_rctv_login_diagnostic") : source.index(
+            "def _has_creds"
+        )
+    ]
+    assert "el.value" not in block
+    assert "document.cookie" not in block
+    assert "context.cookies" not in block
+    assert '"values_captured": False' in block
+    assert '"cookies_captured": False' in block

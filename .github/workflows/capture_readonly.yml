@@ -107,6 +107,9 @@ jobs:
             data/captures/
             data/platform-mappings/
             data/platform-templates/
+            diagnostic-artifacts/auth-readonly-failure.json
+            diagnostic-artifacts/rctv-login-readonly.json
+            diagnostic-artifacts/rctv-login-readonly.png
             data/needs_canonical_data.json
             data/orphans/
             data/mapping-candidates.json

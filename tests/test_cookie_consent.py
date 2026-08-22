@@ -224,6 +224,12 @@ def test_consent_helper_has_strict_sirdata_target_and_no_save_path():
         assert forbidden not in src
 
 
+def test_login_visibility_supports_rctv_email_form_without_weakening_cmp_targets():
+    src = Path(cc.__file__).read_text(encoding="utf-8")
+    assert "input[type='email']" in src
+    assert "input[name='email']" in src
+
+
 def test_known_sirdata_ccpa_continue_uses_only_exact_dialog_control():
     state = {"native_clicks": 0, "selectors": []}
 

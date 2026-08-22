@@ -967,6 +967,8 @@ async def run_parrainage(browser):
 
 
 async def run_referralcode(browser):
+    from lib.cookie_consent import handle_cookie_consent
+
     cfg = CONFIG["referralcode"]
     name = "referralcode"
     log.info(f"\n--- referralcode.tv ---")
@@ -986,6 +988,12 @@ async def run_referralcode(browser):
                 timeout=45000,
             )
             await human_sleep(2, 4)
+            consent = await handle_cookie_consent(page, timeout_s=8.0)
+            log.info(
+                "  Consent %s via=%s",
+                consent.get("cookie_consent_handled"),
+                consent.get("via") or consent.get("reason"),
+            )
             await page.screenshot(path="debug_referralcode_login.png")
 
             EMAIL_SEL = ['input[type="email"]', 'input[name="email"]',

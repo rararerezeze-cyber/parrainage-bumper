@@ -152,7 +152,7 @@ async def _consent_ui_visible(page) -> bool:
             return True
     except Exception:
         pass
-    for frame in page.frames:
+    for frame in list(getattr(page, "frames", []) or []):
         url = (frame.url or "").lower()
         if any(h in url for h in CONSENT_HINTS):
             return True
@@ -161,7 +161,10 @@ async def _consent_ui_visible(page) -> bool:
 
 async def _username_visible(page) -> bool:
     try:
-        loc = page.locator("input#_username, input[name='_username']").first
+        loc = page.locator(
+            "input#_username, input[name='_username'], input[type='email'], "
+            "input[name='email'], input[name='username']"
+        ).first
         if await loc.count() == 0:
             return False
         return await loc.is_visible()

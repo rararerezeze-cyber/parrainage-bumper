@@ -33,6 +33,7 @@ from lib.auth_policy import (
     policy_snapshot,
     should_stop_platform,
 )
+from lib.cookie_consent import handle_cookie_consent
 from lib.offers import OffersRepository
 from lib.paths import TEMPLATES_DIR, golden_path, mapping_path, template_path
 from lib.template_builder import (
@@ -47,6 +48,7 @@ sys.path.insert(0, str(ROOT))
 import bumper as bumper_mod  # noqa: E402
 
 REPORT_DIR = ROOT / "data" / "captures"
+DIAGNOSTIC_DIR = ROOT / "diagnostic-artifacts"
 
 RCTV_HOSTS = {"referralcode.tv", "www.referralcode.tv"}
 
@@ -136,6 +138,64 @@ async def _collect_rctv_inventory_pages(page, start_url: str, *, max_pages: int 
             }
         )
     return pages, sorted(edit_urls)
+
+
+async def _write_rctv_login_diagnostic(page, reason: str) -> dict:
+    """Persist structural login evidence without values, cookies, or tokens."""
+    DIAGNOSTIC_DIR.mkdir(parents=True, exist_ok=True)
+    screenshot = DIAGNOSTIC_DIR / "rctv-login-readonly.png"
+    output = DIAGNOSTIC_DIR / "rctv-login-readonly.json"
+    try:
+        await page.screenshot(path=str(screenshot), full_page=True)
+    except Exception:
+        screenshot = None
+    census = await page.evaluate(
+        """
+        () => {
+          const visible = (el) => {
+            const r = el.getBoundingClientRect();
+            const s = getComputedStyle(el);
+            return !!(r.width && r.height) && s.display !== 'none'
+              && s.visibility !== 'hidden' && s.opacity !== '0';
+          };
+          const clean = (value, limit=160) => String(value || '').trim().slice(0, limit);
+          return {
+            title: clean(document.title),
+            inputs: Array.from(document.querySelectorAll('input')).map(el => ({
+              type: clean(el.type, 40), name: clean(el.name, 80), id: clean(el.id, 80),
+              placeholder: clean(el.placeholder, 120), visible: visible(el), disabled: !!el.disabled,
+            })),
+            buttons: Array.from(document.querySelectorAll('button, input[type="submit"], [role="button"]')).map(el => ({
+              text: clean(el.innerText || el.getAttribute('aria-label')),
+              type: clean(el.type, 40), name: clean(el.name, 80), id: clean(el.id, 80),
+              class_name: clean(el.className), visible: visible(el), disabled: !!el.disabled,
+            })),
+            frames: Array.from(document.querySelectorAll('iframe')).map(el => ({
+              src: (() => { try { const u = new URL(el.src); return u.origin + u.pathname; } catch (_) { return ''; } })(),
+              title: clean(el.title, 120), visible: visible(el),
+            })),
+            consent_nodes: Array.from(document.querySelectorAll('[id*="consent" i], [class*="consent" i], [id*="cookie" i], [class*="cookie" i]')).slice(0, 30).map(el => ({
+              tag: el.tagName, id: clean(el.id, 80), class_name: clean(el.className), visible: visible(el),
+            })),
+          };
+        }
+        """
+    )
+    from urllib.parse import urlunsplit
+
+    parsed = urlsplit(page.url)
+    report = {
+        "mode": "rctv_login_structural_readonly",
+        "reason": reason,
+        "url": urlunsplit((parsed.scheme, parsed.netloc, parsed.path, "", "")),
+        "screenshot": screenshot.name if screenshot else None,
+        **(census or {}),
+        "cookies_captured": False,
+        "values_captured": False,
+        "platform_writes": 0,
+    }
+    output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return report
 
 
 
@@ -905,6 +965,7 @@ async def capture_referralcode_tv(browser, offers: OffersRepository) -> dict:
             f"{cfg['url']}/login/", wait_until="domcontentloaded", timeout=60000
         )
         await bumper_mod.human_sleep(1, 2)
+        report["consent"] = await handle_cookie_consent(page, timeout_s=8.0)
         EMAIL_SEL = [
             'input[type="email"]',
             'input[name="email"]',
@@ -913,6 +974,9 @@ async def capture_referralcode_tv(browser, offers: OffersRepository) -> dict:
         ]
         ok_email = await bumper_mod.smart_fill(page, EMAIL_SEL, cfg["email"], timeout=15000)
         if not ok_email:
+            report["login_diagnostic"] = await _write_rctv_login_diagnostic(
+                page, "email_field_not_found"
+            )
             raise RuntimeError("champ email introuvable")
         await bumper_mod.smart_fill(
             page, ['input[type="password"]', 'input[name="password"]'], cfg["password"], timeout=10000
@@ -1356,6 +1420,35 @@ async def capture_oneparrainage(browser, offers: OffersRepository) -> dict:
     return report
 
 
+SITE_REPORT_KEYS = {
+    "parrainage": "parrainage-co",
+    "code": "code-parrainage",
+    "referralcode": "referralcode-tv",
+    "oneparrainage": "1parrainage",
+    "1parrainage": "1parrainage",
+    "referralcodes": "referralcodes",
+}
+
+
+def _capture_failures(summary: dict, sites: list[str]) -> list[str]:
+    failures: list[str] = []
+    missing = set(summary.get("missing_credentials") or [])
+    for site in sites:
+        key = SITE_REPORT_KEYS.get(site, site)
+        if site in missing or key in missing:
+            failures.append(f"{key}:missing_credentials")
+            continue
+        report = (summary.get("sites") or {}).get(key)
+        if not isinstance(report, dict):
+            failures.append(f"{key}:missing_report")
+            continue
+        if report.get("errors"):
+            failures.append(f"{key}:capture_errors")
+        if not report.get("items"):
+            failures.append(f"{key}:empty_capture")
+    return sorted(set(failures))
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -1379,9 +1472,23 @@ def main() -> int:
         print(f"  creds {label}: {'yes' if ok else 'no'}")
 
     summary = asyncio.run(amain(sites))
+    failures = _capture_failures(summary, sites)
     REPORT_DIR.mkdir(parents=True, exist_ok=True)
-    out = REPORT_DIR / "auth-readonly-report.json"
-    out.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    if failures:
+        DIAGNOSTIC_DIR.mkdir(parents=True, exist_ok=True)
+        out = DIAGNOSTIC_DIR / "auth-readonly-failure.json"
+        diagnostic = dict(summary)
+        diagnostic["failures"] = failures
+        out.write_text(
+            json.dumps(diagnostic, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+    else:
+        out = REPORT_DIR / "auth-readonly-report.json"
+        out.write_text(
+            json.dumps(summary, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
     for pid, rep in summary.get("sites", {}).items():
         n = len(rep.get("items") or [])
         e = len(rep.get("errors") or [])
@@ -1389,7 +1496,9 @@ def main() -> int:
     if summary.get("missing_credentials"):
         print("missing_credentials:", ",".join(summary["missing_credentials"]))
     print("report:", out)
-    # exit 0 even if partial — CI will upload dumps
+    if failures:
+        print("capture_failures:", ",".join(failures))
+        return 1
     return 0
 
 
