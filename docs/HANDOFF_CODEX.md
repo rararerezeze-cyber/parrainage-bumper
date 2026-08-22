@@ -129,6 +129,11 @@ come from the next already-scheduled bump cycle.
 4. Hermes mutation persistence: repository and installed-plugin fixes are
    complete; live persistence after the workflow fix is intentionally deferred
    to the next legitimate operator change, not a synthetic override.
+5. Inventory metadata: `parrainage-co/paypal` is an intentional historical
+   tombstone (`NOT_PRESENT_ON_ACCOUNT`, no edit URL, never write or recreate),
+   not an active stale target. ReferralCode.tv's account inventory contains
+   Whatnot, but no authenticated edit EID is proven in the persisted captures;
+   do not invent a mapping until a read-only account capture resolves it.
 
 ## Validation
 
