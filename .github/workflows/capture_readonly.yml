@@ -80,9 +80,9 @@ jobs:
             python tools/validate_referralcodes_agent_import.py || true
             python tools/inspect_referralcodes_commit_semantics.py || true
           fi
-          if echo "$SITES" | grep -q referralcode && ! echo "$SITES" | grep -q referralcodes; then
-            python tools/probe_referralcode_tv_edit.py --public --auth || true
-          fi
+          # capture_auth_readonly.py paginates the authenticated RCTV inventory
+          # and opens existing edit GET pages read-only in the same session.
+          # Do not perform a second login through probe_referralcode_tv_edit.py.
           if echo "$SITES" | grep -q oneparrainage; then
             python tools/probe_1parrainage_edit.py --public --auth || true
           fi

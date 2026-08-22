@@ -22,6 +22,7 @@ import random
 import re
 import sys
 from pathlib import Path
+from urllib.parse import parse_qs, urlsplit
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -46,6 +47,95 @@ sys.path.insert(0, str(ROOT))
 import bumper as bumper_mod  # noqa: E402
 
 REPORT_DIR = ROOT / "data" / "captures"
+
+RCTV_HOSTS = {"referralcode.tv", "www.referralcode.tv"}
+
+
+def _rctv_classify_account_links(rows: list[dict]) -> dict[str, list[str]]:
+    """Keep only same-site inventory pages and existing-code edit GET URLs.
+
+    This helper deliberately rejects create, boost, delete, submit, external,
+    non-HTTPS, and ambiguous links. Navigating the returned URLs is read-only.
+    """
+    pages: set[str] = set()
+    edits: set[str] = set()
+    for row in rows or []:
+        href = str((row or {}).get("href") or "").strip()
+        try:
+            parsed = urlsplit(href)
+            port = parsed.port
+        except ValueError:
+            continue
+        if (
+            parsed.scheme != "https"
+            or (parsed.hostname or "").lower() not in RCTV_HOSTS
+            or port not in (None, 443)
+        ):
+            continue
+        query = parse_qs(parsed.query)
+        path = parsed.path.rstrip("/") or "/"
+        if path == "/add-referral-code":
+            eid = (query.get("eid") or [""])[0]
+            if set(query) == {"eid"} and eid.isdigit():
+                edits.add(href)
+            continue
+        if not re.fullmatch(r"/my-account(?:/page/\d+)?", path):
+            continue
+        pagination_keys = {"pagination", "paged", "page", "listing-page"}
+        if not set(query).issubset({"tab", *pagination_keys}):
+            continue
+        tab_is_listings = (query.get("tab") or [""])[0] == "listings"
+        numeric_page = any(
+            (query.get(key) or [""])[0].isdigit()
+            for key in pagination_keys
+        )
+        paged_path = bool(re.fullmatch(r"/my-account/page/\d+", path))
+        if not (tab_is_listings or numeric_page or paged_path):
+            continue
+        pages.add(href)
+    return {"pages": sorted(pages), "edits": sorted(edits)}
+
+
+async def _collect_rctv_inventory_pages(page, start_url: str, *, max_pages: int = 5):
+    """Read every authenticated inventory page without clicking an action."""
+    queue = [start_url]
+    visited: set[str] = set()
+    pages: list[dict] = []
+    edit_urls: set[str] = set()
+    while queue and len(visited) < max_pages:
+        url = queue.pop(0)
+        if url in visited:
+            continue
+        visited.add(url)
+        await page.goto(url, wait_until="domcontentloaded", timeout=60000)
+        await bumper_mod.human_sleep(1.5, 2.5)
+        if "/login" in page.url:
+            raise RuntimeError("login echoue pendant pagination inventaire")
+        body = await page.inner_text("body")
+        anchors = await page.evaluate(
+            """
+            () => Array.from(document.querySelectorAll('a[href]')).map(a => ({
+              href: a.href || '',
+              text: (a.innerText || a.textContent || '').trim().slice(0, 120),
+              class_name: String(a.className || '').slice(0, 160),
+              parent_class: String((a.parentElement && a.parentElement.className) || '').slice(0, 160),
+            }))
+            """
+        )
+        classified = _rctv_classify_account_links(anchors or [])
+        edit_urls.update(classified["edits"])
+        for candidate in classified["pages"]:
+            if candidate not in visited and candidate not in queue:
+                queue.append(candidate)
+        pages.append(
+            {
+                "url": url,
+                "final_url": page.url,
+                "body": body or "",
+                "edit_count": len(classified["edits"]),
+            }
+        )
+    return pages, sorted(edit_urls)
 
 
 
@@ -101,6 +191,35 @@ def _save_result(platform: str, program: str, language: str, text: str, url: str
         "sync_mode": result.sync_mode,
         "paths": {k: str(v.relative_to(ROOT)).replace("\\", "/") for k, v in paths.items()},
     }
+
+
+def _save_new_rctv_result(program: str, text: str, edit_url: str, offer) -> dict:
+    """Create only a missing RCTV mapping; never rewrite existing evidence."""
+    classified = _rctv_classify_account_links([{"href": edit_url}])
+    if classified["edits"] != [edit_url]:
+        raise ValueError(f"unsafe_or_ambiguous_rctv_edit_url:{edit_url}")
+    m_path = mapping_path("referralcode-tv", program, "en")
+    if m_path.exists():
+        return {
+            "program": program,
+            "status": "existing_mapping_preserved",
+            "mapping": str(m_path.relative_to(ROOT)).replace("\\", "/"),
+        }
+    item = _save_result("referralcode-tv", program, "en", text, edit_url, offer)
+    mapping = json.loads(m_path.read_text(encoding="utf-8"))
+    eid = (parse_qs(urlsplit(edit_url).query).get("eid") or [""])[0]
+    mapping["edit_url"] = edit_url
+    mapping["platform_offer_id"] = eid
+    mapping["edit_url_source"] = "authenticated_paginated_readonly"
+    mapping["quality"] = "auth_edit_paginated_readonly"
+    note = "authenticated paginated READ-ONLY edit; no create/save"
+    mapping["notes"] = "; ".join(x for x in (mapping.get("notes"), note) if x)
+    m_path.write_text(
+        json.dumps(mapping, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    item["edit_url"] = edit_url
+    item["platform_offer_id"] = eid
+    return item
 
 
 def _prune_null_offer_mutables(result, offer: dict | None) -> None:
@@ -782,7 +901,9 @@ async def capture_referralcode_tv(browser, offers: OffersRepository) -> dict:
     ctx = await bumper_mod.new_context(browser)
     page = await ctx.new_page()
     try:
-        await page.goto(f"{cfg['url']}/login/", wait_until="networkidle", timeout=60000)
+        await page.goto(
+            f"{cfg['url']}/login/", wait_until="domcontentloaded", timeout=60000
+        )
         await bumper_mod.human_sleep(1, 2)
         EMAIL_SEL = [
             'input[type="email"]',
@@ -818,63 +939,24 @@ async def capture_referralcode_tv(browser, offers: OffersRepository) -> dict:
         if "/login" in page.url:
             raise RuntimeError("login echoue")
 
-        # Prefer public author page first if reachable without timeout, then account listings
-        for listings_url in (
-            "https://www.referralcode.tv/author/thesuperreff/",
-            f"{cfg['url']}/my-account/?tab=listings",
-            f"{cfg['url']}/my-account/",
-        ):
-            try:
-                await page.goto(listings_url, wait_until="domcontentloaded", timeout=60000)
-                await bumper_mod.human_sleep(2, 3)
-                if "/login" not in page.url:
-                    break
-            except Exception:
-                continue
-        await bumper_mod.human_sleep(1, 2)
-        body_text = await page.inner_text("body")
+        inventory_pages, edit_urls = await _collect_rctv_inventory_pages(
+            page, f"{cfg['url']}/my-account/?tab=listings"
+        )
+        body_text = "\n\n".join(p["body"] for p in inventory_pages)
         REPORT_DIR.mkdir(parents=True, exist_ok=True)
         (REPORT_DIR / "referralcode-tv-raw.txt").write_text(body_text[:50000], encoding="utf-8")
-
-        # Prefer edit links per listing (READ-ONLY open)
-        # Note: CSS :has-text is Playwright-only — not valid in page.evaluate/querySelectorAll
-        edit_urls = await page.evaluate(
-            """
-            () => {
-              const out = [];
-              for (const a of document.querySelectorAll('a[href]')) {
-                const href = a.href || '';
-                const label = ((a.innerText || a.textContent || '') + ' ' + href).toLowerCase();
-                if (!href.startsWith('http')) continue;
-                if (label.includes('edit') || href.includes('edit') || label.includes('modifier')) {
-                  out.push(href);
-                }
-              }
-              return Array.from(new Set(out));
+        report["inventory_pages"] = [
+            {
+                "url": p["url"],
+                "final_url": p["final_url"],
+                "body_len": len(p["body"]),
+                "edit_count": p["edit_count"],
             }
-            """
-        )
-        cards = []
-        if not edit_urls:
-            cards = await page.evaluate(
-                """
-                () => {
-                  const out = [];
-                  document.querySelectorAll('.listing, .card, article, .job_listing').forEach(n => {
-                    const t = (n.innerText || '').trim();
-                    if (t.length < 40 || t.length > 2500) return;
-                    if (!/(code|link|http|referral|bonus)/i.test(t)) return;
-                    // un seul bloc — ignorer mega-textes multi-offres
-                    if ((t.match(/Live/g) || []).length > 2) return;
-                    const a = n.querySelector('a[href]');
-                    out.push({href: a ? a.href : location.href, body: t});
-                  });
-                  return out;
-                }
-                """
-            )
+            for p in inventory_pages
+        ]
+        report["edit_urls_found"] = len(edit_urls)
         seen = set()
-        targets = [{"href": u, "body": None} for u in edit_urls[:60]] + cards
+        targets = [{"href": u, "body": None} for u in edit_urls[:60]]
         for card in targets:
             body = card.get("body")
             href = card.get("href")
@@ -912,7 +994,7 @@ async def capture_referralcode_tv(browser, offers: OffersRepository) -> dict:
             except KeyError:
                 offer = None
             try:
-                item = _save_result(platform, slug, "en", body, href, offer)
+                item = _save_new_rctv_result(slug, body, href, offer)
                 report["items"].append(item)
             except Exception as exc:  # noqa: BLE001
                 report["errors"].append({"program": slug, "error": str(exc)})

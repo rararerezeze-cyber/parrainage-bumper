@@ -128,7 +128,9 @@ async def auth_discovery() -> dict:
         ctx = await bumper_mod.new_context(browser)
         page = await ctx.new_page()
         try:
-            await page.goto(f"{cfg['url']}/login/", wait_until="networkidle", timeout=60000)
+            await page.goto(
+                f"{cfg['url']}/login/", wait_until="domcontentloaded", timeout=60000
+            )
             await bumper_mod.human_sleep(1, 2)
             ok_email = await bumper_mod.smart_fill(
                 page,
