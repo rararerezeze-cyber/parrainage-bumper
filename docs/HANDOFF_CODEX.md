@@ -15,7 +15,7 @@ Do not reconstruct current state from older run artifacts. The authority order i
 | Super-Parrain | `WRITE_VERIFIED` | Latest real fused cycle is GitHub run `32369146793`: 39/39 saves and `POST_VERIFY=PASS`; Kraken `post_match`, `exact_body_match`, and `immutable_ok` are true. The already-authenticated-session retry branch was not exercised and remains not live-proven. |
 | Parrainage.co | `WRITE_VERIFIED` | GitHub headless canary and rollback proven. |
 | Code-Parrainage | `WRITE_VERIFIED` | GitHub headless canary and rollback proven. |
-| 1Parrainage | `WRITE_VERIFIED` | Headed save proof is authoritative. GitHub headless login/edit are proven; the complete unattended save chain remains `NOT_RUN`. Run `32416840267` made zero actual Save clicks: the old harness counted two requested phases and triggered a false rollback. Read-only run `32419280860` proved the server had exhausted its two-edits-per-day quota and omitted Save from the edit form. |
+| 1Parrainage | `WRITE_VERIFIED` | `PC_OFF_READY`: GitHub run `32559662078` proves the complete unattended chain with exactly two actual Save clicks, account plus full-public canary verification, exact source/normalized rollback, and public marker removal. `gh_headless_save=PROVEN`. Duplicate run `32559814742` was refused before browser startup with zero writes. |
 | ReferralCodes | `CANARY_READY` | `NEVER_AUTO_COMMIT`. Validate-only evidence exists; Agent Import is not a documented update path for an existing referral. |
 | ReferralCode.tv | `WRITE_VERIFIED` | `HUMAN_SAVE_REQUIRED` because save requires CAPTCHA. No bypass. |
 | ReferralDrop | `AUTH_BLOCKED_MANUAL` | No official public write path. No auth bypass. |
@@ -23,28 +23,30 @@ Do not reconstruct current state from older run artifacts. The authority order i
 The current count is 5/7 `WRITE_VERIFIED`. This count does not mean all five are
 eligible for unattended mutation; platform-specific constraints above still apply.
 
-## 1Parrainage headless evidence gap
+## 1Parrainage headless evidence
 
 The repository contains a dedicated manual workflow:
 `.github/workflows/canary_write_1parrainage.yml`.
 
 It is intentionally separate from the normal canary promotion ladder because
-1Parrainage is already `WRITE_VERIFIED`; the missing fact is only
-`gh_headless_save`. Before a browser starts, it requires all of the following:
+1Parrainage was already `WRITE_VERIFIED`; it existed only to prove
+`gh_headless_save`. The proof is now complete and the gate is permanently closed
+for this evidence probe.
 
 - manual `workflow_dispatch` confirmation `WRITE_1P_CANARY_ROLLBACK`;
 - current platform status still `WRITE_VERIFIED`;
-- `gh_headless_save` still exactly `NOT_RUN`;
+- `gh_headless_save` was still exactly `NOT_RUN` before the successful run;
 - closed circuit and exclusive canary lock;
 - no business `SAFE_DIFF` and exact Kraken identity invariants.
 
-If authorized, the workflow uses one browser session and at most two actual Save
-clicks: append a unique body-only marker, verify it in the account and public
+Run `32559662078` used one browser session and exactly two actual Save clicks:
+append a unique body-only marker, verify it in the account and public
 full-detail `#desc_detail` view, restore the exact original CKEditor HTML, then
 verify both the fresh server-backed source hash and the deterministic
-CKEditor-normalized hash plus public marker removal. Any incomplete chain keeps
-`gh_headless_save=NOT_RUN`. A hard runner termination can interrupt cleanup, so
-the persisted capture, never the workflow attempt alone, is the authority.
+CKEditor-normalized hash plus public marker removal. Every invariant passed and
+`gh_headless_save=PROVEN` is persisted. The canonical capture is the current
+authority; run `32559814742` was a duplicate dispatch refused by the already-
+PROVEN gate before browser startup, with zero Save clicks and zero platform writes.
 
 The harness records requested phases, resolved controls, click starts, and click
 completions separately. A missing or ambiguous control is zero actual Save clicks
@@ -94,16 +96,13 @@ unless the existing explicit operator flow authorizes otherwise.
 
 ## Remaining gaps
 
-1. 1Parrainage: wait for the platform's daily edit quota to reset, then obtain a
-   fresh explicit authorization for one final GitHub headless marker/full-detail-
-   post-verify/exact-rollback workflow. Until its persisted proof passes,
-   unattended save remains `NOT_RUN`.
-2. ReferralCodes: durable product limitation, not an invitation to test Commit.
+1. ReferralCodes: durable product limitation, not an invitation to test Commit.
    Revisit only if an official existing-referral Edit path or update API becomes
    available.
-3. ReferralCode.tv: human CAPTCHA save remains required.
-4. ReferralDrop: manual authentication/write-path blocker remains.
-5. Telegram mutation bug: separate Hermes-owned chantier after 1Parrainage.
+2. ReferralCode.tv: human CAPTCHA save remains required.
+3. ReferralDrop: manual authentication/write-path blocker remains.
+4. Telegram mutation bug: separate Hermes-owned chantier; 1Parrainage no longer
+   blocks starting that work.
 
 ## Validation
 

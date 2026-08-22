@@ -682,7 +682,52 @@ def test_failed_attempt_keeps_not_run_and_success_only_adds_headless_proof(
     proven = json.loads(status.read_text(encoding="utf-8"))["platforms"]["1parrainage"]
     assert proven["status"] == "WRITE_VERIFIED"
     assert proven["gh_headless_save"] == "PROVEN"
+    assert proven["pc_off_write_proven"] is True
+    assert proven["gh_headless_probe"]["state"] == "PROVEN_COMPLETE"
+    assert proven["gh_headless_probe"]["writes_if_authorized"] == 0
     assert proven["headless_evidence"]["account_before_sha256"] == "same"
+
+
+def test_duplicate_dispatch_uses_refusal_artifact_and_preserves_canonical(
+    tmp_path, monkeypatch
+):
+    canonical = tmp_path / "canonical.json"
+    refusal = tmp_path / "refused.json"
+    monkeypatch.setattr(canary, "REPORT_PATH", canonical)
+    monkeypatch.setattr(canary, "REFUSAL_REPORT_PATH", refusal)
+
+    assert canary._report_path_for({"gate": {"done": True}}) == refusal
+    assert canary._report_path_for({"gate": {"ok": True, "lock": True}}) == canonical
+    assert canary._report_path_for({}) == canonical
+
+
+def test_duplicate_dispatch_main_never_overwrites_canonical(tmp_path, monkeypatch):
+    canonical = tmp_path / "canonical.json"
+    refusal = tmp_path / "refused.json"
+    canonical.write_text('{"success": true}\n', encoding="utf-8")
+
+    async def refused(report):
+        report["gate"] = {
+            "ok": False,
+            "done": True,
+            "error": "evidence_field_not_NOT_RUN:PROVEN",
+        }
+        raise RuntimeError("evidence probe refused: evidence_field_not_NOT_RUN:PROVEN")
+
+    monkeypatch.setattr(canary, "REPORT_PATH", canonical)
+    monkeypatch.setattr(canary, "REFUSAL_REPORT_PATH", refusal)
+    monkeypatch.setattr(canary, "_run_probe", refused)
+    monkeypatch.setenv(canary.CONFIRM_ENV, "1")
+    monkeypatch.setattr(
+        sys, "argv", ["canary_write_1parrainage.py", "--execute", "--force"]
+    )
+
+    assert canary.main() == 1
+    assert canonical.read_text(encoding="utf-8") == '{"success": true}\n'
+    refused_report = json.loads(refusal.read_text(encoding="utf-8"))
+    assert refused_report["success"] is False
+    assert refused_report["gate"]["done"] is True
+    assert "PROVEN" in refused_report["error"]
 
 
 def test_missing_runtime_authorization_never_touches_status(tmp_path, monkeypatch):
@@ -710,7 +755,8 @@ def test_workflow_is_manual_confirmed_serialized_and_persists_failure_evidence()
     assert "group: parrainage-bumper-super" in workflow
     assert "tools/canary_write_1parrainage.py --execute --force" in workflow
     assert "if: always()" in workflow
-    assert "gh_headless_save remains NOT_RUN" in workflow
+    assert "Status authority is unchanged" in workflow
+    assert "diagnostic-artifacts/canary-1parrainage-refused.json" in workflow
     assert "mapfile -t UNSTAGED < <(git diff --name-only)" in workflow
     assert 'python tools/check_1parrainage_evidence_paths.py "${UNSTAGED[@]}"' in workflow
     assert "data/circuit-breakers.json" in workflow

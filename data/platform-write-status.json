@@ -154,7 +154,7 @@
       "status": "WRITE_VERIFIED",
       "canary_program": "kraken",
       "autonomy": "PC_OFF_READY",
-      "notes": "PC_OFF_READY — headed WRITE_VERIFIED remains authoritative; unattended GH save is still NOT_RUN. Run 32410815698 proved consent, headless login/edit, one canary Save, account marker persistence, and rollback Save, but did not complete the public/exact-rollback proof. Run 32416840267 made zero actual Save clicks; its legacy harness counted two requested phases and triggered an unnecessary rollback. Read-only run 32419280860 proved the server omitted Save because the two-edits-per-day quota was exhausted until tomorrow; CKEditor normalization did not change the controls. The corrected harness counts only click starts, rolls back only after a potentially persistent click, and keeps the exact scoped selector. A final canary requires quota reset plus fresh explicit operator authorization. Auto only on a real SAFE_DIFF. No fake write. GH headless save PROVEN by rollback-enforced Kraken body-marker canary (run 32559662078); exactly two save attempts, account+public canary verification, exact account rollback hash, and public marker removal confirmed.",
+      "notes": "PC_OFF_READY — headed WRITE_VERIFIED remains authoritative and GH headless save is PROVEN by run 32559662078: exactly two actual Save clicks, account plus full-public canary verification, exact source and normalized rollback, and public marker removal. Duplicate run 32559814742 was refused by the already-PROVEN gate before browser startup with zero Save clicks and zero platform writes. Auto only on a real SAFE_DIFF. No fake write.",
       "last_compare_class": "NO_SAFE_DIFF",
       "last_compare_at": "2026-08-13T10:32:53.322453+00:00",
       "last_compare_note": "headed canary Envoyer + independent public reread: s5qudqe4 present, 4jdp7sea absent, cpbrgddy + 200 EUR unchanged",
@@ -191,14 +191,14 @@
       "gh_headless_login": "PROVEN",
       "gh_headless_edit": "PROVEN",
       "gh_headless_save": "PROVEN",
+      "pc_off_write_proven": true,
       "gh_headless_probe": {
-        "state": "WAIT_DAILY_EDIT_QUOTA_RESET_THEN_OPERATOR_AUTHORIZATION",
+        "state": "PROVEN_COMPLETE",
         "workflow": ".github/workflows/canary_write_1parrainage.yml",
-        "confirmation": "WRITE_1P_CANARY_ROLLBACK",
-        "writes_if_authorized": 2,
-        "save_click_limit": "AT_MOST_2_ACTUAL_CLICKS",
+        "writes_if_authorized": 0,
+        "save_click_limit": "CLOSED_AFTER_PROOF",
         "proof_required": "canary account marker plus full public #desc_detail marker, then exact fresh-source and idempotent CKEditor-normalized account hashes restored and public marker absent",
-        "live_run": "LAST_ATTEMPT_INCOMPLETE"
+        "live_run": "32559662078"
       },
       "last_headless_canary_attempt": {
         "gh_run_id": "32559662078",
@@ -243,6 +243,16 @@
         "save_attempts_actual": 2,
         "save_attempts": 2,
         "error": null
+      },
+      "last_headless_duplicate_dispatch": {
+        "gh_run_id": "32559814742",
+        "at": "2026-08-22T07:31:59.577711+00:00",
+        "conclusion": "failure",
+        "gate_error": "evidence_field_not_NOT_RUN:PROVEN",
+        "blocked_before_browser": true,
+        "save_attempts_actual": 0,
+        "platform_writes": 0,
+        "canonical_success_preserved": true
       },
       "headless_evidence": {
         "program": "kraken",

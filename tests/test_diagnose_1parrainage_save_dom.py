@@ -17,6 +17,9 @@ RECONCILIATION = (
     / "canary-1parrainage-run-32416840267-reconciled.json"
 )
 STATUS = ROOT / "data" / "platform-write-status.json"
+CANONICAL_CANARY = (
+    ROOT / "data" / "captures" / "canary-1parrainage-kraken.json"
+)
 
 
 def _control(label: str, *, visible: bool = True):
@@ -89,9 +92,10 @@ def test_workflow_is_manual_read_only_and_uses_no_canary_command():
     assert "git push" not in source
 
 
-def test_persisted_diagnostic_and_historical_reconciliation_are_fail_closed():
+def test_persisted_history_and_final_proof_are_fail_closed():
     capture = json.loads(CAPTURE.read_text(encoding="utf-8"))
     reconciliation = json.loads(RECONCILIATION.read_text(encoding="utf-8"))
+    canonical = json.loads(CANONICAL_CANARY.read_text(encoding="utf-8"))
     status = json.loads(STATUS.read_text(encoding="utf-8"))["platforms"][
         "1parrainage"
     ]
@@ -107,6 +111,17 @@ def test_persisted_diagnostic_and_historical_reconciliation_are_fail_closed():
     assert reconciliation["historical_reported_state"]["save_attempts"] == 2
     assert reconciliation["reconciled_state"]["save_attempts_actual"] == 0
     assert reconciliation["reconciled_state"]["rollback_required"] is False
-    assert status["gh_headless_save"] == "NOT_RUN"
-    assert status["last_headless_canary_attempt"]["gh_run_id"] == "32416840267"
+    assert canonical["source_run_id"] == "32559662078"
+    assert canonical["success"] is True
+    assert canonical["save_accounting"]["save_attempts_actual"] == 2
+    assert canonical["rollback_account"]["source_exact"] is True
+    assert canonical["rollback_account"]["normalized_exact"] is True
+    assert canonical["rollback_public_full"]["marker_present"] is False
+    assert canonical["duplicate_dispatch"]["actual_save_clicks"] == 0
+    assert status["gh_headless_save"] == "PROVEN"
+    assert status["pc_off_write_proven"] is True
+    assert status["gh_headless_probe"]["state"] == "PROVEN_COMPLETE"
+    assert status["last_headless_canary_attempt"]["gh_run_id"] == "32559662078"
     assert status["last_headless_readonly_diagnostic"]["gh_run_id"] == "32419280860"
+    assert status["last_headless_duplicate_dispatch"]["gh_run_id"] == "32559814742"
+    assert status["last_headless_duplicate_dispatch"]["save_attempts_actual"] == 0

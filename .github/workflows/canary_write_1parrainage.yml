@@ -56,6 +56,7 @@ jobs:
         if: always()
         run: |
           cat data/captures/canary-1parrainage-kraken.json || true
+          cat diagnostic-artifacts/canary-1parrainage-refused.json || true
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -63,7 +64,9 @@ jobs:
           name: canary-1parrainage-headless
           retention-days: 14
           if-no-files-found: ignore
-          path: data/captures/canary-1parrainage-kraken.json
+          path: |
+            data/captures/canary-1parrainage-kraken.json
+            diagnostic-artifacts/canary-1parrainage-refused.json
       - name: Persist result
         if: always()
         run: |
@@ -103,6 +106,6 @@ jobs:
           EXIT="${{ steps.canary.outputs.canary_exit }}"
           echo "canary script exit=$EXIT"
           if [ "$EXIT" != "0" ]; then
-            echo "::error::1Parrainage headless proof incomplete. gh_headless_save remains NOT_RUN. Inspect the persisted report for rollback state."
+            echo "::error::1Parrainage probe incomplete or already closed. Status authority is unchanged; inspect the run artifact."
             exit 1
           fi

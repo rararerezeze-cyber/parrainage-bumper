@@ -1,28 +1,84 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
+  "kind": "canonical_success_summary_after_duplicate_dispatch_reconciliation",
   "platform": "1parrainage",
   "program": "kraken",
-  "started_at": "2026-08-22T07:31:59.569954+00:00",
-  "gh_run_id": "32559814742",
-  "headless": true,
-  "status_before": "WRITE_VERIFIED",
-  "evidence_field_before": "NOT_RUN",
-  "live_write_authorized": true,
-  "plan": {
-    "program": "kraken",
-    "platform_offer_id": "100408",
-    "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100408",
-    "edit_url": "https://www.1parrainage.com/espace_parrain/parrainages/edit/2541207/",
-    "changed_fields": {},
-    "structure_preserved": true
+  "source_run_id": "32559662078",
+  "source_head_sha": "a6f4bcb804fb4a987006ad56a6a28b2d2238efe1",
+  "source_artifact": "canary-1parrainage-headless/canary-1parrainage-kraken.json",
+  "source_evidence_commit": "92815cb5bd29459ab84bf8998e3802118c9dda9a",
+  "started_at": "2026-08-22T07:28:34.309936+00:00",
+  "finished_at": "2026-08-22T07:29:13.839487+00:00",
+  "success": true,
+  "save_accounting": {
+    "save_phase_requests": 2,
+    "save_click_started": 2,
+    "save_click_completed": 2,
+    "save_attempts_actual": 2,
+    "canary_may_have_persisted": true,
+    "rollback_attempted": true
   },
-  "gate": {
-    "ok": false,
-    "platform": "1parrainage",
-    "error": "evidence_field_not_NOT_RUN:PROVEN",
-    "done": true
+  "checks": {
+    "authenticated": true,
+    "targeted_body_only": true,
+    "exactly_two_save_attempts": true,
+    "canary_account_verified": true,
+    "canary_public_verified": true,
+    "rollback_account_exact": true,
+    "rollback_public_marker_absent": true
   },
-  "error": "evidence probe refused: evidence_field_not_NOT_RUN:PROVEN",
-  "success": false,
-  "finished_at": "2026-08-22T07:31:59.577711+00:00"
+  "baseline_account": {
+    "body_len": 1062,
+    "body_sha256": "ad2a57ac0e2afc795ca038c936ac2f63a93faaeb141a356bb9692fcf16598afb",
+    "normalized_body_len": 1063,
+    "normalized_body_sha256": "48d1ad78c24536e00e4e2bb8b5fd674b7a65466d6c16f5a72e7772affd0af3e7",
+    "identity_ok": true,
+    "marker_present": false
+  },
+  "canary_account": {
+    "body_len": 1111,
+    "body_sha256": "64619a18841fc0ecfd777f63cffada5871446c9447ddcad13c20780b0546ea5c",
+    "normalized_body_len": 1112,
+    "normalized_body_sha256": "6c6ac037193bf904c3552c80e9de1314b8bbb5c8b5212c3fc24ecc27d57978a6",
+    "identity_ok": true,
+    "marker_present": true
+  },
+  "canary_public_full": {
+    "view": "full_detail_desc_detail",
+    "extracted_len": 1150,
+    "extracted_sha256": "0ed8dc6a6fa47c401792bbf7d53e6f8a8746b7f976bba01b07ee5a37e414dc3e",
+    "identity_ok": true,
+    "marker_present": true,
+    "poll_attempt": 1
+  },
+  "rollback_account": {
+    "body_len": 1062,
+    "body_sha256": "ad2a57ac0e2afc795ca038c936ac2f63a93faaeb141a356bb9692fcf16598afb",
+    "normalized_body_len": 1063,
+    "normalized_body_sha256": "48d1ad78c24536e00e4e2bb8b5fd674b7a65466d6c16f5a72e7772affd0af3e7",
+    "source_exact": true,
+    "normalized_exact": true,
+    "identity_ok": true,
+    "marker_present": false
+  },
+  "rollback_public_full": {
+    "view": "full_detail_desc_detail",
+    "extracted_len": 1099,
+    "extracted_sha256": "326b232e8dd16d59b5271f6d75335af9daec17032dd20e995e67899ee01b408e",
+    "identity_ok": true,
+    "marker_present": false,
+    "poll_attempt": 1
+  },
+  "rollback_ok": true,
+  "gh_headless_save": "PROVEN",
+  "final_public_state_restored": true,
+  "duplicate_dispatch": {
+    "run_id": "32559814742",
+    "conclusion": "failure",
+    "gate_error": "evidence_field_not_NOT_RUN:PROVEN",
+    "blocked_before_browser": true,
+    "actual_save_clicks": 0,
+    "platform_writes": 0,
+    "note": "The duplicate refusal had overwritten the canonical capture in commit d44ad8d; this summary restores the successful run as current authority without rewriting the original artifact."
+  }
 }

@@ -68,10 +68,20 @@ EXPECTED_REWARD = "200 € en cryptomonnaies"
 CONFIRM_ENV = "AUTOFRESH_1P_HEADLESS_CANARY"
 
 REPORT_PATH = ROOT / "data" / "captures" / "canary-1parrainage-kraken.json"
+REFUSAL_REPORT_PATH = (
+    ROOT / "diagnostic-artifacts" / "canary-1parrainage-refused.json"
+)
 
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def _report_path_for(report: dict[str, Any]) -> Path:
+    """Keep an already-proven canonical capture immutable on duplicate dispatch."""
+    if (report.get("gate") or {}).get("done") is True:
+        return REFUSAL_REPORT_PATH
+    return REPORT_PATH
 
 
 def _sha256(text: str | None) -> str | None:
@@ -405,6 +415,7 @@ def _record_status(report: dict[str, Any], success: bool) -> None:
         meta["gh_headless_login"] = "PROVEN"
         meta["gh_headless_edit"] = "PROVEN"
         meta[EVIDENCE_FIELD] = "PROVEN"
+        meta["pc_off_write_proven"] = True
         meta["last_headless_canary_run"] = attempt
         meta["headless_evidence"] = {
             "program": PROGRAM,
@@ -423,14 +434,25 @@ def _record_status(report: dict[str, Any], success: bool) -> None:
             ).get("normalized_body_sha256"),
             "source": "github_headless_canary_with_mandatory_rollback",
         }
-        suffix = (
-            " GH headless save PROVEN by rollback-enforced Kraken body-marker "
-            f"canary (run {report.get('gh_run_id')}); exactly two save attempts, "
-            "account+public canary verification, exact account rollback hash, "
-            "and public marker removal confirmed."
+        meta["gh_headless_probe"] = {
+            "state": "PROVEN_COMPLETE",
+            "workflow": ".github/workflows/canary_write_1parrainage.yml",
+            "writes_if_authorized": 0,
+            "save_click_limit": "CLOSED_AFTER_PROOF",
+            "proof_required": (
+                "canary account marker plus full public #desc_detail marker, "
+                "then exact fresh-source and idempotent CKEditor-normalized "
+                "account hashes restored and public marker absent"
+            ),
+            "live_run": str(report.get("gh_run_id")),
+        }
+        meta["notes"] = (
+            "PC_OFF_READY — headed WRITE_VERIFIED remains authoritative and GH "
+            f"headless save is PROVEN by run {report.get('gh_run_id')}: exactly "
+            "two actual Save clicks, account+full-public canary verification, "
+            "exact source/normalized rollback, and public marker removal. Auto "
+            "only on a real SAFE_DIFF. No fake write."
         )
-        if "GH headless save PROVEN" not in str(meta.get("notes") or ""):
-            meta["notes"] = (str(meta.get("notes") or "").rstrip() + suffix).strip()
     elif meta.get(EVIDENCE_FIELD) != "PROVEN":
         meta[EVIDENCE_FIELD] = "NOT_RUN"
     save_write_status(data)
@@ -439,6 +461,11 @@ def _record_status(report: dict[str, Any], success: bool) -> None:
 async def _run_probe(report: dict[str, Any]) -> bool:
     plan = build_write_plan(PLATFORM, PROGRAM, LANGUAGE)
     _static_preflight(plan)
+    current_meta = (
+        load_write_status().get("platforms", {}).get(PLATFORM, {})
+    )
+    report["status_before"] = current_meta.get("status")
+    report["evidence_field_before"] = current_meta.get(EVIDENCE_FIELD)
     report["plan"] = {
         "program": PROGRAM,
         "platform_offer_id": plan.platform_offer_id,
@@ -688,8 +715,8 @@ def main() -> int:
         "started_at": _now(),
         "gh_run_id": os.environ.get("GITHUB_RUN_ID") or "local",
         "headless": True,
-        "status_before": "WRITE_VERIFIED",
-        "evidence_field_before": "NOT_RUN",
+        "status_before": None,
+        "evidence_field_before": None,
         "live_write_authorized": False,
     }
     success = False
@@ -708,8 +735,9 @@ def main() -> int:
     finally:
         report["success"] = success
         report["finished_at"] = _now()
-        REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-        REPORT_PATH.write_text(
+        report_path = _report_path_for(report)
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        report_path.write_text(
             json.dumps(report, ensure_ascii=False, indent=2) + "\n",
             encoding="utf-8",
         )
@@ -725,7 +753,7 @@ def main() -> int:
                 report["status_record_error"] = str(status_exc)
                 success = False
                 report["success"] = False
-                REPORT_PATH.write_text(
+                report_path.write_text(
                     json.dumps(report, ensure_ascii=False, indent=2) + "\n",
                     encoding="utf-8",
                 )
