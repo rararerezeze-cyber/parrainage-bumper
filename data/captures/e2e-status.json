@@ -53,7 +53,7 @@
       "autonomy": "PC_OFF_READY",
       "route": "AUTO_ON_SAFE_DIFF",
       "canary_program": "kraken",
-      "notes": "PC_OFF_READY — headed WRITE_VERIFIED remains authoritative; unattended GH save is still NOT_RUN. Run 32410815698 proved consent, headless login/edit, one canary Save, account marker persistence, and rollback Save, but did not complete the public/exact-rollback proof. Run 32416840267 made zero actual Save clicks; its legacy harness counted two requested phases and triggered an unnecessary rollback. Read-only run 32419280860 proved the server omitted Save because the two-edits-per-day quota was exhausted until tomorrow; CKEditor normalization did not change the controls. The corrected harness counts only click starts, rolls back only after a potentially persistent click, and keeps the exact scoped selector. A final canary requires quota reset plus fresh explicit operator authorization. Auto only on a real SAFE_DIFF. No fake write.",
+      "notes": "PC_OFF_READY — headed WRITE_VERIFIED remains authoritative and GH headless save is PROVEN by run 32559662078: exactly two actual Save clicks, account plus full-public canary verification, exact source and normalized rollback, and public marker removal. Duplicate run 32559814742 was refused by the already-PROVEN gate before browser startup with zero Save clicks and zero platform writes. Auto only on a real SAFE_DIFF. No fake write.",
       "last_write_verified_at": "2026-08-13T10:29:40.550997+00:00"
     },
     {

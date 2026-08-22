@@ -164,6 +164,25 @@ def test_count_starts_at_zero(status_path):
     assert s["WRITE_VERIFIED"] == "0/7"
 
 
+def test_reading_complete_status_does_not_rewrite_updated_at(status_path):
+    data = json.loads(status_path.read_text(encoding="utf-8"))
+    data.update(
+        {
+            "updated_at": "2026-08-22T07:29:13.840357+00:00",
+            "write_verified_count": 0,
+            "write_verified_ratio": "0/7",
+            "telegram_live_capable": [],
+        }
+    )
+    status_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+    before = status_path.read_bytes()
+
+    loaded = ws.ensure_write_status_file()
+
+    assert status_path.read_bytes() == before
+    assert loaded["updated_at"] == "2026-08-22T07:29:13.840357+00:00"
+
+
 def test_sync_verified_no_safe_diff_is_not_write_verified(status_path):
     r = ws.mark_sync_verified_no_safe_diff("super-parrain", program="kraken")
     assert r["ok"] is True

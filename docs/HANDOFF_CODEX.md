@@ -94,6 +94,17 @@ Hermes and must not be resumed or represented as locally guarded here.
 Do not change `monitor_auto_accept`. Monitor decisions remain observation-only
 unless the existing explicit operator flow authorizes otherwise.
 
+## Scheduled bump health
+
+GitHub run `32553935584` completed the Parrainage.co boost and all 36
+Code-Parrainage refreshes, but the combined job failed because ReferralCode.tv's
+initial `/login/` navigation waited for `networkidle` while that page kept
+background requests alive. The login navigation now stops at
+`domcontentloaded`; authentication remains independently validated from the
+post-submit URL. A regression test reproduces the never-idle background-request
+case. No manual workflow was dispatched for this fix, so live confirmation must
+come from the next already-scheduled bump cycle.
+
 ## Remaining gaps
 
 1. ReferralCodes: durable product limitation, not an invitation to test Commit.

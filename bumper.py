@@ -975,7 +975,16 @@ async def run_referralcode(browser):
     async def _do():
         page = await ctx.new_page()
         try:
-            await page.goto(f"{cfg['url']}/login/", wait_until="networkidle", timeout=60000)
+            # ReferralCode.tv keeps background requests alive on the login page.
+            # Waiting for networkidle therefore turns a usable DOM into a hard
+            # 60-second failure (for example GH run 32553935584).  The form is
+            # fully available at DOMContentLoaded; authentication is validated
+            # independently below from the post-submit URL.
+            await page.goto(
+                f"{cfg['url']}/login/",
+                wait_until="domcontentloaded",
+                timeout=45000,
+            )
             await human_sleep(2, 4)
             await page.screenshot(path="debug_referralcode_login.png")
 

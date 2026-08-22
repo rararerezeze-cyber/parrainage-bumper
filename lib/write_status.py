@@ -211,12 +211,35 @@ def save_write_status(data: dict[str, Any]) -> Path:
 
 def ensure_write_status_file() -> dict[str, Any]:
     data = load_write_status()
+    needs_save = not STATUS_PATH.exists()
     # merge defaults for missing platforms
     plats = data.setdefault("platforms", {})
     for pid, meta in DEFAULT_STATUS.items():
         if pid not in plats:
             plats[pid] = dict(meta)
-    save_write_status(data)
+            needs_save = True
+
+    verified_count = sum(
+        1
+        for meta in plats.values()
+        if (meta or {}).get("status") == STATUS_WRITE_VERIFIED
+    )
+    live_capable = [
+        pid for pid, meta in plats.items() if _meta_auto_on_safe_diff(pid, meta or {})
+    ]
+    summary_fields = {
+        "write_verified_count": verified_count,
+        "telegram_live_capable": live_capable,
+        "write_verified_ratio": f"{verified_count}/7",
+    }
+    for field, value in summary_fields.items():
+        if data.get(field) != value:
+            data[field] = value
+            needs_save = True
+
+    if needs_save:
+        save_write_status(data)
+        return load_write_status()
     return data
 
 

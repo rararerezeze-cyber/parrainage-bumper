@@ -16,7 +16,14 @@ from lib.inventory import list_mapping_refs
 from lib.offers import OffersRepository
 from lib.operator_overrides import OperatorOverrideStore, resolve_effective_value
 from lib.paths import DATA_DIR, TEMPLATES_DIR
-from lib.write_status import load_write_status
+from lib.write_status import (
+    AUTONOMY_HUMAN_SAVE_REQUIRED,
+    AUTONOMY_IMPORT_UI_BETA_NOT_PROVEN,
+    STATUS_AUTH_BLOCKED,
+    STATUS_AUTH_BLOCKED_MANUAL,
+    STATUS_WRITE_VERIFIED,
+    load_write_status,
+)
 from platforms.registry import ALL_PLATFORMS, get_adapter
 
 OUT = DATA_DIR / "captures" / "autofresh-final-readonly-audit.json"
@@ -280,6 +287,53 @@ def _classify_row(
     return "ACCOUNT_ONLY"
 
 
+def _remaining_work(plats_meta: dict[str, dict]) -> list[str]:
+    """Derive durable gaps from the current authoritative platform status."""
+    remaining = []
+
+    one = plats_meta.get("1parrainage") or {}
+    if not (
+        one.get("status") == STATUS_WRITE_VERIFIED
+        and one.get("gh_headless_save") == "PROVEN"
+    ):
+        remaining.append("1parrainage: unattended GH save proof incomplete")
+
+    super_meta = plats_meta.get("super-parrain") or {}
+    if super_meta.get("status") != STATUS_WRITE_VERIFIED:
+        remaining.append("super-parrain: content write proof incomplete")
+    elif super_meta.get("runtime_mode") != "NORMAL_BUMP":
+        remaining.append("super-parrain: normal bump runtime not enabled")
+
+    code = plats_meta.get("code-parrainage") or {}
+    if not (
+        code.get("status") == STATUS_WRITE_VERIFIED
+        and code.get("gh_headless_save") == "PROVEN"
+    ):
+        remaining.append("code-parrainage: unattended save proof incomplete")
+
+    rcodes = plats_meta.get("referralcodes") or {}
+    if rcodes.get("autonomy") == AUTONOMY_IMPORT_UI_BETA_NOT_PROVEN:
+        remaining.append(
+            "referralcodes: NEVER_AUTO_COMMIT until an official existing-referral update path exists"
+        )
+
+    rctv = plats_meta.get("referralcode-tv") or {}
+    if (
+        rctv.get("autonomy") == AUTONOMY_HUMAN_SAVE_REQUIRED
+        or rctv.get("save_requires_captcha")
+    ):
+        remaining.append("referralcode-tv: HUMAN_SAVE_REQUIRED (CAPTCHA)")
+
+    drop = plats_meta.get("referraldrop") or {}
+    if drop.get("status") in {STATUS_AUTH_BLOCKED, STATUS_AUTH_BLOCKED_MANUAL}:
+        remaining.append("referraldrop: AUTH_BLOCKED_MANUAL")
+
+    remaining.append(
+        "map ACCOUNT_ONLY programs only after a canonical offer and verified account identity exist"
+    )
+    return remaining
+
+
 def run() -> dict:
     offers = OffersRepository().load_all()
     offer_slugs = {o["lk"] for o in offers if o.get("lk")}
@@ -381,15 +435,7 @@ def run() -> dict:
     ]
     live_capable = list(ws.get("telegram_live_capable") or [])
 
-    remaining = []
-    if "1parrainage" in write_verified:
-        remaining.append("1parrainage: GH headless login still unproven (not PC-off)")
-    remaining.append("super-parrain: CANARY_PENDING, bumper SKIP until WRITE_VERIFIED")
-    remaining.append("code-parrainage: DOM_BLOCKED slider, no bypass")
-    remaining.append("referralcode-tv: resolve Kraken EID read-only (KRAKEN_EXISTS)")
-    remaining.append("referraldrop: AUTH_BLOCKED_GOOGLE")
-    remaining.append("map ACCOUNT_ONLY (bitget, ubereats, rctv extras) only after offers.json entries")
-    remaining.append("no second canary until operator agrees")
+    remaining = _remaining_work(plats_meta)
 
     report = {
         "schema": "AUTOFRESH_FINAL_READONLY_AUDIT",
