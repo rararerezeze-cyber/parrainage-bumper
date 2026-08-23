@@ -3,6 +3,6 @@
   "result": "WAIT",
   "reason": "cooldown_24h",
   "runtime_mode": "NORMAL_BUMP",
-  "next_eligible_at": "2026-08-22T16:51:11.912451+00:00",
-  "hours_remaining": 10.83
+  "next_eligible_at": "2026-08-23T18:42:40.187877+00:00",
+  "hours_remaining": 12.74
 }

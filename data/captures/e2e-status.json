@@ -73,7 +73,7 @@
       "autonomy": "HUMAN_SAVE_REQUIRED",
       "route": "HUMAN_SAVE_REQUIRED",
       "canary_program": "kraken",
-      "notes": "WRITE_VERIFIED headed canary eid=23004. SAVE_REQUIRES_CAPTCHA — HUMAN_SAVE_REQUIRED. No bypass. Telegram must not auto-save.",
+      "notes": "WRITE_VERIFIED headed canary eid=23004. SAVE_REQUIRES_CAPTCHA — HUMAN_SAVE_REQUIRED. GitHub-hosted Chromium now receives a Cloudflare Turnstile interstitial before login (read-only run 32565187359); scheduled unattended RCTV bump disabled, no bypass. Telegram must not auto-save.",
       "last_write_verified_at": "2026-08-13T12:47:36.402325+00:00"
     },
     {
