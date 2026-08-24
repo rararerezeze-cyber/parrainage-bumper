@@ -272,7 +272,7 @@ jobs:
         continue-on-error: true
         with:
           path: data/notifications/dedup.json
-          key: autofresh-notify-dedup-${ github.workflow }-${ github.run_id }
+          key: autofresh-notify-dedup-${{ github.workflow }}-${{ github.run_id }}
 
       - name: Upload notification outbox for Hermes
         if: always()

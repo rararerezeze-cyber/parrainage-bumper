@@ -165,6 +165,19 @@ def _steps(name: str) -> list[dict]:
     return [s for job in data["jobs"].values() for s in (job.get("steps") or [])]
 
 
+KEY_TEMPLATE = "autofresh-notify-dedup-${{ github.workflow }}-${{ github.run_id }}"
+RESTORE_PREFIX = "autofresh-notify-dedup-${{ github.workflow }}-"
+
+# A single brace is NOT a GitHub Actions expression: `${ github.run_id }` is
+# emitted literally. A save key built that way is identical on every run and can
+# never match the restore prefix of the next one, so the cross-runner dedup is
+# silently not wired at all. This exact bug shipped in the first version of these
+# workflows -- Python's str.format() collapsed `{{` into `{` in the save/upload
+# template -- and the original test missed it because it only inspected the
+# RESTORE key's run_id.
+MALFORMED = ("${ github.workflow }", "${ github.run_id }", "${ github.")
+
+
 @pytest.mark.parametrize("name", PRODUCTION)
 def test_production_workflow_restores_and_saves_dedup_state(name):
     steps = _steps(name)
@@ -173,13 +186,84 @@ def test_production_workflow_restores_and_saves_dedup_state(name):
     assert restore, f"{name} never restores dedup state — its TTL would reset every run"
     assert save, f"{name} never saves dedup state"
 
-    r, sv = restore[0], save[0]
-    assert (r.get("with") or {}).get("path") == "data/notifications/dedup.json"
-    assert (sv.get("with") or {}).get("path") == "data/notifications/dedup.json"
-    # Rolling key: a fresh entry per run, falling back to the newest prior one.
-    assert "${{ github.run_id }}" in (r.get("with") or {})["key"]
-    assert (r.get("with") or {})["restore-keys"].strip().endswith("-")
-    assert sv.get("if") == "always()", f"{name} must save dedup state even on failure"
+    r_with = restore[0].get("with") or {}
+    s_with = save[0].get("with") or {}
+    assert r_with.get("path") == "data/notifications/dedup.json"
+    assert s_with.get("path") == "data/notifications/dedup.json"
+    assert save[0].get("if") == "always()", f"{name} must save dedup state even on failure"
+
+
+@pytest.mark.parametrize("name", PRODUCTION)
+def test_restore_key_is_the_exact_rolling_template(name):
+    r_with = (
+        [s for s in _steps(name) if str(s.get("uses", "")).startswith("actions/cache/restore")][0]
+        .get("with")
+        or {}
+    )
+    key = r_with["key"]
+    assert "${{ github.workflow }}" in key, f"{name}: restore key lacks the workflow expression"
+    assert "${{ github.run_id }}" in key, f"{name}: restore key lacks the run_id expression"
+    assert key == KEY_TEMPLATE, f"{name}: restore key is {key!r}"
+
+
+@pytest.mark.parametrize("name", PRODUCTION)
+def test_save_key_is_the_exact_rolling_template(name):
+    """The half that was broken: a malformed save key silently disables dedup."""
+    s_with = (
+        [s for s in _steps(name) if str(s.get("uses", "")).startswith("actions/cache/save")][0]
+        .get("with")
+        or {}
+    )
+    key = s_with["key"]
+    assert "${{ github.workflow }}" in key, f"{name}: save key lacks the workflow expression"
+    assert "${{ github.run_id }}" in key, f"{name}: save key lacks the run_id expression"
+    assert key == KEY_TEMPLATE, f"{name}: save key is {key!r}"
+
+
+@pytest.mark.parametrize("name", PRODUCTION)
+def test_save_key_equals_restore_key(name):
+    steps = _steps(name)
+    r = [s for s in steps if str(s.get("uses", "")).startswith("actions/cache/restore")][0]
+    sv = [s for s in steps if str(s.get("uses", "")).startswith("actions/cache/save")][0]
+    assert (sv.get("with") or {})["key"] == (r.get("with") or {})["key"], (
+        f"{name}: save and restore keys diverge, so a run can never reload its own entry"
+    )
+
+
+@pytest.mark.parametrize("name", PRODUCTION)
+def test_restore_keys_is_a_coherent_prefix_of_the_key(name):
+    r_with = (
+        [s for s in _steps(name) if str(s.get("uses", "")).startswith("actions/cache/restore")][0]
+        .get("with")
+        or {}
+    )
+    prefix = r_with["restore-keys"].strip()
+    assert prefix == RESTORE_PREFIX, f"{name}: restore-keys is {prefix!r}"
+    assert r_with["key"].startswith(prefix), (
+        f"{name}: restore-keys is not a prefix of key — the fallback can never match"
+    )
+    assert prefix.endswith("-")
+
+
+@pytest.mark.parametrize("name", sorted(p.name for p in WORKFLOW_DIR.glob("*.yml")))
+def test_no_workflow_contains_a_malformed_github_expression(name):
+    """`${ github.x }` is a literal string, not an expression — in ANY workflow."""
+    raw = (WORKFLOW_DIR / name).read_text(encoding="utf-8")
+    for bad in MALFORMED:
+        assert bad not in raw, f"{name} contains the malformed expression {bad!r}"
+
+
+@pytest.mark.parametrize("name", PRODUCTION)
+def test_cache_keys_carry_no_single_brace_expression(name):
+    for step in _steps(name):
+        if not str(step.get("uses", "")).startswith("actions/cache/"):
+            continue
+        for field in ("key", "restore-keys"):
+            value = (step.get("with") or {}).get(field)
+            if not value:
+                continue
+            for bad in MALFORMED:
+                assert bad not in value, f"{name}.{field} contains {bad!r}"
 
 
 @pytest.mark.parametrize("name", PRODUCTION)
