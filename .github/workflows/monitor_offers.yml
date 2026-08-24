@@ -123,3 +123,12 @@ jobs:
             echo "No business/status change — skip git commit (report stays in artifacts)"
             # still refresh last-observations locally in workspace but do not push noise
           fi
+
+      - name: Upload notification outbox for Hermes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: autofresh-notifications-monitor-offers
+          retention-days: 7
+          if-no-files-found: ignore
+          path: data/notifications/

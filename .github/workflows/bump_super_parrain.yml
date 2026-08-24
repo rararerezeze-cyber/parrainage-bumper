@@ -245,3 +245,12 @@ jobs:
               exit 1
             fi
           fi
+
+      - name: Upload notification outbox for Hermes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: autofresh-notifications-bump-super-parrain
+          retention-days: 7
+          if-no-files-found: ignore
+          path: data/notifications/

@@ -81,3 +81,15 @@ def test_last_write_verified_and_last_failure_surface_per_platform():
     report = format_plan_report("kraken", None, None, None, plan, action="status")
     assert "last write verified: 2026-08-10T00:00:00+00:00" in report
     assert "last error: captcha_timeout" in report
+
+
+def test_auto_writer_line_is_built_from_live_state_not_a_hardcoded_list():
+    """Regression: the summary named only 1parrainage/code-parrainage long after
+    parrainage-co became WRITE_VERIFIED + PC_OFF_READY."""
+    import inspect
+
+    from lib import operator_plan
+
+    source = inspect.getsource(operator_plan)
+    assert "(1parrainage, code-parrainage)" not in source
+    assert "telegram_live_capable" in source

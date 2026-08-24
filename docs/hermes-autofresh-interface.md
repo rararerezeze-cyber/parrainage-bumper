@@ -142,6 +142,72 @@ list, per-platform table, or a divergence list) — relay it as-is.
    - `AUTOFRESH_OPERATOR_TOKEN` / `HERMES_SHARED_TOKEN` on the request.
 3. No public unauthenticated HTTP endpoint is required for the product.
 
+## Notifications (AutoFresh → Hermes → Telegram)
+
+AutoFresh emits structured events; **it never sends anything to Telegram itself**
+and creates no second bot.
+
+```
+AutoFresh runtime → lib.notify.emit() → data/notifications/outbox.jsonl
+                  → Hermes (local plugin) → Telegram
+```
+
+One JSON record per line:
+
+```json
+{
+  "schema_version": 1,
+  "level": "HUMAN_REQUIRED",
+  "platform": "referralcode-tv",
+  "program": null,
+  "event": "external_blocker",
+  "field": null,
+  "old_value": null,
+  "new_value": null,
+  "source": "bumper.main",
+  "action": "scheduled_bump",
+  "result": "EXPECTED_EXTERNAL_BLOCKER",
+  "post_match": null,
+  "exact": null,
+  "immutable": null,
+  "pc_required": true,
+  "block_reason": "cloudflare_turnstile_challenge",
+  "timestamp": "2026-08-24T19:00:00+00:00",
+  "run_id": "32565187359"
+}
+```
+
+- `level` ∈ `INFO` | `SUCCESS` | `WARNING` | `ERROR` | `HUMAN_REQUIRED`.
+- `event` is one of the allow-listed values in `lib.notify.NOTIFIABLE_EVENTS`:
+  `real_write`, `post_verify_success`, `post_verify_failure`,
+  `monitor_real_safe_diff`, `platform_status_change`, `workflow_error`,
+  `human_required`, `rollback`, `pending_created`, `pending_closed`,
+  `circuit_breaker_open`, `canary_real`, `bump_notable`, `external_blocker`.
+- Routine `NO_CHANGE` cycles, polls and technical chatter are never emitted.
+- Records are already deduplicated (per-event TTL) and already scrubbed — no
+  token, cookie, password or opaque blob can appear in a field. Relay them as
+  they are; do not re-derive values from anywhere else.
+- Delivery is `BEST_EFFORT` / `FAIL_OPEN`. A Telegram or Hermes outage must never
+  be reported back as a failed bump or a failed write: the absence of a
+  notification is not evidence that a write did not happen, and its presence is
+  not proof that one did — `data/platform-write-status.json` remains the
+  authority.
+
+How Hermes reads them:
+
+```bash
+python tools/notify_digest.py --since-hours 24            # JSON events
+python tools/notify_digest.py --daily-summary --format text  # optional digest
+```
+
+Where Hermes has no checkout, download the `autofresh-notifications-*` artifact
+from the workflow run and read `outbox.jsonl` directly. `data/notifications/` is
+gitignored on purpose: it is runner-only state, never committed, and never proof.
+
+**Still to connect, outside this repository:** the Hermes plugin step that polls
+that artifact (or runs the digest) and pushes the records into the existing
+Telegram conversation. Nothing in this repository can perform that step.
+
 ## Optional telegram-worker
 
 `telegram-worker/` is **optional/test only**. It is not required when Hermes owns Telegram.

@@ -125,3 +125,38 @@ def test_monitor_auto_accept_stays_disabled():
     from lib.monitor.auto_accept import auto_accept_enabled
 
     assert auto_accept_enabled() is False
+
+
+# -- observability reaches Hermes ----------------------------------------------
+NOTIFY_UPLOADING = {
+    "bump_autres.yml",
+    "bump_super_parrain.yml",
+    "bump_referralcode_tv.yml",
+    "monitor_offers.yml",
+    "hermes_operator.yml",
+}
+
+
+@pytest.mark.parametrize("name", sorted(NOTIFY_UPLOADING))
+def test_production_workflows_upload_the_notification_outbox(name):
+    """data/notifications/ is gitignored, so the artifact is its only way out."""
+    data = yaml.safe_load((WORKFLOW_DIR / name).read_text(encoding="utf-8"))
+    steps = [s for job in data["jobs"].values() for s in (job.get("steps") or [])]
+    uploads = [
+        s
+        for s in steps
+        if str(s.get("uses", "")).startswith("actions/upload-artifact")
+        and "data/notifications/" in str((s.get("with") or {}).get("path", ""))
+    ]
+    assert uploads, f"{name} never exports its events"
+    assert uploads[0].get("if") == "always()", f"{name} must export events even on failure"
+
+
+def test_notification_upload_never_fails_a_run_when_there_is_nothing_to_upload():
+    for name in NOTIFY_UPLOADING:
+        data = yaml.safe_load((WORKFLOW_DIR / name).read_text(encoding="utf-8"))
+        steps = [s for job in data["jobs"].values() for s in (job.get("steps") or [])]
+        for s in steps:
+            with_ = s.get("with") or {}
+            if "data/notifications/" in str(with_.get("path", "")):
+                assert with_.get("if-no-files-found") == "ignore", name
