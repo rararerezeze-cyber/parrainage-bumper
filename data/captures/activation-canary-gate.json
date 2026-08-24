@@ -4,8 +4,8 @@
   "canary_pending": false,
   "write_verified": true,
   "eligible": false,
-  "next_eligible_at": "2026-08-23T18:42:40.187877+00:00",
-  "hours_remaining": 12.67,
+  "next_eligible_at": "2026-08-24T22:51:20.754366+00:00",
+  "hours_remaining": 16.74,
   "historical_bumper": {
     "action": "wait",
     "run_bump": false,
