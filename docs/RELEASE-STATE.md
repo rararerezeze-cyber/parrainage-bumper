@@ -81,7 +81,15 @@ AutoFresh runtime → lib.notify.emit() → data/notifications/outbox.jsonl
 - Never reported: routine `NO_CHANGE` cycles, polls, technical chatter. This is
   an allow-list, so an unknown event is dropped rather than guessed.
 - Deduplicated per event with a TTL (24 h for external blockers and human-required,
-  so a 5-hourly cron reports once, not five times a day).
+  so a 5-hourly cron reports once, not five times a day). Because
+  `data/notifications/` is gitignored, every runner starts empty — the TTL is only
+  durable because each production workflow restores and saves
+  `data/notifications/dedup.json` through a rolling `actions/cache` key.
+  **Scope: per workflow, not global.** Two workflows keep independent dedup state,
+  and two concurrent runs of the same workflow can both restore the same entry and
+  both emit. The failure mode is therefore one duplicate notification, never a
+  suppressed one — fail-safe by design. Both cache steps are
+  `continue-on-error`, so a cache miss or outage cannot fail the business job.
 - `BEST_EFFORT` / `FAIL_OPEN`: `emit()` never raises. A dead notification path can
   never fail a bump or a business write.
 - No secrets: closed field whitelist, credential-shaped values redacted, values
@@ -89,7 +97,8 @@ AutoFresh runtime → lib.notify.emit() → data/notifications/outbox.jsonl
 
 Read it with `python tools/notify_digest.py --since-hours 24` or
 `--daily-summary`. The outbox is gitignored (runner-only, no commit noise) and
-uploaded as a workflow artifact.
+uploaded as a workflow artifact by **all seven** production workflows — an event
+emitted in a runner and never uploaded would simply be lost.
 
 **What remains to connect, outside this repository:** the Hermes plugin must
 fetch the `autofresh-notifications-*` artifact (or run `tools/notify_digest.py`
@@ -103,8 +112,10 @@ this repository and was not modified from here.
 reclassified.
 
 - `PRODUCTION_SCHEDULED`: `bump_super_parrain.yml`, `bump_autres.yml`,
-  `bump_referralcode_tv.yml`, `monitor_offers.yml`, `activation_canary.yml`
-- `PRODUCTION_MANUAL`: `hermes_operator.yml`, `controlled_write.yml`
+  `bump_referralcode_tv.yml`, `monitor_offers.yml`
+- `PRODUCTION_MANUAL`: `hermes_operator.yml`, `controlled_write.yml`,
+  `activation_canary.yml`
+- `CI_READ_ONLY`: `ci.yml`
 - `EVIDENCE_CLOSED`: `canary_write_1parrainage.yml`
 - `CANARY_CLOSED`: `canary_write_code_parrainage.yml`,
   `canary_write_parrainage_co.yml`
@@ -123,7 +134,25 @@ not merely by convention:
   `32559814742`: refused before browser startup, 0 Save clicks, 0 platform
   writes);
 - `platforms.referralcodes.writer.execute_write(dry_run=False)` returns
-  `NEVER_AUTO_COMMIT` before reaching any Commit code.
+  `NEVER_AUTO_COMMIT` before reaching any Commit code;
+- `super_parrain_canary_allowed()` refuses a Super-Parrain canary outright while
+  the platform is `WRITE_VERIFIED` + `NORMAL_BUMP`.
+
+### Super-Parrain: one owner for the production cycle
+
+`activation_canary.yml` lost its two daily schedules. They existed only to make it
+the sole live saver *while* Super-Parrain was `CANARY_PENDING`; that condition
+ended when the platform reached `WRITE_VERIFIED` with the historical bumper
+authorized. `FUSED_UPDATE_BUMP` in `bump_super_parrain.yml` is now the single
+owner of the production cycle — it already updates on a real SAFE_DIFF and bumps
+otherwise. The workflow is kept (manual) for the other platforms and status-only,
+and passes `--canary`, which the runtime guard refuses for Super-Parrain.
+
+`tools/controlled_write_super_parrain.py` also no longer queues a pending on
+`--execute` before building the plan. A pending is opened only where a real
+content diff exists: on a cooldown abort (so the fused cycle prefers update at the
+next slot) and immediately before a genuine eligible write, which
+`mark_pending_done()` then closes. A `NO_SAFE_DIFF` execute queues nothing.
 
 ## Known external limitations
 

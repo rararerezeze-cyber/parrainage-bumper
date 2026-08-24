@@ -165,8 +165,17 @@ lifecycle, the monitor's candidate divergences, and the ReferralCode.tv cycle.
 `data/notifications/` is gitignored — runner-only, no commit noise — and both
 residual-path gates (`tools/check_hermes_evidence_paths.py`,
 `tools/check_1parrainage_evidence_paths.py`) treat it as transient so an emitted
-event can never turn a successful mutation into a red workflow. Workflows upload
-it as the `autofresh-notifications-*` artifact.
+event can never turn a successful mutation into a red workflow. All seven
+production workflows upload it as the `autofresh-notifications-*` artifact.
+
+Because that directory is gitignored, a runner starts with no memory of what was
+already reported, so each production workflow also restores and saves
+`data/notifications/dedup.json` via a rolling `actions/cache` key
+(`autofresh-notify-dedup-<workflow>-<run_id>` with a prefix `restore-keys`). That
+is what makes the 24 h TTL real across runs rather than only within one. The scope
+is **per workflow**: two workflows keep independent state, and two concurrent runs
+of one workflow can both emit — one duplicate notification, never a suppressed
+one. Both cache steps are `continue-on-error` so the BEST_EFFORT contract holds.
 
 Read it with `python tools/notify_digest.py --since-hours 24` or
 `--daily-summary`. **Not in this repository:** the Hermes plugin that fetches
@@ -184,6 +193,29 @@ runtime, not merely by convention: `may_execute_canary()` returns
 `gh_headless_save` is `PROVEN` (demonstrated by run `32559814742`), and
 `platforms.referralcodes.writer.execute_write(dry_run=False)` returns
 `NEVER_AUTO_COMMIT` before reaching any Commit code.
+
+## Super-Parrain cycle ownership
+
+`activation_canary.yml` is manual-only since 2026-08-24. Its two daily schedules
+existed solely to make it the live saver while Super-Parrain was `CANARY_PENDING`.
+That is over: the platform is `WRITE_VERIFIED`, the historical bumper is
+authorized, the runtime is `NORMAL_BUMP`, and `FUSED_UPDATE_BUMP` in
+`bump_super_parrain.yml` owns the production cycle alone. A scheduled canary could
+only have re-entered a live-write path on a platform whose proof is complete.
+
+Two guards now back that up:
+
+- `lib.super_parrain_schedule.super_parrain_canary_allowed()` refuses a
+  Super-Parrain canary while the platform is `WRITE_VERIFIED` + `NORMAL_BUMP`;
+  `activation_canary.yml` passes `--canary` so an accidental dispatch stops with
+  zero write, zero Save and zero pending. `controlled_write.yml` is unaffected —
+  it stays the legitimate explicit operator write path.
+- `tools/controlled_write_super_parrain.py` no longer queues a pending on
+  `--execute` before the plan is built. It used to, so every early return
+  (missing `--force`, active cooldown, and above all `NO_SAFE_DIFF`) stranded an
+  open pending that nothing on that path closed — a phantom pending waiting to
+  happen on the first eligible slot with no real diff. A pending is now opened
+  only where a real content diff exists.
 
 ## Remaining gaps
 

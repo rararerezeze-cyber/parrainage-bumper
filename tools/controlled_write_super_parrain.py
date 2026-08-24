@@ -14,6 +14,7 @@ sys.path.insert(0, str(ROOT))
 
 from lib.super_parrain_schedule import (  # noqa: E402
     enqueue_pending,
+    super_parrain_canary_allowed,
     is_eligible,
     mark_pending_done,
     record_super_action_now,
@@ -33,6 +34,14 @@ def main() -> int:
     parser.add_argument("--program", default="kraken")
     parser.add_argument("--language", default="fr")
     parser.add_argument("--execute", action="store_true")
+    parser.add_argument(
+        "--canary",
+        action="store_true",
+        help=(
+            "Canary entry point (activation_canary.yml). Refused once Super-Parrain "
+            "is WRITE_VERIFIED + NORMAL_BUMP: the fused cycle owns production writes."
+        ),
+    )
     parser.add_argument(
         "--inspect",
         action="store_true",
@@ -65,11 +74,24 @@ def main() -> int:
         overrides[key.strip()] = val
     only_fields = [p.strip() for p in (args.only_fields or "").split(",") if p.strip()]
 
-    if args.execute:
-        # Queue pending so the fused cycle prefers update over bump-only.
-        enqueue_pending(
-            "super-parrain", args.program, args.language, reason="content_update"
-        )
+    # A pending is NOT queued here. It used to be enqueued unconditionally on
+    # --execute, before the plan was even built -- so every early return below
+    # (missing --force, active cooldown, and above all NO_SAFE_DIFF) left an open
+    # pending that nothing in this path ever closed. On a scheduled eligible slot
+    # with no real diff that produced a durable phantom pending. The queue now
+    # happens only where a real content diff actually exists (see below).
+
+    if args.canary:
+        gate = super_parrain_canary_allowed()
+        if not gate.get("allowed"):
+            print(
+                f"REFUSED canary: {gate.get('reason')} "
+                f"(status={gate.get('status')} runtime_mode={gate.get('runtime_mode')} "
+                f"owner={gate.get('owner')})"
+            )
+            print(gate.get("detail") or "")
+            print("ZERO write, ZERO Save, ZERO pending.")
+            return 0
 
     plan = build_write_plan(
         "super-parrain",
@@ -143,6 +165,13 @@ def main() -> int:
         return 2
 
     if not eligible:
+        # A real, still-unapplied content diff legitimately deserves a pending:
+        # the fused cycle should prefer update over bump-only at the next slot.
+        # An empty diff must never queue anything.
+        if plan.changed_fields:
+            enqueue_pending(
+                "super-parrain", args.program, args.language, reason="content_update"
+            )
         print(
             f"\nABORT: cooldown actif ({hours:.2f}h restantes). "
             f"Reessayer apres {nxt.isoformat()}. --force ignore pour le cooldown.",
@@ -203,6 +232,14 @@ def main() -> int:
             encoding="utf-8",
         )
         return 0
+
+    # Only here is a real, eligible write actually about to happen: every gate
+    # (structure, --force, cooldown, non-empty diff) has passed. This is the one
+    # place a pending may be opened, and mark_pending_done() below closes it on a
+    # verified write, so no path can leave a phantom behind.
+    enqueue_pending(
+        "super-parrain", args.program, args.language, reason="content_update"
+    )
 
     print("\n=== EXECUTE REAL WRITE ===")
     result = asyncio.run(execute_write(plan, dry_run=False))

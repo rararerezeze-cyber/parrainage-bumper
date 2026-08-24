@@ -1,8 +1,17 @@
-name: Activation canary (platform writers)
-# Sequential canaries with real credentials from GH secrets.
-# Shared CANARY_PENDING gate with bump_super_parrain.yml:
-#   While super-parrain != WRITE_VERIFIED, THIS workflow is the only one
-#   allowed to live-save on Super-Parrain (historical bumper always SKIP).
+name: Activation canary (platform writers, manual only)
+# MANUAL ONLY — the two daily schedules were removed once Super-Parrain reached
+# WRITE_VERIFIED + NORMAL_BUMP with the historical bumper authorized.
+#
+# Those schedules existed for exactly one reason: while Super-Parrain was
+# CANARY_PENDING, this workflow was the sole live saver on that platform. That
+# condition is over. FUSED_UPDATE_BUMP in bump_super_parrain.yml is now the single
+# owner of the production cycle, and a scheduled canary here would only be able to
+# re-enter a live-write path for a platform that no longer needs proving.
+#
+# The workflow is kept for its legitimate manual/diagnostic function on the other
+# platforms (and status-only). A runtime guard below refuses a Super-Parrain
+# canary outright when that platform is already WRITE_VERIFIED + NORMAL_BUMP, so
+# an accidental dispatch cannot start a redundant canary either.
 # Never bypasses Super-Parrain 24h cooldown.
 # --force on controlled_write = operator intent confirmation only.
 on:
@@ -29,11 +38,6 @@ on:
         description: "Execute live write if eligible (true/false)"
         required: true
         default: "false"
-  schedule:
-    # First eligible Super-Parrain window (~05:37 UTC) — sole saver while CANARY_PENDING
-    - cron: "37 5 * * *"
-    # Retry a few minutes later if first attempt raced or auth flaked
-    - cron: "45 5 * * *"
 permissions:
   contents: write
 concurrency:
@@ -46,6 +50,26 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
+      # Notification dedup state must survive across runners: data/notifications/
+      # is gitignored, so every runner starts with an empty filesystem and the
+      # per-event TTL (24 h for external blockers) would otherwise reset on every
+      # single run — a 5-hourly cron would then report the same known blocker five
+      # times a day. The rolling cache key restores the most recent state for THIS
+      # workflow and writes a fresh entry each run.
+      # Scope: per workflow, not global. Two different workflows keep independent
+      # dedup state, and two concurrent runs of the same workflow can both restore
+      # the same entry and both emit — the failure mode is one duplicate
+      # notification, never a suppressed one. Fail-safe by design.
+      # continue-on-error keeps the BEST_EFFORT/FAIL_OPEN contract: a cache miss,
+      # a cache outage, or an empty path must never fail the business job.
+      - name: Restore notification dedup state
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: data/notifications/dedup.json
+          key: autofresh-notify-dedup-${{ github.workflow }}-${{ github.run_id }}
+          restore-keys: |
+            autofresh-notify-dedup-${{ github.workflow }}-
         # Minimal Super-Parrain canary runtime is on main (no feature checkout).
       - uses: actions/setup-python@v5
         with:
@@ -149,7 +173,7 @@ jobs:
           )
           PY
             # dry plan always (real values from offers/operator)
-            python tools/controlled_write_super_parrain.py --program "$PROG" || true
+            python tools/controlled_write_super_parrain.py --program "$PROG" --canary || true
             if [ "$EXEC" != "true" ]; then
               echo "execute=false — plan only"
               exit 0
@@ -172,7 +196,7 @@ jobs:
             # Sole live-save owner while CANARY_PENDING (or first verified write).
             # --force = operator intent only, does NOT bypass cooldown (checked above)
             set +e
-            python tools/controlled_write_super_parrain.py --program "$PROG" --execute --force
+            python tools/controlled_write_super_parrain.py --program "$PROG" --execute --force --canary
             RC=$?
             set -e
             echo "canary_exit=$RC"
@@ -354,3 +378,20 @@ jobs:
               exit 1
             fi
           fi
+
+      - name: Save notification dedup state
+        if: always()
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: data/notifications/dedup.json
+          key: autofresh-notify-dedup-${ github.workflow }-${ github.run_id }
+
+      - name: Upload notification outbox for Hermes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: autofresh-notifications-activation-canary
+          retention-days: 7
+          if-no-files-found: ignore
+          path: data/notifications/

@@ -9,7 +9,8 @@
     "CANARY_CLOSED": "Platform already WRITE_VERIFIED; canary gate returns already_WRITE_VERIFIED.",
     "DIAGNOSTIC_CLOSED": "Read-only investigation whose finding is recorded. Kept as history.",
     "DIAGNOSTIC_AVAILABLE": "Read-only, still useful on demand.",
-    "OPTIONAL_TEST_ONLY": "Not the production path. Never the Autofresh Telegram bot."
+    "OPTIONAL_TEST_ONLY": "Not the production path. Never the Autofresh Telegram bot.",
+    "CI_READ_ONLY": "Pull-request validation. No platform secret, no browser, no write, no schedule."
   },
   "workflows": {
     "bump_super_parrain.yml": {
@@ -43,9 +44,9 @@
       "note": "Explicit controlled content write."
     },
     "activation_canary.yml": {
-      "class": "PRODUCTION_SCHEDULED",
+      "class": "PRODUCTION_MANUAL",
       "platform": "super-parrain",
-      "note": "Scheduled daily at the first eligible Super-Parrain window plus retries, and operator-dispatchable. Shares the parrainage-bumper-super concurrency group with bump_super_parrain.yml so only one live saver runs at a time."
+      "note": "Manual only since 2026-08-24. Its two daily schedules existed solely to make it the live saver while Super-Parrain was CANARY_PENDING; that condition ended when Super-Parrain reached WRITE_VERIFIED + NORMAL_BUMP and FUSED_UPDATE_BUMP in bump_super_parrain.yml became the single owner of the production cycle. Kept for its legitimate manual/diagnostic function on the other platforms and status-only; a Super-Parrain canary is refused at runtime by lib.super_parrain_schedule.super_parrain_canary_allowed(). Still shares the parrainage-bumper-super concurrency group."
     },
     "canary_write_1parrainage.yml": {
       "class": "EVIDENCE_CLOSED",
@@ -131,6 +132,11 @@
       "class": "OPTIONAL_TEST_ONLY",
       "platform": null,
       "note": "Legacy compatibility path. Prefer hermes_operator.yml."
+    },
+    "ci.yml": {
+      "class": "CI_READ_ONLY",
+      "platform": null,
+      "note": "Runs the suite plus JSON/YAML/import/whitespace validation on every PR. contents: read, no secrets, no playwright install, no schedule. Also asserts the suite leaves the working tree clean."
     }
   }
 }

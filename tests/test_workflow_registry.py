@@ -21,9 +21,6 @@ SCHEDULED = {
     "bump_autres.yml",
     "bump_referralcode_tv.yml",
     "monitor_offers.yml",
-    # Also cron-driven: the daily Super-Parrain activation canary. It shares
-    # bump_super_parrain.yml's concurrency group on purpose (one live saver).
-    "activation_canary.yml",
 }
 
 
@@ -72,6 +69,27 @@ def test_closed_workflows_are_never_scheduled():
         if meta["class"] in {"EVIDENCE_CLOSED", "CANARY_CLOSED", "DIAGNOSTIC_CLOSED"}
     }
     assert closed and not (closed & SCHEDULED)
+
+
+def test_activation_canary_is_manual_only():
+    """Super-Parrain is WRITE_VERIFIED + NORMAL_BUMP: FUSED_UPDATE_BUMP owns the
+    production cycle, so no schedule here may re-enter a canary write path."""
+    data = yaml.safe_load((WORKFLOW_DIR / "activation_canary.yml").read_text(encoding="utf-8"))
+    triggers = data.get(True) or data.get("on") or {}
+    assert "schedule" not in triggers
+    assert "workflow_dispatch" in triggers
+    assert REGISTRY["workflows"]["activation_canary.yml"]["class"] == "PRODUCTION_MANUAL"
+
+
+def test_activation_canary_routes_super_parrain_through_the_canary_gate():
+    raw = (WORKFLOW_DIR / "activation_canary.yml").read_text(encoding="utf-8")
+    invocations = [
+        line for line in raw.splitlines()
+        if "controlled_write_super_parrain.py" in line
+    ]
+    assert invocations, "no super-parrain invocation found"
+    for line in invocations:
+        assert "--canary" in line, line
 
 
 def test_the_three_bumpers_never_share_a_concurrency_group():
@@ -128,13 +146,16 @@ def test_monitor_auto_accept_stays_disabled():
 
 
 # -- observability reaches Hermes ----------------------------------------------
-NOTIFY_UPLOADING = {
-    "bump_autres.yml",
-    "bump_super_parrain.yml",
-    "bump_referralcode_tv.yml",
-    "monitor_offers.yml",
-    "hermes_operator.yml",
-}
+def _production_workflows() -> set[str]:
+    """Every production workflow can reach a notifiable emitter."""
+    return {
+        name
+        for name, meta in REGISTRY["workflows"].items()
+        if meta["class"].startswith("PRODUCTION")
+    }
+
+
+NOTIFY_UPLOADING = _production_workflows()
 
 
 @pytest.mark.parametrize("name", sorted(NOTIFY_UPLOADING))
@@ -158,5 +179,36 @@ def test_notification_upload_never_fails_a_run_when_there_is_nothing_to_upload()
         steps = [s for job in data["jobs"].values() for s in (job.get("steps") or [])]
         for s in steps:
             with_ = s.get("with") or {}
+            if not str(s.get("uses", "")).startswith("actions/upload-artifact"):
+                continue
             if "data/notifications/" in str(with_.get("path", "")):
                 assert with_.get("if-no-files-found") == "ignore", name
+
+
+# -- PR CI must stay inert with respect to the product -------------------------
+def test_ci_workflow_is_read_only_and_carries_no_platform_secret():
+    raw = (WORKFLOW_DIR / "ci.yml").read_text(encoding="utf-8")
+    data = yaml.safe_load(raw)
+    triggers = data.get(True) or data.get("on") or {}
+
+    assert set(triggers) == {"pull_request", "workflow_dispatch"}
+    assert "schedule" not in triggers, "CI must never become a background actor"
+    assert data["permissions"] == {"contents": "read"}
+    assert "secrets." not in raw, "no platform secret may reach PR CI"
+    assert "playwright install" not in raw, "CI must never launch a browser"
+    for forbidden in ("--execute", "--force", "git push", "git commit"):
+        assert forbidden not in raw, forbidden
+
+
+def test_ci_workflow_runs_the_suite_and_the_repo_validations():
+    raw = (WORKFLOW_DIR / "ci.yml").read_text(encoding="utf-8")
+    assert "python -m pytest tests -q" in raw
+    assert "git diff --check" in raw
+    assert "invalid JSON" in raw
+    assert "invalid workflow" in raw
+
+
+def test_ci_workflow_is_classified_and_not_production():
+    meta = REGISTRY["workflows"]["ci.yml"]
+    assert meta["class"] == "CI_READ_ONLY"
+    assert not meta["class"].startswith("PRODUCTION")

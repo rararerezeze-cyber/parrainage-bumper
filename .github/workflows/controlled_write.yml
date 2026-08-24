@@ -31,6 +31,26 @@ jobs:
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
+      # Notification dedup state must survive across runners: data/notifications/
+      # is gitignored, so every runner starts with an empty filesystem and the
+      # per-event TTL (24 h for external blockers) would otherwise reset on every
+      # single run — a 5-hourly cron would then report the same known blocker five
+      # times a day. The rolling cache key restores the most recent state for THIS
+      # workflow and writes a fresh entry each run.
+      # Scope: per workflow, not global. Two different workflows keep independent
+      # dedup state, and two concurrent runs of the same workflow can both restore
+      # the same entry and both emit — the failure mode is one duplicate
+      # notification, never a suppressed one. Fail-safe by design.
+      # continue-on-error keeps the BEST_EFFORT/FAIL_OPEN contract: a cache miss,
+      # a cache outage, or an empty path must never fail the business job.
+      - name: Restore notification dedup state
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: data/notifications/dedup.json
+          key: autofresh-notify-dedup-${{ github.workflow }}-${{ github.run_id }}
+          restore-keys: |
+            autofresh-notify-dedup-${{ github.workflow }}-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -105,3 +125,20 @@ jobs:
               exit 1
             fi
           fi
+
+      - name: Save notification dedup state
+        if: always()
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: data/notifications/dedup.json
+          key: autofresh-notify-dedup-${ github.workflow }-${ github.run_id }
+
+      - name: Upload notification outbox for Hermes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: autofresh-notifications-controlled-write
+          retention-days: 7
+          if-no-files-found: ignore
+          path: data/notifications/
