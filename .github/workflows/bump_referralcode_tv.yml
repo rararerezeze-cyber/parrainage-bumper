@@ -1,0 +1,48 @@
+name: Bump — ReferralCode.tv (isolated)
+
+on:
+  schedule:
+    - cron: "0 */5 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: parrainage-bumper-referralcode-tv
+  cancel-in-progress: false
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+
+      - name: Bump ReferralCode.tv only
+        env:
+          REFERRALCODE_EMAIL: ${{ secrets.REFERRALCODE_EMAIL }}
+          REFERRALCODE_PASSWORD: ${{ secrets.REFERRALCODE_PASSWORD }}
+          TARGET_SITES: "referralcode"
+        run: |
+          python bumper.py
+
+      - name: Logs
+        if: always()
+        run: cat bumper.log || true
+
+      - name: Upload ReferralCode.tv debug evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-referralcode-tv
+          retention-days: 3
+          if-no-files-found: ignore
+          path: debug_referralcode_login.png
