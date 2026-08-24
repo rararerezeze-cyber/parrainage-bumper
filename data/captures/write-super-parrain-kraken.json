@@ -1,9 +1,23 @@
 {
-  "at": "2026-08-24T19:34:04.877228+00:00",
+  "at": "2026-08-20T06:04:25.496903+00:00",
   "execute": true,
-  "ok": false,
-  "error": "cooldown_active",
-  "next_eligible_at": "2026-08-24T19:34:04.875829+00:00",
-  "hours_remaining": 6.0,
-  "changed_fields": {}
+  "ok": true,
+  "result": "NO_SAFE_DIFF",
+  "post_match": null,
+  "write_status": "CANARY_READY",
+  "status_scope": "HISTORICAL_OPERATION_RESULT_NOT_CURRENT_PLATFORM_STATUS",
+  "current_status_authority": "data/platform-write-status.json",
+  "annotation_added_at": "2026-08-20T15:33:52.614796+00:00",
+  "superseded_by": {
+    "gh_run_id": "32369146793",
+    "report": "data/captures/super-parrain-last-cycle.json",
+    "at": "2026-08-20T12:38:08.110702+00:00",
+    "result": "WRITE_VERIFIED",
+    "saves": "39/39",
+    "post_match": true,
+    "exact_body_match": true,
+    "immutable_ok": true
+  },
+  "changed_fields": {},
+  "note": "Published Super-Parrain text already equals OPERATOR_VALIDATED cpbrgddy / invite.kraken.com/JDNW/s5qudqe4 / 200 € en cryptomonnaies. A no-op does not satisfy targeted_edit/submit/reread. Do not invent a dummy field change."
 }
