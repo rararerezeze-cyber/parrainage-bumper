@@ -1,0 +1,226 @@
+"""Every workflow is classified, and the closed ones stay closed.
+
+data/workflow-registry.json is the operator-facing map of what actually runs
+the product versus what is kept only as historical proof. This test fails if a
+workflow is added, removed, or silently reclassified.
+"""
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+import pytest
+import yaml
+
+ROOT = Path(__file__).resolve().parents[1]
+WORKFLOW_DIR = ROOT / ".github" / "workflows"
+REGISTRY = json.loads((ROOT / "data" / "workflow-registry.json").read_text(encoding="utf-8"))
+
+SCHEDULED = {
+    "bump_super_parrain.yml",
+    "bump_autres.yml",
+    "bump_referralcode_tv.yml",
+    "monitor_offers.yml",
+}
+
+
+def _workflow_files() -> set[str]:
+    return {p.name for p in WORKFLOW_DIR.glob("*.yml")}
+
+
+def test_every_workflow_is_classified():
+    assert _workflow_files() == set(REGISTRY["workflows"])
+
+
+def test_every_class_is_documented():
+    known = set(REGISTRY["classes"])
+    for name, meta in REGISTRY["workflows"].items():
+        assert meta["class"] in known, name
+
+
+@pytest.mark.parametrize("name", sorted(_workflow_files()))
+def test_workflow_yaml_is_valid(name):
+    data = yaml.safe_load((WORKFLOW_DIR / name).read_text(encoding="utf-8"))
+    assert isinstance(data, dict)
+    assert data.get("jobs"), name
+
+
+def test_only_the_registered_workflows_run_on_a_schedule():
+    """A new cron must be a deliberate, classified decision."""
+    scheduled = set()
+    for name in _workflow_files():
+        data = yaml.safe_load((WORKFLOW_DIR / name).read_text(encoding="utf-8"))
+        triggers = data.get(True) or data.get("on") or {}
+        if isinstance(triggers, dict) and triggers.get("schedule"):
+            scheduled.add(name)
+    assert scheduled == SCHEDULED
+
+
+def test_scheduled_workflows_are_production():
+    for name in SCHEDULED:
+        assert REGISTRY["workflows"][name]["class"] == "PRODUCTION_SCHEDULED", name
+
+
+def test_closed_workflows_are_never_scheduled():
+    """An archived proof must not be able to fire itself."""
+    closed = {
+        name
+        for name, meta in REGISTRY["workflows"].items()
+        if meta["class"] in {"EVIDENCE_CLOSED", "CANARY_CLOSED", "DIAGNOSTIC_CLOSED"}
+    }
+    assert closed and not (closed & SCHEDULED)
+
+
+def test_activation_canary_is_manual_only():
+    """Super-Parrain is WRITE_VERIFIED + NORMAL_BUMP: FUSED_UPDATE_BUMP owns the
+    production cycle, so no schedule here may re-enter a canary write path."""
+    data = yaml.safe_load((WORKFLOW_DIR / "activation_canary.yml").read_text(encoding="utf-8"))
+    triggers = data.get(True) or data.get("on") or {}
+    assert "schedule" not in triggers
+    assert "workflow_dispatch" in triggers
+    assert REGISTRY["workflows"]["activation_canary.yml"]["class"] == "PRODUCTION_MANUAL"
+
+
+def test_activation_canary_routes_super_parrain_through_the_canary_gate():
+    raw = (WORKFLOW_DIR / "activation_canary.yml").read_text(encoding="utf-8")
+    invocations = [
+        line for line in raw.splitlines()
+        if "controlled_write_super_parrain.py" in line
+    ]
+    assert invocations, "no super-parrain invocation found"
+    for line in invocations:
+        assert "--canary" in line, line
+
+
+def test_the_three_bumpers_never_share_a_concurrency_group():
+    groups = {}
+    for name in ("bump_super_parrain.yml", "bump_autres.yml", "bump_referralcode_tv.yml"):
+        data = yaml.safe_load((WORKFLOW_DIR / name).read_text(encoding="utf-8"))
+        groups[name] = (data.get("concurrency") or {}).get("group")
+    assert len(set(groups.values())) == 3, groups
+    assert all(groups.values()), groups
+
+
+def test_scheduled_bumpers_do_not_all_start_at_the_same_minute():
+    crons = {}
+    for name in ("bump_autres.yml", "bump_referralcode_tv.yml"):
+        data = yaml.safe_load((WORKFLOW_DIR / name).read_text(encoding="utf-8"))
+        triggers = data.get(True) or data.get("on") or {}
+        crons[name] = [s["cron"] for s in triggers["schedule"]]
+    assert crons["bump_autres.yml"] != crons["bump_referralcode_tv.yml"]
+
+
+# -- the closed gates are closed at runtime, not only on paper -----------------
+def test_write_verified_platforms_refuse_a_new_canary():
+    from lib.canary_gate import may_execute_canary
+
+    for platform in ("parrainage-co", "code-parrainage", "1parrainage", "referralcode-tv"):
+        gate = may_execute_canary(platform)
+        assert gate["ok"] is False, platform
+        assert gate["error"] == "already_WRITE_VERIFIED", platform
+
+
+def test_the_1parrainage_evidence_probe_is_permanently_closed():
+    from lib.canary_gate import guard_live_evidence_probe
+
+    gate = guard_live_evidence_probe(
+        "1parrainage", evidence_field="gh_headless_save", expected_value="NOT_RUN"
+    )
+    assert gate["ok"] is False
+    assert gate.get("done") is True, "the proof is complete; a re-run must be refused"
+
+
+def test_referralcodes_can_never_auto_commit():
+    from platforms.referralcodes.writer import execute_write
+
+    result = execute_write("kraken", dry_run=False)
+    assert result["ok"] is False
+    assert "NEVER_AUTO_COMMIT" in result["error"]
+    assert "committed" not in (result.get("steps") or [])
+
+
+def test_monitor_auto_accept_stays_disabled():
+    from lib.monitor.auto_accept import auto_accept_enabled
+
+    assert auto_accept_enabled() is False
+
+
+# -- observability reaches Hermes ----------------------------------------------
+def _production_workflows() -> set[str]:
+    """Every production workflow can reach a notifiable emitter."""
+    return {
+        name
+        for name, meta in REGISTRY["workflows"].items()
+        if meta["class"].startswith("PRODUCTION")
+    }
+
+
+NOTIFY_UPLOADING = _production_workflows()
+
+
+@pytest.mark.parametrize("name", sorted(NOTIFY_UPLOADING))
+def test_production_workflows_upload_the_notification_outbox(name):
+    """data/notifications/ is gitignored, so the artifact is its only way out."""
+    data = yaml.safe_load((WORKFLOW_DIR / name).read_text(encoding="utf-8"))
+    steps = [s for job in data["jobs"].values() for s in (job.get("steps") or [])]
+    uploads = [
+        s
+        for s in steps
+        if str(s.get("uses", "")).startswith("actions/upload-artifact")
+        and "data/notifications/" in str((s.get("with") or {}).get("path", ""))
+    ]
+    assert uploads, f"{name} never exports its events"
+    assert uploads[0].get("if") == "always()", f"{name} must export events even on failure"
+
+
+def test_notification_upload_never_fails_a_run_when_there_is_nothing_to_upload():
+    for name in NOTIFY_UPLOADING:
+        data = yaml.safe_load((WORKFLOW_DIR / name).read_text(encoding="utf-8"))
+        steps = [s for job in data["jobs"].values() for s in (job.get("steps") or [])]
+        for s in steps:
+            with_ = s.get("with") or {}
+            if not str(s.get("uses", "")).startswith("actions/upload-artifact"):
+                continue
+            if "data/notifications/" in str(with_.get("path", "")):
+                assert with_.get("if-no-files-found") == "ignore", name
+
+
+# -- PR CI must stay inert with respect to the product -------------------------
+def test_ci_workflow_is_read_only_and_carries_no_platform_secret():
+    raw = (WORKFLOW_DIR / "ci.yml").read_text(encoding="utf-8")
+    data = yaml.safe_load(raw)
+    triggers = data.get(True) or data.get("on") or {}
+
+    assert set(triggers) == {"pull_request", "workflow_dispatch"}
+    assert "schedule" not in triggers, "CI must never become a background actor"
+    assert data["permissions"] == {"contents": "read"}
+    assert "secrets." not in raw, "no platform secret may reach PR CI"
+    assert "playwright install" not in raw, "CI must never launch a browser"
+    for forbidden in ("--execute", "--force", "git push", "git commit"):
+        assert forbidden not in raw, forbidden
+
+
+def test_ci_workflow_runs_the_suite_and_the_repo_validations():
+    raw = (WORKFLOW_DIR / "ci.yml").read_text(encoding="utf-8")
+    assert "python -m pytest tests -q" in raw
+    assert "git diff --check" in raw
+    assert "invalid JSON" in raw
+    assert "invalid workflow" in raw
+
+
+def test_ci_workflow_is_classified_and_not_production():
+    meta = REGISTRY["workflows"]["ci.yml"]
+    assert meta["class"] == "CI_READ_ONLY"
+    assert not meta["class"].startswith("PRODUCTION")
+
+
+def test_ci_does_not_disable_notifications():
+    """AUTOFRESH_NOTIFY_DISABLED is a production kill switch, not a test setting:
+    with it set, emit() no-ops and the notification suite fails for the wrong
+    reason. Test writes are contained by the conftest sandbox instead."""
+    raw = (WORKFLOW_DIR / "ci.yml").read_text(encoding="utf-8")
+    for line in raw.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("#"):
+            continue
+        assert not stripped.startswith("AUTOFRESH_NOTIFY_DISABLED"), stripped

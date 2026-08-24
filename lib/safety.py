@@ -42,6 +42,16 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def _notify(level: str, event: str, **fields: Any) -> None:
+    """BEST_EFFORT observability hook. Never affects the safety path."""
+    try:
+        from lib.notify import emit
+
+        emit(level, event, **fields)
+    except Exception:
+        pass
+
+
 def audit(event: str, **fields: Any) -> None:
     rec = {"at": _now(), "event": event, **fields}
     AUDIT_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -102,6 +112,15 @@ def trip_circuit(reason: str, *, platform: str | None = None, kind: str | None =
         data["global_reason"] = reason
     save_circuits(data)
     audit("circuit_open", platform=platform, reason=reason, kind=kind)
+    _notify(
+        "ERROR",
+        "circuit_breaker_open",
+        platform=platform,
+        action="trip_circuit",
+        result="OPEN",
+        block_reason=reason,
+        source="lib.safety",
+    )
     return rec
 
 
@@ -206,6 +225,14 @@ def rollback_snapshot(snapshot_id: str) -> dict[str, Any]:
             shutil.copy2(src, DATA_DIR / name)
             restored.append(name)
     audit("rollback", snapshot_id=snapshot_id, restored=restored)
+    _notify(
+        "WARNING",
+        "rollback",
+        action="rollback_snapshot",
+        result="RESTORED",
+        new_value=snapshot_id,
+        source="lib.safety",
+    )
     return {"ok": True, "id": snapshot_id, "restored": restored}
 
 

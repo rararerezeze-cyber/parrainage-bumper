@@ -340,6 +340,18 @@ class NonRetryableError(RuntimeError):
     """A retry would be unsafe or useless (CAPTCHA, anti-bot, rate limit)."""
 
 
+class ExpectedExternalBlocker(NonRetryableError):
+    """A proven, documented, externally imposed gate this repo cannot fix.
+
+    Example: GitHub-hosted Chromium being served the standalone Cloudflare
+    Turnstile interstitial before the ReferralCode.tv login form (read-only
+    run 32565187359). It is never solved, clicked, or retried. It is also not
+    a product regression, so it must not fail an isolated workflow on every
+    single schedule -- that would be pure noise and would hide a real
+    regression when one eventually appears.
+    """
+
+
 async def retry(fn, retries=3, delay=10.0, label=""):
     for attempt in range(1, retries + 1):
         try:
@@ -976,6 +988,12 @@ async def run_parrainage(browser):
 async def run_referralcode(browser):
     from lib.auth_policy import detect_cloudflare_challenge
     from lib.cookie_consent import handle_cookie_consent
+    from lib.rctv_bump import (
+        BOOST_CONTROL_SELECTOR,
+        LISTINGS_PATH,
+        classify_cycle,
+        parse_boost_quota,
+    )
 
     cfg = CONFIG["referralcode"]
     name = "referralcode"
@@ -998,7 +1016,9 @@ async def run_referralcode(browser):
             await human_sleep(2, 4)
             if await detect_cloudflare_challenge(page):
                 await page.screenshot(path="debug_referralcode_login.png")
-                raise NonRetryableError("cloudflare_turnstile_challenge")
+                # No solve, no click, no retry, no bypass: stop the cycle here
+                # and let main() classify it as an expected external blocker.
+                raise ExpectedExternalBlocker("cloudflare_turnstile_challenge")
             consent = await handle_cookie_consent(page, timeout_s=8.0)
             log.info(
                 "  Consent %s via=%s",
@@ -1054,26 +1074,50 @@ async def run_referralcode(browser):
 
             # Aller sur la page listings
             try:
-                await page.goto(f"{cfg['url']}/my-account/?tab=listings", wait_until="networkidle", timeout=45000)
+                await page.goto(f"{cfg['url']}{LISTINGS_PATH}", wait_until="networkidle", timeout=45000)
             except Exception:
-                await page.goto(f"{cfg['url']}/my-account/?tab=listings", wait_until="domcontentloaded", timeout=45000)
+                await page.goto(f"{cfg['url']}{LISTINGS_PATH}", wait_until="domcontentloaded", timeout=45000)
             await human_sleep(2, 4)
 
-            # Cliquer le bouton Boost UNE SEULE FOIS par run
-            # (le site autorise 5x/jour, on en fait 1 par execution du workflow)
+            # Boost UNE SEULE FOIS par run (le site en autorise plusieurs par
+            # jour, on en depense exactement un). Un quota epuise ou un bouton
+            # absent sont des observations, pas des echecs: la classification
+            # est centralisee dans lib.rctv_bump pour rester testable.
+            remaining = None
+            control_visible = False
+            boosted = False
             try:
-                btn = page.locator('button#cliccami').first
-                await btn.wait_for(state="visible", timeout=8000)
                 page_text = await page.inner_text("body")
-                if "can click 0" in page_text:
-                    log.info("  Limite journaliere deja atteinte")
-                else:
+            except Exception:
+                page_text = ""
+            remaining = parse_boost_quota(page_text)
+            if remaining == 0:
+                log.info("  Limite journaliere deja atteinte (quota=0)")
+            else:
+                try:
+                    btn = page.locator(BOOST_CONTROL_SELECTOR).first
+                    await btn.wait_for(state="visible", timeout=8000)
+                    control_visible = True
+                except Exception:
+                    log.info("  Controle Boost absent (quota probablement epuise)")
+                if control_visible:
                     await btn.scroll_into_view_if_needed()
                     await human_click(page, btn)
-                    log.info("  Boost effectue")
+                    boosted = True
+                    log.info("  Boost effectue (1 max par run)")
                     await human_sleep(3, 6)
-            except Exception as e:
-                log.warning(f"  Boost echoue: {e}")
+
+            cycle = classify_cycle(
+                login_ok=True,
+                control_visible=control_visible,
+                remaining_quota=remaining,
+                boosted=boosted,
+            )
+            run_referralcode.last_cycle = cycle
+            log.info(
+                "  RCTV cycle outcome=%s classification=%s quota=%s",
+                cycle["outcome"], cycle["classification"], remaining,
+            )
         finally:
             await page.close()
 
@@ -1081,6 +1125,60 @@ async def run_referralcode(browser):
         await retry(_do, retries=3, label=name)
     finally:
         await ctx.close()
+
+
+# Last classified ReferralCode.tv cycle (observability only, never a proof).
+run_referralcode.last_cycle = None
+
+
+def _notify(level, event, **fields):
+    """BEST_EFFORT observability. A dead notification path never fails a bump."""
+    try:
+        from lib.notify import emit
+
+        emit(level, event, **fields)
+    except Exception:
+        pass
+
+
+PLATFORM_IDS = {
+    "super": "super-parrain",
+    "code": "code-parrainage",
+    "parrainage": "parrainage-co",
+    "referralcode": "referralcode-tv",
+}
+
+
+def _record_expected_blocker(site_id, reason):
+    """Report a proven external gate once per TTL. Never writes platform state.
+
+    Deliberately does NOT touch data/platform-write-status.json: an expected,
+    already-documented external challenge is not new evidence and must not
+    rewrite proof records on every cron tick.
+    """
+    _notify(
+        "HUMAN_REQUIRED",
+        "external_blocker",
+        platform=PLATFORM_IDS.get(site_id, site_id),
+        action="scheduled_bump",
+        result="EXPECTED_EXTERNAL_BLOCKER",
+        block_reason=reason,
+        pc_required=True,
+        source="bumper.main",
+    )
+
+
+def _record_bump(site_id, cycle):
+    if not cycle or not cycle.get("boosts_this_run"):
+        return
+    _notify(
+        "SUCCESS",
+        "bump_notable",
+        platform=PLATFORM_IDS.get(site_id, site_id),
+        action="boost",
+        result=cycle.get("outcome"),
+        source="bumper.main",
+    )
 
 # -- MAIN ---------------------------------------------------------------------
 RUNNERS = {"super": run_super, "code": run_code, "parrainage": run_parrainage, "referralcode": run_referralcode}
@@ -1141,6 +1239,7 @@ async def main():
             ])
 
         failures = []
+        expected_blockers = []
         executed = 0
         for site_id in to_run:
             runner = RUNNERS.get(site_id)
@@ -1158,6 +1257,18 @@ async def main():
             try:
                 executed += 1
                 await runner(browser)
+                if site_id == "referralcode":
+                    _record_bump(site_id, run_referralcode.last_cycle)
+            except ExpectedExternalBlocker as e:
+                # Proven, documented, external, unfixable from GitHub. Report it
+                # once, never retry it, never bypass it, and never let it fail
+                # the cycle as if the product had regressed.
+                log.warning(
+                    "  %s - EXPECTED_EXTERNAL_BLOCKER: %s (no retry, no bypass)",
+                    site_id, e,
+                )
+                expected_blockers.append(f"{site_id}: {e}")
+                _record_expected_blocker(site_id, str(e))
             except Exception as e:
                 log.error(f"  {site_id} - Erreur: {e}")
                 failures.append(f"{site_id}: {e}")
@@ -1172,6 +1283,11 @@ async def main():
         raise RuntimeError("Aucun site execute: verifier TARGET_SITES et les secrets")
     if failures:
         raise RuntimeError("Echec de site(s): " + " | ".join(failures))
+    if expected_blockers:
+        log.warning(
+            "EXPECTED_EXTERNAL_BLOCKER (cycle non echoue): %s",
+            " | ".join(expected_blockers),
+        )
 
 if __name__ == "__main__":
     asyncio.run(main())

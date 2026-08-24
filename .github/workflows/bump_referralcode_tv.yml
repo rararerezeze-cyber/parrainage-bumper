@@ -1,8 +1,26 @@
 name: Bump — ReferralCode.tv (isolated)
+# PRODUCTION, isolated on purpose.
+#
+# ReferralCode.tv is the only platform whose scheduled bump can currently be
+# stopped by an external gate: GitHub-hosted Chromium is served a standalone
+# Cloudflare Turnstile interstitial before the login form (proven by read-only
+# run 32565187359). That gate is never solved, clicked, retried, or bypassed.
+#
+# This job therefore runs completely apart from bump_autres.yml (Code-Parrainage
+# + Parrainage.co) and bump_super_parrain.yml: its own concurrency group, its own
+# TARGET_SITES, its own credentials, and no CAPTCHA-solver key. It can never
+# fail, delay, or cancel the two healthy bumpers.
+#
+# An expected external blocker is reported once (deduplicated) and leaves the run
+# green: a known, documented, unfixable-from-GitHub challenge firing on every
+# cron tick is noise, and permanent red would hide a real regression. Real
+# failures (network, DOM drift on an authenticated page, bad credentials) still
+# fail the run.
 
 on:
   schedule:
-    - cron: "0 */5 * * *"
+    # Offset from bump_autres.yml's "0 */5 * * *" so the two never start together.
+    - cron: "30 */5 * * *"
   workflow_dispatch:
 
 concurrency:
@@ -14,9 +32,31 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
+      # Read-only: this job never persists repository state. Its only durable
+      # outputs are the log and the uploaded artifacts.
       contents: read
     steps:
       - uses: actions/checkout@v4
+      # Notification dedup state must survive across runners: data/notifications/
+      # is gitignored, so every runner starts with an empty filesystem and the
+      # per-event TTL (24 h for external blockers) would otherwise reset on every
+      # single run — a 5-hourly cron would then report the same known blocker five
+      # times a day. The rolling cache key restores the most recent state for THIS
+      # workflow and writes a fresh entry each run.
+      # Scope: per workflow, not global. Two different workflows keep independent
+      # dedup state, and two concurrent runs of the same workflow can both restore
+      # the same entry and both emit — the failure mode is one duplicate
+      # notification, never a suppressed one. Fail-safe by design.
+      # continue-on-error keeps the BEST_EFFORT/FAIL_OPEN contract: a cache miss,
+      # a cache outage, or an empty path must never fail the business job.
+      - name: Restore notification dedup state
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: data/notifications/dedup.json
+          key: autofresh-notify-dedup-${{ github.workflow }}-${{ github.run_id }}
+          restore-keys: |
+            autofresh-notify-dedup-${{ github.workflow }}-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -28,6 +68,8 @@ jobs:
 
       - name: Bump ReferralCode.tv only
         env:
+          # Only ReferralCode.tv credentials reach this job. No CAPTCHA-solver
+          # key is passed: the Turnstile interstitial is never solved.
           REFERRALCODE_EMAIL: ${{ secrets.REFERRALCODE_EMAIL }}
           REFERRALCODE_PASSWORD: ${{ secrets.REFERRALCODE_PASSWORD }}
           TARGET_SITES: "referralcode"
@@ -38,6 +80,10 @@ jobs:
         if: always()
         run: cat bumper.log || true
 
+      - name: Observability events (scrubbed, deduplicated)
+        if: always()
+        run: python tools/notify_digest.py --since-hours 24 --format text || true
+
       - name: Upload ReferralCode.tv debug evidence
         if: failure()
         uses: actions/upload-artifact@v4
@@ -46,3 +92,20 @@ jobs:
           retention-days: 3
           if-no-files-found: ignore
           path: debug_referralcode_login.png
+
+      - name: Save notification dedup state
+        if: always()
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: data/notifications/dedup.json
+          key: autofresh-notify-dedup-${{ github.workflow }}-${{ github.run_id }}
+
+      - name: Upload notification outbox for Hermes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: autofresh-notifications-bump-referralcode-tv
+          retention-days: 7
+          if-no-files-found: ignore
+          path: data/notifications/

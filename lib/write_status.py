@@ -171,6 +171,16 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def _notify(level: str, event: str, **fields: Any) -> None:
+    """BEST_EFFORT observability hook. Never affects status persistence."""
+    try:
+        from lib.notify import emit
+
+        emit(level, event, **fields)
+    except Exception:
+        pass
+
+
 def load_write_status() -> dict[str, Any]:
     if STATUS_PATH.exists():
         try:
@@ -595,6 +605,20 @@ def mark_write_verified(
             save_phase(ph)
         except Exception:
             pass
+    _notify(
+        "SUCCESS",
+        "platform_status_change",
+        platform=platform,
+        program=program,
+        field="status",
+        new_value=STATUS_WRITE_VERIFIED,
+        action="mark_write_verified",
+        result="WRITE_VERIFIED",
+        post_match=bool(evidence.get("post_match")),
+        immutable=bool(evidence.get("immutable_ok", checks.get("immutable_preserved"))),
+        pc_required=save_requires_human(platform),
+        source=str(evidence.get("source") or "canary"),
+    )
     return {"ok": True, "platform": platform, "status": STATUS_WRITE_VERIFIED}
 
 
@@ -611,6 +635,16 @@ def mark_canary_failed(platform: str, error: str, *, program: str | None = None)
             pass
         meta["last_failure"] = {"error": error, "program": program, "at": _now()}
     save_write_status(data)
+    _notify(
+        "ERROR",
+        "post_verify_failure",
+        platform=platform,
+        program=program,
+        action="mark_canary_failed",
+        result="FAILED",
+        block_reason=error,
+        source="lib.write_status",
+    )
 
 
 def summary() -> dict[str, Any]:

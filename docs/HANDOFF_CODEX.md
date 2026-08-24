@@ -8,6 +8,11 @@ Do not reconstruct current state from older run artifacts. The authority order i
 3. `data/pending_writes.json` for unresolved write lifecycle;
 4. the most recent named capture referenced by the status record.
 
+`docs/RELEASE-STATE.md` is the short operator-facing summary of all of the
+below (platform table, autonomy classes, workflow classification, known
+external limitations). It is a view of the state files, never an authority
+over them.
+
 ## Current platform state
 
 | Platform | Status | Durable constraint |
@@ -115,10 +120,102 @@ blocker: GitHub-hosted Chromium receives a real Cloudflare Turnstile security
 interstitial before the login form (`Un instant…`, hidden
 `cf-turnstile-response`, no email field). This is not selector drift or cookie
 consent and must not be bypassed. The runtime detects it before login, performs
-no retry, and records `CAPTCHA_OR_ANTIBOT`. ReferralCode.tv was removed from the
-combined scheduled target so this external blocker no longer fails the healthy
-Code-Parrainage/Parrainage.co cycle. Local headed human operation remains the
-supported RCTV path.
+no retry, and records `CAPTCHA_OR_ANTIBOT`. Local headed human operation remains
+the supported path for any RCTV *content save*.
+
+ReferralCode.tv is no longer part of the combined scheduled target. Its bump now
+runs alone in `.github/workflows/bump_referralcode_tv.yml`
+(`BUMP_ISOLATED_BEST_EFFORT`): its own concurrency group, its own
+`TARGET_SITES`, only the ReferralCode.tv credentials, no CAPTCHA-solver key, and
+a cron offset from `bump_autres.yml`. It can never delay, cancel, or fail the
+healthy Code-Parrainage/Parrainage.co cycle.
+
+The cycle rules live in `lib/rctv_bump.py` and are covered by
+`tests/test_rctv_isolated_bump.py`: normal login, then at most one `#cliccami`
+boost per run when quota allows; an unparseable listings page is never treated
+as "quota available"; a missing boost control is an observation, not a failure.
+When the standalone Turnstile gate appears, `bumper.ExpectedExternalBlocker` stops
+the cycle before any credential is submitted, and `main()` separates it from real
+failures so the run stays green. A permanently red workflow on a known,
+documented, unfixable-from-GitHub gate is noise that would hide a real
+regression; network, DOM and credential failures still fail the run loudly.
+
+No legitimate unattended GitHub login is available: the challenge precedes the
+login form, so there is no session to obtain without solving it. This is a
+`KNOWN_LIMITATION`, not an open task, and no cookie or session may be invented,
+extracted, or committed to reach around it.
+
+## Observability
+
+`lib/notify.py` is the single, centralized event contract. AutoFresh still has no
+Telegram bot of its own — Hermes owns Telegram:
+
+```
+AutoFresh runtime → lib.notify.emit() → data/notifications/outbox.jsonl
+                  → Hermes (local plugin) → Telegram
+```
+
+Events are allow-listed (routine `NO_CHANGE` cycles and polls are dropped by
+construction), deduplicated per event with a TTL, scrubbed against a closed field
+whitelist, and `BEST_EFFORT` / `FAIL_OPEN`: `emit()` never raises, so a broken
+notification path can never fail a bump or a business write. Emitters are wired
+into circuit breakers, rollback, status promotion, canary failure, the pending
+lifecycle, the monitor's candidate divergences, and the ReferralCode.tv cycle.
+
+`data/notifications/` is gitignored — runner-only, no commit noise — and both
+residual-path gates (`tools/check_hermes_evidence_paths.py`,
+`tools/check_1parrainage_evidence_paths.py`) treat it as transient so an emitted
+event can never turn a successful mutation into a red workflow. All seven
+production workflows upload it as the `autofresh-notifications-*` artifact.
+
+Because that directory is gitignored, a runner starts with no memory of what was
+already reported, so each production workflow also restores and saves
+`data/notifications/dedup.json` via a rolling `actions/cache` key
+(`autofresh-notify-dedup-<workflow>-<run_id>` with a prefix `restore-keys`). That
+is what makes the 24 h TTL real across runs rather than only within one. The scope
+is **per workflow**: two workflows keep independent state, and two concurrent runs
+of one workflow can both emit — one duplicate notification, never a suppressed
+one. Both cache steps are `continue-on-error` so the BEST_EFFORT contract holds.
+
+Read it with `python tools/notify_digest.py --since-hours 24` or
+`--daily-summary`. **Not in this repository:** the Hermes plugin that fetches
+that artifact and relays the records to Telegram. It was not modified from here
+and no second production bot was created.
+
+## Workflow classification
+
+`data/workflow-registry.json` classifies every workflow (production vs archived
+proof) and `tests/test_workflow_registry.py` fails if one is added, removed, or
+reclassified. Closed canaries are kept as historical proof and are refused at
+runtime, not merely by convention: `may_execute_canary()` returns
+`already_WRITE_VERIFIED` for the four verified platforms,
+`guard_live_evidence_probe()` refuses the 1Parrainage probe because
+`gh_headless_save` is `PROVEN` (demonstrated by run `32559814742`), and
+`platforms.referralcodes.writer.execute_write(dry_run=False)` returns
+`NEVER_AUTO_COMMIT` before reaching any Commit code.
+
+## Super-Parrain cycle ownership
+
+`activation_canary.yml` is manual-only since 2026-08-24. Its two daily schedules
+existed solely to make it the live saver while Super-Parrain was `CANARY_PENDING`.
+That is over: the platform is `WRITE_VERIFIED`, the historical bumper is
+authorized, the runtime is `NORMAL_BUMP`, and `FUSED_UPDATE_BUMP` in
+`bump_super_parrain.yml` owns the production cycle alone. A scheduled canary could
+only have re-entered a live-write path on a platform whose proof is complete.
+
+Two guards now back that up:
+
+- `lib.super_parrain_schedule.super_parrain_canary_allowed()` refuses a
+  Super-Parrain canary while the platform is `WRITE_VERIFIED` + `NORMAL_BUMP`;
+  `activation_canary.yml` passes `--canary` so an accidental dispatch stops with
+  zero write, zero Save and zero pending. `controlled_write.yml` is unaffected —
+  it stays the legitimate explicit operator write path.
+- `tools/controlled_write_super_parrain.py` no longer queues a pending on
+  `--execute` before the plan is built. It used to, so every early return
+  (missing `--force`, active cooldown, and above all `NO_SAFE_DIFF`) stranded an
+  open pending that nothing on that path closed — a phantom pending waiting to
+  happen on the first eligible slot with no real diff. A pending is now opened
+  only where a real content diff exists.
 
 ## Remaining gaps
 
@@ -127,6 +224,8 @@ supported RCTV path.
    available.
 2. ReferralCode.tv: GitHub-hosted unattended login is blocked by the proven
    Cloudflare Turnstile interstitial; the human CAPTCHA save remains required.
+   The isolated bump workflow handles that gate as an expected external blocker
+   and stays healthy; this is a durable limitation, not open work.
 3. ReferralDrop: manual authentication/write-path blocker remains.
 4. Hermes mutation persistence: repository and installed-plugin fixes are
    complete; live persistence after the workflow fix is intentionally deferred

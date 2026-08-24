@@ -415,9 +415,14 @@ def format_plan_report(
         f"WRITE_VERIFIED: {ws.get('WRITE_VERIFIED')} | "
         f"Telegram live-capable: {len(ws.get('telegram_live_capable') or [])}/7"
     )
+    # Built from live state, never a hardcoded list. This line used to name
+    # two platforms literally and kept doing so long after parrainage-co became
+    # WRITE_VERIFIED + PC_OFF_READY, so the operator-facing summary
+    # under-reported which platforms can actually auto-write.
+    auto_writers = ", ".join(ws.get("telegram_live_capable") or []) or "aucune"
     lines.append(
         "Auto writers ONLY on PC_OFF_READY + real SAFE_DIFF "
-        "(1parrainage, code-parrainage). Human platforms never auto-dispatch."
+        f"({auto_writers}). Human platforms never auto-dispatch."
     )
     lines.append("Monitor remains OBSERVATION_ONLY (no auto-accept).")
     return "\n".join(lines)

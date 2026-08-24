@@ -1,0 +1,125 @@
+name: CI (read-only)
+# Read-only pull-request validation. Deliberately inert with respect to the
+# product: no platform secret is exposed, no browser is installed, no login is
+# attempted, nothing is written to a platform or committed to the repository.
+#
+# permissions: contents: read only, and there is no schedule — this workflow can
+# never become a background actor.
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: autofresh-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Needed for `git diff --check` against the merge base.
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        # Browsers are deliberately not provisioned: the suite never launches one.
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Test suite
+        # AUTOFRESH_NOTIFY_DISABLED must NOT be set here. It is a production kill
+        # switch that makes emit() a no-op, and the notification tests legitimately
+        # exercise emit() -- setting it turned 10 real tests into false failures.
+        # Test writes are already contained: tests/conftest.py redirects every
+        # notify path (NOTIFY_DIR/OUTBOX_PATH/DEDUP_PATH) into a throwaway sandbox.
+        run: python -m pytest tests -q
+
+      - name: Validate JSON
+        run: |
+          python - <<'PY'
+          import json, pathlib, sys
+          bad = []
+          for p in sorted(pathlib.Path("data").rglob("*.json")):
+              try:
+                  json.loads(p.read_text(encoding="utf-8"))
+              except UnicodeDecodeError:
+                  # data/captures/auth-readonly-code-parrainage.json is a preserved
+                  # UTF-16 capture from an old PowerShell redirect. Valid JSON, read
+                  # by no code, kept byte-identical rather than rewritten.
+                  try:
+                      json.loads(p.read_text(encoding="utf-16"))
+                  except Exception as exc:
+                      bad.append((str(p), str(exc)))
+              except Exception as exc:
+                  bad.append((str(p), str(exc)))
+          if bad:
+              for path, err in bad:
+                  print(f"::error file={path}::invalid JSON: {err}")
+              sys.exit(1)
+          print("JSON OK")
+          PY
+
+      - name: Validate workflow YAML
+        run: |
+          python - <<'PY'
+          import pathlib, sys
+          import yaml
+          bad = []
+          for p in sorted(pathlib.Path(".github/workflows").glob("*.yml")):
+              try:
+                  d = yaml.safe_load(p.read_text(encoding="utf-8"))
+                  assert isinstance(d, dict) and d.get("jobs"), "no jobs"
+              except Exception as exc:
+                  bad.append((str(p), str(exc)))
+          if bad:
+              for path, err in bad:
+                  print(f"::error file={path}::invalid workflow: {err}")
+              sys.exit(1)
+          print("workflow YAML OK")
+          PY
+
+      - name: Import check
+        run: |
+          python - <<'PY'
+          import importlib, pathlib, sys
+          sys.path.insert(0, ".")
+          failed = []
+          for p in list(pathlib.Path("lib").rglob("*.py")) + list(pathlib.Path("platforms").rglob("*.py")):
+              if p.name == "__init__.py":
+                  continue
+              mod = str(p.with_suffix("")).replace("/", ".")
+              try:
+                  importlib.import_module(mod)
+              except Exception as exc:
+                  failed.append((mod, str(exc)))
+          if failed:
+              for mod, err in failed:
+                  print(f"::error::{mod}: {err}")
+              sys.exit(1)
+          print("imports OK")
+          PY
+
+      - name: Whitespace check
+        run: git diff --check "origin/${{ github.base_ref || 'main' }}...HEAD"
+
+      - name: Suite must not mutate tracked state
+        # The session sandbox in tests/conftest.py exists precisely so a test run
+        # cannot rewrite production state shared with the Actions bots.
+        run: |
+          if ! git diff --quiet; then
+            echo "::error::the test suite modified tracked files"
+            git status --short
+            exit 1
+          fi
+          echo "working tree clean after the suite"

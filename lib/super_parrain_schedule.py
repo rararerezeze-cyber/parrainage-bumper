@@ -123,6 +123,16 @@ def is_eligible(now: datetime | None = None) -> tuple[bool, datetime, float]:
     return remaining <= 0, nxt, max(0.0, remaining)
 
 
+def _notify(level: str, event: str, **fields: Any) -> None:
+    """BEST_EFFORT observability hook. Never affects the pending lifecycle."""
+    try:
+        from lib.notify import emit
+
+        emit(level, event, **fields)
+    except Exception:
+        pass
+
+
 def load_pending() -> dict[str, Any]:
     if not PENDING_PATH.exists():
         return {"version": 1, "items": []}
@@ -179,6 +189,16 @@ def enqueue_pending(
         "blocks_bump": False,
     }
     items.append(item)
+    _notify(
+        "INFO",
+        "pending_created",
+        platform=platform,
+        program=program,
+        action="enqueue_pending",
+        result="PENDING",
+        block_reason=reason,
+        source="lib.super_parrain_schedule",
+    )
     SyncStateStore().upsert_entry(
         platform,
         program,
@@ -204,6 +224,15 @@ def mark_pending_done(platform: str, program: str, language: str = "fr") -> bool
             changed = True
     if changed:
         save_pending(data)
+        _notify(
+            "INFO",
+            "pending_closed",
+            platform=platform,
+            program=program,
+            action="mark_pending_done",
+            result="DONE",
+            source="lib.super_parrain_schedule",
+        )
     return changed
 
 
@@ -407,6 +436,48 @@ def super_parrain_runtime_mode() -> str:
     if not is_historical_bumper_authorized():
         return RUNTIME_MODE_BUMPER_SUSPENDED
     return RUNTIME_MODE_NORMAL_BUMP
+
+
+def super_parrain_canary_allowed() -> dict[str, Any]:
+    """May an activation/content canary still live-write on Super-Parrain?
+
+    Fail-safe guard, independent from the cooldown and from --force. Once
+    Super-Parrain is WRITE_VERIFIED *and* the historical bumper is authorized
+    (runtime NORMAL_BUMP), FUSED_UPDATE_BUMP in bump_super_parrain.yml is the
+    single owner of the production cycle: it already performs the content update
+    on a real SAFE_DIFF and the bump otherwise. A second live-write path would
+    add nothing to prove, and could only re-enter a save on a platform whose
+    proof is complete.
+
+    This is deliberately *not* wired into tools/controlled_write_super_parrain.py
+    unconditionally: controlled_write.yml remains the legitimate, explicitly
+    operator-dispatched controlled-write path. The guard applies to the canary
+    entry point (``--canary``), which is what activation_canary.yml uses.
+    """
+    from lib.write_status import STATUS_WRITE_VERIFIED, get_platform_status
+
+    status = get_platform_status("super-parrain")
+    mode = super_parrain_runtime_mode()
+    verified = status == STATUS_WRITE_VERIFIED
+    if verified and mode == RUNTIME_MODE_NORMAL_BUMP:
+        return {
+            "allowed": False,
+            "reason": "ALREADY_WRITE_VERIFIED_NORMAL_BUMP",
+            "status": status,
+            "runtime_mode": mode,
+            "owner": "FUSED_UPDATE_BUMP:bump_super_parrain.yml",
+            "detail": (
+                "Super-Parrain is WRITE_VERIFIED and the historical bumper is "
+                "authorized (NORMAL_BUMP). The fused cycle owns production writes; "
+                "no further canary is needed or permitted."
+            ),
+        }
+    return {
+        "allowed": True,
+        "reason": "CANARY_STILL_MEANINGFUL",
+        "status": status,
+        "runtime_mode": mode,
+    }
 
 
 def decide_super_parrain_action() -> dict[str, Any]:
