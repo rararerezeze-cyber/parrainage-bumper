@@ -9,6 +9,15 @@ from pathlib import PurePosixPath
 
 TRANSIENT_TRACKED_PATHS = ("data/audit/events.jsonl",)
 
+# Runner-only observability. gitignored, never committed, never business state:
+# a BEST_EFFORT notification must not turn a successful mutation into a red
+# workflow through the residual-path gate.
+TRANSIENT_UNTRACKED_PREFIXES = ("data/notifications/",)
+
+
+def _is_transient_untracked(path: str) -> bool:
+    return any(path.startswith(prefix) for prefix in TRANSIENT_UNTRACKED_PREFIXES)
+
 
 def _normalize(path: str) -> str:
     return PurePosixPath((path or "").replace("\\", "/")).as_posix()
@@ -24,13 +33,14 @@ def validate_remaining_paths(
         {_normalize(path) for path in untracked if (path or "").strip()}
     )
     transient = sorted(
-        path for path in observed_unstaged if path in TRANSIENT_TRACKED_PATHS
+        [path for path in observed_unstaged if path in TRANSIENT_TRACKED_PATHS]
+        + [path for path in observed_untracked if _is_transient_untracked(path)]
     )
     unexpected = sorted(
         path
         for path in observed_unstaged
         if path not in TRANSIENT_TRACKED_PATHS
-    ) + observed_untracked
+    ) + [path for path in observed_untracked if not _is_transient_untracked(path)]
     if unexpected:
         raise ValueError(
             "Unexpected residual paths after Hermes evidence staging: "

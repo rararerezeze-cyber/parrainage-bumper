@@ -139,6 +139,32 @@ def cmd_program(program: str, *, impact: bool = False) -> int:
     return 0
 
 
+def _notify_candidates(candidates: list) -> None:
+    """Report observed business divergences. OBSERVATION_ONLY, never a write.
+
+    BEST_EFFORT: a broken notification path never affects the monitor run.
+    NO_CHANGE programs are not events and are never reported.
+    """
+    try:
+        from lib.notify import EVENT_MONITOR_REAL_SAFE_DIFF, emit
+
+        for c in candidates or []:
+            emit(
+                "WARNING",
+                EVENT_MONITOR_REAL_SAFE_DIFF,
+                program=c.get("program"),
+                field=c.get("field"),
+                old_value=c.get("canonical"),
+                new_value=c.get("observed"),
+                source=f"monitor:{c.get('authority')}",
+                action="observe",
+                result="CANDIDATE",
+                pc_required=False,
+            )
+    except Exception:
+        pass
+
+
 def cmd_all(*, changes_only: bool = False) -> int:
     eng = MonitorEngine(live_fetch=True)
     results = eng.run_all()
@@ -179,6 +205,7 @@ def cmd_all(*, changes_only: bool = False) -> int:
     ):
         print(f"  {k}: {prod.get(k)}")
     cands = candidates_report(results)
+    _notify_candidates(cands)
     if cands:
         print("--- CANDIDATES (observation only, not accepted) ---")
         for c in cands[:20]:

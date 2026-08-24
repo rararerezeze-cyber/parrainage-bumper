@@ -19,3 +19,7 @@ debug_*.png
 debug_*.json
 .local-auth/
 *.storage-state.json
+# Runner-only observability outbox (BEST_EFFORT events + dedup state).
+# Never committed: it is uploaded as a workflow artifact for Hermes and
+# must not add commit noise or become a residual path in the write flows.
+data/notifications/

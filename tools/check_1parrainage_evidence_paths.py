@@ -12,6 +12,14 @@ PERSISTED_PATHS = (
     "data/circuit-breakers.json",
 )
 TRANSIENT_PATHS = ("data/audit/events.jsonl",)
+# Runner-only observability (gitignored, never committed, never proof).
+TRANSIENT_PREFIXES = ("data/notifications/",)
+
+
+def _is_transient(path: str) -> bool:
+    return path in TRANSIENT_PATHS or any(
+        path.startswith(prefix) for prefix in TRANSIENT_PREFIXES
+    )
 
 
 def _normalize(path: str) -> str:
@@ -20,8 +28,8 @@ def _normalize(path: str) -> str:
 
 def validate_unstaged_paths(paths: list[str]) -> dict[str, list[str]]:
     observed = sorted({_normalize(path) for path in paths if (path or "").strip()})
-    transient = sorted(path for path in observed if path in TRANSIENT_PATHS)
-    unexpected = sorted(path for path in observed if path not in TRANSIENT_PATHS)
+    transient = sorted(path for path in observed if _is_transient(path))
+    unexpected = sorted(path for path in observed if not _is_transient(path))
     if unexpected:
         raise ValueError(
             "Unexpected unstaged paths after evidence staging: "

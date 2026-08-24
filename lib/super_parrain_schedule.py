@@ -123,6 +123,16 @@ def is_eligible(now: datetime | None = None) -> tuple[bool, datetime, float]:
     return remaining <= 0, nxt, max(0.0, remaining)
 
 
+def _notify(level: str, event: str, **fields: Any) -> None:
+    """BEST_EFFORT observability hook. Never affects the pending lifecycle."""
+    try:
+        from lib.notify import emit
+
+        emit(level, event, **fields)
+    except Exception:
+        pass
+
+
 def load_pending() -> dict[str, Any]:
     if not PENDING_PATH.exists():
         return {"version": 1, "items": []}
@@ -179,6 +189,16 @@ def enqueue_pending(
         "blocks_bump": False,
     }
     items.append(item)
+    _notify(
+        "INFO",
+        "pending_created",
+        platform=platform,
+        program=program,
+        action="enqueue_pending",
+        result="PENDING",
+        block_reason=reason,
+        source="lib.super_parrain_schedule",
+    )
     SyncStateStore().upsert_entry(
         platform,
         program,
@@ -204,6 +224,15 @@ def mark_pending_done(platform: str, program: str, language: str = "fr") -> bool
             changed = True
     if changed:
         save_pending(data)
+        _notify(
+            "INFO",
+            "pending_closed",
+            platform=platform,
+            program=program,
+            action="mark_pending_done",
+            result="DONE",
+            source="lib.super_parrain_schedule",
+        )
     return changed
 
 

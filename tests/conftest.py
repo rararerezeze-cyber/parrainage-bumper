@@ -61,6 +61,7 @@ _PATCH_TARGETS: list[tuple[str, list[str]]] = [
         "JITTER_PATH",
     ]),
     ("lib.safety", ["DATA_DIR", "SNAPSHOT_DIR", "AUDIT_PATH", "CIRCUIT_PATH"]),
+    ("lib.notify", ["DATA_DIR", "NOTIFY_DIR", "OUTBOX_PATH", "DEDUP_PATH"]),
     ("lib.canary_gate", ["DATA_DIR", "LOCK_PATH", "PACKS_PATH"]),
     ("lib.hermes_interface", ["DATA_DIR", "OPERATOR_OVERRIDES_PATH", "RESULT_PATH"]),
     ("lib.phase", ["ROOT", "PHASE_PATH"]),
@@ -84,6 +85,10 @@ _PATCH_TARGETS: list[tuple[str, list[str]]] = [
     ("tools.validate_referralcodes_agent_import", ["ROOT", "OUT"]),
     ("tools.inspect_referralcodes_commit_semantics", ["ROOT", "OUT"]),
     ("platforms.referralcodes.writer", ["ROOT"]),
+    # Writes data/captures/referralcodes-agent-import-*.{json,csv}. Before this
+    # entry, running the suite rewrote those committed captures in the real
+    # working tree (verified: the CSV came back with one CR instead of two).
+    ("platforms.referralcodes.agent_import", ["ROOT"]),
 ]
 
 

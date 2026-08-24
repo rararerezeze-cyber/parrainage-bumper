@@ -1,0 +1,136 @@
+{
+  "version": 1,
+  "updated_at": "2026-08-24T18:59:45.122369+00:00",
+  "note": "Operator-facing classification of every GitHub Actions workflow in this repository. PRODUCTION runs the product. EVIDENCE_CLOSED / DIAGNOSTIC_CLOSED are kept as historical proof and are already refused at runtime by their own gates -- they are archived, never deleted. tests/test_workflow_registry.py fails if a workflow file is added, removed, or reclassified without updating this file.",
+  "classes": {
+    "PRODUCTION_SCHEDULED": "Runs on cron. Keeps the product alive.",
+    "PRODUCTION_MANUAL": "Operator-dispatched production path (writes or backend).",
+    "EVIDENCE_CLOSED": "Proof complete. Its own runtime gate refuses a re-run.",
+    "CANARY_CLOSED": "Platform already WRITE_VERIFIED; canary gate returns already_WRITE_VERIFIED.",
+    "DIAGNOSTIC_CLOSED": "Read-only investigation whose finding is recorded. Kept as history.",
+    "DIAGNOSTIC_AVAILABLE": "Read-only, still useful on demand.",
+    "OPTIONAL_TEST_ONLY": "Not the production path. Never the Autofresh Telegram bot."
+  },
+  "workflows": {
+    "bump_super_parrain.yml": {
+      "class": "PRODUCTION_SCHEDULED",
+      "platform": "super-parrain",
+      "note": "FUSED_UPDATE_BUMP, ~24h cooldown + persistent jitter. Do not touch without a proven problem."
+    },
+    "bump_autres.yml": {
+      "class": "PRODUCTION_SCHEDULED",
+      "platform": "code-parrainage,parrainage-co",
+      "note": "Healthy combined cycle. ReferralCode.tv is deliberately NOT in TARGET_SITES."
+    },
+    "bump_referralcode_tv.yml": {
+      "class": "PRODUCTION_SCHEDULED",
+      "platform": "referralcode-tv",
+      "note": "Isolated best-effort bump. An expected Turnstile challenge is reported, never retried, never bypassed, and never fails the run."
+    },
+    "monitor_offers.yml": {
+      "class": "PRODUCTION_SCHEDULED",
+      "platform": null,
+      "note": "OBSERVATION_ONLY. monitor_auto_accept stays false."
+    },
+    "hermes_operator.yml": {
+      "class": "PRODUCTION_MANUAL",
+      "platform": null,
+      "note": "Hermes → AutoFresh backend command path. run_writers defaults to false."
+    },
+    "controlled_write.yml": {
+      "class": "PRODUCTION_MANUAL",
+      "platform": "super-parrain",
+      "note": "Explicit controlled content write."
+    },
+    "activation_canary.yml": {
+      "class": "PRODUCTION_SCHEDULED",
+      "platform": "super-parrain",
+      "note": "Scheduled daily at the first eligible Super-Parrain window plus retries, and operator-dispatchable. Shares the parrainage-bumper-super concurrency group with bump_super_parrain.yml so only one live saver runs at a time."
+    },
+    "canary_write_1parrainage.yml": {
+      "class": "EVIDENCE_CLOSED",
+      "platform": "1parrainage",
+      "note": "gh_headless_save=PROVEN by run 32559662078. guard_live_evidence_probe requires NOT_RUN, so a re-dispatch is refused before browser startup (proven by run 32559814742: 0 Save clicks, 0 platform writes)."
+    },
+    "canary_write_code_parrainage.yml": {
+      "class": "CANARY_CLOSED",
+      "platform": "code-parrainage",
+      "note": "Platform WRITE_VERIFIED; may_execute_canary returns already_WRITE_VERIFIED."
+    },
+    "canary_write_parrainage_co.yml": {
+      "class": "CANARY_CLOSED",
+      "platform": "parrainage-co",
+      "note": "Platform WRITE_VERIFIED; may_execute_canary returns already_WRITE_VERIFIED."
+    },
+    "diagnose_1parrainage_consent.yml": {
+      "class": "DIAGNOSTIC_CLOSED",
+      "platform": "1parrainage",
+      "note": "Cookie-consent investigation. Finding recorded."
+    },
+    "diagnose_1parrainage_final_gaps.yml": {
+      "class": "DIAGNOSTIC_CLOSED",
+      "platform": "1parrainage",
+      "note": "Final-gap investigation before the headless proof. Closed by run 32559662078."
+    },
+    "diagnose_1parrainage_save_dom.yml": {
+      "class": "DIAGNOSTIC_CLOSED",
+      "platform": "1parrainage",
+      "note": "Save-control root cause (daily_edit_quota_exhausted) recorded by run 32419280860."
+    },
+    "diagnose_code_parrainage_offre_save.yml": {
+      "class": "DIAGNOSTIC_CLOSED",
+      "platform": "code-parrainage",
+      "note": "Root cause (unhandled confirm dialog) found and fixed."
+    },
+    "inspect_code_parrainage.yml": {
+      "class": "DIAGNOSTIC_CLOSED",
+      "platform": "code-parrainage",
+      "note": "Edit-surface inspection. Closed."
+    },
+    "inspect_code_parrainage_edit_mechanism.yml": {
+      "class": "DIAGNOSTIC_CLOSED",
+      "platform": "code-parrainage",
+      "note": "Edit mechanism inspection. Closed."
+    },
+    "inspect_code_parrainage_offre_scripts_full.yml": {
+      "class": "DIAGNOSTIC_CLOSED",
+      "platform": "code-parrainage",
+      "note": "Full script dump that produced the confirm-dialog finding (run 31966798936)."
+    },
+    "inspect_parrainage_co.yml": {
+      "class": "DIAGNOSTIC_CLOSED",
+      "platform": "parrainage-co",
+      "note": "Edit-surface inspection. Closed."
+    },
+    "inspect_referralcodes_commit_semantics.yml": {
+      "class": "DIAGNOSTIC_CLOSED",
+      "platform": "referralcodes",
+      "note": "Produced the NOT_A_DOCUMENTED_UPDATE_PATH conclusion. Never clicks Commit."
+    },
+    "preflight_1parrainage_headless.yml": {
+      "class": "DIAGNOSTIC_CLOSED",
+      "platform": "1parrainage",
+      "note": "Preflight for the now-completed headless canary."
+    },
+    "probe_super_mes_annonces.yml": {
+      "class": "DIAGNOSTIC_CLOSED",
+      "platform": "super-parrain",
+      "note": "Read-only listing probe. Closed."
+    },
+    "capture_readonly.yml": {
+      "class": "DIAGNOSTIC_AVAILABLE",
+      "platform": null,
+      "note": "Read-only capture, no bump. Still useful on demand."
+    },
+    "deploy_telegram_worker.yml": {
+      "class": "OPTIONAL_TEST_ONLY",
+      "platform": null,
+      "note": "telegram-worker/ is TEST/OPTIONAL. Never deploy it as a second production bot — Hermes owns Telegram."
+    },
+    "telegram_sync.yml": {
+      "class": "OPTIONAL_TEST_ONLY",
+      "platform": null,
+      "note": "Legacy compatibility path. Prefer hermes_operator.yml."
+    }
+  }
+}
