@@ -38,9 +38,11 @@ jobs:
           pip install -r requirements.txt
 
       - name: Test suite
-        env:
-          # Belt and braces: even if a test tried, notifications stay inert here.
-          AUTOFRESH_NOTIFY_DISABLED: "1"
+        # AUTOFRESH_NOTIFY_DISABLED must NOT be set here. It is a production kill
+        # switch that makes emit() a no-op, and the notification tests legitimately
+        # exercise emit() -- setting it turned 10 real tests into false failures.
+        # Test writes are already contained: tests/conftest.py redirects every
+        # notify path (NOTIFY_DIR/OUTBOX_PATH/DEDUP_PATH) into a throwaway sandbox.
         run: python -m pytest tests -q
 
       - name: Validate JSON

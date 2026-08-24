@@ -212,3 +212,15 @@ def test_ci_workflow_is_classified_and_not_production():
     meta = REGISTRY["workflows"]["ci.yml"]
     assert meta["class"] == "CI_READ_ONLY"
     assert not meta["class"].startswith("PRODUCTION")
+
+
+def test_ci_does_not_disable_notifications():
+    """AUTOFRESH_NOTIFY_DISABLED is a production kill switch, not a test setting:
+    with it set, emit() no-ops and the notification suite fails for the wrong
+    reason. Test writes are contained by the conftest sandbox instead."""
+    raw = (WORKFLOW_DIR / "ci.yml").read_text(encoding="utf-8")
+    for line in raw.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("#"):
+            continue
+        assert not stripped.startswith("AUTOFRESH_NOTIFY_DISABLED"), stripped
