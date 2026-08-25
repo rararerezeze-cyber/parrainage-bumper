@@ -993,6 +993,8 @@ async def run_referralcode(browser):
         LISTINGS_PATH,
         classify_cycle,
         parse_boost_quota,
+        parse_boosted_today,
+        verify_boost,
     )
 
     cfg = CONFIG["referralcode"]
@@ -1083,15 +1085,24 @@ async def run_referralcode(browser):
             # jour, on en depense exactement un). Un quota epuise ou un bouton
             # absent sont des observations, pas des echecs: la classification
             # est centralisee dans lib.rctv_bump pour rester testable.
-            remaining = None
+            async def _read_counters():
+                """Both counters as the listings page currently reports them."""
+                try:
+                    text = await page.inner_text("body")
+                except Exception:
+                    text = ""
+                return parse_boosted_today(text), parse_boost_quota(text)
+
             control_visible = False
-            boosted = False
-            try:
-                page_text = await page.inner_text("body")
-            except Exception:
-                page_text = ""
-            remaining = parse_boost_quota(page_text)
-            if remaining == 0:
+            click_performed = False
+            boosted_before, remaining_before = await _read_counters()
+            boosted_after, remaining_after = boosted_before, remaining_before
+            log.info(
+                "  Etat AVANT: boosted_today=%s clicks_remaining=%s",
+                boosted_before, remaining_before,
+            )
+
+            if remaining_before == 0:
                 log.info("  Limite journaliere deja atteinte (quota=0)")
             else:
                 try:
@@ -1103,21 +1114,60 @@ async def run_referralcode(browser):
                 if control_visible:
                     await btn.scroll_into_view_if_needed()
                     await human_click(page, btn)
-                    boosted = True
-                    log.info("  Boost effectue (1 max par run)")
+                    # One click per run. Whatever happens next, we never click again.
+                    click_performed = True
                     await human_sleep(3, 6)
+                    # POST_VERIFY: a click that raised no exception proves nothing.
+                    # Re-read the page from the server and require a counter to move.
+                    try:
+                        await page.reload(wait_until="domcontentloaded", timeout=45000)
+                        await human_sleep(2, 4)
+                    except Exception as exc:
+                        log.warning("  Reload post-boost impossible: %s", exc)
+                    boosted_after, remaining_after = await _read_counters()
+                    log.info(
+                        "  Etat APRES: boosted_today=%s clicks_remaining=%s",
+                        boosted_after, remaining_after,
+                    )
 
+            proof = verify_boost(
+                boosted_before=boosted_before,
+                boosted_after=boosted_after,
+                remaining_before=remaining_before,
+                remaining_after=remaining_after,
+            )
             cycle = classify_cycle(
                 login_ok=True,
                 control_visible=control_visible,
-                remaining_quota=remaining,
-                boosted=boosted,
+                remaining_quota=remaining_before,
+                click_performed=click_performed,
+                post_verify=proof["post_verify"],
             )
+            cycle["report"] = {
+                "boosted_before": boosted_before,
+                "boosted_after": boosted_after,
+                "remaining_before": remaining_before,
+                "remaining_after": remaining_after,
+                "click_performed": click_performed,
+                "POST_VERIFY": proof["post_verify"],
+                "OUTCOME": cycle["outcome"],
+            }
             run_referralcode.last_cycle = cycle
-            log.info(
-                "  RCTV cycle outcome=%s classification=%s quota=%s",
-                cycle["outcome"], cycle["classification"], remaining,
-            )
+            for key, value in cycle["report"].items():
+                log.info("  %-17s = %s", key, value)
+            if cycle["outcome"] == "BOOST_NOT_VERIFIED":
+                # Never a silent green: the run clicked but cannot prove the
+                # listing moved, which is exactly the failure that matters.
+                #
+                # NonRetryableError, not RuntimeError: retry() would re-enter
+                # _do() and click Boost again, spending up to 3 of the day's
+                # quota in one run. One real click per run is non-negotiable,
+                # so an unverified boost fails the run without ever retrying.
+                raise NonRetryableError(
+                    "BOOST_NOT_VERIFIED: click performed but no counter moved "
+                    f"(boosted {boosted_before}->{boosted_after}, "
+                    f"remaining {remaining_before}->{remaining_after})"
+                )
         finally:
             await page.close()
 
