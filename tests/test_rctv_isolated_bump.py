@@ -15,6 +15,7 @@ import bumper
 from lib.rctv_bump import (
     EXPECTED_EXTERNAL_BLOCKER,
     RCTV_AUTH_BLOCKED_CHALLENGE,
+    RCTV_BOOST_NOT_VERIFIED,
     RCTV_BOOSTED,
     RCTV_CONTROL_ABSENT,
     RCTV_FAILED,
@@ -22,7 +23,9 @@ from lib.rctv_bump import (
     classify_cycle,
     is_expected_external_blocker,
     parse_boost_quota,
+    parse_boosted_today,
     quota_exhausted,
+    verify_boost,
 )
 
 WORKFLOWS = Path(__file__).resolve().parents[1] / ".github" / "workflows"
@@ -61,11 +64,15 @@ def test_turnstile_challenge_is_expected_external_and_never_blocking():
     assert cycle["human_required"] is True
 
 
-def test_quota_available_and_boosted_is_success():
-    cycle = classify_cycle(login_ok=True, control_visible=True, remaining_quota=4, boosted=True)
+def test_quota_available_and_verified_boost_is_success():
+    cycle = classify_cycle(
+        login_ok=True, control_visible=True, remaining_quota=4,
+        click_performed=True, post_verify=True,
+    )
     assert cycle["outcome"] == RCTV_BOOSTED
     assert cycle["boosts_this_run"] == 1
     assert cycle["blocking"] is False
+    assert cycle["post_verify"] is True
 
 
 def test_quota_exhausted_is_not_a_failure():
@@ -228,11 +235,18 @@ class _Btn:
 
 
 class _SimPage:
-    def __init__(self, *, body: str, control_visible: bool, clicks: list):
+    def __init__(self, *, body: str, control_visible: bool, clicks: list,
+                 body_after: str | None = None):
         self.url = "about:blank"
         self.body = body
+        # What the server reports once the boost has actually landed.
+        self.body_after = body_after
         self.control_visible = control_visible
         self.clicks = clicks
+
+    async def reload(self, **_k):
+        if self.clicks and self.body_after is not None:
+            self.body = self.body_after
 
     async def goto(self, url, **_k):
         self.url = url
@@ -258,9 +272,11 @@ class _SimPage:
         return None
 
 
-def _sim(monkeypatch, *, body, control_visible, challenge=False):
+def _sim(monkeypatch, *, body, control_visible, challenge=False, body_after=None):
     clicks: list = []
-    page = _SimPage(body=body, control_visible=control_visible, clicks=clicks)
+    page = _SimPage(
+        body=body, control_visible=control_visible, clicks=clicks, body_after=body_after
+    )
 
     class _Ctx:
         async def new_page(self):
@@ -301,14 +317,46 @@ def _sim(monkeypatch, *, body, control_visible, challenge=False):
 
 
 def test_normal_login_with_quota_boosts_exactly_once(monkeypatch):
-    clicks = _sim(monkeypatch, body="You can click 4 more times", control_visible=True)
+    clicks = _sim(
+        monkeypatch,
+        body="You've boosted 0 times today. You can click 5 times",
+        body_after="You've boosted 1 times today. You can click 4 times",
+        control_visible=True,
+    )
     asyncio.run(bumper.run_referralcode(object()))
     assert clicks == ["boost"], "at most one boost per run"
-    assert bumper.run_referralcode.last_cycle["outcome"] == RCTV_BOOSTED
+    cycle = bumper.run_referralcode.last_cycle
+    assert cycle["outcome"] == RCTV_BOOSTED
+    assert cycle["report"] == {
+        "boosted_before": 0, "boosted_after": 1,
+        "remaining_before": 5, "remaining_after": 4,
+        "click_performed": True, "POST_VERIFY": True, "OUTCOME": RCTV_BOOSTED,
+    }
+
+
+def test_unverified_boost_fails_the_run_and_never_clicks_twice(monkeypatch):
+    """Counters that do not move: the run must fail, having clicked exactly once.
+
+    retry() must not re-enter and spend more of the daily quota.
+    """
+    clicks = _sim(
+        monkeypatch,
+        body="You've boosted 0 times today. You can click 5 times",
+        body_after=None,  # server reports no change
+        control_visible=True,
+    )
+    with pytest.raises(bumper.NonRetryableError, match="BOOST_NOT_VERIFIED"):
+        asyncio.run(bumper.run_referralcode(object()))
+    assert clicks == ["boost"], f"exactly one click allowed, got {len(clicks)}"
+    assert bumper.run_referralcode.last_cycle["outcome"] == RCTV_BOOST_NOT_VERIFIED
 
 
 def test_exhausted_quota_never_clicks(monkeypatch):
-    clicks = _sim(monkeypatch, body="You can click 0 more times", control_visible=True)
+    clicks = _sim(
+        monkeypatch,
+        body="You've boosted 5 times today. You can click 0 times",
+        control_visible=True,
+    )
     asyncio.run(bumper.run_referralcode(object()))
     assert clicks == []
     assert bumper.run_referralcode.last_cycle["outcome"] == RCTV_QUOTA_EXHAUSTED
@@ -335,3 +383,83 @@ def test_standalone_turnstile_stops_before_any_credential_is_typed(monkeypatch):
         asyncio.run(bumper.run_referralcode(object()))
     assert filled == [], "no credential may be submitted into a challenge page"
     assert clicks == []
+
+
+# -- POST_VERIFY : un clic sans preuve n'est jamais un succès -------------------
+@pytest.mark.parametrize(
+    "text,boosted,remaining",
+    [
+        ("You've boosted 0 times today. You can click 5 times", 0, 5),
+        ("You've boosted 3 times today", 3, None),
+        ("You have boosted 1 time today. You can click 4 times", 1, 4),
+        ("page redesigned, no counters", None, None),
+    ],
+)
+def test_parse_both_counters_from_the_real_page_wording(text, boosted, remaining):
+    assert parse_boosted_today(text) == boosted
+    assert parse_boost_quota(text) == remaining
+
+
+def test_boost_is_verified_when_boosted_today_increments():
+    proof = verify_boost(
+        boosted_before=0, boosted_after=1, remaining_before=5, remaining_after=5
+    )
+    assert proof["post_verify"] is True
+    assert proof["boosted_today_incremented"] is True
+
+
+def test_boost_is_verified_when_remaining_decrements():
+    proof = verify_boost(
+        boosted_before=None, boosted_after=None, remaining_before=5, remaining_after=4
+    )
+    assert proof["post_verify"] is True
+    assert proof["clicks_remaining_decremented"] is True
+
+
+def test_real_user_state_0_of_5_then_one_boost_is_verified():
+    """Exactly the state observed on the account: boosted 0, can click 5."""
+    proof = verify_boost(
+        boosted_before=0, boosted_after=1, remaining_before=5, remaining_after=4
+    )
+    assert proof["post_verify"] is True
+
+
+@pytest.mark.parametrize(
+    "b_before,b_after,r_before,r_after",
+    [
+        (0, 0, 5, 5),      # rien n'a bougé
+        (None, None, None, None),  # page illisible
+        (0, 5, 5, 0),      # saut incohérent
+    ],
+)
+def test_unmoved_or_incoherent_counters_are_never_a_verified_boost(
+    b_before, b_after, r_before, r_after
+):
+    proof = verify_boost(
+        boosted_before=b_before, boosted_after=b_after,
+        remaining_before=r_before, remaining_after=r_after,
+    )
+    assert proof["post_verify"] is False
+
+
+def test_click_without_proof_is_boost_not_verified_and_blocking():
+    """The exact defect this fixes: click() not raising is not a success."""
+    cycle = classify_cycle(
+        login_ok=True, control_visible=True, remaining_quota=5,
+        click_performed=True, post_verify=False,
+    )
+    assert cycle["outcome"] == RCTV_BOOST_NOT_VERIFIED
+    assert cycle["blocking"] is True, "an unconfirmed boost must be observable, not green"
+    assert cycle["boosts_this_run"] == 0
+    assert cycle["post_verify"] is False
+
+
+def test_no_code_path_reports_boosted_without_post_verify():
+    """Guards the invariant across every combination, not just the happy path."""
+    for control in (True, False):
+        for remaining in (None, 0, 5):
+            cycle = classify_cycle(
+                login_ok=True, control_visible=control,
+                remaining_quota=remaining, click_performed=True, post_verify=False,
+            )
+            assert cycle["outcome"] != RCTV_BOOSTED, (control, remaining)

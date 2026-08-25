@@ -29,6 +29,9 @@ from typing import Any
 RCTV_BOOSTED = "BOOSTED"
 RCTV_QUOTA_EXHAUSTED = "QUOTA_EXHAUSTED"
 RCTV_CONTROL_ABSENT = "BOOST_CONTROL_ABSENT"
+# A click that raised no exception proves nothing. Without a counter moving,
+# the boost is NOT verified and must never be reported as a success.
+RCTV_BOOST_NOT_VERIFIED = "BOOST_NOT_VERIFIED"
 RCTV_AUTH_BLOCKED_CHALLENGE = "AUTH_BLOCKED_CHALLENGE"
 RCTV_FAILED = "FAILED"
 
@@ -50,6 +53,8 @@ LISTINGS_PATH = "/my-account/?tab=listings"
 # has moved before; keep the parse tolerant but never optimistic: an
 # unparseable page is *not* treated as "quota available".
 _QUOTA_RE = re.compile(r"can\s+click\s+(\d+)", re.IGNORECASE)
+# "You've boosted 0 times today" — the counter that must go UP after a real boost.
+_BOOSTED_RE = re.compile(r"boosted\s+(\d+)\s+time", re.IGNORECASE)
 
 
 def is_expected_external_blocker(reason: Any) -> bool:
@@ -73,6 +78,57 @@ def parse_boost_quota(page_text: str | None) -> int | None:
         return None
 
 
+def parse_boosted_today(page_text: str | None) -> int | None:
+    """How many boosts the listings page says were already spent today."""
+    if not page_text:
+        return None
+    match = _BOOSTED_RE.search(page_text)
+    if not match:
+        return None
+    try:
+        return int(match.group(1))
+    except (TypeError, ValueError):
+        return None
+
+
+def verify_boost(
+    *,
+    boosted_before: int | None,
+    boosted_after: int | None,
+    remaining_before: int | None,
+    remaining_after: int | None,
+) -> dict[str, Any]:
+    """Did the boost actually land? Requires a counter to have moved.
+
+    Either signal alone is sufficient proof, but at least one is mandatory:
+      * boosted_today went up by exactly one, or
+      * clicks_remaining went down by exactly one.
+
+    Anything else -- unchanged counters, unreadable page, a jump of more than
+    one -- is NOT proof. A click that merely did not raise is never a success.
+    """
+    boosted_up = (
+        boosted_before is not None
+        and boosted_after is not None
+        and boosted_after == boosted_before + 1
+    )
+    remaining_down = (
+        remaining_before is not None
+        and remaining_after is not None
+        and remaining_after == remaining_before - 1
+    )
+    readable = any(
+        v is not None
+        for v in (boosted_before, boosted_after, remaining_before, remaining_after)
+    )
+    return {
+        "boosted_today_incremented": boosted_up,
+        "clicks_remaining_decremented": remaining_down,
+        "counters_readable": readable,
+        "post_verify": bool(boosted_up or remaining_down),
+    }
+
+
 def quota_exhausted(page_text: str | None) -> bool:
     """True only when the page explicitly announces zero remaining boosts."""
     return parse_boost_quota(page_text) == 0
@@ -84,7 +140,8 @@ def classify_cycle(
     login_ok: bool = False,
     control_visible: bool = False,
     remaining_quota: int | None = None,
-    boosted: bool = False,
+    click_performed: bool = False,
+    post_verify: bool = False,
     error: str | None = None,
 ) -> dict[str, Any]:
     """Classify one isolated ReferralCode.tv cycle.
@@ -122,16 +179,35 @@ def classify_cycle(
             "block_reason": "login_not_confirmed",
             "human_required": False,
         }
-    if boosted:
+    if click_performed:
+        # POST_VERIFY is mandatory. `post_verify` must come from verify_boost()
+        # against counters re-read AFTER the click -- never from the click call
+        # returning without raising.
+        if post_verify:
+            return {
+                "outcome": RCTV_BOOSTED,
+                "classification": "OK",
+                "blocking": False,
+                "retry": False,
+                "bypass_attempted": False,
+                "block_reason": None,
+                "human_required": False,
+                "boosts_this_run": 1,
+                "post_verify": True,
+            }
         return {
-            "outcome": RCTV_BOOSTED,
-            "classification": "OK",
-            "blocking": False,
+            "outcome": RCTV_BOOST_NOT_VERIFIED,
+            "classification": "UNVERIFIED_ACTION",
+            # Observable, not silently green: a click we cannot confirm means the
+            # listing may not have moved at all, which is the whole point of the
+            # scheduled run.
+            "blocking": True,
             "retry": False,
             "bypass_attempted": False,
-            "block_reason": None,
+            "block_reason": "boost_click_not_confirmed_by_any_counter",
             "human_required": False,
-            "boosts_this_run": 1,
+            "boosts_this_run": 0,
+            "post_verify": False,
         }
     if remaining_quota == 0:
         return {
