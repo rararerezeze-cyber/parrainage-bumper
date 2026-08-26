@@ -5,13 +5,15 @@
   "switch": "monitor_auto_accept",
   "switch_enabled": false,
   "eligible_programs": [
-    "boursobank"
+    "boursobank",
+    "igraal"
   ],
   "eligible_fields": [
     "boursobank.min_deposit",
     "boursobank.qualification_days",
     "boursobank.referee_reward",
-    "boursobank.reward_type"
+    "boursobank.reward_type",
+    "igraal.referee_reward"
   ],
   "rejected_fields_and_reasons": [
     {
@@ -21,14 +23,6 @@
       "reasons": [
         "authority_not_official_public_monitor:UNKNOWN",
         "campaign_variant_authority_unknown"
-      ]
-    },
-    {
-      "program": "igraal",
-      "field": "referee_reward",
-      "observed": "15 €",
-      "reasons": [
-        "streak_below_3:2"
       ]
     },
     {
@@ -54,7 +48,7 @@
       "canonical": "Programme à confirmer",
       "observed": "jusqu'à 160 €",
       "authority": "OFFICIAL_PUBLIC_MONITOR",
-      "live_high_streak": 13,
+      "live_high_streak": 14,
       "effective_now": "Programme à confirmer",
       "effective_source": "CANONICAL_DEFAULT",
       "idempotent": false,
@@ -69,7 +63,7 @@
       "canonical": null,
       "observed": "300 €",
       "authority": "OFFICIAL_PUBLIC_MONITOR",
-      "live_high_streak": 13,
+      "live_high_streak": 14,
       "effective_now": null,
       "effective_source": "CANONICAL_DEFAULT",
       "idempotent": false,
@@ -84,7 +78,7 @@
       "canonical": null,
       "observed": "30",
       "authority": "OFFICIAL_PUBLIC_MONITOR",
-      "live_high_streak": 13,
+      "live_high_streak": 14,
       "effective_now": null,
       "effective_source": "CANONICAL_DEFAULT",
       "idempotent": false,
@@ -99,12 +93,27 @@
       "canonical": null,
       "observed": "tiered_cash",
       "authority": "OFFICIAL_PUBLIC_MONITOR",
-      "live_high_streak": 13,
+      "live_high_streak": 14,
       "effective_now": null,
       "effective_source": "CANONICAL_DEFAULT",
       "idempotent": false,
       "source_url": "https://www.boursobank.com/bon-plan/parrainage-boursobank",
       "parser": "boursobank_parrainage_fr"
+    },
+    {
+      "decision": "ACCEPT",
+      "reasons": [],
+      "program": "igraal",
+      "field": "referee_reward",
+      "canonical": "5 €",
+      "observed": "15 €",
+      "authority": "OFFICIAL_PUBLIC_MONITOR",
+      "live_high_streak": 3,
+      "effective_now": "5 €",
+      "effective_source": "CANONICAL_DEFAULT",
+      "idempotent": false,
+      "source_url": "https://fr.igraal.com/parrainage",
+      "parser": "igraal_referral_fr"
     }
   ],
   "simulated_safe_diffs": [
@@ -137,6 +146,20 @@
       "human_command": null
     },
     {
+      "platform": "referralcode-tv",
+      "program": "igraal",
+      "language": "en",
+      "changed_fields": {
+        "referee_reward": {
+          "old": "5 € offers sur votre compte iGraal m via mon lien ✅",
+          "new": "15 € offers sur votre compte iGraal m via mon lien ✅"
+        }
+      },
+      "route": "HUMAN_SAVE_REQUIRED",
+      "runtime_route": "HUMAN_SAVE_REQUIRED",
+      "human_command": "python -u tools/local_headed_rctv_canary.py"
+    },
+    {
       "platform": "super-parrain",
       "program": "boursobank",
       "language": "fr",
@@ -144,6 +167,20 @@
         "referee_reward": {
           "old": "200 €",
           "new": "160 €"
+        }
+      },
+      "route": "FUSED_UPDATE_BUMP",
+      "runtime_route": "FUSED_UPDATE_BUMP",
+      "human_command": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "igraal",
+      "language": "fr",
+      "changed_fields": {
+        "referee_reward": {
+          "old": "5 € offers sur votre compte iGraal m via mon lien ✅",
+          "new": "15 € offers sur votre compte iGraal m via mon lien ✅"
         }
       },
       "route": "FUSED_UPDATE_BUMP",
@@ -159,6 +196,11 @@
         "boursobank"
       ]
     },
+    "code-parrainage": {
+      "route": "AUTO_ON_SAFE_DIFF",
+      "runtime_route": "AUTO_ON_SAFE_DIFF",
+      "programs": []
+    },
     "parrainage-co": {
       "route": "AUTO_ON_SAFE_DIFF",
       "runtime_route": "AUTO_ON_SAFE_DIFF",
@@ -169,18 +211,26 @@
     "referralcode-tv": {
       "route": "HUMAN_SAVE_REQUIRED",
       "runtime_route": "HUMAN_SAVE_REQUIRED",
+      "programs": [
+        "igraal"
+      ]
+    },
+    "referraldrop": {
+      "route": "MANUAL",
+      "runtime_route": "AUTH_BLOCKED_MANUAL",
       "programs": []
     },
     "super-parrain": {
       "route": "FUSED_UPDATE_BUMP",
       "runtime_route": "FUSED_UPDATE_BUMP",
       "programs": [
-        "boursobank"
+        "boursobank",
+        "igraal"
       ]
     }
   },
   "super_fused_update_ready": true,
-  "rctv_human_route_ready": false,
+  "rctv_human_route_ready": true,
   "referralcodes_block_preserved": true,
   "live_writes_performed_check": 0,
   "production_activation_switch": "data/autofresh-phase.json → \"monitor_auto_accept\": true",
@@ -191,5 +241,5 @@
     "APP_PERSONALIZED stays Hermes/Telegram",
     "ReferralCodes still NEVER_AUTO_COMMIT pending support"
   ],
-  "at": "2026-08-25T09:00:05.510586+00:00"
+  "at": "2026-08-26T09:02:30.725077+00:00"
 }
