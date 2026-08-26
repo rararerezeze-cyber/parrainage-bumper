@@ -3,7 +3,7 @@
   "decision": {
     "runtime_mode": "NORMAL_BUMP",
     "canary_pending": false,
-    "next_eligible_at": "2026-08-24T22:51:20.754366+00:00",
+    "next_eligible_at": "2026-08-26T03:23:06.133609+00:00",
     "hours_remaining": 0.0,
     "pending_count": 0,
     "pending_programs": [],
@@ -19,7 +19,7 @@
     "eligible_now": true
   },
   "eligible": true,
-  "next_eligible_at": "2026-08-24T22:51:20.754366+00:00",
+  "next_eligible_at": "2026-08-26T03:23:06.133609+00:00",
   "hours_remaining": 0.0,
   "pre_check": {
     "programs_scanned": 35,
@@ -547,5 +547,5 @@
     "canary_skipped": 11
   },
   "pending_closed": [],
-  "at": "2026-08-25T00:53:09.029713+00:00"
+  "at": "2026-08-26T04:39:38.533653+00:00"
 }
