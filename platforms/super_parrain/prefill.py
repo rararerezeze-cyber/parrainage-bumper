@@ -15,6 +15,11 @@ from lib.super_parrain_content import (
     get_desired_content,
     program_from_edit_url,
 )
+from lib.content_plan import (
+    REASON_DISAGREEMENT,
+    classify_disagreement,
+    load_plan as load_content_plan,
+)
 from lib.phase import live_writes_enabled, phase_name
 from lib.super_parrain_policy import should_prefill_content
 
@@ -102,6 +107,26 @@ async def _set_body(page, value: str) -> bool:
         except Exception:
             return False
     return False
+
+
+def _notify_disagreement(program: str, blocked_fields: list[str]) -> None:
+    """BEST_EFFORT: a refused content mutation must still be observable."""
+    try:
+        from lib.notify import emit
+
+        emit(
+            "ERROR",
+            "workflow_error",
+            platform="super-parrain",
+            program=program,
+            action="content_prefill",
+            result="FAIL_CLOSED",
+            block_reason=REASON_DISAGREEMENT,
+            new_value=",".join(blocked_fields) or None,
+            source="platforms.super_parrain.prefill",
+        )
+    except Exception:
+        pass
 
 
 async def prepare_before_save(page, edit_url: str) -> dict[str, Any]:
@@ -207,6 +232,44 @@ async def prepare_before_save(page, edit_url: str) -> dict[str, Any]:
     if not diff.needs_update:
         result["reason"] = "in_sync"
         log.info(f"  Autofresh [{program}]: in_sync — Enregistrer = remontee seule")
+        return result
+
+    # --- Single source of truth: the pre-check plan is the authority ---------
+    #
+    # Incident 2026-08-27 (GH run 33098049116): the pre-check reported
+    # canary_need_update_count=0 and this function still filled the body and
+    # triggered a real Save. The two disagreed because they read `current.body`
+    # from different places -- the repository golden vs this live edit form.
+    #
+    # The runtime may narrow the plan (it just did, above, when needs_update is
+    # false) but it may never widen it. A program the pre-check did not
+    # authorize gets bump-only, whatever this form says.
+    plan = load_content_plan()
+    verdict = classify_disagreement(
+        program=program, plan=plan, runtime_needs_update=diff.needs_update
+    )
+    result["content_plan"] = {
+        "precheck_allowed": verdict["precheck_allowed"],
+        "disagreement": verdict["disagreement"],
+    }
+    if not verdict["content_mutation_allowed"]:
+        result["skipped"] = True
+        result["needs_update"] = False
+        result["fields_filled"] = []
+        result["reason"] = verdict["reason"]
+        result["blocked_changed_fields"] = sorted(diff.changed_fields.keys())
+        if verdict["disagreement"]:
+            log.error(
+                "  Autofresh [%s]: PRECHECK/RUNTIME DISAGREEMENT on %s — "
+                "FAIL CLOSED, no content written, bump only",
+                program, sorted(diff.changed_fields.keys()),
+            )
+            _notify_disagreement(program, sorted(diff.changed_fields.keys()))
+        else:
+            log.info(
+                "  Autofresh [%s]: %s — Enregistrer = remontee seule",
+                program, verdict["reason"],
+            )
         return result
 
     filled = []

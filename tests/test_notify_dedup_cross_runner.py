@@ -190,7 +190,14 @@ def test_production_workflow_restores_and_saves_dedup_state(name):
     s_with = save[0].get("with") or {}
     assert r_with.get("path") == "data/notifications/dedup.json"
     assert s_with.get("path") == "data/notifications/dedup.json"
-    assert save[0].get("if") == "always()", f"{name} must save dedup state even on failure"
+    # Must still run on failure. A workflow may additionally guard on the file
+    # existing (hashFiles) so a cycle that legitimately produced no event does
+    # not log a recurring "path does not exist" warning -- that is a noise fix,
+    # not a weakening: the condition still starts with always().
+    save_if = str(save[0].get("if") or "")
+    assert save_if.startswith("always()"), (
+        f"{name} must save dedup state even on failure (if: {save_if!r})"
+    )
 
 
 @pytest.mark.parametrize("name", PRODUCTION)

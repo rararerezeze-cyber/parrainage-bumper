@@ -21,6 +21,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+from lib.content_plan import CONTENT_PLAN_ENV, build_plan, serialize_plan
 from lib.super_parrain_content import compare_from_mapping_platform_values
 from lib.super_parrain_policy import parse_canary_programs, policy_snapshot
 from lib.super_parrain_schedule import (
@@ -30,6 +31,53 @@ from lib.super_parrain_schedule import (
     save_cycle_report,
 )
 from lib.inventory import list_mapping_refs
+
+
+def _record_cycle_outcome(**kwargs) -> None:
+    """BEST_EFFORT: never let bookkeeping break a healthy bump."""
+    try:
+        from lib.write_status import record_operational_cycle
+
+        record_operational_cycle("super-parrain", **kwargs)
+    except Exception as exc:  # noqa: BLE001
+        print(f"WARN: could not record operational cycle: {exc}")
+
+
+def _report_content_failure(*, program: str | None, error: str, saves: str | None) -> None:
+    """A real content write whose POST_VERIFY failed must be observable.
+
+    GH run 33098049116 produced CANARY_FAILED and emitted nothing: the fused
+    cycle set write_status as a plain dict key inside bumper.py and never went
+    through lib.write_status / lib.notify, so no Hermes event and no artifact
+    were produced at all.
+    """
+    _record_cycle_outcome(
+        result="CANARY_FAILED", post_match=False, program=program, saves=saves, error=error
+    )
+    try:
+        from lib.write_status import mark_canary_failed
+
+        # Records last_failure and emits the post_verify_failure event.
+        # Never demotes an already WRITE_VERIFIED platform.
+        mark_canary_failed("super-parrain", error, program=program)
+    except Exception as exc:  # noqa: BLE001
+        print(f"WARN: could not record canary failure: {exc}")
+    try:
+        from lib.notify import EVENT_POST_VERIFY_FAILURE, emit
+
+        emit(
+            "ERROR",
+            EVENT_POST_VERIFY_FAILURE,
+            platform="super-parrain",
+            program=program,
+            action="fused_content_write",
+            result="CANARY_FAILED",
+            post_match=False,
+            block_reason=error,
+            source="tools.super_parrain_cycle",
+        )
+    except Exception:
+        pass
 
 
 def dry_precheck_report(env: dict | None = None) -> dict:
@@ -192,9 +240,18 @@ def main() -> int:
         env.pop("AUTOFRESH_CANARY_PROGRAMS", None)
     env["TARGET_SITES"] = "super"
     env["AUTOFRESH_SUPER"] = "1"
+
+    # The pre-check is the single authority on which programs may receive a
+    # content mutation. Publishing it to the bumper subprocess is what stops the
+    # runtime from widening the plan on its own -- the exact failure of GH run
+    # 33098049116, where canary_need_update_count=0 still produced a real Save.
+    content_plan = build_plan([item["program"] for item in pre["canary_need_update"]])
+    env[CONTENT_PLAN_ENV] = serialize_plan(content_plan)
+    report["content_plan"] = content_plan
     print(
         f"EXECUTE fused bumper mode={env.get('AUTOFRESH_MODE')} "
         f"canary={env.get('AUTOFRESH_CANARY_PROGRAMS', '*')} "
+        f"content_plan={content_plan['allowed_programs'] or 'NONE (bump-only)'} "
         f"(1 Enregistrer / code) …"
     )
     proc = subprocess.run(
@@ -239,6 +296,31 @@ def main() -> int:
         "autofresh_bump_only": (bumper_stats.get("autofresh") or {}).get("bump_only"),
         "canary_skipped": (bumper_stats.get("autofresh") or {}).get("canary_skipped"),
     }
+    # BUMP_RESULT and CONTENT_RESULT are distinct outcomes. A healthy bump with a
+    # failed content write is NOT a fully healthy cycle, and must not be shown as
+    # one (GH run 33098049116 surfaced as a plain green run).
+    bump_ok = proc.returncode == 0
+    content_failed = post_match is False
+    report["summary"]["BUMP_RESULT"] = "SUCCESS" if bump_ok else "FAILED"
+    report["summary"]["CONTENT_RESULT"] = (
+        "FAILED"
+        if content_failed
+        else ("SUCCESS" if post_match is True else "NO_CONTENT_WRITE")
+    )
+    if content_failed:
+        _report_content_failure(
+            program=(canary_verdict or {}).get("program"),
+            error=(canary_verdict or {}).get("error") or "post_match_false",
+            saves=str(saves) if saves is not None else None,
+        )
+    else:
+        _record_cycle_outcome(
+            result="BUMP_ONLY" if post_match is None else "CONTENT_VERIFIED",
+            post_match=post_match,
+            program=(canary_verdict or {}).get("program"),
+            saves=str(saves) if saves is not None else None,
+        )
+
     try:
         report["pending_closed"] = close_verified_fused_pending(report)
     except Exception as exc:  # fail closed: a cleanup error never clears pending
