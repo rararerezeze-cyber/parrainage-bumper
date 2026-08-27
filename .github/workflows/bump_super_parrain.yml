@@ -174,7 +174,17 @@ jobs:
             set -e
             echo "cycle_exit=$RC"
             if [ "$RC" -eq 2 ]; then
-              echo "post_match=false path — see cycle report"
+              # RC=2 means: the historical bump completed, but a real content
+              # write failed POST_VERIFY (CANARY_FAILED). This used to exit 0,
+              # so GH run 33098049116 showed a plain green run while Kraken had
+              # been saved with a body the site did not publish as intended.
+              #
+              # The bump result is preserved and the artifacts/persistence steps
+              # below still run; the job is marked failed at the very end so the
+              # content failure cannot be missed. BUMP_RESULT and CONTENT_RESULT
+              # are reported separately in the summary.
+              echo "::error::CONTENT_RESULT=FAILED (post_match=false) — the historical bump succeeded, the content write did not. See the cycle report."
+              echo "content_failed=1" >> "$GITHUB_ENV"
               exit 0
             fi
             if [ "$RC" -eq 3 ]; then
@@ -267,7 +277,11 @@ jobs:
           fi
 
       - name: Save notification dedup state
-        if: always()
+        # Only save when a dedup file actually exists. A cycle with no notifiable
+        # event legitimately produces none, and saving nothing logged a recurring
+        # "path does not exist" warning on every run. No placeholder file is
+        # created just to satisfy the cache.
+        if: always() && hashFiles('data/notifications/dedup.json') != ''
         uses: actions/cache/save@v4
         continue-on-error: true
         with:
@@ -282,3 +296,23 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
           path: data/notifications/
+
+      - name: Content result gate
+        # Last step on purpose: the bump, its artifacts and its persisted state
+        # are already committed by now. This only makes a CANARY_FAILED cycle
+        # impossible to mistake for a fully healthy one.
+        if: always() && env.content_failed == '1'
+        run: |
+          {
+            echo "### Super-Parrain cycle"
+            echo ""
+            echo "| | |"
+            echo "|---|---|"
+            echo "| BUMP_RESULT | SUCCESS (historical bump completed) |"
+            echo "| CONTENT_RESULT | **FAILED** — post_match=false |"
+            echo ""
+            echo "The daily bump is unaffected. A content write was attempted and its"
+            echo "public post-verify did not match. See \`data/captures/super-parrain-last-cycle.json\`."
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::error::Super-Parrain CONTENT_RESULT=FAILED — bump succeeded, content write failed post-verify."
+          exit 1

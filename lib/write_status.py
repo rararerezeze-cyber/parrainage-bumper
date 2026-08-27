@@ -14,6 +14,7 @@ Required for WRITE_VERIFIED:
 from __future__ import annotations
 
 import json
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -620,6 +621,50 @@ def mark_write_verified(
         source=str(evidence.get("source") or "canary"),
     )
     return {"ok": True, "platform": platform, "status": STATUS_WRITE_VERIFIED}
+
+
+def record_operational_cycle(
+    platform: str,
+    *,
+    result: str,
+    post_match: bool | None = None,
+    program: str | None = None,
+    gh_run_id: str | None = None,
+    saves: str | None = None,
+    error: str | None = None,
+    note: str | None = None,
+) -> dict[str, Any]:
+    """Record what the LATEST real cycle actually did.
+
+    Deliberately separate from the historical proof. This never touches
+    ``status``, ``evidence`` or ``last_write_verified_at``: WRITE_VERIFIED is a
+    durable statement about what the writer has been proven capable of, and a
+    later failure does not retract that proof.
+
+    What it does fix is the opposite error, seen after GH run 33098049116: the
+    cycle failed post-verify, yet ``last_operational_cycle`` still advertised the
+    2026-08-20 PASS, so the record implied the most recent cycle had succeeded.
+    """
+    data = load_write_status()
+    meta = data.setdefault("platforms", {}).setdefault(platform, {})
+    entry: dict[str, Any] = {
+        "at": _now(),
+        "result": result,
+        "post_verify": "PASS" if post_match is True else ("FAIL" if post_match is False else "NONE"),
+        "post_match": post_match,
+        "program": program,
+        "gh_run_id": gh_run_id or os.environ.get("GITHUB_RUN_ID"),
+        "saves": saves,
+    }
+    if error:
+        entry["error"] = error
+    entry["note"] = note or (
+        "Latest actual cycle. Independent from evidence/last_write_verified_at, "
+        "which remain the historical capability proof and are not retracted here."
+    )
+    meta["last_operational_cycle"] = {k: v for k, v in entry.items() if v is not None}
+    save_write_status(data)
+    return meta["last_operational_cycle"]
 
 
 def mark_canary_failed(platform: str, error: str, *, program: str | None = None) -> None:
