@@ -3,13 +3,13 @@
   "decision": {
     "runtime_mode": "NORMAL_BUMP",
     "canary_pending": false,
-    "next_eligible_at": "2026-08-27T06:22:33.541433+00:00",
+    "next_eligible_at": "2026-08-28T20:00:32.350467+00:00",
     "hours_remaining": 0.0,
     "pending_count": 0,
     "pending_programs": [],
     "activation_canary_owns_save": false,
     "historical_bumper_authorized": true,
-    "jitter_minutes": 103,
+    "jitter_minutes": 151,
     "action": "cycle",
     "reason": "slot_reached_write_verified_precheck_then_bump",
     "skip_bump": false,
@@ -19,7 +19,7 @@
     "eligible_now": true
   },
   "eligible": true,
-  "next_eligible_at": "2026-08-27T06:22:33.541433+00:00",
+  "next_eligible_at": "2026-08-28T20:00:32.350467+00:00",
   "hours_remaining": 0.0,
   "pre_check": {
     "programs_scanned": 35,
@@ -158,16 +158,21 @@
     "stop_flag": false
   },
   "note": "Au creneau: bumper.py ouvre chaque codes-promo/edit. Canary: seul(s) ['kraken'] recoivent un prefill contenu; les autres = BUMP_ONLY. UN SEUL Enregistrer / code.",
+  "content_plan": {
+    "version": 1,
+    "source": "precheck",
+    "allowed_programs": []
+  },
   "bumper_returncode": 0,
   "bumper_stats": {
     "mode": "fused_bumper_canary",
     "total_edit_urls": 39,
     "saves": 39,
     "autofresh": {
-      "updated": 1,
-      "bump_only": 38,
+      "updated": 0,
+      "bump_only": 39,
       "failed_prefill": 0,
-      "canary_skipped": 11,
+      "canary_skipped": 24,
       "details": [
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-whatnot-jusqua-200-eur-offerts/edit",
@@ -382,104 +387,194 @@
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-kraken-200-eur-offerts/edit",
           "program": "kraken",
-          "needs_update": true,
-          "fields_filled": [
-            "body"
-          ],
+          "needs_update": false,
+          "fields_filled": [],
           "changed_fields": {
             "body": {
               "old": "Conditions de parrainage \n\nUne fois que votre amie aura terminé ces étapes vous recevrez tous les deux le bonus.\n\nCréer et vérifier un compte\nDéposez au moins 200 €\nTradez au moins 200 €",
               "new": "⭐️ Offre Parrainage Kraken – Jusqu’à 200 € offerts\n\n⚡ Bonus : 200 € en cryptomonnaies ⭐️\nRejoignez Kraken, une plateforme d’échange crypto reconnue et sécurisée.\n\n⸻\n\n✅ Code parrain : cpbrgddy\n\n✅ Lien : \n\nhttps://invite.kraken.com/JDNW/s5qudqe4\n\n\n⸻\n\n✅ Étapes à suivre pour obtenir le bonus :\n\nConditions de parrainage :\n\nUne fois que votre ami(e) aura terminé ces étapes, vous recevrez tous les deux le bonus.\n\nCréer et vérifier un compte\nDéposez au moins €200\nTradez au moins €200\n\n⸻\n\nℹ️ À savoir :\n• Offre réservée aux nouveaux utilisateurs\n• Le bonus est crédité après validation des conditions sans action manuelle nécessaire\n\n⸻\n\n⭐️ Besoin d’aide ou d’un suivi personnalisé ?\nDM-moi — je te guide étape par étape\n\n↪️ https://discord.gg/dDEMb6jEbn ↩️"
             }
           },
-          "skipped": false,
-          "reason": "prefilled",
-          "policy": "canary"
+          "skipped": true,
+          "reason": "precheck_runtime_disagreement_fail_closed",
+          "policy": "canary",
+          "content_plan": {
+            "precheck_allowed": false,
+            "disagreement": true
+          },
+          "blocked_changed_fields": [
+            "body"
+          ]
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/binance-20-de-reduction-sur-les-frais/edit",
+          "program": "binance",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-omio-10eur-offerts-sur-votre-prochaine-reservation/edit",
+          "program": "omio",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/back-market-10-eur-de-reduction/edit",
+          "program": null,
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "program_unknown_from_url",
+          "policy": ""
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/deblock-5-eur-en-crypto-offerts/edit",
+          "program": "deblock",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-widilo-jusqua-6eur-offerts-a-linscription/edit",
+          "program": "widilo",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-heetch-5eur-offerts-a-linscription/edit",
+          "program": "heetch",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/wise-reduction-sur-les-frais-de-transfert/edit",
+          "program": "wise",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/uber-eats-reduction-premiere-commande/edit",
+          "program": null,
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "program_unknown_from_url",
+          "policy": ""
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-airbnb/edit",
+          "program": "airbnb",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/ynstant-10-eur-offerts/edit",
+          "program": null,
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "program_unknown_from_url",
+          "policy": ""
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-trade-republic-10-eur-en-action-offerts/edit",
+          "program": "traderepublic",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-joko-5eur-offerts-des-votre-premiere-utilisation/edit",
+          "program": "joko",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-poulpeo-5eur-offerts-a-linscription/edit",
+          "program": "poulpeo",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-special-parrainage-betclic-100eur-rembourses-en-cash-et-40eur-offerts-en-freebet/edit",
+          "program": "betclic",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/totalenergies-offre-special-50eur-offerts/edit",
+          "program": "totalenergies",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/acheel-1-mois-sur-le-contrat-assurance-offert/edit",
+          "program": "acheel",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-coupe-du-monde-50-eur-offerts-et-bonus-jusqua-100-rembourses-eur/edit",
+          "program": null,
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "program_unknown_from_url",
+          "policy": ""
         }
       ],
       "policy": {
@@ -490,44 +585,12 @@
         ],
         "stop_flag": false
       },
-      "canary_post_verify": [
-        {
-          "program": "kraken",
-          "announcement_url": "https://www.super-parrain.com/offres/kraken/parrainage-kraken/annonces/adrien-b-8",
-          "ok": false,
-          "post_match": false,
-          "exact_body_match": false,
-          "field_checks": {
-            "personal_code": {
-              "desired": "cpbrgddy",
-              "present": false
-            },
-            "personal_link": {
-              "desired": "https://invite.kraken.com/JDNW/s5qudqe4",
-              "present": false
-            },
-            "referee_reward": {
-              "desired": "200 € en cryptomonnaies",
-              "present": true
-            }
-          },
-          "published_preview": "⭐️ Offre Parrainage Kraken – Jusqu’à 200 € offerts\n\n⚡ Bonus : 200 € en cryptomonnaies ⭐️\nRejoignez Kraken, une plateforme d’échange crypto reconnue et sécurisée.\n\n⸻\n\n✅ Code parrain : fc9djsk9\n\n✅ Lien : \n\nhttps://invite.kraken.com/JDNW/hpan8j8z\n\n\n⸻\n\n✅ Étapes à suivre pour obtenir le bonus :\n\nConditions de parrainage :\n\nUne fois que votre ami(e) aura terminé ces étapes, vous recevrez tous les deux l",
-          "desired_preview": "⭐️ Offre Parrainage Kraken – Jusqu’à 200 € offerts\n\n⚡ Bonus : 200 € en cryptomonnaies ⭐️\nRejoignez Kraken, une plateforme d’échange crypto reconnue et sécurisée.\n\n⸻\n\n✅ Code parrain : cpbrgddy\n\n✅ Lien : \n\nhttps://invite.kraken.com/JDNW/s5qudqe4\n\n\n⸻\n\n✅ Étapes à suivre pour obtenir le bonus :\n\nConditions de parrainage :\n\nUne fois que votre ami(e) aura terminé ces étapes, vous recevrez tous les deux l",
-          "error": "post_match_false",
-          "immutable_ok": true
-        }
-      ]
+      "canary_post_verify": []
     },
-    "canary_verdict": {
-      "program": "kraken",
-      "post_match": false,
-      "exact_body_match": false,
-      "ok": false,
-      "error": "post_match_false"
-    },
-    "canary_content_failed": true,
+    "canary_verdict": null,
+    "canary_content_failed": false,
     "max_saves_target": 39,
-    "write_status": "CANARY_FAILED"
+    "write_status": "CANARY_PENDING"
   },
   "summary": {
     "PRE_CHECK": "OK",
@@ -535,17 +598,19 @@
       "kraken"
     ],
     "UPDATE_IF_NEEDED": "FUSED_CANARY",
-    "POST_VERIFY": "FAIL",
-    "CANARY_POST_MATCH": false,
-    "WRITE_STATUS": "CANARY_FAILED",
+    "POST_VERIFY": "NONE",
+    "CANARY_POST_MATCH": null,
+    "WRITE_STATUS": "CANARY_PENDING",
     "BUMP_CYCLE_24H": "OK",
     "server_actions": 39,
     "programs_needing_update": 16,
     "canary_need_update": 0,
-    "autofresh_updated": 1,
-    "autofresh_bump_only": 38,
-    "canary_skipped": 11
+    "autofresh_updated": 0,
+    "autofresh_bump_only": 39,
+    "canary_skipped": 24,
+    "BUMP_RESULT": "SUCCESS",
+    "CONTENT_RESULT": "NO_CONTENT_WRITE"
   },
   "pending_closed": [],
-  "at": "2026-08-27T17:29:34.754550+00:00"
+  "at": "2026-08-28T23:26:40.589990+00:00"
 }
