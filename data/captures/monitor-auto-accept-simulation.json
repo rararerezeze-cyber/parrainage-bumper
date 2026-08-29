@@ -28,7 +28,7 @@
       "field": "referee_reward",
       "observed": "3 €",
       "reasons": [
-        "streak_below_3:1"
+        "streak_below_3:2"
       ]
     },
     {
@@ -54,7 +54,7 @@
       "canonical": "Programme à confirmer",
       "observed": "jusqu'à 160 €",
       "authority": "OFFICIAL_PUBLIC_MONITOR",
-      "live_high_streak": 16,
+      "live_high_streak": 17,
       "effective_now": "Programme à confirmer",
       "effective_source": "CANONICAL_DEFAULT",
       "idempotent": false,
@@ -69,7 +69,7 @@
       "canonical": null,
       "observed": "300 €",
       "authority": "OFFICIAL_PUBLIC_MONITOR",
-      "live_high_streak": 16,
+      "live_high_streak": 17,
       "effective_now": null,
       "effective_source": "CANONICAL_DEFAULT",
       "idempotent": false,
@@ -84,7 +84,7 @@
       "canonical": null,
       "observed": "30",
       "authority": "OFFICIAL_PUBLIC_MONITOR",
-      "live_high_streak": 16,
+      "live_high_streak": 17,
       "effective_now": null,
       "effective_source": "CANONICAL_DEFAULT",
       "idempotent": false,
@@ -99,7 +99,7 @@
       "canonical": null,
       "observed": "tiered_cash",
       "authority": "OFFICIAL_PUBLIC_MONITOR",
-      "live_high_streak": 16,
+      "live_high_streak": 17,
       "effective_now": null,
       "effective_source": "CANONICAL_DEFAULT",
       "idempotent": false,
@@ -191,5 +191,5 @@
     "APP_PERSONALIZED stays Hermes/Telegram",
     "ReferralCodes still NEVER_AUTO_COMMIT pending support"
   ],
-  "at": "2026-08-28T20:12:13.603643+00:00"
+  "at": "2026-08-29T13:50:20.121362+00:00"
 }
