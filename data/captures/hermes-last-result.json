@@ -1,23 +1,640 @@
 {
   "schema_version": 1,
-  "ok": false,
+  "ok": true,
   "action": "autofresh",
-  "command": "BonusParrain status",
-  "correlation_id": "hermes-telegram-270a8e793026",
-  "at": "2026-08-29T20:35:19.151181+00:00",
+  "command": "Kraken status",
+  "correlation_id": "hermes-telegram-4644bdde929e",
+  "at": "2026-08-30T08:36:36.137759+00:00",
   "monitor": "OBSERVATION_ONLY",
   "mode": "HERMES_OPERATOR",
-  "errors": [
-    {
-      "code": "parse_error",
-      "detail": "unknown_program:BonusParrain"
-    }
-  ],
+  "errors": [],
   "auth": {
     "ok": true,
     "source": "hermes",
     "identity": "hermes-telegram-plugin",
     "method": "github_actions"
   },
-  "parsed": null
+  "parsed": {
+    "action": "status",
+    "program": "kraken",
+    "offer_name": "Kraken",
+    "platform": null,
+    "field": null,
+    "value": null
+  },
+  "serialized": true,
+  "persist_confirmed": true,
+  "result": {
+    "action": "status",
+    "status": {
+      "program": "kraken",
+      "overrides": [
+        {
+          "program": "kraken",
+          "field": "personal_code",
+          "value": "cpbrgddy",
+          "platform": null,
+          "source": "GLOBAL_OPERATOR_OVERRIDE",
+          "created_at": "2026-08-12T23:52:07.312575+00:00",
+          "updated_at": "2026-08-12T23:52:07.312575+00:00",
+          "message": "OPERATOR_VALIDATED current live Kraken/Super-Parrain values. Catalog 4hpz4gdy / proinvite / 20EUR BTC must never publish.",
+          "id": "global:kraken:personal_code"
+        },
+        {
+          "program": "kraken",
+          "field": "personal_link",
+          "value": "https://invite.kraken.com/JDNW/s5qudqe4",
+          "platform": null,
+          "source": "GLOBAL_OPERATOR_OVERRIDE",
+          "created_at": "2026-08-12T23:52:07.329653+00:00",
+          "updated_at": "2026-08-12T23:52:07.329653+00:00",
+          "message": "OPERATOR_VALIDATED current live Kraken/Super-Parrain values. Catalog 4hpz4gdy / proinvite / 20EUR BTC must never publish.",
+          "id": "global:kraken:personal_link"
+        },
+        {
+          "program": "kraken",
+          "field": "referee_reward",
+          "value": "200 € en cryptomonnaies",
+          "platform": null,
+          "source": "GLOBAL_OPERATOR_OVERRIDE",
+          "created_at": "2026-08-12T23:39:50.927290+00:00",
+          "updated_at": "2026-08-12T23:52:07.348302+00:00",
+          "message": "OPERATOR_VALIDATED current live Kraken/Super-Parrain values. Catalog 4hpz4gdy / proinvite / 20EUR BTC must never publish.",
+          "id": "global:kraken:referee_reward"
+        }
+      ],
+      "fields": {
+        "personal_code": {
+          "effective": "cpbrgddy",
+          "source": "GLOBAL_OPERATOR_OVERRIDE",
+          "canonical": "cpbrgddy"
+        },
+        "personal_link": {
+          "effective": "https://invite.kraken.com/JDNW/s5qudqe4",
+          "source": "GLOBAL_OPERATOR_OVERRIDE",
+          "canonical": "https://invite.kraken.com/JDNW/s5qudqe4"
+        },
+        "referee_reward": {
+          "effective": "200 € en cryptomonnaies",
+          "source": "GLOBAL_OPERATOR_OVERRIDE",
+          "canonical": "200 € en cryptomonnaies"
+        },
+        "conditions": {
+          "effective": "Kraken indique généralement un bonus équivalent à 20 € en Bitcoin pour la France, après dépôt et volume de trading réalisés sous 30 jours. Les seuils exacts restent affichés dans l'application et le versement peut prendre jusqu'à 21 jours.",
+          "source": "CANONICAL_DEFAULT",
+          "canonical": "Kraken indique généralement un bonus équivalent à 20 € en Bitcoin pour la France, après dépôt et volume de trading réalisés sous 30 jours. Les seuils exacts restent affichés dans l'application et le versement peut prendre jusqu'à 21 jours."
+        },
+        "title": {
+          "effective": "Kraken",
+          "source": "CANONICAL_DEFAULT",
+          "canonical": "Kraken"
+        }
+      }
+    }
+  },
+  "plan": {
+    "program": "kraken",
+    "phase": "VALIDATION_LIVE",
+    "effective_global": {
+      "code": "cpbrgddy",
+      "link": "https://invite.kraken.com/JDNW/s5qudqe4",
+      "reward": "200 € en cryptomonnaies",
+      "cond": "Kraken indique généralement un bonus équivalent à 20 € en Bitcoin pour la France, après dépôt et volume de trading réalisés sous 30 jours. Les seuils exacts restent affichés dans l'application et le versement peut prendre jusqu'à 21 jours.",
+      "name": "Kraken"
+    },
+    "global_fields": {
+      "personal_code": {
+        "old": "cpbrgddy",
+        "effective": "cpbrgddy",
+        "source": "GLOBAL_OPERATOR_OVERRIDE"
+      },
+      "personal_link": {
+        "old": "https://invite.kraken.com/JDNW/s5qudqe4",
+        "effective": "https://invite.kraken.com/JDNW/s5qudqe4",
+        "source": "GLOBAL_OPERATOR_OVERRIDE"
+      },
+      "referee_reward": {
+        "old": "200 € en cryptomonnaies",
+        "effective": "200 € en cryptomonnaies",
+        "source": "GLOBAL_OPERATOR_OVERRIDE"
+      },
+      "conditions": {
+        "old": "Kraken indique généralement un bonus équivalent à 20 € en Bitcoin pour la France, après dépôt et volume de trading réalisés sous 30 jours. Les seuils exacts restent affichés dans l'application et le versement peut prendre jusqu'à 21 jours.",
+        "effective": "Kraken indique généralement un bonus équivalent à 20 € en Bitcoin pour la France, après dépôt et volume de trading réalisés sous 30 jours. Les seuils exacts restent affichés dans l'application et le versement peut prendre jusqu'à 21 jours.",
+        "source": "CANONICAL_DEFAULT"
+      }
+    },
+    "platforms": [
+      {
+        "platform": "1parrainage",
+        "program": "kraken",
+        "language": "fr",
+        "status": "pending_update",
+        "write_mode": "WRITE_VERIFIED",
+        "can_auto_write": true,
+        "changed_fields": {
+          "personal_code": {
+            "old": null,
+            "new": "cpbrgddy"
+          },
+          "personal_link": {
+            "old": null,
+            "new": "https://invite.kraken.com/JDNW/s5qudqe4"
+          }
+        },
+        "field_sources": {
+          "personal_code": "GLOBAL_OPERATOR_OVERRIDE",
+          "personal_link": "GLOBAL_OPERATOR_OVERRIDE",
+          "referee_reward": "GLOBAL_OPERATOR_OVERRIDE"
+        },
+        "error": null,
+        "route": "AUTO_ON_SAFE_DIFF",
+        "human_command": null,
+        "last_write_verified_at": "2026-08-13T10:29:40.550997+00:00",
+        "last_failure": {
+          "error": "unexpected_dom: login fields not found on /login",
+          "program": "kraken",
+          "at": "2026-08-13T08:49:08.330947+00:00"
+        }
+      },
+      {
+        "platform": "code-parrainage",
+        "program": "kraken",
+        "language": "fr",
+        "status": "pending_update",
+        "write_mode": "WRITE_VERIFIED",
+        "can_auto_write": true,
+        "changed_fields": {
+          "personal_code": {
+            "old": null,
+            "new": "cpbrgddy"
+          },
+          "personal_link": {
+            "old": null,
+            "new": "https://invite.kraken.com/JDNW/s5qudqe4"
+          }
+        },
+        "field_sources": {
+          "personal_code": "GLOBAL_OPERATOR_OVERRIDE",
+          "personal_link": "GLOBAL_OPERATOR_OVERRIDE",
+          "referee_reward": "GLOBAL_OPERATOR_OVERRIDE"
+        },
+        "error": null,
+        "route": "AUTO_ON_SAFE_DIFF",
+        "human_command": null,
+        "last_write_verified_at": "2026-08-17T16:20:23.771989+00:00",
+        "last_failure": {
+          "error": "canary save clicked twice (canary + mandatory rollback) but the textarea#offre content never persisted on any reread -- offre_sha256 identical across before_account/canary_account/rollback_account, and the public page's raw_html_sha256 identical across before_public/canary_public/rollback_public. No slider present (confirmed empirically both times), Save button confirmed visible+enabled both times, company/code_ou_lien unchanged at every checkpoint (identity_ok=true, no critical_fail). ROOT_CAUSE UNKNOWN as of this record -- read-only diagnostic in progress, no further Save attempts authorized (2/2 used).",
+          "program": "kraken",
+          "at": "2026-08-16T17:52:35.378306+00:00"
+        }
+      },
+      {
+        "platform": "parrainage-co",
+        "program": "kraken",
+        "language": "fr",
+        "status": "pending_update",
+        "write_mode": "WRITE_VERIFIED",
+        "can_auto_write": true,
+        "changed_fields": {
+          "personal_code": {
+            "old": null,
+            "new": "cpbrgddy"
+          },
+          "personal_link": {
+            "old": null,
+            "new": "https://invite.kraken.com/JDNW/s5qudqe4"
+          }
+        },
+        "field_sources": {
+          "personal_code": "GLOBAL_OPERATOR_OVERRIDE",
+          "personal_link": "GLOBAL_OPERATOR_OVERRIDE",
+          "referee_reward": "GLOBAL_OPERATOR_OVERRIDE"
+        },
+        "error": null,
+        "route": "AUTO_ON_SAFE_DIFF",
+        "human_command": null,
+        "last_write_verified_at": "2026-08-16T13:41:32.579960+00:00",
+        "last_failure": null
+      },
+      {
+        "platform": "referralcode-tv",
+        "program": "kraken",
+        "language": "en",
+        "status": "pending_update",
+        "write_mode": "WRITE_VERIFIED",
+        "can_auto_write": false,
+        "changed_fields": {
+          "personal_code": {
+            "old": null,
+            "new": "cpbrgddy"
+          },
+          "personal_link": {
+            "old": null,
+            "new": "https://invite.kraken.com/JDNW/s5qudqe4"
+          },
+          "referee_reward": {
+            "old": null,
+            "new": "200 € en cryptomonnaies"
+          }
+        },
+        "field_sources": {
+          "personal_code": "GLOBAL_OPERATOR_OVERRIDE",
+          "personal_link": "GLOBAL_OPERATOR_OVERRIDE",
+          "referee_reward": "GLOBAL_OPERATOR_OVERRIDE"
+        },
+        "error": null,
+        "route": "HUMAN_SAVE_REQUIRED",
+        "human_command": "python -u tools/local_headed_rctv_canary.py",
+        "last_write_verified_at": "2026-08-13T12:47:36.402325+00:00",
+        "last_failure": null
+      },
+      {
+        "platform": "referralcodes",
+        "program": "kraken",
+        "language": "en",
+        "status": "pending_update",
+        "write_mode": "CANARY_READY",
+        "can_auto_write": false,
+        "changed_fields": {
+          "referee_reward": {
+            "old": "\\u2b50\\ufe0f $200 in Crypto \\u2b50\\ufe0f",
+            "new": "200 € en cryptomonnaies"
+          }
+        },
+        "field_sources": {
+          "referee_reward": "GLOBAL_OPERATOR_OVERRIDE"
+        },
+        "error": null,
+        "route": "NEVER_AUTO_COMMIT",
+        "human_command": null,
+        "last_write_verified_at": null,
+        "last_failure": null
+      },
+      {
+        "platform": "super-parrain",
+        "program": "kraken",
+        "language": "fr",
+        "status": "pending_update",
+        "write_mode": "WRITE_VERIFIED",
+        "can_auto_write": false,
+        "changed_fields": {
+          "personal_code": {
+            "old": null,
+            "new": "cpbrgddy"
+          },
+          "personal_link": {
+            "old": null,
+            "new": "https://invite.kraken.com/JDNW/s5qudqe4"
+          }
+        },
+        "field_sources": {
+          "personal_code": "GLOBAL_OPERATOR_OVERRIDE",
+          "personal_link": "GLOBAL_OPERATOR_OVERRIDE",
+          "referee_reward": "GLOBAL_OPERATOR_OVERRIDE"
+        },
+        "error": null,
+        "route": "FUSED_UPDATE_BUMP",
+        "human_command": null,
+        "last_write_verified_at": "2026-08-15T08:28:55.596484+00:00",
+        "last_failure": null
+      }
+    ],
+    "business_divergences": [],
+    "summary": {
+      "platforms_mapped": 6,
+      "pending_update": 6,
+      "in_sync": 0,
+      "auto_capable_labels": 6,
+      "write_verified_live": 5,
+      "WRITE_VERIFIED": "5/7",
+      "telegram_live_capable": [
+        "parrainage-co",
+        "code-parrainage",
+        "1parrainage"
+      ],
+      "business_divergences_pending": 0
+    },
+    "write_status": {
+      "WRITE_VERIFIED": "5/7",
+      "write_verified_count": 5,
+      "telegram_live_capable": [
+        "parrainage-co",
+        "code-parrainage",
+        "1parrainage"
+      ],
+      "telegram_live_capable_count": 3,
+      "by_status": {
+        "WRITE_VERIFIED": 5,
+        "CANARY_READY": 1,
+        "AUTH_BLOCKED_MANUAL": 1
+      },
+      "platforms": [
+        {
+          "platform": "super-parrain",
+          "status": "WRITE_VERIFIED",
+          "telegram_action": "FUSED_UPDATE_BUMP",
+          "autonomy": "FUSED_UPDATE_BUMP",
+          "route": "FUSED_UPDATE_BUMP",
+          "canary_program": "poulpeo",
+          "notes": "WRITE_VERIFIED — content-writer proof (login+edit+save+reread+post_match). Historical bumper authorized and restored; runtime NORMAL_BUMP with ~24h cooldown + persistent jitter. FUSED_UPDATE_BUMP active: content update only on real SAFE_DIFF, otherwise bump-only.",
+          "last_write_verified_at": "2026-08-15T08:28:55.596484+00:00"
+        },
+        {
+          "platform": "parrainage-co",
+          "status": "WRITE_VERIFIED",
+          "telegram_action": "AUTO_ON_SAFE_DIFF",
+          "autonomy": "PC_OFF_READY",
+          "route": "AUTO_ON_SAFE_DIFF",
+          "canary_program": "kraken",
+          "notes": "GH run 31950145270 (2026-08-16): real canary+rollback save on referee_reward, offer 113735 — canonical account+public match proven at every phase, personal_code/personal_link unchanged throughout, original value restored and confirmed. Auto only on real SAFE_DIFF.",
+          "last_write_verified_at": "2026-08-16T13:41:32.579960+00:00"
+        },
+        {
+          "platform": "code-parrainage",
+          "status": "WRITE_VERIFIED",
+          "telegram_action": "AUTO_ON_SAFE_DIFF",
+          "autonomy": "PC_OFF_READY",
+          "route": "AUTO_ON_SAFE_DIFF",
+          "canary_program": "kraken",
+          "notes": "WRITE_VERIFIED 2026-08-17 (GH run 32044775992, real canary+rollback on referee_reward): offre_sha256 changed on canary and restored exactly on rollback (byte-identical to before); public raw_html_sha256 same pattern; real POST captured to modification.php (status 302) with the correct payload at each phase; identity (company=Kraken, code_ou_lien=cpbrgddy) unchanged at all 4 checkpoints; no critical_fail; no unexpected_dialog; exactly 2 Save clicks. Promoted via manual reconciliation because the script's own account-side canonical_contains() check has a known truncation bug (compares a 200-char DOM preview against the full ~787-char rendered text -- see evidence.account_reread_note); the public-side check and every other independent signal confirm real success. Root cause of the PRIOR failed run (GH 31962858807) was an unhandled native confirm() dialog that Playwright dismissed by default -- fixed via the strict dialog gate + network instrumentation + guaranteed rollback + fresh pre-rollback identity re-guard added across commits 03e2715..8b5ccc3. Auto only on a real SAFE_DIFF.",
+          "last_write_verified_at": "2026-08-17T16:20:23.771989+00:00"
+        },
+        {
+          "platform": "1parrainage",
+          "status": "WRITE_VERIFIED",
+          "telegram_action": "AUTO_ON_SAFE_DIFF",
+          "autonomy": "PC_OFF_READY",
+          "route": "AUTO_ON_SAFE_DIFF",
+          "canary_program": "kraken",
+          "notes": "PC_OFF_READY — headed WRITE_VERIFIED remains authoritative and GH headless save is PROVEN by run 32559662078: exactly two actual Save clicks, account plus full-public canary verification, exact source and normalized rollback, and public marker removal. Duplicate run 32559814742 was refused by the already-PROVEN gate before browser startup with zero Save clicks and zero platform writes. Auto only on a real SAFE_DIFF. No fake write.",
+          "last_write_verified_at": "2026-08-13T10:29:40.550997+00:00"
+        },
+        {
+          "platform": "referralcodes",
+          "status": "CANARY_READY",
+          "telegram_action": "NEVER_AUTO_COMMIT",
+          "autonomy": "IMPORT_UI_BETA_NOT_PROVEN",
+          "route": "NEVER_AUTO_COMMIT",
+          "canary_program": "kraken",
+          "notes": "GH 32265735051 (2026-08-19) VALIDATE ONLY, read-only, never clicked Commit: login OK, shop_id=4769 Kraken valid, draft_id=135, commit=false; Validate surfaced no existing-listing identifier. Official Agent Import docs describe bulk upload, while the official FAQ directs changes to the account Edit icon, limits a profile to one referral per shop/app, rejects duplicates, and warns repeated duplicate submissions may be flagged as spam. Therefore Agent Import is not a documented update path: NEVER_AUTO_COMMIT is durable without needing a speculative Commit. Keep native $200.",
+          "last_write_verified_at": null
+        },
+        {
+          "platform": "referralcode-tv",
+          "status": "WRITE_VERIFIED",
+          "telegram_action": "HUMAN_SAVE_REQUIRED",
+          "autonomy": "HUMAN_SAVE_REQUIRED",
+          "route": "HUMAN_SAVE_REQUIRED",
+          "canary_program": "kraken",
+          "notes": "WRITE_VERIFIED headed canary eid=23004. SAVE_REQUIRES_CAPTCHA — content save stays HUMAN_SAVE_REQUIRED and Telegram must never auto-save. GitHub-hosted Chromium receives a Cloudflare Turnstile interstitial before login (read-only run 32565187359); no bypass. The scheduled bump is not disabled: it runs isolated in bump_referralcode_tv.yml (own concurrency group, own credentials, no CAPTCHA-solver key) as BUMP_ISOLATED_BEST_EFFORT — at most one #cliccami boost per run when login succeeds, and the challenge is classified EXPECTED_EXTERNAL_BLOCKER without retry, without bypass, and without failing the Code-Parrainage/Parrainage.co cycle.",
+          "last_write_verified_at": "2026-08-13T12:47:36.402325+00:00"
+        },
+        {
+          "platform": "referraldrop",
+          "status": "AUTH_BLOCKED_MANUAL",
+          "telegram_action": "AUTH_BLOCKED_MANUAL",
+          "autonomy": "AUTH_BLOCKED_MANUAL",
+          "route": "AUTH_BLOCKED_MANUAL",
+          "canary_program": null,
+          "notes": "No official OAuth / public write API (llms.txt account/admin/API not public). AUTH_BLOCKED_MANUAL durable. No bypass.",
+          "last_write_verified_at": null
+        }
+      ],
+      "updated_at": "2026-08-30T02:49:09.839617+00:00"
+    },
+    "observation_only_default": true,
+    "monitor_mode": "OBSERVATION_ONLY"
+  },
+  "platforms": [
+    {
+      "platform": "1parrainage",
+      "status": "pending_update",
+      "write_mode": "WRITE_VERIFIED",
+      "route": "AUTO_ON_SAFE_DIFF",
+      "can_auto_write": true,
+      "changed_fields": {
+        "personal_code": {
+          "old": null,
+          "new": "cpbrgddy"
+        },
+        "personal_link": {
+          "old": null,
+          "new": "https://invite.kraken.com/JDNW/s5qudqe4"
+        }
+      },
+      "error": null,
+      "human_command": null
+    },
+    {
+      "platform": "code-parrainage",
+      "status": "pending_update",
+      "write_mode": "WRITE_VERIFIED",
+      "route": "AUTO_ON_SAFE_DIFF",
+      "can_auto_write": true,
+      "changed_fields": {
+        "personal_code": {
+          "old": null,
+          "new": "cpbrgddy"
+        },
+        "personal_link": {
+          "old": null,
+          "new": "https://invite.kraken.com/JDNW/s5qudqe4"
+        }
+      },
+      "error": null,
+      "human_command": null
+    },
+    {
+      "platform": "parrainage-co",
+      "status": "pending_update",
+      "write_mode": "WRITE_VERIFIED",
+      "route": "AUTO_ON_SAFE_DIFF",
+      "can_auto_write": true,
+      "changed_fields": {
+        "personal_code": {
+          "old": null,
+          "new": "cpbrgddy"
+        },
+        "personal_link": {
+          "old": null,
+          "new": "https://invite.kraken.com/JDNW/s5qudqe4"
+        }
+      },
+      "error": null,
+      "human_command": null
+    },
+    {
+      "platform": "referralcode-tv",
+      "status": "pending_update",
+      "write_mode": "WRITE_VERIFIED",
+      "route": "HUMAN_SAVE_REQUIRED",
+      "can_auto_write": false,
+      "changed_fields": {
+        "personal_code": {
+          "old": null,
+          "new": "cpbrgddy"
+        },
+        "personal_link": {
+          "old": null,
+          "new": "https://invite.kraken.com/JDNW/s5qudqe4"
+        },
+        "referee_reward": {
+          "old": null,
+          "new": "200 € en cryptomonnaies"
+        }
+      },
+      "error": null,
+      "human_command": "python -u tools/local_headed_rctv_canary.py"
+    },
+    {
+      "platform": "referralcodes",
+      "status": "pending_update",
+      "write_mode": "CANARY_READY",
+      "route": "NEVER_AUTO_COMMIT",
+      "can_auto_write": false,
+      "changed_fields": {
+        "referee_reward": {
+          "old": "\\u2b50\\ufe0f $200 in Crypto \\u2b50\\ufe0f",
+          "new": "200 € en cryptomonnaies"
+        }
+      },
+      "error": null,
+      "human_command": null
+    },
+    {
+      "platform": "super-parrain",
+      "status": "pending_update",
+      "write_mode": "WRITE_VERIFIED",
+      "route": "FUSED_UPDATE_BUMP",
+      "can_auto_write": false,
+      "changed_fields": {
+        "personal_code": {
+          "old": null,
+          "new": "cpbrgddy"
+        },
+        "personal_link": {
+          "old": null,
+          "new": "https://invite.kraken.com/JDNW/s5qudqe4"
+        }
+      },
+      "error": null,
+      "human_command": null
+    }
+  ],
+  "routing": {
+    "automatic_safe_diff_targets": [
+      "1parrainage",
+      "code-parrainage",
+      "parrainage-co"
+    ],
+    "human_routed_targets": [
+      {
+        "platform": "referralcode-tv",
+        "route": "HUMAN_SAVE_REQUIRED",
+        "command": "python -u tools/local_headed_rctv_canary.py"
+      }
+    ],
+    "blocked_targets": [
+      "referralcodes",
+      "super-parrain",
+      "referraldrop"
+    ],
+    "monitor": "OBSERVATION_ONLY"
+  },
+  "write_status": {
+    "WRITE_VERIFIED": "5/7",
+    "write_verified_count": 5,
+    "telegram_live_capable": [
+      "parrainage-co",
+      "code-parrainage",
+      "1parrainage"
+    ],
+    "telegram_live_capable_count": 3,
+    "by_status": {
+      "WRITE_VERIFIED": 5,
+      "CANARY_READY": 1,
+      "AUTH_BLOCKED_MANUAL": 1
+    },
+    "platforms": [
+      {
+        "platform": "super-parrain",
+        "status": "WRITE_VERIFIED",
+        "telegram_action": "FUSED_UPDATE_BUMP",
+        "autonomy": "FUSED_UPDATE_BUMP",
+        "route": "FUSED_UPDATE_BUMP",
+        "canary_program": "poulpeo",
+        "notes": "WRITE_VERIFIED — content-writer proof (login+edit+save+reread+post_match). Historical bumper authorized and restored; runtime NORMAL_BUMP with ~24h cooldown + persistent jitter. FUSED_UPDATE_BUMP active: content update only on real SAFE_DIFF, otherwise bump-only.",
+        "last_write_verified_at": "2026-08-15T08:28:55.596484+00:00"
+      },
+      {
+        "platform": "parrainage-co",
+        "status": "WRITE_VERIFIED",
+        "telegram_action": "AUTO_ON_SAFE_DIFF",
+        "autonomy": "PC_OFF_READY",
+        "route": "AUTO_ON_SAFE_DIFF",
+        "canary_program": "kraken",
+        "notes": "GH run 31950145270 (2026-08-16): real canary+rollback save on referee_reward, offer 113735 — canonical account+public match proven at every phase, personal_code/personal_link unchanged throughout, original value restored and confirmed. Auto only on real SAFE_DIFF.",
+        "last_write_verified_at": "2026-08-16T13:41:32.579960+00:00"
+      },
+      {
+        "platform": "code-parrainage",
+        "status": "WRITE_VERIFIED",
+        "telegram_action": "AUTO_ON_SAFE_DIFF",
+        "autonomy": "PC_OFF_READY",
+        "route": "AUTO_ON_SAFE_DIFF",
+        "canary_program": "kraken",
+        "notes": "WRITE_VERIFIED 2026-08-17 (GH run 32044775992, real canary+rollback on referee_reward): offre_sha256 changed on canary and restored exactly on rollback (byte-identical to before); public raw_html_sha256 same pattern; real POST captured to modification.php (status 302) with the correct payload at each phase; identity (company=Kraken, code_ou_lien=cpbrgddy) unchanged at all 4 checkpoints; no critical_fail; no unexpected_dialog; exactly 2 Save clicks. Promoted via manual reconciliation because the script's own account-side canonical_contains() check has a known truncation bug (compares a 200-char DOM preview against the full ~787-char rendered text -- see evidence.account_reread_note); the public-side check and every other independent signal confirm real success. Root cause of the PRIOR failed run (GH 31962858807) was an unhandled native confirm() dialog that Playwright dismissed by default -- fixed via the strict dialog gate + network instrumentation + guaranteed rollback + fresh pre-rollback identity re-guard added across commits 03e2715..8b5ccc3. Auto only on a real SAFE_DIFF.",
+        "last_write_verified_at": "2026-08-17T16:20:23.771989+00:00"
+      },
+      {
+        "platform": "1parrainage",
+        "status": "WRITE_VERIFIED",
+        "telegram_action": "AUTO_ON_SAFE_DIFF",
+        "autonomy": "PC_OFF_READY",
+        "route": "AUTO_ON_SAFE_DIFF",
+        "canary_program": "kraken",
+        "notes": "PC_OFF_READY — headed WRITE_VERIFIED remains authoritative and GH headless save is PROVEN by run 32559662078: exactly two actual Save clicks, account plus full-public canary verification, exact source and normalized rollback, and public marker removal. Duplicate run 32559814742 was refused by the already-PROVEN gate before browser startup with zero Save clicks and zero platform writes. Auto only on a real SAFE_DIFF. No fake write.",
+        "last_write_verified_at": "2026-08-13T10:29:40.550997+00:00"
+      },
+      {
+        "platform": "referralcodes",
+        "status": "CANARY_READY",
+        "telegram_action": "NEVER_AUTO_COMMIT",
+        "autonomy": "IMPORT_UI_BETA_NOT_PROVEN",
+        "route": "NEVER_AUTO_COMMIT",
+        "canary_program": "kraken",
+        "notes": "GH 32265735051 (2026-08-19) VALIDATE ONLY, read-only, never clicked Commit: login OK, shop_id=4769 Kraken valid, draft_id=135, commit=false; Validate surfaced no existing-listing identifier. Official Agent Import docs describe bulk upload, while the official FAQ directs changes to the account Edit icon, limits a profile to one referral per shop/app, rejects duplicates, and warns repeated duplicate submissions may be flagged as spam. Therefore Agent Import is not a documented update path: NEVER_AUTO_COMMIT is durable without needing a speculative Commit. Keep native $200.",
+        "last_write_verified_at": null
+      },
+      {
+        "platform": "referralcode-tv",
+        "status": "WRITE_VERIFIED",
+        "telegram_action": "HUMAN_SAVE_REQUIRED",
+        "autonomy": "HUMAN_SAVE_REQUIRED",
+        "route": "HUMAN_SAVE_REQUIRED",
+        "canary_program": "kraken",
+        "notes": "WRITE_VERIFIED headed canary eid=23004. SAVE_REQUIRES_CAPTCHA — content save stays HUMAN_SAVE_REQUIRED and Telegram must never auto-save. GitHub-hosted Chromium receives a Cloudflare Turnstile interstitial before login (read-only run 32565187359); no bypass. The scheduled bump is not disabled: it runs isolated in bump_referralcode_tv.yml (own concurrency group, own credentials, no CAPTCHA-solver key) as BUMP_ISOLATED_BEST_EFFORT — at most one #cliccami boost per run when login succeeds, and the challenge is classified EXPECTED_EXTERNAL_BLOCKER without retry, without bypass, and without failing the Code-Parrainage/Parrainage.co cycle.",
+        "last_write_verified_at": "2026-08-13T12:47:36.402325+00:00"
+      },
+      {
+        "platform": "referraldrop",
+        "status": "AUTH_BLOCKED_MANUAL",
+        "telegram_action": "AUTH_BLOCKED_MANUAL",
+        "autonomy": "AUTH_BLOCKED_MANUAL",
+        "route": "AUTH_BLOCKED_MANUAL",
+        "canary_program": null,
+        "notes": "No official OAuth / public write API (llms.txt account/admin/API not public). AUTH_BLOCKED_MANUAL durable. No bypass.",
+        "last_write_verified_at": null
+      }
+    ],
+    "updated_at": "2026-08-30T02:49:09.839617+00:00"
+  },
+  "writers": null,
+  "human_summary": "kraken status (GLOBAL)\n\nCross-platform impact:\n  1parrainage        pending_update   WRITE_VERIFIED               personal_code: None→'cpbrgddy' | personal_link: None→'https://invite.kraken.com/JDNW/s5qudqe4'\n    last write verified: 2026-08-13T10:29:40.550997+00:00\n    last error: unexpected_dom: login fields not found on /login (2026-08-13T08:49:08.330947+00:00)\n  code-parrainage    pending_update   WRITE_VERIFIED               personal_code: None→'cpbrgddy' | personal_link: None→'https://invite.kraken.com/JDNW/s5qudqe4'\n    last write verified: 2026-08-17T16:20:23.771989+00:00\n    last error: canary save clicked twice (canary + mandatory rollback) but the textarea#offre content never persisted on any reread -- offre_sha256 identical across before_account/canary_account/rollback_account, and the public page's raw_html_sha256 identical across before_public/canary_public/rollback_public. No slider present (confirmed empirically both times), Save button confirmed visible+enabled both times, company/code_ou_lien unchanged at every checkpoint (identity_ok=true, no critical_fail). ROOT_CAUSE UNKNOWN as of this record -- read-only diagnostic in progress, no further Save attempts authorized (2/2 used). (2026-08-16T17:52:35.378306+00:00)\n  parrainage-co      pending_update   WRITE_VERIFIED               personal_code: None→'cpbrgddy' | personal_link: None→'https://invite.kraken.com/JDNW/s5qudqe4'\n    last write verified: 2026-08-16T13:41:32.579960+00:00\n  referralcode-tv    pending_update   WRITE_VERIFIED               personal_code: None→'cpbrgddy' | personal_link: None→'https://invite.kraken.com/JDNW/s5qudqe4' | referee_reward: None→'200 € en cryptomonnaies'\n    last write verified: 2026-08-13T12:47:36.402325+00:00\n  referralcodes      pending_update   CANARY_READY                 referee_reward: '\\\\u2b50\\\\ufe0f $200 in Crypto \\\\u2b50\\\\ufe0f'→'200 € en cryptomonnaies'\n  super-parrain      pending_update   WRITE_VERIFIED               personal_code: None→'cpbrgddy' | personal_link: None→'https://invite.kraken.com/JDNW/s5qudqe4'\n    last write verified: 2026-08-15T08:28:55.596484+00:00\n\nWrite readiness (strict):\n  super-parrain      WRITE_VERIFIED personal_code,personal_link\n  parrainage-co      AUTO_ON_SAFE_DIFF personal_code,personal_link\n  code-parrainage    AUTO_ON_SAFE_DIFF personal_code,personal_link\n  1parrainage        AUTO_ON_SAFE_DIFF personal_code,personal_link\n  referralcodes      NEVER_AUTO_COMMIT referee_reward\n  referralcode-tv    HUMAN_SAVE_REQUIRED personal_code,personal_link,referee_reward | python -u tools/local_headed_rctv_canary.py\n  referraldrop       AUTH_BLOCKED\n\nMapped: 6 | pending: 6 | in_sync: 0\nWRITE_VERIFIED: 5/7 | Telegram live-capable: 3/7\nAuto writers ONLY on PC_OFF_READY + real SAFE_DIFF (parrainage-co, code-parrainage, 1parrainage). Human platforms never auto-dispatch.\nMonitor remains OBSERVATION_ONLY (no auto-accept).\n\n{\n  \"program\": \"kraken\",\n  \"overrides\": [\n    {\n      \"program\": \"kraken\",\n      \"field\": \"personal_code\",\n      \"value\": \"cpbrgddy\",\n      \"platform\": null,\n      \"source\": \"GLOBAL_OPERATOR_OVERRIDE\",\n      \"created_at\": \"2026-08-12T23:52:07.312575+00:00\",\n      \"updated_at\": \"2026-08-12T23:52:07.312575+00:00\",\n      \"message\": \"OPERATOR_VALIDATED current live Kraken/Super-Parrain values. Catalog 4hpz4gdy / proinvite / 20EUR BTC must never publish.\",\n      \"id\": \"global:kraken:personal_code\"\n    },\n    {\n      \"program\": \"kraken\",\n      \"field\": \"personal_link\",\n      \"value\": \"https://invite.kraken.com/JDNW/s5qudqe4\",\n      \"platform\": null,\n      \"source\": \"GLOBAL_OPERATOR_OVERRIDE\",\n      \"created_at\": \"2026-08-12T23:52:07.329653+00:00\",\n      \"updated_at\": \"2026-08-12T23:52:07.329653+00:00\",\n      \"message\": \"OPERATOR_VALIDATED current live Kraken/Super-Parrain values. Catalog 4hpz4gdy / proinvite / 20EUR BTC must never publish.\",\n      \"id\": \"global:kraken:personal_link\"\n    },\n    {\n      \"program\": \"kraken\",\n      \"field\": \"referee_reward\",\n      \"value\": \"200 € en cryptomonnaies\",\n      \"platform\": null,\n      \"source\": \"GLOBAL_OPERATOR_OVERRIDE\",\n      \"created_at\": \"2026-08-12T23:39:50.927290+00:00\",\n      \"updated_at\": \"2026-08-12T23:52:07.348302+00:00\",\n      \"message\": \"OPERATOR_VALIDATED current live Kraken/Super-Parrain values. Catalog 4hpz4gdy / proinvite / 20EUR BTC must never publish.\",\n      \"id\": \"global:kraken:referee_reward\"\n    }\n  ],\n  \"fields\": {\n    \"personal_code\": {\n      \"effective\": \"cpbrgddy\",\n      \"source\": \"GLOBAL_OPERATOR_OVERRIDE\",\n      \"canonical\": \"cpbrgddy\"\n    },\n    \"personal_link\": {\n      \"effective\": \"https://invite.kraken.com/JDNW/s5qudqe4\",\n      \"source\": \"GLOBAL_OPERATOR_OVERRIDE\",\n      \"canonical\": \"https://invite.kraken.com/JDNW/s5qudqe4\"\n    },\n    \"referee_reward\": {\n      \"effective\": \"200 € en cryptomonnaies\",\n      \"source\": \"GLOBAL_OPERATOR_OVERRIDE\",\n      \"canonical\": \"200 € en cryptomonnaies\"\n    },\n    \"conditions\": {\n      \"effective\": \"Kraken indique généralement un bonus équivalent à 20 € en Bitcoin pour la France, après dépôt et volume de trading réalisés sous 30 jours. Les seuils exacts restent affichés dans l'application et le versement peut prendre jusqu'à 21 jours.\",\n      \"source\": \"CANONICAL_DEFAULT\",\n      \"canonical\": \"Kraken indique généralement un bonus équivalent à 20 € en Bitcoin pour la France, après dépôt et volume de trading réalisés sous 30 jours. Les seuils exacts restent affichés dans l'application et le versement peut prendre jusqu'à 21 jours.\"\n    },\n    \"title\": {\n      \"effective\": \"Kraken\",\n      \"source\": \"CANONICAL_DEFAULT\",\n      \"canonical\": \"Kraken\"\n    }\n  }\n}\n\nHUMAN_SAVE_REQUIRED referralcode-tv: do not auto-save. python -u tools/local_headed_rctv_canary.py",
+  "idempotency_key": "90cfe3c8d787c92fec6c9de7",
+  "artifacts": {
+    "overrides_path": "/home/runner/work/parrainage-bumper/parrainage-bumper/data/operator-overrides.json",
+    "result_path": "/home/runner/work/parrainage-bumper/parrainage-bumper/data/captures/hermes-last-result.json"
+  }
 }
