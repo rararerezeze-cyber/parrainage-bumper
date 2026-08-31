@@ -7,6 +7,11 @@ name: Bump — Code Parrainage & Parrainage.co (5x/jour)
 # can never shift or redefine the planned slots.
 on:
   workflow_dispatch:
+    inputs:
+      slot_id:
+        description: "Scheduler idempotency key (period_date:index) -- set only by bump_autres_scheduler.yml. Leave empty for a manual/test dispatch, which always runs."
+        required: false
+        default: ""
 concurrency:
   group: parrainage-bumper-autres
   cancel-in-progress: false
@@ -15,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
-      contents: read
+      contents: write
     steps:
       - uses: actions/checkout@v4
       # Notification dedup state must survive across runners: data/notifications/
@@ -41,11 +46,44 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Exactly-once slot check
+        # Durable idempotency guard (2026-08-31): the scheduler's own
+        # dispatch-then-commit sequence is not atomic -- a crash between a
+        # successful GitHub API dispatch and the scheduler's own state
+        # commit would otherwise let the next poll re-dispatch the same
+        # logical slot. This is the real safety boundary: checked here,
+        # before any dependency install or site access, keyed on a value
+        # the scheduler derives purely from already-persisted data (never
+        # a new timing decision) -- so a re-dispatch of the same slot, for
+        # any reason, can never cause a second real bump cycle. Empty
+        # slot_id (manual/test dispatch) always runs and never touches the
+        # ledger.
+        id: idempotency
+        run: |
+          set -e
+          python - <<'PY'
+          import os
+          from lib.bump_autres_schedule import is_slot_already_processed
+
+          slot_id = os.environ.get("SLOT_ID", "").strip()
+          already = bool(slot_id) and is_slot_already_processed(slot_id)
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+              fh.write(f"should_run={'false' if already else 'true'}\n")
+              fh.write(f"slot_id={slot_id}\n")
+          if already:
+              print(f"slot_id={slot_id!r} already processed -- skipping, no site access.")
+          else:
+              print(f"slot_id={slot_id!r} not yet processed (or manual dispatch) -- proceeding.")
+          PY
+        env:
+          SLOT_ID: ${{ github.event.inputs.slot_id }}
       - name: 📦 Dépendances
+        if: steps.idempotency.outputs.should_run == 'true'
         run: |
           pip install -r requirements.txt
           playwright install --with-deps chromium
       - name: 🚀 Bump Code Parrainage & Parrainage.co
+        if: steps.idempotency.outputs.should_run == 'true'
         timeout-minutes: 20
         env:
           TWOCAPTCHA_KEY:            ${{ secrets.TWOCAPTCHA_KEY }}
@@ -78,6 +116,40 @@ jobs:
             debug_parrainage_avant.png
             debug_parrainage_apres.png
             debug_referralcode_login.png
+
+      - name: Record slot as processed (exactly-once ledger)
+        # Only after a REAL, successful bump of a scheduler-originated
+        # slot (should_run was true AND slot_id non-empty) -- a manual/
+        # test dispatch (empty slot_id) never touches the ledger, and a
+        # dispatch that was itself skipped as a duplicate must not
+        # re-write an already-correct ledger entry.
+        if: success() && steps.idempotency.outputs.should_run == 'true' && steps.idempotency.outputs.slot_id != ''
+        run: |
+          set -e
+          git config user.name "autofresh-bot"
+          git config user.email "autofresh-bot@users.noreply.github.com"
+          python - <<'PY'
+          import os
+          from lib.bump_autres_schedule import record_slot_processed
+
+          record_slot_processed(os.environ["SLOT_ID"])
+          PY
+          git add data/bump-autres-dispatch-ledger.json
+          if git diff --cached --quiet; then
+            echo "no commit"
+            exit 0
+          fi
+          git commit -m "chore(bump): record processed slot (exactly-once ledger)"
+          if ! git pull --rebase origin main; then
+            echo "::error::git pull --rebase failed -- ledger entry was NOT pushed. A re-dispatch of this slot would not be recognized as already processed."
+            exit 1
+          fi
+          if ! git push; then
+            echo "::error::git push failed -- ledger entry was NOT pushed. A re-dispatch of this slot would not be recognized as already processed."
+            exit 1
+          fi
+        env:
+          SLOT_ID: ${{ steps.idempotency.outputs.slot_id }}
 
       - name: Save notification dedup state
         if: always()

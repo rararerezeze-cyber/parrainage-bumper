@@ -47,6 +47,28 @@ what prevents a late-in-the-day first deploy, or a scheduler recovering
 from a long outage, from retroactively flooding several catch-up
 dispatches in one poll. It only ever reduces a single day's count below
 SLOTS_PER_DAY; it never piles missed slots up across day boundaries.
+
+EXACTLY-ONCE ACROSS THE DISPATCH CRASH WINDOW (2026-08-31 audit)
+------------------------------------------------------------------
+The scheduler's own sequence -- dispatch_workflow() (a real, durable
+GitHub API side effect) THEN mark_dispatched()+save_schedule() THEN a
+separate workflow step commits+pushes -- is not atomic. If the runner
+dies anywhere after the dispatch call succeeds but before that commit
+lands (crash, OOM, cancelled run, a rebase/push conflict), the schedule
+on `main` still shows the slot as "planned". The next ~15-min poll would
+then see it as still due and dispatch it again -- a real second site bump
+for the same logical slot -- even though the FIRST dispatch already
+happened for real.
+
+Fixed at the point that actually matters (not by reordering the
+scheduler, which cannot make a GitHub API call and a git push atomic no
+matter the order): every dispatch carries a deterministic slot_id()
+("{period_date}:{index}") as a workflow_dispatch input, and
+bump_autres.yml itself checks LEDGER_PATH before doing any real site
+work, skipping cleanly if that slot_id was already recorded. This makes
+re-dispatching the same logical slot -- for any reason, not just this one
+crash window -- a safe, verified no-op, regardless of whether the
+scheduler's own state ever successfully commits.
 """
 from __future__ import annotations
 
@@ -59,6 +81,10 @@ from typing import Any
 from lib.paths import DATA_DIR
 
 SCHEDULE_PATH = DATA_DIR / "bump-autres-schedule.json"
+# Durable exactly-once ledger, checked by bump_autres.yml itself before it
+# does any real site work -- see LEDGER note below.
+LEDGER_PATH = DATA_DIR / "bump-autres-dispatch-ledger.json"
+LEDGER_MAX_ENTRIES = 200
 SLOTS_PER_DAY = 5
 # Guarantees a minimum gap of 2*BUCKET_MARGIN_MINUTES between two slots in
 # adjacent buckets (the worst case: one slot at its bucket's latest
@@ -202,10 +228,60 @@ def mark_dispatched(schedule: dict[str, Any], index: int, *, now: datetime) -> d
     return schedule
 
 
-def dispatch_workflow(token: str, *, ref: str = "main") -> None:
+def slot_id(period_date: str, index: int) -> str:
+    """Deterministic identifier for one logical daily slot -- derived
+    purely from already-persisted data (no new randomness/timing), stable
+    across any number of re-dispatches of the same slot."""
+    return f"{period_date}:{index}"
+
+
+def _load_ledger() -> dict[str, Any]:
+    if not LEDGER_PATH.exists():
+        return {"version": 1, "dispatched_slot_ids": []}
+    try:
+        data = json.loads(LEDGER_PATH.read_text(encoding="utf-8"))
+        if isinstance(data, dict) and isinstance(data.get("dispatched_slot_ids"), list):
+            return data
+    except Exception:
+        pass
+    return {"version": 1, "dispatched_slot_ids": []}
+
+
+def _save_ledger(data: dict[str, Any]) -> None:
+    LEDGER_PATH.parent.mkdir(parents=True, exist_ok=True)
+    tmp = LEDGER_PATH.with_suffix(LEDGER_PATH.suffix + ".tmp")
+    tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    tmp.replace(LEDGER_PATH)
+
+
+def is_slot_already_processed(sid: str) -> bool:
+    """True once this exact logical slot has already run a real bump
+    cycle -- checked by bump_autres.yml itself before touching any site,
+    so a re-dispatch of the same slot (crash-window retry, or any other
+    cause) is always a safe, verified no-op."""
+    if not sid:
+        return False
+    return sid in (_load_ledger().get("dispatched_slot_ids") or [])
+
+
+def record_slot_processed(sid: str) -> dict[str, Any]:
+    data = _load_ledger()
+    ids = data.setdefault("dispatched_slot_ids", [])
+    if sid not in ids:
+        ids.append(sid)
+    if len(ids) > LEDGER_MAX_ENTRIES:
+        data["dispatched_slot_ids"] = ids[-LEDGER_MAX_ENTRIES:]
+    _save_ledger(data)
+    return data
+
+
+def dispatch_workflow(token: str, *, ref: str = "main", slot_id: str | None = None) -> None:
+    body: dict[str, Any] = {"ref": ref}
+    if slot_id:
+        body["inputs"] = {"slot_id": slot_id}
     req = urllib.request.Request(
         f"https://api.github.com/repos/{REPO}/actions/workflows/{WORKFLOW_FILE}/dispatches",
-        data=json.dumps({"ref": ref}).encode("utf-8"),
+        data=json.dumps(body).encode("utf-8"),
         method="POST",
         headers={
             "Authorization": f"Bearer {token}",

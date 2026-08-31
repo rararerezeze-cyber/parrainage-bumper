@@ -7,6 +7,7 @@ mocked here.
 """
 from __future__ import annotations
 
+import json
 import random
 from datetime import date, datetime, timedelta, timezone
 
@@ -18,6 +19,7 @@ import lib.bump_autres_schedule as sched
 @pytest.fixture(autouse=True)
 def _isolate_schedule_file(tmp_path, monkeypatch):
     monkeypatch.setattr(sched, "SCHEDULE_PATH", tmp_path / "bump-autres-schedule.json")
+    monkeypatch.setattr(sched, "LEDGER_PATH", tmp_path / "bump-autres-dispatch-ledger.json")
 
 
 MIDNIGHT = datetime(2026, 8, 31, 0, 0, 0, tzinfo=timezone.utc)
@@ -265,6 +267,112 @@ def test_everything_is_timezone_aware_utc_never_naive():
             dt = datetime.fromisoformat(s["planned_at"])
             assert dt.tzinfo is not None
             assert dt.utcoffset() == timedelta(0)
+
+
+# --- exactly-once dispatch ledger (2026-08-31 crash-window fix) -----------
+
+
+def test_slot_id_is_deterministic_and_derived_from_persisted_data_only():
+    """No new randomness/timing: purely a function of already-persisted
+    period_date + index."""
+    assert sched.slot_id("2026-08-31", 2) == "2026-08-31:2"
+    assert sched.slot_id("2026-08-31", 2) == sched.slot_id("2026-08-31", 2)
+    assert sched.slot_id("2026-08-31", 2) != sched.slot_id("2026-08-31", 3)
+    assert sched.slot_id("2026-08-31", 2) != sched.slot_id("2026-09-01", 2)
+
+
+def test_slot_not_processed_by_default():
+    assert sched.is_slot_already_processed("2026-08-31:2") is False
+
+
+def test_empty_slot_id_is_never_considered_processed():
+    """Manual/test dispatches carry no slot_id and must never be treated
+    as ledger hits."""
+    assert sched.is_slot_already_processed("") is False
+    assert sched.is_slot_already_processed(None) is False
+
+
+def test_record_then_check_round_trips():
+    sid = "2026-08-31:2"
+    assert sched.is_slot_already_processed(sid) is False
+    sched.record_slot_processed(sid)
+    assert sched.is_slot_already_processed(sid) is True
+
+
+def test_recording_the_same_slot_twice_is_idempotent_no_duplicate_entries():
+    sid = "2026-08-31:2"
+    sched.record_slot_processed(sid)
+    sched.record_slot_processed(sid)
+    data = sched._load_ledger()
+    assert data["dispatched_slot_ids"].count(sid) == 1
+
+
+def test_ledger_persists_across_reload_simulating_a_fresh_process():
+    sid = "2026-08-31:2"
+    sched.record_slot_processed(sid)
+    # A second, independent check (as a fresh bump_autres.yml run would do)
+    # must see the same durable state.
+    assert sched.is_slot_already_processed(sid) is True
+
+
+def test_ledger_is_bounded_oldest_entries_pruned():
+    for i in range(sched.LEDGER_MAX_ENTRIES + 10):
+        sched.record_slot_processed(f"2026-01-01:{i}")
+    data = sched._load_ledger()
+    assert len(data["dispatched_slot_ids"]) == sched.LEDGER_MAX_ENTRIES
+    # newest entries survive, oldest pruned
+    assert f"2026-01-01:{sched.LEDGER_MAX_ENTRIES + 9}" in data["dispatched_slot_ids"]
+    assert "2026-01-01:0" not in data["dispatched_slot_ids"]
+
+
+def test_corrupted_ledger_file_degrades_to_empty_never_crashes(tmp_path):
+    sched.LEDGER_PATH.parent.mkdir(parents=True, exist_ok=True)
+    sched.LEDGER_PATH.write_text("not json", encoding="utf-8")
+    assert sched.is_slot_already_processed("2026-08-31:2") is False
+    # And recording afterward must still work (self-heals the file).
+    sched.record_slot_processed("2026-08-31:2")
+    assert sched.is_slot_already_processed("2026-08-31:2") is True
+
+
+def test_dispatch_workflow_includes_slot_id_as_workflow_input(monkeypatch):
+    """The actual crash-window fix depends on this reaching GitHub as a
+    real workflow_dispatch input -- assert the request body shape, not
+    just that the function runs."""
+    captured = {}
+
+    class _FakeResp:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+    def _fake_urlopen(req, timeout=30):
+        captured["body"] = json.loads(req.data.decode("utf-8"))
+        return _FakeResp()
+
+    monkeypatch.setattr(sched.urllib.request, "urlopen", _fake_urlopen)
+    sched.dispatch_workflow("fake-token", slot_id="2026-08-31:2")
+    assert captured["body"]["inputs"] == {"slot_id": "2026-08-31:2"}
+
+
+def test_dispatch_workflow_omits_inputs_when_no_slot_id(monkeypatch):
+    captured = {}
+
+    class _FakeResp:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+    def _fake_urlopen(req, timeout=30):
+        captured["body"] = json.loads(req.data.decode("utf-8"))
+        return _FakeResp()
+
+    monkeypatch.setattr(sched.urllib.request, "urlopen", _fake_urlopen)
+    sched.dispatch_workflow("fake-token")
+    assert "inputs" not in captured["body"]
 
 
 def test_module_has_no_local_timezone_dependency():

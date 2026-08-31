@@ -11,6 +11,13 @@ persists the updated state; the calling workflow commits/pushes it
 The real bump_autres.yml workflow carries no schedule trigger of its own
 and never touches this state file: a manual/test workflow_dispatch of it
 can never shift or redefine the planned slots.
+
+Each dispatch also carries a deterministic slot_id (see
+lib.bump_autres_schedule.slot_id) as a workflow_dispatch input --
+bump_autres.yml checks its own durable ledger before doing any real site
+work, so re-dispatching the same logical slot (e.g. this scheduler
+crashing after a successful dispatch but before it commits its own
+"dispatched" state) can never cause a second real bump cycle.
 """
 from __future__ import annotations
 
@@ -29,6 +36,7 @@ from lib.bump_autres_schedule import (
     ensure_schedule_for,
     mark_dispatched,
     save_schedule,
+    slot_id as build_slot_id,
 )
 from lib.notify import EVENT_WORKFLOW_ERROR, LEVEL_WARNING, emit
 
@@ -49,8 +57,14 @@ def main() -> int:
         return 0
 
     for slot in due:
-        print(f"dispatching slot index={slot['index']} planned_at={slot['planned_at']}")
-        dispatch_workflow(token)
+        sid = build_slot_id(schedule["period_date"], slot["index"])
+        print(f"dispatching slot index={slot['index']} planned_at={slot['planned_at']} slot_id={sid}")
+        # slot_id travels with the dispatch as a workflow_dispatch input --
+        # bump_autres.yml checks its durable ledger before any real site
+        # work, so a re-dispatch of this same logical slot (crash-window
+        # retry here, or any other cause) is always a safe no-op even if
+        # THIS scheduler run never successfully commits below.
+        dispatch_workflow(token, slot_id=sid)
         dispatch_now = datetime.now(timezone.utc)
         schedule = mark_dispatched(schedule, slot["index"], now=dispatch_now)
         save_schedule(schedule)
