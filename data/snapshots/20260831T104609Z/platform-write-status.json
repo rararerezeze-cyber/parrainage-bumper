@@ -1,0 +1,351 @@
+{
+  "version": 1,
+  "updated_at": "2026-08-31T10:25:35.724152+00:00",
+  "note": "Strict write readiness. WRITE_VERIFIED requires full post-verify evidence. Telegram live writes only for WRITE_VERIFIED platforms.",
+  "write_verified_count": 5,
+  "write_verified_ratio": "5/7",
+  "telegram_live_capable": [
+    "parrainage-co",
+    "code-parrainage",
+    "1parrainage"
+  ],
+  "platforms": {
+    "super-parrain": {
+      "status": "WRITE_VERIFIED",
+      "canary_program": "poulpeo",
+      "runtime_mode": "NORMAL_BUMP",
+      "autonomy": "FUSED_UPDATE_BUMP",
+      "notes": "WRITE_VERIFIED — content-writer proof (login+edit+save+reread+post_match). Historical bumper authorized and restored; runtime NORMAL_BUMP with ~24h cooldown + persistent jitter. FUSED_UPDATE_BUMP active: content update only on real SAFE_DIFF, otherwise bump-only.",
+      "content_sync": "SYNC_VERIFIED_NO_SAFE_DIFF",
+      "sync_verified_at": "2026-08-13T08:03:39.875092+00:00",
+      "last_compare_class": "REAL_SAFE_DIFF",
+      "last_compare_at": "2026-08-20T12:38:08.110702+00:00",
+      "last_compare_note": "GH run 32369146793 fused cycle: Kraken body changed, saved once in the normal bump pass, then public post_match/exact_body_match/immutable_ok all true.",
+      "last_write_verified_at": "2026-08-15T08:28:55.596484+00:00",
+      "last_operational_cycle": {
+        "at": "2026-08-31T10:25:35.724126+00:00",
+        "result": "BUMP_ONLY",
+        "post_verify": "NONE",
+        "gh_run_id": "33381749338",
+        "saves": "39",
+        "note": "Latest actual cycle. Independent from evidence/last_write_verified_at, which remain the historical capability proof and are not retracted here."
+      },
+      "evidence": {
+        "program": "poulpeo",
+        "checks": {
+          "authenticated": true,
+          "targeted_edit": true,
+          "submit_ok": true,
+          "reread_account": true,
+          "expected_values_present": true,
+          "immutable_preserved": true,
+          "reread_public": true
+        },
+        "post_match": true,
+        "announcement_url": "https://www.super-parrain.com/offres/poulpeo/parrainage-poulpeo/annonces/adrien-b-8",
+        "edit_url": "https://www.super-parrain.com/offres/poulpeo/parrainage-poulpeo/annonces/adrien-b-8/edit",
+        "public_reread": true,
+        "immutable_ok": true,
+        "recorded_at": "2026-08-15T08:28:55.596484+00:00",
+        "source": "controlled_write_super_parrain:retroactive_repair(run_31724917509_2026-08-13T17:18:57Z; controlled_write.yml commit-persistence bug fixed)"
+      }
+    },
+    "parrainage-co": {
+      "status": "WRITE_VERIFIED",
+      "canary_program": "kraken",
+      "autonomy": "PC_OFF_READY",
+      "notes": "GH run 31950145270 (2026-08-16): real canary+rollback save on referee_reward, offer 113735 — canonical account+public match proven at every phase, personal_code/personal_link unchanged throughout, original value restored and confirmed. Auto only on real SAFE_DIFF.",
+      "gh_headless_login": "PROVEN",
+      "gh_headless_edit": "PROVEN",
+      "gh_headless_save": "PROVEN",
+      "content_sync": "SYNC_VERIFIED_NO_SAFE_DIFF",
+      "sync_verified_at": "2026-08-13T08:17:27.339300+00:00",
+      "last_compare_class": "NO_SAFE_DIFF",
+      "last_compare_at": "2026-08-13T08:17:27.368443+00:00",
+      "last_compare_note": "public offer 113735 matches OPERATOR_VALIDATED",
+      "last_compare_observed": {
+        "personal_code": "cpbrgddy",
+        "personal_link": "https://invite.kraken.com/JDNW/s5qudqe4",
+        "referee_reward": "200 € en cryptomonnaies"
+      },
+      "last_write_verified_at": "2026-08-16T13:41:32.579960+00:00",
+      "evidence": {
+        "program": "kraken",
+        "checks": {
+          "authenticated": true,
+          "targeted_edit": true,
+          "submit_ok": true,
+          "reread_account": true,
+          "expected_values_present": true,
+          "immutable_preserved": true
+        },
+        "post_match": true,
+        "announcement_url": "https://parrainage.co/offers/113735",
+        "edit_url": "https://parrainage.co/account/offers/edit/113735",
+        "public_reread": true,
+        "immutable_ok": true,
+        "recorded_at": "2026-08-16T13:41:32.579960+00:00",
+        "source": "canary_write_parrainage_co_v2_manual_reconciliation",
+        "public_reread_note": "Was left null by the manual reconciliation script's evidence dict (which never set this field, unlike every controlled_write_*.py's convention of public_reread=bool(post_publish_text)); corrected from already-captured proof, no new fetch: data/captures/canary-parrainage-co-kraken.json phases.before_public/canary_public/rollback_public all show a non-empty extracted public text with canonical_match_vs_expected=true."
+      }
+    },
+    "code-parrainage": {
+      "status": "WRITE_VERIFIED",
+      "canary_program": "kraken",
+      "autonomy": "PC_OFF_READY",
+      "notes": "WRITE_VERIFIED 2026-08-17 (GH run 32044775992, real canary+rollback on referee_reward): offre_sha256 changed on canary and restored exactly on rollback (byte-identical to before); public raw_html_sha256 same pattern; real POST captured to modification.php (status 302) with the correct payload at each phase; identity (company=Kraken, code_ou_lien=cpbrgddy) unchanged at all 4 checkpoints; no critical_fail; no unexpected_dialog; exactly 2 Save clicks. Promoted via manual reconciliation because the script's own account-side canonical_contains() check has a known truncation bug (compares a 200-char DOM preview against the full ~787-char rendered text -- see evidence.account_reread_note); the public-side check and every other independent signal confirm real success. Root cause of the PRIOR failed run (GH 31962858807) was an unhandled native confirm() dialog that Playwright dismissed by default -- fixed via the strict dialog gate + network instrumentation + guaranteed rollback + fresh pre-rollback identity re-guard added across commits 03e2715..8b5ccc3. Auto only on a real SAFE_DIFF.",
+      "last_compare_class": "NO_SAFE_DIFF",
+      "last_compare_at": "2026-08-13T11:29:23.291254+00:00",
+      "last_compare_note": "slider solver shared with bumper succeeded; account reread matches OPERATOR_VALIDATED",
+      "content_sync": "SYNC_VERIFIED_NO_SAFE_DIFF",
+      "sync_verified_at": "2026-08-13T11:29:23.277779+00:00",
+      "last_compare_observed": {
+        "personal_code": "cpbrgddy",
+        "personal_link": "https://invite.kraken.com/JDNW/s5qudqe4",
+        "referee_reward": "200 € en cryptomonnaies"
+      },
+      "save_attempted": true,
+      "save_persisted": true,
+      "write_verified": true,
+      "gh_headless_save": "PROVEN",
+      "last_canary_run": {
+        "gh_run_id": "32044775992",
+        "at": "2026-08-17T16:16:16.833613+00:00",
+        "report": "data/captures/canary-code-parrainage-kraken.json",
+        "result": "success_evidence_confirmed_manual_reconciliation"
+      },
+      "last_failure": {
+        "error": "canary save clicked twice (canary + mandatory rollback) but the textarea#offre content never persisted on any reread -- offre_sha256 identical across before_account/canary_account/rollback_account, and the public page's raw_html_sha256 identical across before_public/canary_public/rollback_public. No slider present (confirmed empirically both times), Save button confirmed visible+enabled both times, company/code_ou_lien unchanged at every checkpoint (identity_ok=true, no critical_fail). ROOT_CAUSE UNKNOWN as of this record -- read-only diagnostic in progress, no further Save attempts authorized (2/2 used).",
+        "program": "kraken",
+        "at": "2026-08-16T17:52:35.378306+00:00"
+      },
+      "last_diagnostic_run": {
+        "gh_run_id": "31966798936",
+        "at": "2026-08-16T19:11:51.069735+00:00",
+        "report": "data/captures/inspect-code-parrainage-offre-scripts-full.json",
+        "finding": "unhandled_confirm_dialog_blocks_submit"
+      },
+      "last_write_verified_at": "2026-08-17T16:20:23.771989+00:00",
+      "evidence": {
+        "program": "kraken",
+        "checks": {
+          "authenticated": true,
+          "targeted_edit": true,
+          "submit_ok": true,
+          "reread_account": true,
+          "expected_values_present": true,
+          "immutable_preserved": true
+        },
+        "post_match": true,
+        "announcement_url": "https://code-parrainage.net/annonce/84601",
+        "edit_url": "https://code-parrainage.net/modif/84601",
+        "public_reread": true,
+        "immutable_ok": true,
+        "recorded_at": "2026-08-17T16:20:23.772016+00:00",
+        "source": "canary_write_code_parrainage_manual_reconciliation(run_32044775992_2026-08-17T16:16:16Z)"
+      }
+    },
+    "1parrainage": {
+      "status": "WRITE_VERIFIED",
+      "canary_program": "kraken",
+      "autonomy": "PC_OFF_READY",
+      "notes": "PC_OFF_READY — headed WRITE_VERIFIED remains authoritative and GH headless save is PROVEN by run 32559662078: exactly two actual Save clicks, account plus full-public canary verification, exact source and normalized rollback, and public marker removal. Duplicate run 32559814742 was refused by the already-PROVEN gate before browser startup with zero Save clicks and zero platform writes. Auto only on a real SAFE_DIFF. No fake write.",
+      "last_compare_class": "NO_SAFE_DIFF",
+      "last_compare_at": "2026-08-13T10:32:53.322453+00:00",
+      "last_compare_note": "headed canary Envoyer + independent public reread: s5qudqe4 present, 4jdp7sea absent, cpbrgddy + 200 EUR unchanged",
+      "last_compare_observed": {
+        "personal_code": "cpbrgddy",
+        "personal_link": "https://invite.kraken.com/JDNW/s5qudqe4",
+        "referee_reward": "200 € en cryptomonnaies"
+      },
+      "last_failure": {
+        "error": "unexpected_dom: login fields not found on /login",
+        "program": "kraken",
+        "at": "2026-08-13T08:49:08.330947+00:00"
+      },
+      "last_write_verified_at": "2026-08-13T10:29:40.550997+00:00",
+      "evidence": {
+        "program": "kraken",
+        "checks": {
+          "authenticated": true,
+          "targeted_edit": true,
+          "submit_ok": true,
+          "reread_account": true,
+          "expected_values_present": true,
+          "immutable_preserved": true
+        },
+        "post_match": true,
+        "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100408",
+        "edit_url": "https://www.1parrainage.com/espace_parrain/parrainages/edit/2541207/",
+        "public_reread": true,
+        "immutable_ok": true,
+        "recorded_at": "2026-08-13T10:29:40.550997+00:00",
+        "source": "local_headed_1parrainage"
+      },
+      "content_sync": "SYNC_VERIFIED_NO_SAFE_DIFF",
+      "gh_headless_login": "PROVEN",
+      "gh_headless_edit": "PROVEN",
+      "gh_headless_save": "PROVEN",
+      "pc_off_write_proven": true,
+      "gh_headless_probe": {
+        "state": "PROVEN_COMPLETE",
+        "workflow": ".github/workflows/canary_write_1parrainage.yml",
+        "writes_if_authorized": 0,
+        "save_click_limit": "CLOSED_AFTER_PROOF",
+        "proof_required": "canary account marker plus full public #desc_detail marker, then exact fresh-source and idempotent CKEditor-normalized account hashes restored and public marker absent",
+        "live_run": "32559662078"
+      },
+      "last_headless_canary_attempt": {
+        "gh_run_id": "32559662078",
+        "at": "2026-08-22T07:29:13.839487+00:00",
+        "report": "data/captures/canary-1parrainage-kraken.json",
+        "success": true,
+        "canary_ok": true,
+        "rollback_ok": true,
+        "save_phase_requests": 2,
+        "save_click_started": 2,
+        "save_click_completed": 2,
+        "save_attempts_actual": 2,
+        "save_attempts": 2,
+        "error": null
+      },
+      "last_headless_readonly_diagnostic": {
+        "gh_run_id": "32419280860",
+        "at": "2026-08-20T21:25:56.996260+00:00",
+        "report": "data/captures/diagnose-1parrainage-save-dom.json",
+        "platform_writes": 0,
+        "save_clicks": 0,
+        "edit_form_submits_after_login": 0,
+        "current_account_len": 1062,
+        "current_account_sha256": "ad2a57ac0e2afc795ca038c936ac2f63a93faaeb141a356bb9692fcf16598afb",
+        "ckeditor_normalized_len": 1063,
+        "ckeditor_normalized_sha256": "48d1ad78c24536e00e4e2bb8b5fd674b7a65466d6c16f5a72e7772affd0af3e7",
+        "normalization_idempotent": true,
+        "save_control_root_cause": "daily_edit_quota_exhausted",
+        "save_controls_at_A_B_C": "0/0/0",
+        "normalization_causes_control_dom_change": false
+      },
+      "last_headless_canary_run": {
+        "gh_run_id": "32559662078",
+        "at": "2026-08-22T07:29:13.839487+00:00",
+        "report": "data/captures/canary-1parrainage-kraken.json",
+        "success": true,
+        "canary_ok": true,
+        "rollback_ok": true,
+        "save_phase_requests": 2,
+        "save_click_started": 2,
+        "save_click_completed": 2,
+        "save_attempts_actual": 2,
+        "save_attempts": 2,
+        "error": null
+      },
+      "last_headless_duplicate_dispatch": {
+        "gh_run_id": "32559814742",
+        "at": "2026-08-22T07:31:59.577711+00:00",
+        "conclusion": "failure",
+        "gate_error": "evidence_field_not_NOT_RUN:PROVEN",
+        "blocked_before_browser": true,
+        "save_attempts_actual": 0,
+        "platform_writes": 0,
+        "canonical_success_preserved": true
+      },
+      "headless_evidence": {
+        "program": "kraken",
+        "checks": {
+          "authenticated": true,
+          "targeted_body_only": true,
+          "exactly_two_save_attempts": true,
+          "canary_account_verified": true,
+          "canary_public_verified": true,
+          "rollback_account_exact": true,
+          "rollback_public_marker_absent": true
+        },
+        "account_before_sha256": "ad2a57ac0e2afc795ca038c936ac2f63a93faaeb141a356bb9692fcf16598afb",
+        "account_rollback_sha256": "ad2a57ac0e2afc795ca038c936ac2f63a93faaeb141a356bb9692fcf16598afb",
+        "account_before_normalized_sha256": "48d1ad78c24536e00e4e2bb8b5fd674b7a65466d6c16f5a72e7772affd0af3e7",
+        "account_rollback_normalized_sha256": "48d1ad78c24536e00e4e2bb8b5fd674b7a65466d6c16f5a72e7772affd0af3e7",
+        "source": "github_headless_canary_with_mandatory_rollback"
+      }
+    },
+    "referralcodes": {
+      "status": "CANARY_READY",
+      "canary_program": "kraken",
+      "autonomy": "IMPORT_UI_BETA_NOT_PROVEN",
+      "notes": "GH 32265735051 (2026-08-19) VALIDATE ONLY, read-only, never clicked Commit: login OK, shop_id=4769 Kraken valid, draft_id=135, commit=false; Validate surfaced no existing-listing identifier. Official Agent Import docs describe bulk upload, while the official FAQ directs changes to the account Edit icon, limits a profile to one referral per shop/app, rejects duplicates, and warns repeated duplicate submissions may be flagged as spam. Therefore Agent Import is not a documented update path: NEVER_AUTO_COMMIT is durable without needing a speculative Commit. Keep native $200.",
+      "prefer": "official_import",
+      "import_ui": "https://referralcodes.com/profile/import/agent",
+      "content_sync": "SYNC_VERIFIED_NO_SAFE_DIFF",
+      "sync_verified_at": "2026-08-13T08:17:27.475232+00:00",
+      "last_compare_class": "NO_SAFE_DIFF",
+      "last_compare_at": "2026-08-13T08:17:27.506823+00:00",
+      "last_compare_note": "native $200 in Crypto + cpbrgddy already published",
+      "commit_semantics": {
+        "classification": "NOT_A_DOCUMENTED_UPDATE_PATH",
+        "auto_commit": "NEVER",
+        "reviewed_at": "2026-08-20",
+        "evidence": "data/captures/referralcodes-commit-semantics.json",
+        "official_sources": [
+          "https://referralcodes.com/agents",
+          "https://referralcodes.com/faq/"
+        ]
+      }
+    },
+    "referralcode-tv": {
+      "status": "WRITE_VERIFIED",
+      "canary_program": "kraken",
+      "autonomy": "HUMAN_SAVE_REQUIRED",
+      "notes": "WRITE_VERIFIED headed canary eid=23004. SAVE_REQUIRES_CAPTCHA — content save stays HUMAN_SAVE_REQUIRED and Telegram must never auto-save. GitHub-hosted Chromium receives a Cloudflare Turnstile interstitial before login (read-only run 32565187359); no bypass. The scheduled bump is not disabled: it runs isolated in bump_referralcode_tv.yml (own concurrency group, own credentials, no CAPTCHA-solver key) as BUMP_ISOLATED_BEST_EFFORT — at most one #cliccami boost per run when login succeeds, and the challenge is classified EXPECTED_EXTERNAL_BLOCKER without retry, without bypass, and without failing the Code-Parrainage/Parrainage.co cycle.",
+      "kraken_listing": "KRAKEN_EXISTS",
+      "eid_status": "23004",
+      "auth_edit_path": "AUTH_EDIT_PATH_PROVEN",
+      "save_requires_captcha": true,
+      "scheduled_bump_runtime": "AUTH_BLOCKED_CHALLENGE_GITHUB",
+      "last_headless_readonly_diagnostic": {
+        "gh_run_id": "32565187359",
+        "at": "2026-08-22T09:31:46+00:00",
+        "classification": "CAPTCHA_OR_ANTIBOT",
+        "page_title": "Un instant…",
+        "turnstile_response_input_present": true,
+        "login_form_present": false,
+        "platform_writes": 0,
+        "canonical_capture_preserved": true
+      },
+      "last_compare_class": "NO_SAFE_DIFF",
+      "last_compare_note": "headed View+account: cpbrgddy / s5qudqe4 / $200; old 85d3qj9p / 2seeom3g absent",
+      "last_compare_observed": {
+        "personal_code": "cpbrgddy",
+        "personal_link": "https://invite.kraken.com/JDNW/s5qudqe4",
+        "referee_reward": "Up to $200 in crypto"
+      },
+      "last_write_verified_at": "2026-08-13T12:47:36.402325+00:00",
+      "evidence": {
+        "program": "kraken",
+        "checks": {
+          "authenticated": true,
+          "targeted_edit": true,
+          "submit_ok": true,
+          "reread_account": true,
+          "expected_values_present": true,
+          "immutable_preserved": true
+        },
+        "post_match": true,
+        "announcement_url": "https://www.referralcode.tv/referral-code/%e2%ad%90%ef%b8%8f-kraken-referral-bonus-up-to-200-in-crypto-%e2%ad%90%ef%b8%8f-join-kraken-one-of-the-most-trusted-and-secure-crypto-exchanges-worldwide/",
+        "edit_url": "https://www.referralcode.tv/add-referral-code/?eid=23004",
+        "public_reread": true,
+        "immutable_ok": true,
+        "recorded_at": "2026-08-13T12:47:36.402325+00:00",
+        "source": "local_headed_rctv_canary"
+      },
+      "scheduled_bump_workflow": ".github/workflows/bump_referralcode_tv.yml",
+      "scheduled_bump_isolation": "ISOLATED_FROM_ALL_OTHER_PLATFORMS",
+      "scheduled_bump_autonomy": "BUMP_ISOLATED_BEST_EFFORT",
+      "scheduled_bump_runtime_note": "scheduled_bump_runtime records the proven login classification on GitHub (AUTH_BLOCKED_CHALLENGE_GITHUB), not a disabled workflow. Content save remains HUMAN_SAVE_REQUIRED regardless of bump outcome."
+    },
+    "referraldrop": {
+      "status": "AUTH_BLOCKED_MANUAL",
+      "canary_program": null,
+      "autonomy": "AUTH_BLOCKED_MANUAL",
+      "notes": "No official OAuth / public write API (llms.txt account/admin/API not public). AUTH_BLOCKED_MANUAL durable. No bypass."
+    }
+  }
+}

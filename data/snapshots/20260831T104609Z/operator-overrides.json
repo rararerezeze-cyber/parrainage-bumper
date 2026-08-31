@@ -1,17 +1,17 @@
 {
   "version": 1,
-  "updated_at": "2026-08-31T10:46:09.601025+00:00",
+  "updated_at": "2026-08-12T23:52:07.348302+00:00",
   "note": "Operator overrides (Telegram). Precedence: PLATFORM_OPERATOR > GLOBAL_OPERATOR > ACCEPTED_MONITOR > CANONICAL. Monitor observations must never overwrite these.",
   "overrides": [
     {
       "program": "kraken",
       "field": "personal_code",
-      "value": "TESTE2E999",
+      "value": "cpbrgddy",
       "platform": null,
       "source": "GLOBAL_OPERATOR_OVERRIDE",
       "created_at": "2026-08-12T23:52:07.312575+00:00",
-      "updated_at": "2026-08-31T10:46:09.600996+00:00",
-      "message": "Kraken code TESTE2E999",
+      "updated_at": "2026-08-12T23:52:07.312575+00:00",
+      "message": "OPERATOR_VALIDATED current live Kraken/Super-Parrain values. Catalog 4hpz4gdy / proinvite / 20EUR BTC must never publish.",
       "id": "global:kraken:personal_code"
     },
     {

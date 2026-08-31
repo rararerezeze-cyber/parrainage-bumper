@@ -2,9 +2,9 @@
   "schema_version": 1,
   "ok": true,
   "action": "autofresh",
-  "command": "Kraken statut",
-  "correlation_id": "c80cd25f-be29-46e0-a22a-ab6a3193208a",
-  "at": "2026-08-31T08:39:49.933483+00:00",
+  "command": "Kraken code TESTE2E999",
+  "correlation_id": "d76a95a4-5d74-46c5-a6da-a3763b9f8674",
+  "at": "2026-08-31T10:46:09.595973+00:00",
   "monitor": "OBSERVATION_ONLY",
   "mode": "HERMES_OPERATOR",
   "errors": [],
@@ -15,88 +15,39 @@
     "method": "github_actions"
   },
   "parsed": {
-    "action": "status",
+    "action": "set",
     "program": "kraken",
     "offer_name": "Kraken",
     "platform": null,
-    "field": null,
-    "value": null
+    "field": "personal_code",
+    "value": "TESTE2E999"
   },
   "serialized": true,
   "persist_confirmed": true,
   "result": {
-    "action": "status",
-    "status": {
+    "action": "set",
+    "override": {
       "program": "kraken",
-      "overrides": [
-        {
-          "program": "kraken",
-          "field": "personal_code",
-          "value": "cpbrgddy",
-          "platform": null,
-          "source": "GLOBAL_OPERATOR_OVERRIDE",
-          "created_at": "2026-08-12T23:52:07.312575+00:00",
-          "updated_at": "2026-08-12T23:52:07.312575+00:00",
-          "message": "OPERATOR_VALIDATED current live Kraken/Super-Parrain values. Catalog 4hpz4gdy / proinvite / 20EUR BTC must never publish.",
-          "id": "global:kraken:personal_code"
-        },
-        {
-          "program": "kraken",
-          "field": "personal_link",
-          "value": "https://invite.kraken.com/JDNW/s5qudqe4",
-          "platform": null,
-          "source": "GLOBAL_OPERATOR_OVERRIDE",
-          "created_at": "2026-08-12T23:52:07.329653+00:00",
-          "updated_at": "2026-08-12T23:52:07.329653+00:00",
-          "message": "OPERATOR_VALIDATED current live Kraken/Super-Parrain values. Catalog 4hpz4gdy / proinvite / 20EUR BTC must never publish.",
-          "id": "global:kraken:personal_link"
-        },
-        {
-          "program": "kraken",
-          "field": "referee_reward",
-          "value": "200 € en cryptomonnaies",
-          "platform": null,
-          "source": "GLOBAL_OPERATOR_OVERRIDE",
-          "created_at": "2026-08-12T23:39:50.927290+00:00",
-          "updated_at": "2026-08-12T23:52:07.348302+00:00",
-          "message": "OPERATOR_VALIDATED current live Kraken/Super-Parrain values. Catalog 4hpz4gdy / proinvite / 20EUR BTC must never publish.",
-          "id": "global:kraken:referee_reward"
-        }
-      ],
-      "fields": {
-        "personal_code": {
-          "effective": "cpbrgddy",
-          "source": "GLOBAL_OPERATOR_OVERRIDE",
-          "canonical": "cpbrgddy"
-        },
-        "personal_link": {
-          "effective": "https://invite.kraken.com/JDNW/s5qudqe4",
-          "source": "GLOBAL_OPERATOR_OVERRIDE",
-          "canonical": "https://invite.kraken.com/JDNW/s5qudqe4"
-        },
-        "referee_reward": {
-          "effective": "200 € en cryptomonnaies",
-          "source": "GLOBAL_OPERATOR_OVERRIDE",
-          "canonical": "200 € en cryptomonnaies"
-        },
-        "conditions": {
-          "effective": "Kraken indique généralement un bonus équivalent à 20 € en Bitcoin pour la France, après dépôt et volume de trading réalisés sous 30 jours. Les seuils exacts restent affichés dans l'application et le versement peut prendre jusqu'à 21 jours.",
-          "source": "CANONICAL_DEFAULT",
-          "canonical": "Kraken indique généralement un bonus équivalent à 20 € en Bitcoin pour la France, après dépôt et volume de trading réalisés sous 30 jours. Les seuils exacts restent affichés dans l'application et le versement peut prendre jusqu'à 21 jours."
-        },
-        "title": {
-          "effective": "Kraken",
-          "source": "CANONICAL_DEFAULT",
-          "canonical": "Kraken"
-        }
-      }
-    }
+      "field": "personal_code",
+      "value": "TESTE2E999",
+      "platform": null,
+      "source": "GLOBAL_OPERATOR_OVERRIDE",
+      "created_at": "2026-08-12T23:52:07.312575+00:00",
+      "updated_at": "2026-08-31T10:46:09.600996+00:00",
+      "message": "Kraken code TESTE2E999",
+      "id": "global:kraken:personal_code"
+    },
+    "old_effective": "cpbrgddy",
+    "old_source": "GLOBAL_OPERATOR_OVERRIDE",
+    "new_effective": "TESTE2E999",
+    "new_source": "GLOBAL_OPERATOR_OVERRIDE",
+    "written_overrides_path": "/home/runner/work/parrainage-bumper/parrainage-bumper/data/operator-overrides.json"
   },
   "plan": {
     "program": "kraken",
     "phase": "VALIDATION_LIVE",
     "effective_global": {
-      "code": "cpbrgddy",
+      "code": "TESTE2E999",
       "link": "https://invite.kraken.com/JDNW/s5qudqe4",
       "reward": "200 € en cryptomonnaies",
       "cond": "Kraken indique généralement un bonus équivalent à 20 € en Bitcoin pour la France, après dépôt et volume de trading réalisés sous 30 jours. Les seuils exacts restent affichés dans l'application et le versement peut prendre jusqu'à 21 jours.",
@@ -105,7 +56,7 @@
     "global_fields": {
       "personal_code": {
         "old": "cpbrgddy",
-        "effective": "cpbrgddy",
+        "effective": "TESTE2E999",
         "source": "GLOBAL_OPERATOR_OVERRIDE"
       },
       "personal_link": {
@@ -135,7 +86,7 @@
         "changed_fields": {
           "personal_code": {
             "old": null,
-            "new": "cpbrgddy"
+            "new": "TESTE2E999"
           },
           "personal_link": {
             "old": null,
@@ -167,7 +118,7 @@
         "changed_fields": {
           "personal_code": {
             "old": null,
-            "new": "cpbrgddy"
+            "new": "TESTE2E999"
           },
           "personal_link": {
             "old": null,
@@ -199,7 +150,7 @@
         "changed_fields": {
           "personal_code": {
             "old": null,
-            "new": "cpbrgddy"
+            "new": "TESTE2E999"
           },
           "personal_link": {
             "old": null,
@@ -227,7 +178,7 @@
         "changed_fields": {
           "personal_code": {
             "old": null,
-            "new": "cpbrgddy"
+            "new": "TESTE2E999"
           },
           "personal_link": {
             "old": null,
@@ -281,7 +232,7 @@
         "changed_fields": {
           "personal_code": {
             "old": null,
-            "new": "cpbrgddy"
+            "new": "TESTE2E999"
           },
           "personal_link": {
             "old": null,
@@ -401,7 +352,7 @@
           "last_write_verified_at": null
         }
       ],
-      "updated_at": "2026-08-30T02:49:09.839617+00:00"
+      "updated_at": "2026-08-31T10:25:35.724152+00:00"
     },
     "observation_only_default": true,
     "monitor_mode": "OBSERVATION_ONLY"
@@ -416,7 +367,7 @@
       "changed_fields": {
         "personal_code": {
           "old": null,
-          "new": "cpbrgddy"
+          "new": "TESTE2E999"
         },
         "personal_link": {
           "old": null,
@@ -435,7 +386,7 @@
       "changed_fields": {
         "personal_code": {
           "old": null,
-          "new": "cpbrgddy"
+          "new": "TESTE2E999"
         },
         "personal_link": {
           "old": null,
@@ -454,7 +405,7 @@
       "changed_fields": {
         "personal_code": {
           "old": null,
-          "new": "cpbrgddy"
+          "new": "TESTE2E999"
         },
         "personal_link": {
           "old": null,
@@ -473,7 +424,7 @@
       "changed_fields": {
         "personal_code": {
           "old": null,
-          "new": "cpbrgddy"
+          "new": "TESTE2E999"
         },
         "personal_link": {
           "old": null,
@@ -511,7 +462,7 @@
       "changed_fields": {
         "personal_code": {
           "old": null,
-          "new": "cpbrgddy"
+          "new": "TESTE2E999"
         },
         "personal_link": {
           "old": null,
@@ -628,11 +579,11 @@
         "last_write_verified_at": null
       }
     ],
-    "updated_at": "2026-08-30T02:49:09.839617+00:00"
+    "updated_at": "2026-08-31T10:25:35.724152+00:00"
   },
   "writers": null,
-  "human_summary": "kraken status (GLOBAL)\n\nCross-platform impact:\n  1parrainage        pending_update   WRITE_VERIFIED               personal_code: None→'cpbrgddy' | personal_link: None→'https://invite.kraken.com/JDNW/s5qudqe4'\n    last write verified: 2026-08-13T10:29:40.550997+00:00\n    last error: unexpected_dom: login fields not found on /login (2026-08-13T08:49:08.330947+00:00)\n  code-parrainage    pending_update   WRITE_VERIFIED               personal_code: None→'cpbrgddy' | personal_link: None→'https://invite.kraken.com/JDNW/s5qudqe4'\n    last write verified: 2026-08-17T16:20:23.771989+00:00\n    last error: canary save clicked twice (canary + mandatory rollback) but the textarea#offre content never persisted on any reread -- offre_sha256 identical across before_account/canary_account/rollback_account, and the public page's raw_html_sha256 identical across before_public/canary_public/rollback_public. No slider present (confirmed empirically both times), Save button confirmed visible+enabled both times, company/code_ou_lien unchanged at every checkpoint (identity_ok=true, no critical_fail). ROOT_CAUSE UNKNOWN as of this record -- read-only diagnostic in progress, no further Save attempts authorized (2/2 used). (2026-08-16T17:52:35.378306+00:00)\n  parrainage-co      pending_update   WRITE_VERIFIED               personal_code: None→'cpbrgddy' | personal_link: None→'https://invite.kraken.com/JDNW/s5qudqe4'\n    last write verified: 2026-08-16T13:41:32.579960+00:00\n  referralcode-tv    pending_update   WRITE_VERIFIED               personal_code: None→'cpbrgddy' | personal_link: None→'https://invite.kraken.com/JDNW/s5qudqe4' | referee_reward: None→'200 € en cryptomonnaies'\n    last write verified: 2026-08-13T12:47:36.402325+00:00\n  referralcodes      pending_update   CANARY_READY                 referee_reward: '\\\\u2b50\\\\ufe0f $200 in Crypto \\\\u2b50\\\\ufe0f'→'200 € en cryptomonnaies'\n  super-parrain      pending_update   WRITE_VERIFIED               personal_code: None→'cpbrgddy' | personal_link: None→'https://invite.kraken.com/JDNW/s5qudqe4'\n    last write verified: 2026-08-15T08:28:55.596484+00:00\n\nWrite readiness (strict):\n  super-parrain      WRITE_VERIFIED personal_code,personal_link\n  parrainage-co      AUTO_ON_SAFE_DIFF personal_code,personal_link\n  code-parrainage    AUTO_ON_SAFE_DIFF personal_code,personal_link\n  1parrainage        AUTO_ON_SAFE_DIFF personal_code,personal_link\n  referralcodes      NEVER_AUTO_COMMIT referee_reward\n  referralcode-tv    HUMAN_SAVE_REQUIRED personal_code,personal_link,referee_reward | python -u tools/local_headed_rctv_canary.py\n  referraldrop       AUTH_BLOCKED\n\nMapped: 6 | pending: 6 | in_sync: 0\nWRITE_VERIFIED: 5/7 | Telegram live-capable: 3/7\nAuto writers ONLY on PC_OFF_READY + real SAFE_DIFF (parrainage-co, code-parrainage, 1parrainage). Human platforms never auto-dispatch.\nMonitor remains OBSERVATION_ONLY (no auto-accept).\n\n{\n  \"program\": \"kraken\",\n  \"overrides\": [\n    {\n      \"program\": \"kraken\",\n      \"field\": \"personal_code\",\n      \"value\": \"cpbrgddy\",\n      \"platform\": null,\n      \"source\": \"GLOBAL_OPERATOR_OVERRIDE\",\n      \"created_at\": \"2026-08-12T23:52:07.312575+00:00\",\n      \"updated_at\": \"2026-08-12T23:52:07.312575+00:00\",\n      \"message\": \"OPERATOR_VALIDATED current live Kraken/Super-Parrain values. Catalog 4hpz4gdy / proinvite / 20EUR BTC must never publish.\",\n      \"id\": \"global:kraken:personal_code\"\n    },\n    {\n      \"program\": \"kraken\",\n      \"field\": \"personal_link\",\n      \"value\": \"https://invite.kraken.com/JDNW/s5qudqe4\",\n      \"platform\": null,\n      \"source\": \"GLOBAL_OPERATOR_OVERRIDE\",\n      \"created_at\": \"2026-08-12T23:52:07.329653+00:00\",\n      \"updated_at\": \"2026-08-12T23:52:07.329653+00:00\",\n      \"message\": \"OPERATOR_VALIDATED current live Kraken/Super-Parrain values. Catalog 4hpz4gdy / proinvite / 20EUR BTC must never publish.\",\n      \"id\": \"global:kraken:personal_link\"\n    },\n    {\n      \"program\": \"kraken\",\n      \"field\": \"referee_reward\",\n      \"value\": \"200 € en cryptomonnaies\",\n      \"platform\": null,\n      \"source\": \"GLOBAL_OPERATOR_OVERRIDE\",\n      \"created_at\": \"2026-08-12T23:39:50.927290+00:00\",\n      \"updated_at\": \"2026-08-12T23:52:07.348302+00:00\",\n      \"message\": \"OPERATOR_VALIDATED current live Kraken/Super-Parrain values. Catalog 4hpz4gdy / proinvite / 20EUR BTC must never publish.\",\n      \"id\": \"global:kraken:referee_reward\"\n    }\n  ],\n  \"fields\": {\n    \"personal_code\": {\n      \"effective\": \"cpbrgddy\",\n      \"source\": \"GLOBAL_OPERATOR_OVERRIDE\",\n      \"canonical\": \"cpbrgddy\"\n    },\n    \"personal_link\": {\n      \"effective\": \"https://invite.kraken.com/JDNW/s5qudqe4\",\n      \"source\": \"GLOBAL_OPERATOR_OVERRIDE\",\n      \"canonical\": \"https://invite.kraken.com/JDNW/s5qudqe4\"\n    },\n    \"referee_reward\": {\n      \"effective\": \"200 € en cryptomonnaies\",\n      \"source\": \"GLOBAL_OPERATOR_OVERRIDE\",\n      \"canonical\": \"200 € en cryptomonnaies\"\n    },\n    \"conditions\": {\n      \"effective\": \"Kraken indique généralement un bonus équivalent à 20 € en Bitcoin pour la France, après dépôt et volume de trading réalisés sous 30 jours. Les seuils exacts restent affichés dans l'application et le versement peut prendre jusqu'à 21 jours.\",\n      \"source\": \"CANONICAL_DEFAULT\",\n      \"canonical\": \"Kraken indique généralement un bonus équivalent à 20 € en Bitcoin pour la France, après dépôt et volume de trading réalisés sous 30 jours. Les seuils exacts restent affichés dans l'application et le versement peut prendre jusqu'à 21 jours.\"\n    },\n    \"title\": {\n      \"effective\": \"Kraken\",\n      \"source\": \"CANONICAL_DEFAULT\",\n      \"canonical\": \"Kraken\"\n    }\n  }\n}\n\nHUMAN_SAVE_REQUIRED referralcode-tv: do not auto-save. python -u tools/local_headed_rctv_canary.py",
-  "idempotency_key": "8f79e7fc3c1f4acdc2dcf9e8",
+  "human_summary": "kraken personal_code → 'TESTE2E999'  [GLOBAL]\nsource effective: GLOBAL_OPERATOR_OVERRIDE\neffective value: 'cpbrgddy' → 'TESTE2E999'\n\nCross-platform impact:\n  1parrainage        pending_update   WRITE_VERIFIED               personal_code: None→'TESTE2E999' | personal_link: None→'https://invite.kraken.com/JDNW/s5qudqe4'\n    last write verified: 2026-08-13T10:29:40.550997+00:00\n    last error: unexpected_dom: login fields not found on /login (2026-08-13T08:49:08.330947+00:00)\n  code-parrainage    pending_update   WRITE_VERIFIED               personal_code: None→'TESTE2E999' | personal_link: None→'https://invite.kraken.com/JDNW/s5qudqe4'\n    last write verified: 2026-08-17T16:20:23.771989+00:00\n    last error: canary save clicked twice (canary + mandatory rollback) but the textarea#offre content never persisted on any reread -- offre_sha256 identical across before_account/canary_account/rollback_account, and the public page's raw_html_sha256 identical across before_public/canary_public/rollback_public. No slider present (confirmed empirically both times), Save button confirmed visible+enabled both times, company/code_ou_lien unchanged at every checkpoint (identity_ok=true, no critical_fail). ROOT_CAUSE UNKNOWN as of this record -- read-only diagnostic in progress, no further Save attempts authorized (2/2 used). (2026-08-16T17:52:35.378306+00:00)\n  parrainage-co      pending_update   WRITE_VERIFIED               personal_code: None→'TESTE2E999' | personal_link: None→'https://invite.kraken.com/JDNW/s5qudqe4'\n    last write verified: 2026-08-16T13:41:32.579960+00:00\n  referralcode-tv    pending_update   WRITE_VERIFIED               personal_code: None→'TESTE2E999' | personal_link: None→'https://invite.kraken.com/JDNW/s5qudqe4' | referee_reward: None→'200 € en cryptomonnaies'\n    last write verified: 2026-08-13T12:47:36.402325+00:00\n  referralcodes      pending_update   CANARY_READY                 referee_reward: '\\\\u2b50\\\\ufe0f $200 in Crypto \\\\u2b50\\\\ufe0f'→'200 € en cryptomonnaies'\n  super-parrain      pending_update   WRITE_VERIFIED               personal_code: None→'TESTE2E999' | personal_link: None→'https://invite.kraken.com/JDNW/s5qudqe4'\n    last write verified: 2026-08-15T08:28:55.596484+00:00\n\nWrite readiness (strict):\n  super-parrain      WRITE_VERIFIED personal_code,personal_link\n  parrainage-co      AUTO_ON_SAFE_DIFF personal_code,personal_link\n  code-parrainage    AUTO_ON_SAFE_DIFF personal_code,personal_link\n  1parrainage        AUTO_ON_SAFE_DIFF personal_code,personal_link\n  referralcodes      NEVER_AUTO_COMMIT referee_reward\n  referralcode-tv    HUMAN_SAVE_REQUIRED personal_code,personal_link,referee_reward | python -u tools/local_headed_rctv_canary.py\n  referraldrop       AUTH_BLOCKED\n\nMapped: 6 | pending: 6 | in_sync: 0\nWRITE_VERIFIED: 5/7 | Telegram live-capable: 3/7\nAuto writers ONLY on PC_OFF_READY + real SAFE_DIFF (parrainage-co, code-parrainage, 1parrainage). Human platforms never auto-dispatch.\nMonitor remains OBSERVATION_ONLY (no auto-accept).\n\nHUMAN_SAVE_REQUIRED referralcode-tv: do not auto-save. python -u tools/local_headed_rctv_canary.py",
+  "idempotency_key": "34a75355c6208a95c588a4f1",
   "artifacts": {
     "overrides_path": "/home/runner/work/parrainage-bumper/parrainage-bumper/data/operator-overrides.json",
     "result_path": "/home/runner/work/parrainage-bumper/parrainage-bumper/data/captures/hermes-last-result.json"

@@ -1,0 +1,38 @@
+{
+  "phase": "VALIDATION_LIVE",
+  "live_writes": true,
+  "live_canary": true,
+  "enabled_platforms": [
+    "super-parrain",
+    "1parrainage",
+    "referralcode-tv",
+    "parrainage-co",
+    "code-parrainage"
+  ],
+  "write_verified": [
+    "1parrainage",
+    "referralcode-tv",
+    "super-parrain",
+    "parrainage-co",
+    "code-parrainage"
+  ],
+  "canary": {
+    "platform": "super-parrain",
+    "programs": [
+      "kraken"
+    ],
+    "mode": "canary"
+  },
+  "note": "STRICT: auto writers only on a real SAFE_DIFF, and only for platforms that are BOTH WRITE_VERIFIED and PC_OFF_READY (1Parrainage, Code-Parrainage, Parrainage.co — see data/platform-write-status.json telegram_live_capable, which is the authority). RCTV content save stays HUMAN_SAVE_REQUIRED (local headed command); its scheduled bump runs in the isolated workflow bump_referralcode_tv.yml as BUMP_ISOLATED_BEST_EFFORT — a Cloudflare Turnstile interstitial before GitHub-hosted login is classified EXPECTED_EXTERNAL_BLOCKER, never retried, never bypassed, and never fails the healthy bumpers. ReferralCodes NEVER_AUTO_COMMIT. ReferralDrop AUTH_BLOCKED_MANUAL. Monitor=OBSERVATION_ONLY. Super-Parrain content-writer WRITE_VERIFIED; historical bumper authorized — runtime NORMAL_BUMP (FUSED_UPDATE_BUMP).",
+  "monitor_auto_accept": false,
+  "super_parrain_runtime": "NORMAL_BUMP",
+  "live_canary_waiter": "ENABLED_FOR_SUPER_PARRAIN_ONLY",
+  "updated_at": "2026-08-24T18:58:15.646183+00:00",
+  "updated_at_note": "Metadata only — not used for cooldown (see last_super_run.txt). Refreshed 2026-08-24: the previous note still described Parrainage.co as COOKIE_SESSION_NOT_PC_OFF and the RCTV scheduled bump as disabled; both contradicted data/platform-write-status.json and the isolated RCTV workflow.",
+  "super_parrain_historical_bumper_authorized": true,
+  "super_parrain_historical_bumper_authorized_at": "2026-08-16T07:54:10.758127+00:00",
+  "super_parrain_historical_bumper_authorized_by": "operator-telegram-2026-08-16",
+  "super_parrain_historical_bumper_authorized_reason": "Operator explicit sign-off 2026-08-16: Kraken content-writer WRITE_VERIFIED (Poulpeo canary, post_match=true) proven and independently re-confirmed by scheduled activation_canary runs since. Operator confirmed listings had stopped bumping since 2026-08-12 (last_super_run) and explicitly authorized the global historical bumper to resume, with existing safeguards (24h cooldown, activation_canary concurrency, fail-closed on error, no retry loop, post-verify) preserved unchanged.",
+  "referralcode_tv_scheduled_bump": "ISOLATED_BEST_EFFORT",
+  "referralcode_tv_scheduled_bump_workflow": ".github/workflows/bump_referralcode_tv.yml"
+}
