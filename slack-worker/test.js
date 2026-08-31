@@ -13,6 +13,16 @@ import {
   isSafeCommandText,
   clip,
 } from "./lib.js";
+import { IDEMPOTENCY_TTL_SECONDS } from "./worker.js";
+
+test("IDEMPOTENCY_TTL_SECONDS respects Cloudflare KV's hard minimum of 60s", () => {
+  // Regression guard for the 2026-08-31 incident: a value below 60 makes
+  // env.IDEMPOTENCY.put() throw on every dispatching slash command
+  // (verified live: "Invalid expiration_ttl of 30. Expiration TTL must be
+  // at least 60."), which broke /autofresh for every command except the
+  // short-circuited "aide" path.
+  assert.ok(IDEMPOTENCY_TTL_SECONDS >= 60, `IDEMPOTENCY_TTL_SECONDS=${IDEMPOTENCY_TTL_SECONDS} is below Cloudflare KV's minimum of 60`);
+});
 
 test("timingSafeEqual: equal strings", () => {
   assert.equal(timingSafeEqual("abc", "abc"), true);

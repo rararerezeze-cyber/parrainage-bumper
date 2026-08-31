@@ -45,25 +45,44 @@ import {
 } from "./lib.js";
 
 const WORKFLOW_FILE = "hermes_operator.yml";
-const IDEMPOTENCY_TTL_SECONDS = 30;
+// Cloudflare KV enforces a hard minimum of 60s for expirationTtl -- a
+// smaller value makes env.IDEMPOTENCY.put() throw (verified live against
+// the real namespace: "Invalid expiration_ttl of 30. Expiration TTL must
+// be at least 60."). That exception, unhandled, is exactly what broke
+// every dispatching slash command on 2026-08-31 (the /autofresh aide path
+// never reaches seenRecently() and was unaffected).
+export const IDEMPOTENCY_TTL_SECONDS = 60;
 
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
-    if (request.method === "GET" && url.pathname === "/health") {
-      return json({ ok: true, service: "autofresh-slack" });
-    }
+    try {
+      if (request.method === "GET" && url.pathname === "/health") {
+        return json({ ok: true, service: "autofresh-slack" });
+      }
 
-    if (request.method === "POST" && url.pathname === "/slack/commands") {
-      return handleSlashCommand(request, env, ctx);
-    }
+      if (request.method === "POST" && url.pathname === "/slack/commands") {
+        return await handleSlashCommand(request, env, ctx);
+      }
 
-    if (request.method === "POST" && url.pathname === "/slack/interactivity") {
-      return handleInteractivity(request, env, ctx);
-    }
+      if (request.method === "POST" && url.pathname === "/slack/interactivity") {
+        return await handleInteractivity(request, env, ctx);
+      }
 
-    return new Response("Not found", { status: 404 });
+      return new Response("Not found", { status: 404 });
+    } catch (err) {
+      // An unhandled exception must never surface to Slack as an opaque
+      // generic error (or as GitHub receiving no dispatch while the user
+      // sees nothing explaining why) -- always degrade to a real,
+      // fast, informative Slack-shaped response. Logged for `wrangler
+      // tail` / dashboard visibility.
+      console.error("unhandled_exception", url.pathname, err && err.stack ? err.stack : err);
+      if (url.pathname === "/slack/commands") {
+        return ephemeral("Erreur interne Autofresh -- réessaie, ou consulte les logs du Worker si ça persiste.");
+      }
+      return new Response(null, { status: 200 }); // interactivity: ack anyway, nothing more we can tell the user here
+    }
   },
 };
 
