@@ -21,7 +21,12 @@
     "bump_autres.yml": {
       "class": "PRODUCTION_SCHEDULED",
       "platform": "code-parrainage,parrainage-co",
-      "note": "Healthy combined cycle. ReferralCode.tv is deliberately NOT in TARGET_SITES."
+      "note": "Healthy combined cycle. ReferralCode.tv is deliberately NOT in TARGET_SITES. Cron moved off minute-0 2026-08-31 (GitHub Actions congestion; two consecutive daily slots silently never fired)."
+    },
+    "bump_autres_watchdog.yml": {
+      "class": "PRODUCTION_SCHEDULED",
+      "platform": "code-parrainage,parrainage-co",
+      "note": "Hourly missed-run detector for bump_autres.yml. Read-only Actions API check + at most one workflow_dispatch catch-up; never touches bumper credentials directly. Added 2026-08-31."
     },
     "bump_referralcode_tv.yml": {
       "class": "PRODUCTION_SCHEDULED",

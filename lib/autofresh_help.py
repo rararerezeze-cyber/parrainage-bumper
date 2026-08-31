@@ -9,10 +9,12 @@ copy, so it cannot silently go stale as writers evolve.
 
 Global meta-commands (no program token) recognized here: "Autofresh",
 "Autofresh aide", "Autofresh commandes", "Aide Autofresh", "Autofresh
-exemples", "Autofresh plateformes". Per-program verbs ("Kraken statut",
-"Kraken divergences", "Kraken plateformes") are recognized in
-tools/telegram_update.py's parse_message() and reuse this module only for
-their French status-label translation.
+exemples", "Autofresh plateformes", "Autofresh bump" (bump_autres.yml
+last/next run + recent failures, live from the GitHub Actions API -- the
+one meta-command here that is NOT purely local/offline). Per-program verbs
+("Kraken statut", "Kraken divergences", "Kraken plateformes") are
+recognized in tools/telegram_update.py's parse_message() and reuse this
+module only for their French status-label translation.
 """
 from __future__ import annotations
 
@@ -24,6 +26,7 @@ from lib.write_status import ALL_PLATFORMS, STATUS_WRITE_VERIFIED, summary as wr
 TOPIC_MENU = "menu"
 TOPIC_EXEMPLES = "exemples"
 TOPIC_PLATEFORMES = "plateformes"
+TOPIC_BUMP = "bump"
 
 
 def _fold(s: str) -> str:
@@ -48,6 +51,11 @@ _GLOBAL_META: dict[str, str] = {
     "autofresh exemple": TOPIC_EXEMPLES,
     "autofresh plateformes": TOPIC_PLATEFORMES,
     "autofresh plateforme": TOPIC_PLATEFORMES,
+    "autofresh bump": TOPIC_BUMP,
+    "autofresh bumps": TOPIC_BUMP,
+    "bump statut": TOPIC_BUMP,
+    "etat bump": TOPIC_BUMP,
+    "etat des bumps": TOPIC_BUMP,
 }
 
 
@@ -248,6 +256,7 @@ def build_main_menu() -> str:
         "• Autofresh — ce menu\n"
         "• Autofresh exemples — quelques exemples concrets\n"
         "• Autofresh plateformes — état réel des 7 plateformes\n"
+        "• Autofresh bump — statut du bump Code-Parrainage/Parrainage.co\n"
         "\n"
         "Variantes acceptées : statut/status, gain filleul/récompense filleul, "
         "gain parrain/récompense parrain, lien/link, supprimer/retirer/effacer.\n"
@@ -275,11 +284,39 @@ def build_examples() -> str:
     )
 
 
+def build_bump_status() -> str:
+    """Live 'Autofresh bump' Slack/Telegram reply: last run, next expected
+    run, and any recent failures for bump_autres.yml (Code-Parrainage /
+    Parrainage.co). Reads the real GitHub Actions run history via
+    lib.bump_watch -- never a cached or committed snapshot, so it cannot
+    silently go stale (2026-08-31 finding: a stale/missing status here is
+    exactly what let two missed scheduled runs go unnoticed)."""
+    import os
+    from datetime import datetime, timezone
+
+    from lib.bump_watch import fetch_recent_runs, format_status_fr, summarize_status
+
+    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+    if not token:
+        return (
+            "Bump Code-Parrainage / Parrainage.co : statut indisponible "
+            "(GITHUB_TOKEN absent dans cet environnement)."
+        )
+    try:
+        runs = fetch_recent_runs(token)
+    except Exception as exc:  # noqa: BLE001
+        return f"Bump Code-Parrainage / Parrainage.co : statut indisponible (erreur GitHub API : {exc})."
+    status = summarize_status(runs, now=datetime.now(timezone.utc))
+    return format_status_fr(status, now=datetime.now(timezone.utc))
+
+
 def build_topic(topic: str, *, program: str | None = None) -> str:
     if topic == TOPIC_EXEMPLES:
         return build_examples()
     if topic == TOPIC_PLATEFORMES:
         return build_platforms_status(program=program)
+    if topic == TOPIC_BUMP:
+        return build_bump_status()
     return build_main_menu()
 
 

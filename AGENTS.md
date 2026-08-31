@@ -55,8 +55,14 @@ writer regardless of `run_writers`:
   a static doc — always current.
 - `<Programme> divergences` → pending BUSINESS-classified divergences for that
   program.
+- `Autofresh bump` (or `Autofresh bumps` / `Bump statut` / `Etat bump`) →
+  last/next run and recent failures for `bump_autres.yml` (Code-Parrainage /
+  Parrainage.co), read live from the GitHub Actions API — the one meta-command
+  here that is not purely local (needs `GITHUB_TOKEN` in the dispatching
+  workflow's env; degrades to a clear French "indisponible" message if absent,
+  never a crash).
 
-For all four of these, `human_summary` is already the complete, ready-to-send
+For all five of these, `human_summary` is already the complete, ready-to-send
 French reply — relay it **verbatim, unedited**. Do not paraphrase it, do not
 blend it with examples from this file or from general knowledge, and do not
 substitute your own wording for any command name inside it (e.g. never say

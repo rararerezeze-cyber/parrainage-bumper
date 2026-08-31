@@ -29,10 +29,13 @@ on:
         required: false
         default: ""
 permissions:
-  # Only what this job's own steps need. actions: write was unused here --
-  # nothing in this job dispatches/cancels workflow runs or otherwise calls
-  # the Actions API; only git commit/push (contents: write) is required.
+  # Only what this job's own steps need. actions: write remains unused --
+  # nothing in this job dispatches/cancels workflow runs. actions: read
+  # (added 2026-08-31) is genuinely used: the "Autofresh bump" meta-command
+  # (lib.autofresh_help.build_bump_status) reads bump_autres.yml's own run
+  # history via the read-only Actions API to report last/next run status.
   contents: write
+  actions: read
 concurrency:
   group: autofresh-hermes-operator
   cancel-in-progress: false
@@ -87,6 +90,11 @@ jobs:
           PARRAINAGE_CO_RM_COOKIE: ${{ secrets.PARRAINAGE_CO_RM_COOKIE }}
           AUTOFRESH_OPERATOR_TOKEN: ${{ secrets.AUTOFRESH_OPERATOR_TOKEN }}
           HERMES_SHARED_TOKEN: ${{ secrets.HERMES_SHARED_TOKEN }}
+          # Read-only Actions API access for the "Autofresh bump" meta-command
+          # (lib.autofresh_help.build_bump_status / lib.bump_watch) -- the
+          # ambient per-job token, scoped by this workflow's own
+          # `permissions: actions: read` above. Never used for anything else.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AUTOFRESH_PHASE: "VALIDATION_LIVE"
           GITHUB_ACTIONS: "true"
           # workflow_dispatch inputs passed ONLY via env -- never spliced into

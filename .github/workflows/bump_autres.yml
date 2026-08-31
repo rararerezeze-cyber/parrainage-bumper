@@ -1,7 +1,12 @@
 name: Bump — Code Parrainage & Parrainage.co (5x/jour)
 on:
   schedule:
-    - cron: "0 */5 * * *"
+    # NOT minute 0: GitHub's own docs warn scheduled workflows are delayed
+    # or dropped during high load, "especially at the start of every hour"
+    # -- minute 0 is the worst-case collision point. Confirmed live
+    # (2026-08-31 audit): the 05:00 and 10:00 UTC slots never fired at all
+    # that day. Minute 7 keeps the same 5x/day cadence off that peak.
+    - cron: "7 */5 * * *"
   workflow_dispatch:
 concurrency:
   group: parrainage-bumper-autres

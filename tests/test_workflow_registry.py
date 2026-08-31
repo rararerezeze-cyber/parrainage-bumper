@@ -19,6 +19,7 @@ REGISTRY = json.loads((ROOT / "data" / "workflow-registry.json").read_text(encod
 SCHEDULED = {
     "bump_super_parrain.yml",
     "bump_autres.yml",
+    "bump_autres_watchdog.yml",
     "bump_referralcode_tv.yml",
     "monitor_offers.yml",
 }

@@ -7,10 +7,12 @@ from __future__ import annotations
 import pytest
 
 from lib.autofresh_help import (
+    TOPIC_BUMP,
     TOPIC_EXEMPLES,
     TOPIC_MENU,
     TOPIC_PLATEFORMES,
     ambiguous_field_reply,
+    build_bump_status,
     detect_meta_command,
 )
 from lib.hermes_interface import run_autofresh_command
@@ -289,3 +291,88 @@ def test_gain_parrain_line_never_implies_platform_write_works():
     assert "non prise en charge" in text.lower() or "pas encore support" in text.lower()
     # Must not read as if it's already a working platform write.
     assert "définir le gain parrain" not in text.lower()
+
+
+# --- "Autofresh bump" meta-command (2026-08-31) -------------------------
+
+
+@pytest.mark.parametrize(
+    "text",
+    ["Autofresh bump", "autofresh bump", "Autofresh Bumps", "bump statut", "Etat bump", "État des bumps"],
+)
+def test_bump_meta_command_variants_are_recognized(text):
+    assert detect_meta_command(text) == TOPIC_BUMP
+
+
+def test_bump_status_never_a_writer_and_gracefully_degrades_without_token(monkeypatch):
+    """No GITHUB_TOKEN in the environment (e.g. local dev) must produce a
+    clear message, never a crash and never a network call."""
+    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
+    monkeypatch.delenv("GH_TOKEN", raising=False)
+    text = build_bump_status()
+    assert "indisponible" in text.lower()
+    assert "GITHUB_TOKEN" in text
+
+
+def test_bump_status_uses_the_shared_bump_watch_summary(monkeypatch):
+    """Real behavior, network mocked: build_bump_status() must reflect
+    whatever lib.bump_watch reports, not a separate hardcoded copy."""
+    from datetime import datetime, timezone
+
+    monkeypatch.setenv("GITHUB_TOKEN", "fake-token-for-test")
+
+    fake_runs = [
+        {
+            "id": 1,
+            "status": "completed",
+            "conclusion": "success",
+            "created_at": "2026-08-31T02:14:44Z",
+        }
+    ]
+    monkeypatch.setattr("lib.bump_watch.fetch_recent_runs", lambda token, **k: fake_runs)
+
+    text = build_bump_status()
+    assert "Dernier run" in text
+    assert "2026-08-31T02:14:44Z" in text
+
+
+def test_bump_status_surfaces_api_errors_in_french_without_crashing(monkeypatch):
+    monkeypatch.setenv("GITHUB_TOKEN", "fake-token-for-test")
+
+    def _boom(token, **k):
+        raise RuntimeError("network unreachable")
+
+    monkeypatch.setattr("lib.bump_watch.fetch_recent_runs", _boom)
+    text = build_bump_status()
+    assert "indisponible" in text.lower()
+    assert "network unreachable" in text
+
+
+def test_bump_meta_command_flows_end_to_end_through_apply_operator_command(monkeypatch):
+    """detect_meta_command -> parse_message -> apply_operator_command must
+    reach build_bump_status(), exactly like the pre-existing menu/exemples/
+    plateformes topics -- no separate dispatch path needed."""
+    monkeypatch.setenv("GITHUB_TOKEN", "fake-token-for-test")
+    monkeypatch.setattr("lib.bump_watch.fetch_recent_runs", lambda token, **k: [])
+
+    offers = OffersRepository()
+    parsed = parse_message("Autofresh bump", offers)
+    assert parsed["action"] == "help"
+    assert parsed["help_topic"] == TOPIC_BUMP
+
+    result = apply_operator_command(parsed, message="Autofresh bump")
+    assert "aucun run" in result["text"].lower()
+
+
+def test_bump_meta_command_never_persists_or_invokes_a_writer(monkeypatch):
+    monkeypatch.setenv("GITHUB_TOKEN", "fake-token-for-test")
+    monkeypatch.setattr("lib.bump_watch.fetch_recent_runs", lambda token, **k: [])
+
+    r = run_autofresh_command(
+        "Autofresh bump",
+        requester={"source": "hermes"},
+        run_writers=False,
+    )
+    assert r["ok"] is True
+    assert r["platforms"] == []
+    assert r["human_summary"]
