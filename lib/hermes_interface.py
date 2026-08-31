@@ -370,7 +370,17 @@ def _run_autofresh_command_locked(
         base["idempotency_key"] = replay_key
         return base
 
-    if persist and parsed.get("action") in {"set", "remove"}:
+    # A "set" re-dispatched with run_writers=true must always actually
+    # attempt the writer, even when the override value itself was already
+    # persisted by an earlier (writer-less) dispatch of the identical
+    # command — the two-phase Slack "preview -> confirm write" flow relies
+    # on exactly this: same command, same idempotency key, second call adds
+    # run_writers=true. Without this guard the idempotent-replay short
+    # circuit below would return the first call's cached result and the
+    # confirm button would silently never run a writer. "remove" and any
+    # writer-less "set" replay keep the original fast-path unchanged.
+    skip_idempotent_replay = run_writers and parsed.get("action") == "set"
+    if persist and parsed.get("action") in {"set", "remove"} and not skip_idempotent_replay:
         ledger = _load_idempotency()
         prev = (ledger.get("keys") or {}).get(replay_key)
         if prev and prev.get("ok") and prev.get("persist_confirmed"):

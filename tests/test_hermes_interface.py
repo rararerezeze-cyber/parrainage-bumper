@@ -164,6 +164,59 @@ def test_hostile_correlation_id_passed_through_unmangled():
     assert r["correlation_id"] == body["correlation_id"]
 
 
+def test_set_replayed_with_run_writers_true_still_invokes_writer(monkeypatch):
+    """Regression: the Slack 'preview -> confirm write' flow re-dispatches
+    the EXACT SAME command a second time with run_writers=True once a human
+    clicks Confirm. Before this fix, the idempotency ledger short-circuited
+    that second call as a cached replay and the writer subprocess was never
+    invoked -- confirming a write silently did nothing.
+    """
+    calls: list[list[str]] = []
+
+    class _FakeProc:
+        returncode = 0
+        stdout = ""
+
+    def fake_run(cmd, **kwargs):
+        calls.append(cmd)
+        return _FakeProc()
+
+    monkeypatch.setattr("subprocess.run", fake_run)
+
+    r1 = run_autofresh_command(
+        "Kraken code IDEMPWRITER1",
+        requester={"source": "slack"},
+        run_writers=False,
+    )
+    assert r1["ok"] is True
+    assert calls == []  # writer never invoked without confirmation
+
+    r2 = run_autofresh_command(
+        "Kraken code IDEMPWRITER1",
+        requester={"source": "slack"},
+        run_writers=True,
+    )
+    assert r2["ok"] is True
+    assert not r2.get("replayed"), "confirm-write dispatch must not be short-circuited as an idempotent replay"
+    assert len(calls) == 1, "writer subprocess must actually be invoked on the confirm dispatch"
+
+
+def test_remove_replay_still_short_circuits_normally(monkeypatch):
+    """The fix is scoped to run_writers+'set' only -- 'remove' idempotency
+    (and a plain writer-less 'set' repeat) must behave exactly as before."""
+    monkeypatch.setattr("subprocess.run", lambda *a, **k: (_ for _ in ()).throw(AssertionError("must not be called")))
+    run_autofresh_command("Kraken code IDEMPREMOVE1", requester={"source": "slack"}, run_writers=False)
+    r1 = run_autofresh_command(
+        "Kraken supprimer override code", requester={"source": "slack"}, run_writers=False
+    )
+    r2 = run_autofresh_command(
+        "Kraken supprimer override code", requester={"source": "slack"}, run_writers=False
+    )
+    assert r1["ok"] is True
+    assert r2["ok"] is True
+    assert r2.get("replayed") is True
+
+
 def test_idempotence_same_value():
     run_autofresh_command(
         "Kraken code IDEMP123",

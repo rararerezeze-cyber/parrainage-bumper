@@ -24,6 +24,10 @@ on:
         description: "Run WRITE_VERIFIED writers (true/false). Fail-closed: only an explicit true arms a writer, and only for a 'set' command — status/plan/read commands never dispatch one either way."
         required: false
         default: "false"
+      reply_channel:
+        description: "Slack channel id to post the human-readable result to (optional; empty = no Slack post, e.g. legacy Hermes/Telegram dispatches). Generic — works identically for any channel, not tied to a specific one."
+        required: false
+        default: ""
 permissions:
   # Only what this job's own steps need. actions: write was unused here --
   # nothing in this job dispatches/cancels workflow runs or otherwise calls
@@ -245,3 +249,58 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
           path: data/notifications/
+      - name: Post Slack reply
+        # Generic, centralized: one step, driven by the reply_channel input.
+        # No per-channel special-casing -- works identically for #hermes,
+        # #betstats, #bonusparrain or any future channel the caller passes.
+        # Legacy Hermes/Telegram dispatches simply leave reply_channel empty
+        # and this step is a no-op; nothing about their behavior changes.
+        if: always()
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          REPLY_CHANNEL: ${{ github.event.inputs.reply_channel }}
+          HERMES_INPUT_RUN_WRITERS: ${{ github.event.inputs.run_writers }}
+        run: |
+          if [ -z "$REPLY_CHANNEL" ]; then
+            echo "reply_channel not set -- skipping Slack reply"
+            exit 0
+          fi
+          if [ -z "$SLACK_BOT_TOKEN" ]; then
+            echo "::warning::reply_channel set but SLACK_BOT_TOKEN secret missing -- cannot post Slack reply"
+            exit 0
+          fi
+          if [ ! -f /tmp/hermes-result.json ]; then
+            echo "::warning::no /tmp/hermes-result.json -- nothing to post to Slack"
+            exit 0
+          fi
+          python - <<'PY'
+          import json, os, urllib.request
+
+          from lib.slack_format import render_result
+
+          with open("/tmp/hermes-result.json", encoding="utf-8") as fh:
+              result = json.load(fh)
+          run_writers_requested = os.environ.get("HERMES_INPUT_RUN_WRITERS", "false").strip().lower() == "true"
+          payload = render_result(result, run_writers_requested=run_writers_requested)
+          payload["channel"] = os.environ["REPLY_CHANNEL"]
+
+          req = urllib.request.Request(
+              "https://slack.com/api/chat.postMessage",
+              data=json.dumps(payload).encode("utf-8"),
+              headers={
+                  "Authorization": f"Bearer {os.environ['SLACK_BOT_TOKEN']}",
+                  "Content-Type": "application/json; charset=utf-8",
+              },
+              method="POST",
+          )
+          try:
+              with urllib.request.urlopen(req, timeout=15) as resp:
+                  body = json.loads(resp.read().decode("utf-8"))
+          except Exception as exc:  # noqa: BLE001
+              print(f"::warning::Slack post failed: {exc}")
+          else:
+              if not body.get("ok"):
+                  print(f"::warning::Slack API rejected message: {body.get('error')}")
+              else:
+                  print("slack_posted=true")
+          PY
