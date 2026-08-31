@@ -3,13 +3,13 @@
   "decision": {
     "runtime_mode": "NORMAL_BUMP",
     "canary_pending": false,
-    "next_eligible_at": "2026-08-30T01:26:38.069325+00:00",
+    "next_eligible_at": "2026-08-31T05:42:05.948393+00:00",
     "hours_remaining": 0.0,
     "pending_count": 0,
     "pending_programs": [],
     "activation_canary_owns_save": false,
     "historical_bumper_authorized": true,
-    "jitter_minutes": 120,
+    "jitter_minutes": 173,
     "action": "cycle",
     "reason": "slot_reached_write_verified_precheck_then_bump",
     "skip_bump": false,
@@ -19,7 +19,7 @@
     "eligible_now": true
   },
   "eligible": true,
-  "next_eligible_at": "2026-08-30T01:26:38.069325+00:00",
+  "next_eligible_at": "2026-08-31T05:42:05.948393+00:00",
   "hours_remaining": 0.0,
   "pre_check": {
     "programs_scanned": 35,
@@ -167,12 +167,12 @@
   "bumper_stats": {
     "mode": "fused_bumper_canary",
     "total_edit_urls": 39,
-    "saves": 38,
+    "saves": 39,
     "autofresh": {
       "updated": 0,
-      "bump_only": 38,
+      "bump_only": 39,
       "failed_prefill": 0,
-      "canary_skipped": 23,
+      "canary_skipped": 24,
       "details": [
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-whatnot-jusqua-200-eur-offerts/edit",
@@ -373,6 +373,16 @@
           "skipped": true,
           "reason": "program_unknown_from_url",
           "policy": ""
+        },
+        {
+          "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-coinbase-20eur-en-bitcoin-offert/edit",
+          "program": "coinbase",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
+          "skipped": true,
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-kraken-200-eur-offerts/edit",
@@ -592,15 +602,15 @@
     "CANARY_POST_MATCH": null,
     "WRITE_STATUS": "CANARY_PENDING",
     "BUMP_CYCLE_24H": "OK",
-    "server_actions": 38,
+    "server_actions": 39,
     "programs_needing_update": 16,
     "canary_need_update": 0,
     "autofresh_updated": 0,
-    "autofresh_bump_only": 38,
-    "canary_skipped": 23,
+    "autofresh_bump_only": 39,
+    "canary_skipped": 24,
     "BUMP_RESULT": "SUCCESS",
     "CONTENT_RESULT": "NO_CONTENT_WRITE"
   },
   "pending_closed": [],
-  "at": "2026-08-30T02:49:09.840314+00:00"
+  "at": "2026-08-31T10:25:35.724899+00:00"
 }
