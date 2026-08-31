@@ -3,15 +3,15 @@
   "ok": true,
   "action": "autofresh",
   "command": "Kraken statut",
-  "correlation_id": "hermes-telegram-ac1c94fcdcec",
-  "at": "2026-08-30T09:13:34.612283+00:00",
+  "correlation_id": "audit-e2e-c7b37e07",
+  "at": "2026-08-31T07:01:18.938464+00:00",
   "monitor": "OBSERVATION_ONLY",
   "mode": "HERMES_OPERATOR",
   "errors": [],
   "auth": {
     "ok": true,
     "source": "hermes",
-    "identity": "hermes-telegram-plugin",
+    "identity": "audit-e2e",
     "method": "github_actions"
   },
   "parsed": {
