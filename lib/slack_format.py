@@ -44,6 +44,13 @@ def notification_text(result: dict[str, Any]) -> str:
     parsed = result.get("parsed") or {}
     program = (parsed.get("program") or "").strip()
     action = (parsed.get("action") or "status").strip()
+    concise = _concise_summary(result)
+    if concise:
+        # Already program-labelled and French ("*Kraken* — ..."); strip
+        # markdown emphasis rather than prefixing a redundant label on top
+        # of it (that previously produced "kraken set — Kraken* — ...").
+        first_line = concise.splitlines()[0].replace("*", "").strip(" :-")
+        return _truncate(first_line, _MAX_TEXT_CHARS)
     human = (result.get("human_summary") or "").strip()
     first_line = human.splitlines()[0] if human else ""
     first_line = first_line.lstrip("#").strip(" :-")
@@ -83,6 +90,78 @@ def _errors_block(errors: list[dict[str, Any]]) -> dict[str, Any] | None:
         "type": "section",
         "text": {"type": "mrkdwn", "text": ":x: *Erreurs*\n" + "\n".join(lines)[:_MAX_SECTION_CHARS]},
     }
+
+
+# Actions whose result is built from structured fields (plan/result/routing)
+# rather than a curated pre-written French reply. Their raw human_summary
+# is verbose/technical by design (full cross-platform impact prose, and for
+# "status" a literal JSON dump -- see lib.hermes_interface's
+# _run_autofresh_command_locked) -- meant for logs/artifacts, not Slack's
+# primary view. help/divergences/plateformes are NOT in this set: per
+# AGENTS.md, their human_summary IS already the complete, ready-to-send
+# French reply and must be relayed verbatim, never rebuilt here.
+_STRUCTURED_ACTIONS = {"status", "set", "remove"}
+
+
+def _concise_status_summary(result: dict[str, Any]) -> str | None:
+    parsed = result.get("parsed") or {}
+    program = str(parsed.get("program") or "").strip()
+    plan = result.get("plan") or {}
+    summary = plan.get("summary") or {}
+    mapped = summary.get("platforms_mapped")
+    pending = summary.get("pending_update")
+    in_sync = summary.get("in_sync")
+    if mapped is None:
+        return None
+
+    label = program.capitalize() if program else "Autofresh"
+    line = f"*{label}* — {pending or 0} plateforme(s) à mettre à jour sur {mapped}"
+    if in_sync:
+        line += f", {in_sync} déjà synchronisée(s)"
+    line += "."
+
+    routing = result.get("routing") or {}
+    auto_targets = routing.get("automatic_safe_diff_targets") or []
+    human_targets = routing.get("human_routed_targets") or []
+    lines = [line]
+    if auto_targets:
+        lines.append(f"✅ Écriture automatique possible : {', '.join(auto_targets)}.")
+    if human_targets:
+        names = ", ".join(str(h.get("platform")) for h in human_targets)
+        lines.append(f"🖐️ Action manuelle requise (hors Slack) : {names}.")
+    return "\n".join(lines)
+
+
+def _concise_set_remove_summary(result: dict[str, Any]) -> str | None:
+    parsed = result.get("parsed") or {}
+    program = str(parsed.get("program") or "").strip()
+    field = parsed.get("field")
+    platform = parsed.get("platform")
+    action = parsed.get("action")
+    if not field:
+        return None
+    label = program.capitalize() if program else "Autofresh"
+    scope = f"plateforme {platform}" if platform else "globale"
+    if action == "remove":
+        return f"*{label}* — override supprimé : `{field}` (portée : {scope})."
+    data = result.get("result") or {}
+    old = data.get("old_effective")
+    new = data.get("new_effective")
+    if data.get("note") == "value_already_effective":
+        return f"*{label}* — `{field}` déjà à jour : {new!r} (portée : {scope})."
+    return f"*{label}* — `{field}` : {old!r} → {new!r} (portée : {scope})."
+
+
+def _concise_summary(result: dict[str, Any]) -> str | None:
+    """Build the short, curated, French Slack-primary summary for the
+    structured (status/set/remove) actions. Returns None for anything else
+    so the caller falls back to relaying human_summary verbatim."""
+    action = (result.get("parsed") or {}).get("action")
+    if action not in _STRUCTURED_ACTIONS:
+        return None
+    if action == "status":
+        return _concise_status_summary(result)
+    return _concise_set_remove_summary(result)
 
 
 def _writer_eligible_rows(platforms: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -160,11 +239,19 @@ def render_result(
         {"type": "header", "text": {"type": "plain_text", "text": header_title[:150]}},
     ]
 
-    human = (result.get("human_summary") or "").strip()
-    if human:
-        for i in range(0, len(human), _MAX_SECTION_CHARS):
-            chunk = human[i : i + _MAX_SECTION_CHARS]
-            blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": chunk}})
+    concise = _concise_summary(result) if ok else None
+    if concise:
+        blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": concise[:_MAX_SECTION_CHARS]}})
+    else:
+        # Meta reads (help/divergences/plateformes) and failures: relay
+        # human_summary verbatim -- for the meta reads it is already the
+        # complete, ready-to-send French text (AGENTS.md); for failures
+        # there is no structured plan/result to summarize from.
+        human = (result.get("human_summary") or "").strip()
+        if human:
+            for i in range(0, len(human), _MAX_SECTION_CHARS):
+                chunk = human[i : i + _MAX_SECTION_CHARS]
+                blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": chunk}})
 
     err_block = _errors_block(result.get("errors") or [])
     if err_block:

@@ -220,3 +220,29 @@ def test_hermes_evidence_policy_rejects_every_other_residual_path(
         evidence_policy.validate_remaining_paths(
             unstaged=unstaged, untracked=untracked
         )
+
+
+def test_hermes_lock_file_is_a_recognized_transient_untracked_path():
+    """Real incident (2026-08-31): the first live GitHub-Actions 'set'
+    command dispatched through this workflow created
+    lib.hermes_interface._FileLock's data/.hermes.lock mutex file on disk
+    -- untracked, not yet gitignored -- and the residual-path gate
+    correctly (but too bluntly) failed the whole Commit step over it. Pure
+    lock-file infrastructure, never business state; must never block a
+    real, successful mutation from being committed."""
+    assert "data/.hermes.lock" in evidence_policy.TRANSIENT_UNTRACKED_PREFIXES
+    accepted = evidence_policy.validate_remaining_paths(
+        unstaged=[], untracked=["data/.hermes.lock"]
+    )
+    assert accepted["transient"] == ["data/.hermes.lock"]
+    assert accepted["unexpected"] == []
+
+
+def test_hermes_lock_file_is_also_gitignored():
+    """Defense in depth alongside the TRANSIENT_UNTRACKED_PREFIXES entry:
+    `git ls-files --others --exclude-standard` (what the workflow actually
+    feeds the evidence policy) already respects .gitignore, so either
+    mechanism alone would suffice -- both together mean a drift in one
+    doesn't silently reopen the gap."""
+    gitignore = (ROOT / ".gitignore").read_text(encoding="utf-8")
+    assert "data/.hermes.lock" in gitignore

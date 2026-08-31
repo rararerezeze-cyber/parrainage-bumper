@@ -12,7 +12,18 @@ TRANSIENT_TRACKED_PATHS = ("data/audit/events.jsonl",)
 # Runner-only observability. gitignored, never committed, never business state:
 # a BEST_EFFORT notification must not turn a successful mutation into a red
 # workflow through the residual-path gate.
-TRANSIENT_UNTRACKED_PREFIXES = ("data/notifications/",)
+#
+# data/.hermes.lock: lib.hermes_interface._FileLock's cross-platform mutex
+# target. Real incident (2026-08-31): the first ever live GitHub-Actions
+# "set" command through this workflow created this file (untracked, not
+# yet in .gitignore at the time) and the residual-path gate correctly
+# fail-closed on it -- correct behavior for a genuinely unexpected path,
+# wrong classification for what is actually pure lock-file infrastructure.
+# Listed here as defense in depth alongside the .gitignore entry (this
+# check runs against `git ls-files --others --exclude-standard`, which
+# already respects .gitignore -- either one alone would suffice, both
+# together mean a drift in one doesn't silently reopen the gap).
+TRANSIENT_UNTRACKED_PREFIXES = ("data/notifications/", "data/.hermes.lock")
 
 
 def _is_transient_untracked(path: str) -> bool:

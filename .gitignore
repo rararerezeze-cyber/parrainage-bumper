@@ -23,5 +23,9 @@ debug_*.json
 # Never committed: it is uploaded as a workflow artifact for Hermes and
 # must not add commit noise or become a residual path in the write flows.
 data/notifications/
+# lib.hermes_interface._FileLock's cross-platform mutex target -- pure OS
+# lock artifact, never business state, must never be committed or trip
+# the Commit step's residual-path fail-closed gate.
+data/.hermes.lock
 node_modules/
 .wrangler/
