@@ -23,3 +23,5 @@ debug_*.json
 # Never committed: it is uploaded as a workflow artifact for Hermes and
 # must not add commit noise or become a residual path in the write flows.
 data/notifications/
+node_modules/
+.wrangler/
