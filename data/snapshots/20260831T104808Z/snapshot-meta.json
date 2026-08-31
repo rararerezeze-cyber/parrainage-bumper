@@ -1,0 +1,21 @@
+{
+  "id": "20260831T104808Z",
+  "at": "2026-08-31T10:48:08.025582+00:00",
+  "reason": "hermes:set:kraken",
+  "copied": [
+    "operator-overrides.json",
+    "platform-write-status.json",
+    "pending_writes.json",
+    "autofresh-phase.json",
+    "circuit-breakers.json",
+    "sync-state.json"
+  ],
+  "missing": [],
+  "path": "/home/runner/work/parrainage-bumper/parrainage-bumper/data/snapshots/20260831T104808Z",
+  "excludes": [
+    "last_super_run.txt",
+    "secrets",
+    "cookies",
+    "storage-state"
+  ]
+}

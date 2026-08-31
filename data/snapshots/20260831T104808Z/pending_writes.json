@@ -24,11 +24,10 @@
       "reason": "hermes_personal_code",
       "created_at": "2026-08-31T10:46:09.633496+00:00",
       "next_eligible_at": "2026-09-01T13:08:30.657271+00:00",
-      "hours_remaining": 26.34,
+      "hours_remaining": 26.37,
       "priority": 100,
-      "blocks_bump": false,
-      "updated_at": "2026-08-31T10:48:08.059102+00:00"
+      "blocks_bump": false
     }
   ],
-  "updated_at": "2026-08-31T10:48:08.059131+00:00"
+  "updated_at": "2026-08-31T10:46:09.636760+00:00"
 }

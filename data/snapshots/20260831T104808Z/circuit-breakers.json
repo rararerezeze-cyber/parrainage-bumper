@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "updated_at": null,
+  "global_open": false,
+  "global_reason": null,
+  "platforms": {},
+  "rules": {
+    "stop_on": ["403", "429", "CAPTCHA", "auth", "unexpected_dom", "rate_limit", "challenge"],
+    "mass_change_guard": true,
+    "no_auto_accept_monitor": true,
+    "no_live_write_while_canary_pending_super": true
+  }
+}
