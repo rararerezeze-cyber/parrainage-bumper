@@ -3,15 +3,15 @@
   "ok": true,
   "action": "autofresh",
   "command": "Kraken statut",
-  "correlation_id": "audit-e2e-c7b37e07",
-  "at": "2026-08-31T07:01:18.938464+00:00",
+  "correlation_id": "c80cd25f-be29-46e0-a22a-ab6a3193208a",
+  "at": "2026-08-31T08:39:49.933483+00:00",
   "monitor": "OBSERVATION_ONLY",
   "mode": "HERMES_OPERATOR",
   "errors": [],
   "auth": {
     "ok": true,
     "source": "hermes",
-    "identity": "audit-e2e",
+    "identity": "slack:U0BTL12A86N",
     "method": "github_actions"
   },
   "parsed": {
