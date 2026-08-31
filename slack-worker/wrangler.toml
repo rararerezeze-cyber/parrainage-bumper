@@ -11,7 +11,7 @@ GITHUB_REF = "main"
 # then paste the returned id below.
 [[kv_namespaces]]
 binding = "IDEMPOTENCY"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
+id = "b363f220d16545b88e1fb85fb636431a"
 
 # Secrets via: wrangler secret put SLACK_SIGNING_SECRET / GH_DISPATCH_TOKEN
 # / SLACK_ALLOWED_USERS -- never commit values.
