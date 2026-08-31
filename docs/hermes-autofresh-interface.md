@@ -1,5 +1,8 @@
 # Hermes → Autofresh interface
 
+> Slack can also call this same backend directly, without Hermes —
+> see `docs/autofresh-slack-interface.md`.
+
 Autofresh is a **backend** for Hermes. Hermes owns the Telegram bot.
 
 ```
