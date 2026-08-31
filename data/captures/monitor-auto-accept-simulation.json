@@ -48,7 +48,7 @@
       "canonical": "Programme à confirmer",
       "observed": "jusqu'à 160 €",
       "authority": "OFFICIAL_PUBLIC_MONITOR",
-      "live_high_streak": 18,
+      "live_high_streak": 19,
       "effective_now": "Programme à confirmer",
       "effective_source": "CANONICAL_DEFAULT",
       "idempotent": false,
@@ -63,7 +63,7 @@
       "canonical": null,
       "observed": "300 €",
       "authority": "OFFICIAL_PUBLIC_MONITOR",
-      "live_high_streak": 18,
+      "live_high_streak": 19,
       "effective_now": null,
       "effective_source": "CANONICAL_DEFAULT",
       "idempotent": false,
@@ -78,7 +78,7 @@
       "canonical": null,
       "observed": "30",
       "authority": "OFFICIAL_PUBLIC_MONITOR",
-      "live_high_streak": 18,
+      "live_high_streak": 19,
       "effective_now": null,
       "effective_source": "CANONICAL_DEFAULT",
       "idempotent": false,
@@ -93,7 +93,7 @@
       "canonical": null,
       "observed": "tiered_cash",
       "authority": "OFFICIAL_PUBLIC_MONITOR",
-      "live_high_streak": 18,
+      "live_high_streak": 19,
       "effective_now": null,
       "effective_source": "CANONICAL_DEFAULT",
       "idempotent": false,
@@ -108,7 +108,7 @@
       "canonical": "5 €",
       "observed": "3 €",
       "authority": "OFFICIAL_PUBLIC_MONITOR",
-      "live_high_streak": 3,
+      "live_high_streak": 4,
       "effective_now": "5 €",
       "effective_source": "CANONICAL_DEFAULT",
       "idempotent": false,
@@ -287,5 +287,5 @@
     "APP_PERSONALIZED stays Hermes/Telegram",
     "ReferralCodes still NEVER_AUTO_COMMIT pending support"
   ],
-  "at": "2026-08-30T13:48:06.019761+00:00"
+  "at": "2026-08-31T16:09:53.783392+00:00"
 }
