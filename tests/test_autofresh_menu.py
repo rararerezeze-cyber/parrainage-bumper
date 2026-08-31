@@ -304,56 +304,73 @@ def test_bump_meta_command_variants_are_recognized(text):
     assert detect_meta_command(text) == TOPIC_BUMP
 
 
-def test_bump_status_never_a_writer_and_gracefully_degrades_without_token(monkeypatch):
-    """No GITHUB_TOKEN in the environment (e.g. local dev) must produce a
-    clear message, never a crash and never a network call."""
+@pytest.fixture()
+def _isolated_bump_schedule(tmp_path, monkeypatch):
+    """build_bump_status() reads/generates the real schedule file via
+    lib.bump_autres_schedule -- isolate it so these tests never touch (or
+    depend on) the actual repo data file."""
+    import lib.bump_autres_schedule as sched
+
+    monkeypatch.setattr(sched, "SCHEDULE_PATH", tmp_path / "bump-autres-schedule.json")
+    return sched
+
+
+def test_bump_status_works_without_a_github_token_schedule_is_local(_isolated_bump_schedule, monkeypatch):
+    """The schedule (cycles/next slot/last passage) comes from the local
+    persisted file, not the GitHub API -- only the optional 'erreur
+    éventuelle' cross-check needs a token, and its absence must never
+    block the rest of the status."""
     monkeypatch.delenv("GITHUB_TOKEN", raising=False)
     monkeypatch.delenv("GH_TOKEN", raising=False)
     text = build_bump_status()
-    assert "indisponible" in text.lower()
-    assert "GITHUB_TOKEN" in text
+    assert "cycles prévus" in text
+    assert "cycles réalisés" in text
+    assert "indisponible" not in text.lower()
 
 
-def test_bump_status_uses_the_shared_bump_watch_summary(monkeypatch):
-    """Real behavior, network mocked: build_bump_status() must reflect
-    whatever lib.bump_watch reports, not a separate hardcoded copy."""
-    from datetime import datetime, timezone
-
-    monkeypatch.setenv("GITHUB_TOKEN", "fake-token-for-test")
-
-    fake_runs = [
-        {
-            "id": 1,
-            "status": "completed",
-            "conclusion": "success",
-            "created_at": "2026-08-31T02:14:44Z",
-        }
-    ]
-    monkeypatch.setattr("lib.bump_watch.fetch_recent_runs", lambda token, **k: fake_runs)
-
+def test_bump_status_reflects_the_persisted_schedule_not_a_run_history_heuristic(
+    _isolated_bump_schedule, monkeypatch
+):
+    """Real behavior: build_bump_status() must reflect
+    lib.bump_autres_schedule's persisted slots, never a 'last run + Nh'
+    heuristic (explicitly rejected 2026-08-31)."""
+    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
     text = build_bump_status()
-    assert "Dernier run" in text
-    assert "2026-08-31T02:14:44Z" in text
+    assert "planning aléatoire" in text
+    assert "+5" not in text and "+ 5" not in text
 
 
-def test_bump_status_surfaces_api_errors_in_french_without_crashing(monkeypatch):
+def test_bump_status_surfaces_api_errors_without_crashing(_isolated_bump_schedule, monkeypatch):
     monkeypatch.setenv("GITHUB_TOKEN", "fake-token-for-test")
 
     def _boom(token, **k):
         raise RuntimeError("network unreachable")
 
-    monkeypatch.setattr("lib.bump_watch.fetch_recent_runs", _boom)
+    monkeypatch.setattr("lib.bump_autres_schedule.fetch_last_run", _boom)
     text = build_bump_status()
-    assert "indisponible" in text.lower()
-    assert "network unreachable" in text
+    # Best-effort cross-check failing must never crash or blank the schedule section.
+    assert "cycles prévus" in text
 
 
-def test_bump_meta_command_flows_end_to_end_through_apply_operator_command(monkeypatch):
+def test_bump_status_includes_super_parrain_section(_isolated_bump_schedule, monkeypatch):
+    """The exact requested combined format: bump_autres schedule status
+    plus a read-only Super-Parrain 24h+jitter summary, never modifying
+    that logic."""
+    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
+    text = build_bump_status()
+    assert "Super-Parrain" in text
+    assert "24h minimum atteint" in text
+    assert "jitter du cycle" in text
+    assert "prochaine éligibilité" in text
+
+
+def test_bump_meta_command_flows_end_to_end_through_apply_operator_command(
+    _isolated_bump_schedule, monkeypatch
+):
     """detect_meta_command -> parse_message -> apply_operator_command must
     reach build_bump_status(), exactly like the pre-existing menu/exemples/
     plateformes topics -- no separate dispatch path needed."""
-    monkeypatch.setenv("GITHUB_TOKEN", "fake-token-for-test")
-    monkeypatch.setattr("lib.bump_watch.fetch_recent_runs", lambda token, **k: [])
+    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
 
     offers = OffersRepository()
     parsed = parse_message("Autofresh bump", offers)
@@ -361,12 +378,11 @@ def test_bump_meta_command_flows_end_to_end_through_apply_operator_command(monke
     assert parsed["help_topic"] == TOPIC_BUMP
 
     result = apply_operator_command(parsed, message="Autofresh bump")
-    assert "aucun run" in result["text"].lower()
+    assert "cycles prévus" in result["text"]
 
 
-def test_bump_meta_command_never_persists_or_invokes_a_writer(monkeypatch):
-    monkeypatch.setenv("GITHUB_TOKEN", "fake-token-for-test")
-    monkeypatch.setattr("lib.bump_watch.fetch_recent_runs", lambda token, **k: [])
+def test_bump_meta_command_never_persists_or_invokes_a_writer(_isolated_bump_schedule, monkeypatch):
+    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
 
     r = run_autofresh_command(
         "Autofresh bump",

@@ -18,8 +18,7 @@ REGISTRY = json.loads((ROOT / "data" / "workflow-registry.json").read_text(encod
 
 SCHEDULED = {
     "bump_super_parrain.yml",
-    "bump_autres.yml",
-    "bump_autres_watchdog.yml",
+    "bump_autres_scheduler.yml",
     "bump_referralcode_tv.yml",
     "monitor_offers.yml",
 }
@@ -103,12 +102,15 @@ def test_the_three_bumpers_never_share_a_concurrency_group():
 
 
 def test_scheduled_bumpers_do_not_all_start_at_the_same_minute():
+    # bump_autres.yml itself has no schedule trigger since 2026-08-31
+    # (owned by bump_autres_scheduler.yml's randomized daily slots) --
+    # compare the two workflows that do carry a cron.
     crons = {}
-    for name in ("bump_autres.yml", "bump_referralcode_tv.yml"):
+    for name in ("bump_autres_scheduler.yml", "bump_referralcode_tv.yml"):
         data = yaml.safe_load((WORKFLOW_DIR / name).read_text(encoding="utf-8"))
         triggers = data.get(True) or data.get("on") or {}
         crons[name] = [s["cron"] for s in triggers["schedule"]]
-    assert crons["bump_autres.yml"] != crons["bump_referralcode_tv.yml"]
+    assert crons["bump_autres_scheduler.yml"] != crons["bump_referralcode_tv.yml"]
 
 
 # -- the closed gates are closed at runtime, not only on paper -----------------

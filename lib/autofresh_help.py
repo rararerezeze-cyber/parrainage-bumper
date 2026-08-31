@@ -284,30 +284,67 @@ def build_examples() -> str:
     )
 
 
-def build_bump_status() -> str:
-    """Live 'Autofresh bump' Slack/Telegram reply: last run, next expected
-    run, and any recent failures for bump_autres.yml (Code-Parrainage /
-    Parrainage.co). Reads the real GitHub Actions run history via
-    lib.bump_watch -- never a cached or committed snapshot, so it cannot
-    silently go stale (2026-08-31 finding: a stale/missing status here is
-    exactly what let two missed scheduled runs go unnoticed)."""
+def _build_bump_autres_section() -> str:
+    """Reads the persisted, randomized 5-slots-per-day schedule
+    (lib.bump_autres_schedule) -- never a "last run + Nh" heuristic, which
+    would falsely imply a fixed cadence that does not exist (rejected
+    2026-08-31). GITHUB_TOKEN is only used for the optional 'erreur
+    éventuelle' cross-check against the last real GitHub Actions run;
+    cycles/next-slot/last-passage all come from the schedule file itself.
+    """
     import os
     from datetime import datetime, timezone
 
-    from lib.bump_watch import fetch_recent_runs, format_status_fr, summarize_status
+    from lib.bump_autres_schedule import ensure_schedule_for, fetch_last_run, format_bump_status_fr, summarize
 
+    now = datetime.now(timezone.utc)
+    schedule = ensure_schedule_for(now)
+    summary = summarize(schedule, now=now)
+
+    last_run = None
     token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
-    if not token:
-        return (
-            "Bump Code-Parrainage / Parrainage.co : statut indisponible "
-            "(GITHUB_TOKEN absent dans cet environnement)."
-        )
-    try:
-        runs = fetch_recent_runs(token)
-    except Exception as exc:  # noqa: BLE001
-        return f"Bump Code-Parrainage / Parrainage.co : statut indisponible (erreur GitHub API : {exc})."
-    status = summarize_status(runs, now=datetime.now(timezone.utc))
-    return format_status_fr(status, now=datetime.now(timezone.utc))
+    if token:
+        try:
+            last_run = fetch_last_run(token)
+        except Exception:  # noqa: BLE001
+            last_run = None  # best-effort only -- never blocks the schedule-driven summary
+
+    return format_bump_status_fr(summary, last_run=last_run)
+
+
+def _build_super_parrain_bump_section() -> str:
+    """Read-only surface of lib.super_parrain_schedule's existing 24h +
+    persistent jitter logic -- never modifies or re-derives it, per the
+    explicit 2026-08-31 instruction to leave that logic intact."""
+    from lib.super_parrain_schedule import (
+        current_jitter_minutes,
+        is_eligible,
+        last_super_action_at,
+    )
+
+    last_at = last_super_action_at()
+    eligible, next_at, hours_remaining = is_eligible()
+    jitter = current_jitter_minutes()
+
+    lines = ["*Super-Parrain*"]
+    lines.append(
+        f"• dernier succès réel : {last_at.isoformat() if last_at else 'aucun'}"
+    )
+    lines.append(f"• 24h minimum atteint : {'oui' if eligible else 'non'}")
+    lines.append(
+        f"• jitter du cycle : {jitter} min" if jitter is not None else "• jitter du cycle : aucun (premier créneau)"
+    )
+    lines.append(
+        "• prochaine éligibilité : atteinte" if eligible else f"• prochaine éligibilité : {next_at.isoformat()}"
+    )
+    return "\n".join(lines)
+
+
+def build_bump_status() -> str:
+    """Live 'Autofresh bump' Slack/Telegram reply: bump_autres.yml's
+    randomized-slot schedule status, plus a read-only summary of
+    Super-Parrain's separate 24h+jitter cycle."""
+    return _build_bump_autres_section() + "\n\n" + _build_super_parrain_bump_section()
 
 
 def build_topic(topic: str, *, program: str | None = None) -> str:

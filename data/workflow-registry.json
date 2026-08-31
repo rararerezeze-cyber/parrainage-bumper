@@ -19,14 +19,14 @@
       "note": "FUSED_UPDATE_BUMP, ~24h cooldown + persistent jitter. Do not touch without a proven problem."
     },
     "bump_autres.yml": {
-      "class": "PRODUCTION_SCHEDULED",
+      "class": "PRODUCTION_MANUAL",
       "platform": "code-parrainage,parrainage-co",
-      "note": "Healthy combined cycle. ReferralCode.tv is deliberately NOT in TARGET_SITES. Cron moved off minute-0 2026-08-31 (GitHub Actions congestion; two consecutive daily slots silently never fired)."
+      "note": "Healthy combined cycle. ReferralCode.tv is deliberately NOT in TARGET_SITES. No schedule trigger of its own since 2026-08-31 -- timing is owned entirely by bump_autres_scheduler.yml's persisted randomized 5-slots/day plan; this workflow never reads/writes that schedule, so a manual dispatch here can never shift the planned slots."
     },
-    "bump_autres_watchdog.yml": {
+    "bump_autres_scheduler.yml": {
       "class": "PRODUCTION_SCHEDULED",
       "platform": "code-parrainage,parrainage-co",
-      "note": "Hourly missed-run detector for bump_autres.yml. Read-only Actions API check + at most one workflow_dispatch catch-up; never touches bumper credentials directly. Added 2026-08-31."
+      "note": "Frequent (~15min) off-peak poller that generates/persists 5 randomized UTC slots/day (data/bump-autres-schedule.json, lib/bump_autres_schedule.py) and dispatches bump_autres.yml exactly once per due slot. Replaced a same-session fixed-cadence cron (first minute-0, then minute-7) that was explicitly rejected as the wrong behavior 2026-08-31."
     },
     "bump_referralcode_tv.yml": {
       "class": "PRODUCTION_SCHEDULED",

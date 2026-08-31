@@ -1,0 +1,75 @@
+name: Bump scheduler (randomized daily slots)
+# Owns the actual timing of bump_autres.yml. Generates/persists 5 random
+# UTC slots per calendar day (never rerolled once a day has started -- see
+# lib/bump_autres_schedule.py) and dispatches exactly once per due slot.
+# bump_autres.yml itself carries no schedule trigger of its own and never
+# touches this state -- a manual/test dispatch of it can never shift or
+# redefine the 5 planned slots.
+on:
+  schedule:
+    - cron: "3,18,33,48 * * * *"  # every ~15 min, off minute-0/30 congestion
+  workflow_dispatch:
+permissions:
+  actions: write
+  contents: write
+concurrency:
+  group: parrainage-bumper-autres-scheduler
+  cancel-in-progress: false
+jobs:
+  schedule:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore notification dedup state
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: data/notifications/dedup.json
+          key: autofresh-notify-dedup-${{ github.workflow }}-${{ github.run_id }}
+          restore-keys: |
+            autofresh-notify-dedup-${{ github.workflow }}-
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Ensure today's schedule + dispatch any due slot
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python tools/bump_autres_scheduler.py
+      - name: Commit schedule state
+        if: always()
+        run: |
+          set -e
+          git config user.name "autofresh-bot"
+          git config user.email "autofresh-bot@users.noreply.github.com"
+          if [ -f data/bump-autres-schedule.json ]; then
+            git add data/bump-autres-schedule.json
+          fi
+          if git diff --cached --quiet; then
+            echo "no commit"
+            exit 0
+          fi
+          git commit -m "chore(bump): scheduled slot state"
+          if ! git pull --rebase origin main; then
+            echo "::error::git pull --rebase failed -- schedule state was NOT pushed."
+            exit 1
+          fi
+          if ! git push; then
+            echo "::error::git push failed -- schedule state was NOT pushed."
+            exit 1
+          fi
+      - name: Save notification dedup state
+        if: always()
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: data/notifications/dedup.json
+          key: autofresh-notify-dedup-${{ github.workflow }}-${{ github.run_id }}
+      - name: Upload notification outbox for Hermes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: autofresh-notifications-bump-scheduler
+          retention-days: 7
+          if-no-files-found: ignore
+          path: data/notifications/

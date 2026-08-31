@@ -1,12 +1,11 @@
 name: Bump — Code Parrainage & Parrainage.co (5x/jour)
+# No schedule trigger here on purpose (2026-08-31): timing is owned by
+# bump_autres_scheduler.yml, which dispatches this workflow at 5
+# persisted, randomized times per UTC day (see
+# lib/bump_autres_schedule.py) -- deliberately NOT a fixed cron, so this
+# job never reads or writes that schedule and a manual/test dispatch here
+# can never shift or redefine the planned slots.
 on:
-  schedule:
-    # NOT minute 0: GitHub's own docs warn scheduled workflows are delayed
-    # or dropped during high load, "especially at the start of every hour"
-    # -- minute 0 is the worst-case collision point. Confirmed live
-    # (2026-08-31 audit): the 05:00 and 10:00 UTC slots never fired at all
-    # that day. Minute 7 keeps the same 5x/day cadence off that peak.
-    - cron: "7 */5 * * *"
   workflow_dispatch:
 concurrency:
   group: parrainage-bumper-autres
