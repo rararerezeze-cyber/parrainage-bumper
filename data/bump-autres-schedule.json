@@ -20,16 +20,16 @@
     {
       "index": 2,
       "planned_at": "2026-08-31T12:43:20.217532+00:00",
-      "status": "planned",
-      "dispatched_at": null,
-      "catchup": false
+      "status": "dispatched",
+      "dispatched_at": "2026-08-31T19:05:58.661586+00:00",
+      "catchup": true
     },
     {
       "index": 3,
       "planned_at": "2026-08-31T17:32:43.281761+00:00",
-      "status": "planned",
-      "dispatched_at": null,
-      "catchup": false
+      "status": "dispatched",
+      "dispatched_at": "2026-08-31T19:06:00.047727+00:00",
+      "catchup": true
     },
     {
       "index": 4,
