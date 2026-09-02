@@ -3,7 +3,7 @@
   "decision": {
     "runtime_mode": "NORMAL_BUMP",
     "canary_pending": false,
-    "next_eligible_at": "2026-09-01T13:08:30.657271+00:00",
+    "next_eligible_at": "2026-09-02T16:14:28.565547+00:00",
     "hours_remaining": 0.0,
     "pending_count": 1,
     "pending_programs": [
@@ -11,7 +11,7 @@
     ],
     "activation_canary_owns_save": false,
     "historical_bumper_authorized": true,
-    "jitter_minutes": 163,
+    "jitter_minutes": 102,
     "action": "cycle",
     "reason": "slot_reached_write_verified_precheck_then_bump",
     "skip_bump": false,
@@ -21,7 +21,7 @@
     "eligible_now": true
   },
   "eligible": true,
-  "next_eligible_at": "2026-09-01T13:08:30.657271+00:00",
+  "next_eligible_at": "2026-09-02T16:14:28.565547+00:00",
   "hours_remaining": 0.0,
   "pre_check": {
     "programs_scanned": 35,
@@ -624,5 +624,5 @@
     "CONTENT_RESULT": "NO_CONTENT_WRITE"
   },
   "pending_closed": [],
-  "at": "2026-09-01T14:32:32.716353+00:00"
+  "at": "2026-09-02T17:46:56.253198+00:00"
 }
