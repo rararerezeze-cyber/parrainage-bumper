@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "reviewed_date": "2026-09-04",
+  "scope": "Missing processed slots from September 3 and 4; no site operation replayed",
+  "evidence_repository": "rararerezeze-cyber/parrainage-bumper",
+  "evidence": "Each run log contains the exact SLOT_ID, the site outcomes below, then the dirty-worktree rebase failure in ledger persistence. This repairs deduplication, not content-write verification or a guaranteed bump count.",
+  "entries": [
+    {"slot_id": "2026-09-03:0", "run_id": 33720874222, "code_parrainage": "Actualiser 1/1", "parrainage_co": "boost-all 200; Boost success"},
+    {"slot_id": "2026-09-03:2", "run_id": 33770349583, "code_parrainage": "Actualiser 1/1", "parrainage_co": "boost-all 200; Boost success"},
+    {"slot_id": "2026-09-03:3", "run_id": 33791394470, "code_parrainage": "Actualiser 1/1", "parrainage_co": "boost-all 200; Boost success"},
+    {"slot_id": "2026-09-03:4", "run_id": 33807777695, "code_parrainage": "0 boutons Actualiser; Aucune annonce disponible a actualiser pour le moment; NO BUMP", "parrainage_co": "boost-all 200; Boost success"},
+    {"slot_id": "2026-09-04:0", "run_id": 33844612672, "code_parrainage": "Actualiser 1/1", "parrainage_co": "boost-all 200; Boost success"},
+    {"slot_id": "2026-09-04:1", "run_id": 33869204125, "code_parrainage": "Actualiser 1/1", "parrainage_co": "boost-all 200; Boost success"},
+    {"slot_id": "2026-09-04:2", "run_id": 33869205587, "code_parrainage": "Actualiser 1/1", "parrainage_co": "boost-all 200; Boost success"}
+  ],
+  "not_asserted": ["new platform write", "five successful Code-Parrainage bumps on September 3", "historical runs before September 3 reconciled"]
+}
