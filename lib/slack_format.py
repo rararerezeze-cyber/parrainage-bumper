@@ -276,7 +276,9 @@ def render_result(
         blocks.append(plat_block)
 
     eligible = _writer_eligible_rows(platforms)
-    if ok and allow_confirm_button and eligible and not run_writers_requested:
+    # The backend only dispatches writers for a set command. A status/remove
+    # confirmation would promise an operation that its safety gate never runs.
+    if ok and action == "set" and allow_confirm_button and eligible and not run_writers_requested:
         blocks.append(_confirm_button_block(
             command=command,
             requester=str(requester),

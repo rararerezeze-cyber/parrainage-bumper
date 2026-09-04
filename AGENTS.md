@@ -9,6 +9,10 @@ notifications use `tools/notify_slack.py`; no local Hermes relay is required.
 The historical Hermes/Telegram names below are compatibility contracts for the
 shared command grammar and result schema. They are retained to preserve existing
 integrations and authorization guards, not as a required runtime dependency.
+The optional `telegram_sync.yml` and `deploy_telegram_worker.yml` GitHub workflows
+were disabled on 2026-09-04 after live Slack delivery verification. Their files
+remain as history; do not dispatch them as the product entry or re-enable them
+without a fresh review of write confirmations and explicit authorization.
 
 ## When a message is an Autofresh command
 
