@@ -199,6 +199,11 @@ def plan_program_impact(
             if templates.golden_exists(ref.platform, ref.program, ref.language):
                 golden = templates.load_golden(ref.platform, ref.program, ref.language)
                 hist_values = _golden_values(mapping, golden, template)
+                if ref.platform == "super-parrain":
+                    # Native code/link fields may not occur in the body golden.
+                    # Match the existing Super-Parrain writer's precedence;
+                    # missing extraction is not a change from an empty value.
+                    hist_values = {**hist_values, **(mapping.platform_values or {})}
             else:
                 hist_values = dict(mapping.platform_values or {})
 

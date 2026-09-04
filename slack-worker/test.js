@@ -13,7 +13,62 @@ import {
   isSafeCommandText,
   clip,
 } from "./lib.js";
-import { IDEMPOTENCY_TTL_SECONDS } from "./worker.js";
+import worker, { IDEMPOTENCY_TTL_SECONDS } from "./worker.js";
+
+test("Worker signed request path: read/preview stays unarmed; confirmation dispatches once", async () => {
+  const originalFetch = globalThis.fetch;
+  const calls = [];
+  const seen = new Map();
+  const env = {
+    SLACK_SIGNING_SECRET: "test-signing-secret", SLACK_ALLOWED_USERS: "U_TEST",
+    GH_DISPATCH_TOKEN: "test-dispatch-token", GITHUB_REPO: "example/test",
+    IDEMPOTENCY: {
+      get: async (key) => seen.get(key),
+      put: async (key, value, options) => {
+        assert.ok(options.expirationTtl >= 60);
+        seen.set(key, value);
+      },
+    },
+  };
+  async function request(path, fields, validSignature = true) {
+    const body = new URLSearchParams(fields).toString();
+    const timestamp = String(Math.floor(Date.now() / 1000));
+    const signature = await computeSlackSignature(env.SLACK_SIGNING_SECRET, timestamp, body);
+    return worker.fetch(new Request(`https://example.invalid${path}`, {
+      method: "POST", body, headers: {
+        "X-Slack-Request-Timestamp": timestamp,
+        "X-Slack-Signature": validSignature ? signature : "v0=invalid",
+      },
+    }), env, { waitUntil: () => {} });
+  }
+  globalThis.fetch = async (url, options) => {
+    assert.equal(url, "https://api.github.com/repos/example/test/actions/workflows/hermes_operator.yml/dispatches");
+    calls.push(JSON.parse(options.body));
+    return new Response(null, { status: 204 });
+  };
+  try {
+    const slash = { user_id: "U_TEST", channel_id: "C_TEST", trigger_id: "read-1", text: "Kraken statut" };
+    assert.equal((await request("/slack/commands", slash, false)).status, 401);
+    await request("/slack/commands", { ...slash, user_id: "U_OTHER" });
+    assert.equal(calls.length, 0);
+    await request("/slack/commands", slash);
+    await request("/slack/commands", slash);
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0].inputs.run_writers, "false");
+    assert.equal(calls[0].inputs.reply_channel, "C_TEST");
+    await request("/slack/commands", { ...slash, trigger_id: "preview-1", text: "Kraken code TESTCODE" });
+    assert.equal(calls[1].inputs.run_writers, "false");
+    const payload = JSON.stringify({ user: { id: "U_TEST" }, channel: { id: "C_TEST" },
+      actions: [{ value: JSON.stringify({ command: "Kraken code TESTCODE", correlation_id: "confirm-1" }) }] });
+    await request("/slack/interactivity", { payload });
+    await request("/slack/interactivity", { payload });
+    assert.equal(calls.length, 3);
+    assert.equal(calls[2].inputs.run_writers, "true");
+    assert.equal(calls[2].inputs.correlation_id, "confirm-1");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
 
 test("IDEMPOTENCY_TTL_SECONDS respects Cloudflare KV's hard minimum of 60s", () => {
   // Regression guard for the 2026-08-31 incident: a value below 60 makes

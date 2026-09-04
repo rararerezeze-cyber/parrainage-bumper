@@ -717,7 +717,7 @@
     },
     {
       "program": "gemini",
-      "source_url": "https://www.gemini.com/share",
+      "source_url": "https://www.gemini.com/referrals",
       "source_type": "official_page",
       "extraction_method": "http_fetch",
       "fields_supported": [
@@ -728,7 +728,7 @@
       "auth_required": false,
       "parser": "structured_first",
       "confidence_default": "REVIEW",
-      "notes": "US share page; often 5xx; not FR public fixed reward SoT",
+      "notes": "Official referrals page; rewards vary by region; not FR public fixed reward SoT (verified 2026-09-04)",
       "enabled": true,
       "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
       "offer_kind": "APP_PERSONALIZED",
@@ -1489,7 +1489,7 @@
     },
     {
       "program": "lolivier",
-      "source_url": "https://www.olivierassurance.fr/",
+      "source_url": "https://www.lolivier.fr/assurance-auto/offre-parrainage",
       "source_type": "official_page",
       "extraction_method": "http_fetch",
       "fields_supported": [
@@ -1500,7 +1500,7 @@
       "auth_required": false,
       "parser": "structured_first",
       "confidence_default": "REVIEW",
-      "notes": "Intermittent fetch; no dedicated public parrainage page found → NO_PUBLIC extractable",
+      "notes": "Official referral source corrected 2026-09-04; auto and home rewards differ; parser review required, no automatic acceptance",
       "enabled": true,
       "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
       "offer_kind": "PUBLIC_CAMPAIGN",
@@ -1529,7 +1529,7 @@
       "canonical_country": "FR",
       "campaign_scope": "FR",
       "field_authority_fr": {},
-      "final_status": "NO_PUBLIC_REFERRAL_SOURCE",
+      "final_status": "PUBLIC_MONITORABLE_PENDING",
       "parser_tests_passed": true
     },
     {

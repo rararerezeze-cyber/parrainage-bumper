@@ -249,7 +249,15 @@ jobs:
           path: data/notifications/dedup.json
           key: autofresh-notify-dedup-${{ github.workflow }}-${{ github.run_id }}
 
-      - name: Upload notification outbox for Hermes
+      - name: Deliver notifications to Slack
+        if: always()
+        continue-on-error: true
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          AUTOFRESH_SLACK_CHANNEL: ${{ vars.AUTOFRESH_SLACK_CHANNEL }}
+        run: python tools/notify_slack.py
+
+      - name: Archive notification outbox
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -266,6 +274,7 @@ jobs:
         if: always()
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          JOB_STATUS: ${{ job.status }}
           REPLY_CHANNEL: ${{ github.event.inputs.reply_channel }}
           HERMES_INPUT_RUN_WRITERS: ${{ github.event.inputs.run_writers }}
         run: |
@@ -284,11 +293,12 @@ jobs:
           python - <<'PY'
           import json, os, urllib.request
 
-          from lib.slack_format import render_result
+          from lib.slack_format import render_result, guard_workflow_result
 
           with open("/tmp/hermes-result.json", encoding="utf-8") as fh:
               result = json.load(fh)
           run_writers_requested = os.environ.get("HERMES_INPUT_RUN_WRITERS", "false").strip().lower() == "true"
+          result = guard_workflow_result(result, os.environ.get("JOB_STATUS", "unknown"))
           payload = render_result(result, run_writers_requested=run_writers_requested)
           payload["channel"] = os.environ["REPLY_CHANNEL"]
 

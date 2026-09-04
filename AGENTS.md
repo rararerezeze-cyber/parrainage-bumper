@@ -1,15 +1,14 @@
 # AGENTS.md — parrainage-bumper (Autofresh)
 
-Autofresh is a **GitHub-Actions-hosted backend** for referral-code listings across 7
-platforms. This file is what Hermes should load to know how to route a Telegram message
-here.
+Autofresh is a **GitHub-Actions-hosted backend** for referral-code listings across
+7 platforms. **Slack is the primary cloud operator interface**; see
+`docs/autofresh-slack-interface.md`. A Cloudflare Worker (`slack-worker/`)
+dispatches the stable `hermes_operator.yml` backend directly. Production
+notifications use `tools/notify_slack.py`; no local Hermes relay is required.
 
-**Slack is now also a first-class, Hermes-independent operator interface** — see
-`docs/autofresh-slack-interface.md`. A Cloudflare Worker (`slack-worker/`) dispatches
-the exact same `hermes_operator.yml` workflow directly from a Slack slash command /
-button, with no dependency on the local Hermes process or on this machine being on.
-The command grammar, dispatch recipe and response schema below are shared by both
-interfaces — nothing in this file is Telegram/Hermes-specific except where stated.
+The historical Hermes/Telegram names below are compatibility contracts for the
+shared command grammar and result schema. They are retained to preserve existing
+integrations and authorization guards, not as a required runtime dependency.
 
 ## When a message is an Autofresh command
 

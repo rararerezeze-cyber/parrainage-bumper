@@ -134,7 +134,15 @@ jobs:
           path: data/notifications/dedup.json
           key: autofresh-notify-dedup-${{ github.workflow }}-${{ github.run_id }}
 
-      - name: Upload notification outbox for Hermes
+      - name: Deliver notifications to Slack
+        if: always()
+        continue-on-error: true
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          AUTOFRESH_SLACK_CHANNEL: ${{ vars.AUTOFRESH_SLACK_CHANNEL }}
+        run: python tools/notify_slack.py
+
+      - name: Archive notification outbox
         if: always()
         uses: actions/upload-artifact@v4
         with:

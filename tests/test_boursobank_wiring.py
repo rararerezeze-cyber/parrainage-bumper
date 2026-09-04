@@ -76,7 +76,20 @@ def test_boursobank_simulate_only_real_native_diffs(tmp_path, monkeypatch):
     acc.write_text('{"version":1,"programs":{}}\n', encoding="utf-8")
     monkeypatch.setattr("lib.operator_overrides.ACCEPTED_MONITOR_FIELDS_PATH", acc)
 
-    report = simulate(observations_from_last_report(), persist_report=False)
+    # Live observations change daily; this regression needs a fixed candidate.
+    from lib.monitor.models import Observation, ObservationStatus, Confidence, FieldChange
+    observation = Observation(
+        program="boursobank", status=ObservationStatus.CANDIDATE,
+        confidence=Confidence.HIGH, source_url="https://www.boursobank.com/bon-plan/parrainage-boursobank",
+        parser="boursobank_parrainage_fr", detected_at="2026-08-12T00:00:00+00:00",
+        canonical_fields={"referee_reward": "200 €"}, observed_fields={"referee_reward": "160 €"},
+        changes=[FieldChange(field="referee_reward", old="200 €", new="160 €")],
+        source_class="VERIFIED_OFFICIAL", offer_kind="PUBLIC_CAMPAIGN",
+        monitor_status="MONITOR_VERIFIED", live_high_streak=6, parser_tests_passed=True,
+        source_country="FR", source_locale="fr", campaign_scope="FR",
+        field_authority={"referee_reward": "OFFICIAL_PUBLIC_MONITOR"},
+    )
+    report = simulate([observation], persist_report=False)
     assert report["live_writes_performed"] == 0
     assert report["switch_enabled"] is False
     bourso = [

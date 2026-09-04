@@ -1,6 +1,10 @@
 # AutoFresh — release state
 
-`AUTOFRESH_RELEASE_STATUS = READY_WITH_KNOWN_LIMITATIONS`
+`AUTOFRESH_RELEASE_STATUS = NOT_FINISHED`
+
+2026-09-04 closure audit: targeted code fixes are covered by tests. This is not a
+new platform write proof. See `docs/CLOSURE-2026-09-04.md` for deployment and live
+validation gates. The runtime phase and platform authorizations remain unchanged.
 
 Authority order — this document never overrides the state files:
 
@@ -63,11 +67,11 @@ is a `KNOWN_LIMITATION`, not an open engineering task.
 
 ## Observability
 
-`lib/notify.py` is the single event contract. AutoFresh never talks to Telegram:
+`lib/notify.py` is the single event contract. Production delivery uses Slack:
 
 ```
 AutoFresh runtime → lib.notify.emit() → data/notifications/outbox.jsonl
-                  → Hermes (local plugin) → Telegram
+                  → tools/notify_slack.py → Slack
 ```
 
 - Levels: `INFO`, `SUCCESS`, `WARNING`, `ERROR`, `HUMAN_REQUIRED`.
@@ -97,23 +101,25 @@ AutoFresh runtime → lib.notify.emit() → data/notifications/outbox.jsonl
 
 Read it with `python tools/notify_digest.py --since-hours 24` or
 `--daily-summary`. The outbox is gitignored (runner-only, no commit noise) and
-uploaded as a workflow artifact by **all seven** production workflows — an event
+uploaded as a workflow artifact by **the production** production workflows — an event
 emitted in a runner and never uploaded would simply be lost.
 
-**What remains to connect, outside this repository:** the Hermes plugin must
-fetch the `autofresh-notifications-*` artifact (or run `tools/notify_digest.py`
-where it has a checkout) and relay the records to Telegram. That plugin is not in
-this repository and was not modified from here.
+The GitHub repository variable `AUTOFRESH_SLACK_CHANNEL` selects the notification
+channel; the existing `SLACK_BOT_TOKEN` secret authenticates delivery. An empty
+outbox sends nothing. Missing configuration or failed delivery is explicitly
+reported and retained in the artifact; no retry and no platform mutation follow.
+Operator replies continue to use the command's `reply_channel`. A failed workflow
+must not show runner-local success or a new confirmation button.
 
 ## Workflows
 
-`data/workflow-registry.json` classifies all 24 workflows and
+`data/workflow-registry.json` classifies the workflows and
 `tests/test_workflow_registry.py` fails if one is added, removed, or
 reclassified.
 
-- `PRODUCTION_SCHEDULED`: `bump_super_parrain.yml`, `bump_autres.yml`,
+- `PRODUCTION_SCHEDULED`: `bump_super_parrain.yml`, `bump_autres_scheduler.yml`,
   `bump_referralcode_tv.yml`, `monitor_offers.yml`
-- `PRODUCTION_MANUAL`: `hermes_operator.yml`, `controlled_write.yml`,
+- `PRODUCTION_MANUAL`: `bump_autres.yml`, `hermes_operator.yml`, `controlled_write.yml`,
   `activation_canary.yml`
 - `CI_READ_ONLY`: `ci.yml`
 - `EVIDENCE_CLOSED`: `canary_write_1parrainage.yml`

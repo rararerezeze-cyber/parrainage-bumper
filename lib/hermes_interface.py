@@ -488,7 +488,15 @@ def _run_autofresh_command_locked(
         from lib.super_parrain_schedule import enqueue_pending
 
         if parsed.get("program") and parsed.get("action") == "set":
-            if parsed.get("platform") in (None, "super-parrain"):
+            # An identical/restored override is not proof of a content diff.
+            # Only the matching native plan may enqueue deferred work.
+            has_super_diff = any(
+                row.get("platform") == "super-parrain"
+                and row.get("status") == "pending_update"
+                and bool(row.get("changed_fields"))
+                for row in base["platforms"]
+            )
+            if parsed.get("platform") in (None, "super-parrain") and has_super_diff:
                 enqueue_pending(
                     "super-parrain",
                     parsed["program"],

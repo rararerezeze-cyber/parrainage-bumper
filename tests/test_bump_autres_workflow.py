@@ -107,15 +107,11 @@ def test_ledger_record_step_only_fires_on_a_real_successful_scheduler_dispatch()
     assert "steps.idempotency.outputs.slot_id != ''" in condition_line
 
 
-def test_ledger_record_step_uses_the_shared_record_function():
+def test_ledger_persistence_uses_isolated_checkout_helper():
     record_step = _slice_between("Record slot as processed", "Save notification dedup state")
-    assert "from lib.bump_autres_schedule import record_slot_processed" in record_step
-    assert "record_slot_processed(os.environ[\"SLOT_ID\"])" in record_step
+    assert "python tools/persist_bump_ledger.py" in record_step
+    assert "git pull" not in record_step
 
 
-def test_ledger_commit_never_silently_swallows_a_failed_push():
-    record_step = _slice_between("Record slot as processed", "Save notification dedup state")
-    assert "git push || true" not in record_step
-    assert "if ! git push; then" in record_step
-    after_push_check = record_step.split("if ! git push; then", 1)[1]
-    assert "exit 1" in after_push_check
+def test_checkout_reads_current_main_for_queued_duplicate_runs():
+    assert "ref: main" in TEXT

@@ -18,11 +18,24 @@ command came from.
 from __future__ import annotations
 
 import json
+import copy
 from typing import Any
 
 _MAX_TEXT_CHARS = 160
 _MAX_SECTION_CHARS = 2900  # Slack mrkdwn section text limit is 3000
 _MAX_PLATFORM_ROWS = 10
+
+
+def guard_workflow_result(result: dict[str, Any], job_status: str) -> dict[str, Any]:
+    """A runner-local success is not durable proof after a failed commit step."""
+    if job_status == "success":
+        return result
+    guarded = copy.deepcopy(result)
+    guarded.update(ok=False, persist_confirmed=False, platforms=[],
+                   human_summary="Exécution incomplète : vérifier le workflow avant toute nouvelle écriture.")
+    guarded["errors"] = [{"code": "workflow_incomplete", "detail":
+        "Résultat non confirmé durablement. Ne pas relancer une écriture sans vérifier les preuves."}]
+    return guarded
 
 
 def _truncate(s: str, max_chars: int) -> str:
