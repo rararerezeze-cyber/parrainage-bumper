@@ -4,14 +4,14 @@
   "action": "autofresh",
   "command": "Kraken statut",
   "correlation_id": "closure-20260904-slack-final",
-  "at": "2026-09-04T13:58:06.859704+00:00",
+  "at": "2026-09-04T14:00:02.935316+00:00",
   "monitor": "OBSERVATION_ONLY",
   "mode": "HERMES_OPERATOR",
   "errors": [],
   "auth": {
     "ok": true,
     "source": "hermes",
-    "identity": "codex-closure-audit",
+    "identity": "slack-confirm:U0BTL12A86N",
     "method": "github_actions"
   },
   "parsed": {
