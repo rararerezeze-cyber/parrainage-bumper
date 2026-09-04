@@ -3,15 +3,13 @@
   "decision": {
     "runtime_mode": "NORMAL_BUMP",
     "canary_pending": false,
-    "next_eligible_at": "2026-09-03T18:01:53.264317+00:00",
+    "next_eligible_at": "2026-09-04T21:02:52.421983+00:00",
     "hours_remaining": 0.0,
-    "pending_count": 1,
-    "pending_programs": [
-      "kraken"
-    ],
+    "pending_count": 0,
+    "pending_programs": [],
     "activation_canary_owns_save": false,
     "historical_bumper_authorized": true,
-    "jitter_minutes": 15,
+    "jitter_minutes": 115,
     "action": "cycle",
     "reason": "slot_reached_write_verified_precheck_then_bump",
     "skip_bump": false,
@@ -21,7 +19,7 @@
     "eligible_now": true
   },
   "eligible": true,
-  "next_eligible_at": "2026-09-03T18:01:53.264317+00:00",
+  "next_eligible_at": "2026-09-04T21:02:52.421983+00:00",
   "hours_remaining": 0.0,
   "pre_check": {
     "programs_scanned": 35,
@@ -169,12 +167,12 @@
   "bumper_stats": {
     "mode": "fused_bumper_canary",
     "total_edit_urls": 40,
-    "saves": 39,
+    "saves": 40,
     "autofresh": {
       "updated": 0,
-      "bump_only": 39,
+      "bump_only": 40,
       "failed_prefill": 0,
-      "canary_skipped": 23,
+      "canary_skipped": 24,
       "details": [
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-freeprints-5-tirages-supplementaires-offerts/edit",
@@ -449,6 +447,16 @@
           "policy": ""
         },
         {
+          "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/deblock-5-eur-en-crypto-offerts/edit",
+          "program": "deblock",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
+          "skipped": true,
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
+        },
+        {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-widilo-jusqua-6eur-offerts-a-linscription/edit",
           "program": "widilo",
           "needs_update": false,
@@ -604,15 +612,15 @@
     "CANARY_POST_MATCH": null,
     "WRITE_STATUS": "CANARY_PENDING",
     "BUMP_CYCLE_24H": "OK",
-    "server_actions": 39,
+    "server_actions": 40,
     "programs_needing_update": 16,
     "canary_need_update": 0,
     "autofresh_updated": 0,
-    "autofresh_bump_only": 39,
-    "canary_skipped": 23,
+    "autofresh_bump_only": 40,
+    "canary_skipped": 24,
     "BUMP_RESULT": "SUCCESS",
     "CONTENT_RESULT": "NO_CONTENT_WRITE"
   },
   "pending_closed": [],
-  "at": "2026-09-03T19:07:57.442523+00:00"
+  "at": "2026-09-04T23:42:49.468818+00:00"
 }
