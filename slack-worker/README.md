@@ -33,7 +33,7 @@ from Slack with the PC off and Hermes never running. See
 
 ## KV namespace
 
-`IDEMPOTENCY` — short-TTL (30s) dedupe store so a Slack retry or a
+`IDEMPOTENCY` — short-TTL (60s) dedupe store so a Slack retry or a
 double-click on the confirm button never dispatches twice. Create once:
 
 ```

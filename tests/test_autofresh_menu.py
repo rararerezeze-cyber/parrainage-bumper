@@ -324,7 +324,7 @@ def test_bump_status_works_without_a_github_token_schedule_is_local(_isolated_bu
     monkeypatch.delenv("GH_TOKEN", raising=False)
     text = build_bump_status()
     assert "cycles prévus" in text
-    assert "cycles réalisés" in text
+    assert "cycles déclenchés" in text
     assert "indisponible" not in text.lower()
 
 

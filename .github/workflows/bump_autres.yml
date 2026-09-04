@@ -23,6 +23,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
       # Notification dedup state must survive across runners: data/notifications/
       # is gitignored, so every runner starts with an empty filesystem and the
       # per-event TTL (24 h for external blockers) would otherwise reset on every
@@ -54,8 +56,8 @@ jobs:
         # logical slot. This is the real safety boundary: checked here,
         # before any dependency install or site access, keyed on a value
         # the scheduler derives purely from already-persisted data (never
-        # a new timing decision) -- so a re-dispatch of the same slot, for
-        # any reason, can never cause a second real bump cycle. Empty
+        # a new timing decision) -- so a re-dispatch of a durably recorded slot cannot cause
+        # a second real bump. A crash before persistence still needs review. Empty
         # slot_id (manual/test dispatch) always runs and never touches the
         # ledger.
         id: idempotency
@@ -64,8 +66,11 @@ jobs:
           python - <<'PY'
           import os
           from lib.bump_autres_schedule import is_slot_already_processed
+          from lib.bump_autres_schedule import LEDGER_PATH
 
           slot_id = os.environ.get("SLOT_ID", "").strip()
+          if slot_id and not LEDGER_PATH.is_file():
+              raise RuntimeError("Missing durable ledger; refusing site access")
           already = bool(slot_id) and is_slot_already_processed(slot_id)
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
               fh.write(f"should_run={'false' if already else 'true'}\n")
@@ -125,29 +130,7 @@ jobs:
         # re-write an already-correct ledger entry.
         if: success() && steps.idempotency.outputs.should_run == 'true' && steps.idempotency.outputs.slot_id != ''
         run: |
-          set -e
-          git config user.name "autofresh-bot"
-          git config user.email "autofresh-bot@users.noreply.github.com"
-          python - <<'PY'
-          import os
-          from lib.bump_autres_schedule import record_slot_processed
-
-          record_slot_processed(os.environ["SLOT_ID"])
-          PY
-          git add data/bump-autres-dispatch-ledger.json
-          if git diff --cached --quiet; then
-            echo "no commit"
-            exit 0
-          fi
-          git commit -m "chore(bump): record processed slot (exactly-once ledger)"
-          if ! git pull --rebase origin main; then
-            echo "::error::git pull --rebase failed -- ledger entry was NOT pushed. A re-dispatch of this slot would not be recognized as already processed."
-            exit 1
-          fi
-          if ! git push; then
-            echo "::error::git push failed -- ledger entry was NOT pushed. A re-dispatch of this slot would not be recognized as already processed."
-            exit 1
-          fi
+          python tools/persist_bump_ledger.py
         env:
           SLOT_ID: ${{ steps.idempotency.outputs.slot_id }}
 
@@ -159,7 +142,15 @@ jobs:
           path: data/notifications/dedup.json
           key: autofresh-notify-dedup-${{ github.workflow }}-${{ github.run_id }}
 
-      - name: Upload notification outbox for Hermes
+      - name: Deliver notifications to Slack
+        if: always()
+        continue-on-error: true
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          AUTOFRESH_SLACK_CHANNEL: ${{ vars.AUTOFRESH_SLACK_CHANNEL }}
+        run: python tools/notify_slack.py
+
+      - name: Archive notification outbox
         if: always()
         uses: actions/upload-artifact@v4
         with:

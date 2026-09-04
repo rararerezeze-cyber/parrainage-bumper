@@ -50,7 +50,7 @@ hardcoded to a specific channel name or id.
   used by Hermes — one shared source of truth) may dispatch anything.
 - `run_writers` defaults to `false` on every slash-command dispatch;
   `true` only ever comes from the signed, allowlisted button-click path.
-- A short-TTL (30s) KV idempotency store prevents a Slack retry or a
+- A short-TTL (60s) KV idempotency store prevents a Slack retry or a
   double-click from dispatching twice.
 - The Worker never sees `SLACK_BOT_TOKEN` — only the GitHub Actions step
   (server-side, using an existing GitHub secret) calls the Slack Web API.
@@ -80,3 +80,18 @@ URLs (dashboard-only — Slack has no API for this).
   a notification-only concern) — the mutation itself (if any) already
   succeeded or failed independently, and its true outcome is always in the
   workflow's own logs/artifact.
+
+## Production notifications and closure validation (2026-09-04)
+
+Scheduled workflows now deliver the sanitized outbox directly to Slack through
+`tools/notify_slack.py`. Configure the repository variable
+`AUTOFRESH_SLACK_CHANNEL` only for the operator's confirmed channel; reuse the
+existing `SLACK_BOT_TOKEN`. Artifacts and per-workflow deduplication are retained.
+This is separate from command replies, whose destination is `reply_channel`.
+
+Tests cover a signed HTTP request through the actual Worker handler, unauthorized
+and invalid-signature rejection, an unarmed preview, and a single confirmed
+dispatch with duplicate suppression. GitHub and Slack are mocked in those tests:
+they are not live E2E proof. A real read-only `/autofresh Kraken statut` and its
+matching GitHub run/Slack response are the final operator-control check. Real
+platform writing still requires a genuine SAFE_DIFF and explicit confirmation.

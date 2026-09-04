@@ -243,7 +243,8 @@ def test_format_bump_status_fr_never_claims_run_plus_five_hours():
     assert "planning aléatoire" in text or "aléatoire" in text
     assert "+5" not in text and "+ 5" not in text
     assert "cycles prévus" in text
-    assert "cycles réalisés" in text
+    assert "cycles déclenchés" in text
+    assert "pas une preuve de bump" in text
 
 
 def test_format_bump_status_fr_surfaces_catchup_and_errors():
@@ -325,13 +326,15 @@ def test_ledger_is_bounded_oldest_entries_pruned():
     assert "2026-01-01:0" not in data["dispatched_slot_ids"]
 
 
-def test_corrupted_ledger_file_degrades_to_empty_never_crashes(tmp_path):
+def test_corrupted_ledger_file_blocks_checks_and_recording(tmp_path):
+    import pytest
     sched.LEDGER_PATH.parent.mkdir(parents=True, exist_ok=True)
     sched.LEDGER_PATH.write_text("not json", encoding="utf-8")
-    assert sched.is_slot_already_processed("2026-08-31:2") is False
-    # And recording afterward must still work (self-heals the file).
-    sched.record_slot_processed("2026-08-31:2")
-    assert sched.is_slot_already_processed("2026-08-31:2") is True
+    with pytest.raises(RuntimeError, match="ledger"):
+        sched.is_slot_already_processed("2026-08-31:2")
+    with pytest.raises(RuntimeError, match="ledger"):
+        sched.record_slot_processed("2026-08-31:2")
+    assert sched.LEDGER_PATH.read_text(encoding="utf-8") == "not json"
 
 
 def test_dispatch_workflow_includes_slot_id_as_workflow_input(monkeypatch):

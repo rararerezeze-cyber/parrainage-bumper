@@ -240,11 +240,13 @@ def _load_ledger() -> dict[str, Any]:
         return {"version": 1, "dispatched_slot_ids": []}
     try:
         data = json.loads(LEDGER_PATH.read_text(encoding="utf-8"))
-        if isinstance(data, dict) and isinstance(data.get("dispatched_slot_ids"), list):
+        if (isinstance(data, dict) and data.get("version") == 1
+                and isinstance(data.get("dispatched_slot_ids"), list)
+                and all(isinstance(sid, str) and sid for sid in data["dispatched_slot_ids"])):
             return data
-    except Exception:
-        pass
-    return {"version": 1, "dispatched_slot_ids": []}
+    except (ValueError, OSError) as exc:
+        raise RuntimeError("Unreadable bump ledger; refusing site access") from exc
+    raise RuntimeError("Invalid bump ledger; refusing site access")
 
 
 def _save_ledger(data: dict[str, Any]) -> None:
@@ -340,7 +342,7 @@ def summarize(schedule: dict[str, Any], *, now: datetime) -> dict[str, Any]:
 def format_bump_status_fr(summary: dict[str, Any], *, last_run: dict[str, Any] | None) -> str:
     lines = ["*Bumper Code-Parrainage / Parrainage.co*"]
     lines.append(f"• cycles prévus aujourd'hui : {summary['cycles_planned']}")
-    lines.append(f"• cycles réalisés : {summary['cycles_done']}/{summary['cycles_planned']}")
+    lines.append(f"• cycles déclenchés (pas une preuve de bump) : {summary['cycles_done']}/{summary['cycles_planned']}")
     if summary.get("next_planned_at"):
         lines.append(f"• prochain passage prévu : {summary['next_planned_at']} (planning aléatoire)")
     else:

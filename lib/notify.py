@@ -1,11 +1,11 @@
 """Centralized AutoFresh observability contract.
 
-AutoFresh is the backend; **Hermes owns Telegram**. This module never talks to
-Telegram and never creates a second bot. It produces one durable, structured,
-secret-free event stream that the existing Hermes plugin can read and relay:
+The runtime writes a sanitized outbox; production workflows deliver it through
+tools/notify_slack.py using SLACK_BOT_TOKEN and AUTOFRESH_SLACK_CHANNEL.
+The artifact remains available for audit. Hermes is not a runtime relay.
 
     AutoFresh runtime → lib.notify.emit() → data/notifications/outbox.jsonl
-                      → Hermes (local plugin) → Telegram
+                      → tools/notify_slack.py → Slack
 
 Design rules (all enforced and tested):
 
@@ -168,7 +168,7 @@ def _disabled() -> bool:
 
 
 def scrub(value: Any) -> Any:
-    """Return a Telegram-safe value: no credentials, bounded length."""
+    """Return a notification-safe value: no credentials, bounded length."""
     if value is None or isinstance(value, (bool, int, float)):
         return value
     text = str(value)
@@ -435,7 +435,7 @@ def build_daily_summary(*, hours: int = 24, now: datetime | None = None) -> dict
 
 
 def format_summary_text(summary: dict[str, Any]) -> str:
-    """Short French digest Hermes can relay verbatim."""
+    """Short French digest an operator interface can relay verbatim."""
     lines = [
         f"AutoFresh — résumé {summary.get('window_hours', 24)} h",
         f"  événements       : {summary.get('event_count', 0)}",

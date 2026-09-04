@@ -253,10 +253,8 @@ def test_cycle_publishes_the_plan_to_the_bumper_subprocess():
     assert 'build_plan([item["program"] for item in pre["canary_need_update"]])' in src
 
 
-# -- 9. the other platforms are byte-identical --------------------------------
+# -- 9. platform writers stay unchanged during closure maintenance ------------
 UNTOUCHED_PATHS = (
-    ".github/workflows/bump_referralcode_tv.yml",
-    ".github/workflows/bump_autres.yml",
     "lib/rctv_bump.py",
     "platforms/code_parrainage",
     "platforms/parrainage_co",
@@ -269,7 +267,10 @@ UNTOUCHED_PATHS = (
 
 
 def test_other_platforms_are_byte_identical_to_main():
-    """This change is Super-Parrain-only. Nothing else may drift."""
+    """Writer code stays unchanged; closure fixes workflow persistence/alerts.
+
+    Workflow safety is covered by the dedicated bump workflow tests.
+    """
     import subprocess
 
     base = subprocess.run(
