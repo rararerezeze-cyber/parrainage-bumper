@@ -4,6 +4,7 @@ operator results. Pure functions, no network, no Slack client.
 from __future__ import annotations
 
 import json
+import pytest
 
 from lib.slack_format import notification_text, render_result
 
@@ -95,21 +96,35 @@ def test_render_result_adds_confirm_button_when_writer_eligible_platform_pending
     platforms = [
         {"platform": "1parrainage", "status": "pending_update", "can_auto_write": True, "route": "AUTO_ON_SAFE_DIFF", "changed_fields": {"referee_reward": {}}},
     ]
-    payload = render_result(_base_result(platforms=platforms), run_writers_requested=False)
+    payload = render_result(_base_result(
+        command="Kraken gain filleul 20 €",
+        parsed={"action": "set", "program": "kraken", "field": "referee_reward"},
+        platforms=platforms,
+    ), run_writers_requested=False)
     action_blocks = [b for b in payload["blocks"] if b.get("type") == "actions"]
     assert len(action_blocks) == 1
     button = action_blocks[0]["elements"][0]
     assert button["action_id"] == "autofresh_confirm_write"
     value = json.loads(button["value"])
-    assert value["command"] == "Kraken statut"
+    assert value["command"] == "Kraken gain filleul 20 €"
     assert value["correlation_id"] == "corr-1"
+
+
+@pytest.mark.parametrize("action", ["status", "remove", "plan", None])
+def test_read_or_non_writer_action_never_offers_write_confirmation(action):
+    result = _base_result(
+        parsed={"action": action, "program": "kraken"},
+        platforms=[{"platform": "1parrainage", "status": "pending_update",
+                    "can_auto_write": True}],
+    )
+    assert not [b for b in render_result(result)["blocks"] if b.get("type") == "actions"]
 
 
 def test_render_result_no_confirm_button_when_run_writers_already_requested():
     platforms = [
         {"platform": "1parrainage", "status": "pending_update", "can_auto_write": True, "route": "AUTO_ON_SAFE_DIFF", "changed_fields": {}},
     ]
-    payload = render_result(_base_result(platforms=platforms), run_writers_requested=True)
+    payload = render_result(_base_result(platforms=platforms, parsed={"action": "set"}), run_writers_requested=True)
     assert not [b for b in payload["blocks"] if b.get("type") == "actions"]
 
 
@@ -117,7 +132,7 @@ def test_render_result_no_confirm_button_when_no_platform_eligible():
     platforms = [
         {"platform": "referraldrop", "status": "blocked", "can_auto_write": False, "route": "AUTH_BLOCKED_MANUAL", "changed_fields": {}},
     ]
-    payload = render_result(_base_result(platforms=platforms))
+    payload = render_result(_base_result(platforms=platforms, parsed={"action": "set"}))
     assert not [b for b in payload["blocks"] if b.get("type") == "actions"]
 
 
@@ -125,7 +140,7 @@ def test_render_result_no_confirm_button_when_result_not_ok():
     platforms = [
         {"platform": "1parrainage", "status": "pending_update", "can_auto_write": True, "route": "AUTO_ON_SAFE_DIFF", "changed_fields": {}},
     ]
-    payload = render_result(_base_result(ok=False, errors=[{"code": "x", "detail": "y"}], platforms=platforms))
+    payload = render_result(_base_result(ok=False, errors=[{"code": "x", "detail": "y"}], platforms=platforms, parsed={"action": "set"}))
     assert not [b for b in payload["blocks"] if b.get("type") == "actions"]
 
 
