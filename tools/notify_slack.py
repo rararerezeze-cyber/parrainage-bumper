@@ -6,6 +6,7 @@ the evidence source. Delivery errors are explicit but never undo business work.
 from __future__ import annotations
 
 import json
+import argparse
 import os
 import sys
 import urllib.request
@@ -56,9 +57,12 @@ def deliver(payload: dict, token: str) -> bool:
     return accepted
 
 
-def main() -> int:
-    events = read_events()
-    if not events:
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--test", action="store_true", help="Send one labelled transport test, without platform activity")
+    args = parser.parse_args(argv)
+    events = [] if args.test else read_events()
+    if not events and not args.test:
         print("notification_outbox_empty=true")
         return 0
     channel = os.environ.get("AUTOFRESH_SLACK_CHANNEL", "").strip()
@@ -66,7 +70,10 @@ def main() -> int:
     if not channel or not token:
         print("::warning::Slack notification configuration missing; delivery NOT VERIFIED.")
         return 1
-    payload = build_payload(events, channel)
+    payload = ({"channel": channel, "text":
+                "AutoFresh — test de livraison Slack depuis GitHub. Aucune écriture plateforme.",
+                "mrkdwn": False, "unfurl_links": False, "unfurl_media": False}
+               if args.test else build_payload(events, channel))
     return 0 if payload is None or deliver(payload, token) else 1
 
 

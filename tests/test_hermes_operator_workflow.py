@@ -65,7 +65,8 @@ COMMIT_STEP_CODE = _code_only(COMMIT_STEP)
 
 def test_no_raw_input_interpolation_in_run_or_python_source():
     """The four user-controlled inputs must never appear as `${{ github.event.
-    inputs.X }}` inside a `run:` script body -- only inside an `env:` mapping,
+    inputs.X }}` inside a `run:` script body -- only inside an `env:` mapping
+    or a step-level `if:` condition,
     which GitHub Actions passes as an opaque process-environment string
     rather than splicing into script text.
     """
@@ -73,6 +74,10 @@ def test_no_raw_input_interpolation_in_run_or_python_source():
         pattern = f"github.event.inputs.{name}"
         for line in TEXT.splitlines():
             if pattern not in line or line.strip().startswith("#"):
+                continue
+            # Exactly the step-key indentation: a condition is evaluated by
+            # Actions, never interpolated into the more-indented script body.
+            if line.startswith("        if:"):
                 continue
             assert ": ${{" in line and line.strip().startswith("HERMES_INPUT_"), (
                 f"found raw interpolation of {pattern!r} outside an env: "

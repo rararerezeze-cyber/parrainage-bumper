@@ -157,3 +157,26 @@ def test_pending_reconciliation_backups_and_refuses_drift(tmp_path, monkeypatch,
         data = json.loads(target.read_text())
         assert data["items"][0] == json.loads(original)["items"][0]
         assert data["items"][1]["status"] == "cancelled"
+
+
+def test_explicit_transport_test_uses_same_delivery_and_no_outbox(monkeypatch):
+    monkeypatch.setenv("SLACK_BOT_TOKEN", "test-only")
+    monkeypatch.setenv("AUTOFRESH_SLACK_CHANNEL", "C_TEST")
+    def forbidden():
+        raise AssertionError("transport test must not read or modify business events")
+    monkeypatch.setattr(notify_slack, "read_events", forbidden)
+    calls = []
+    monkeypatch.setattr(notify_slack, "deliver", lambda payload, token: calls.append(payload) or True)
+    assert notify_slack.main(["--test"]) == 0
+    assert len(calls) == 1 and calls[0]["channel"] == "C_TEST"
+    assert "test de livraison" in calls[0]["text"]
+
+
+def test_transport_test_is_opt_in_and_read_only():
+    text = (Path(__file__).resolve().parents[1] / ".github/workflows/hermes_operator.yml").read_text(encoding="utf-8")
+    header = text.split("notification_test:", 1)[1].split("permissions:", 1)[0]
+    assert 'default: "false"' in header
+    step = text.split("- name: Test Slack notification transport", 1)[1].split("- name: Post Slack reply", 1)[0]
+    assert "run_writers == 'false'" in step
+    assert "command == 'Kraken statut'" in step
+    assert "notification_test == 'true'" in step

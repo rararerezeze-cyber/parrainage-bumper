@@ -28,6 +28,10 @@ on:
         description: "Slack channel id to post the human-readable result to (optional; empty = no Slack post, e.g. legacy Hermes/Telegram dispatches). Generic — works identically for any channel, not tied to a specific one."
         required: false
         default: ""
+      notification_test:
+        description: "Send one labelled Slack transport test; only accepted with a read-only Kraken statut command and run_writers=false."
+        required: false
+        default: "false"
 permissions:
   # Only what this job's own steps need. actions: write remains unused --
   # nothing in this job dispatches/cancels workflow runs. actions: read
@@ -265,6 +269,13 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
           path: data/notifications/
+      - name: Test Slack notification transport
+        if: success() && github.event.inputs.notification_test == 'true' && github.event.inputs.run_writers == 'false' && github.event.inputs.command == 'Kraken statut'
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          AUTOFRESH_SLACK_CHANNEL: ${{ vars.AUTOFRESH_SLACK_CHANNEL }}
+        run: python tools/notify_slack.py --test
+
       - name: Post Slack reply
         # Generic, centralized: one step, driven by the reply_channel input.
         # No per-channel special-casing -- works identically for #hermes,
