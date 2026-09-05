@@ -34,7 +34,7 @@
       "canonical": "5 €",
       "observed": "3 €",
       "authority": "OFFICIAL_PUBLIC_MONITOR",
-      "live_high_streak": 9,
+      "live_high_streak": 10,
       "effective_now": "5 €",
       "effective_source": "CANONICAL_DEFAULT",
       "idempotent": false,
@@ -168,5 +168,5 @@
     "APP_PERSONALIZED stays Hermes/Telegram",
     "ReferralCodes still NEVER_AUTO_COMMIT pending support"
   ],
-  "at": "2026-09-04T13:59:54.570022+00:00"
+  "at": "2026-09-05T11:50:20.397872+00:00"
 }
