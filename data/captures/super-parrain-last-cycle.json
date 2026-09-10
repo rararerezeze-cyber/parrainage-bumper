@@ -3,13 +3,13 @@
   "decision": {
     "runtime_mode": "NORMAL_BUMP",
     "canary_pending": false,
-    "next_eligible_at": "2026-09-09T16:54:04.124963+00:00",
+    "next_eligible_at": "2026-09-10T20:52:00.436458+00:00",
     "hours_remaining": 0.0,
     "pending_count": 0,
     "pending_programs": [],
     "activation_canary_owns_save": false,
     "historical_bumper_authorized": true,
-    "jitter_minutes": 165,
+    "jitter_minutes": 106,
     "action": "cycle",
     "reason": "slot_reached_write_verified_precheck_then_bump",
     "skip_bump": false,
@@ -19,7 +19,7 @@
     "eligible_now": true
   },
   "eligible": true,
-  "next_eligible_at": "2026-09-09T16:54:04.124963+00:00",
+  "next_eligible_at": "2026-09-10T20:52:00.436458+00:00",
   "hours_remaining": 0.0,
   "pre_check": {
     "programs_scanned": 35,
@@ -167,12 +167,12 @@
   "bumper_stats": {
     "mode": "fused_bumper_canary",
     "total_edit_urls": 40,
-    "saves": 38,
+    "saves": 39,
     "autofresh": {
       "updated": 0,
-      "bump_only": 39,
+      "bump_only": 40,
       "failed_prefill": 0,
-      "canary_skipped": 23,
+      "canary_skipped": 24,
       "details": [
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-freeprints-5-tirages-supplementaires-offerts/edit",
@@ -227,6 +227,16 @@
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-vinted-inscription-rapide-achats-ventes-securises/edit",
           "program": "vinted",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
+          "skipped": true,
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
+        },
+        {
+          "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-paypal-10-eur-offerts/edit",
+          "program": "paypal",
           "needs_update": false,
           "fields_filled": [],
           "changed_fields": {},
@@ -602,15 +612,15 @@
     "CANARY_POST_MATCH": null,
     "WRITE_STATUS": "CANARY_PENDING",
     "BUMP_CYCLE_24H": "OK",
-    "server_actions": 38,
+    "server_actions": 39,
     "programs_needing_update": 16,
     "canary_need_update": 0,
     "autofresh_updated": 0,
-    "autofresh_bump_only": 39,
-    "canary_skipped": 23,
+    "autofresh_bump_only": 40,
+    "canary_skipped": 24,
     "BUMP_RESULT": "SUCCESS",
     "CONTENT_RESULT": "NO_CONTENT_WRITE"
   },
   "pending_closed": [],
-  "at": "2026-09-09T19:06:04.103224+00:00"
+  "at": "2026-09-10T23:43:10.075319+00:00"
 }
