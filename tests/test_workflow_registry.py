@@ -18,7 +18,6 @@ REGISTRY = json.loads((ROOT / "data" / "workflow-registry.json").read_text(encod
 
 SCHEDULED = {
     "bump_super_parrain.yml",
-    "bump_referralcode_tv.yml",
     "monitor_offers.yml",
 }
 
@@ -100,15 +99,14 @@ def test_the_three_bumpers_never_share_a_concurrency_group():
     assert all(groups.values()), groups
 
 
-def test_scheduled_bumpers_do_not_all_start_at_the_same_minute():
-    # Code-Parrainage/Parrainage.co is now woken externally by Cloudflare,
-    # so compare the two bumper workflows that still carry native GitHub crons.
-    crons = {}
-    for name in ("bump_super_parrain.yml", "bump_referralcode_tv.yml"):
-        data = yaml.safe_load((WORKFLOW_DIR / name).read_text(encoding="utf-8"))
-        triggers = data.get(True) or data.get("on") or {}
-        crons[name] = [s["cron"] for s in triggers["schedule"]]
-    assert crons["bump_super_parrain.yml"] != crons["bump_referralcode_tv.yml"]
+def test_referralcode_tv_bumper_is_manual_only_while_external_gate_is_known():
+    data = yaml.safe_load(
+        (WORKFLOW_DIR / "bump_referralcode_tv.yml").read_text(encoding="utf-8")
+    )
+    triggers = data.get(True) or data.get("on") or {}
+    assert "schedule" not in triggers
+    assert "workflow_dispatch" in triggers
+    assert REGISTRY["workflows"]["bump_referralcode_tv.yml"]["class"] == "PRODUCTION_MANUAL"
 
 
 # -- the closed gates are closed at runtime, not only on paper -----------------
