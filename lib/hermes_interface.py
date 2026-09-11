@@ -23,6 +23,7 @@ from lib.write_status import (
     ALL_PLATFORMS,
     ROUTE_AUTO_ON_SAFE_DIFF,
     ROUTE_HUMAN_SAVE_REQUIRED,
+    ROUTE_FUSED_UPDATE_BUMP,
     human_local_command,
     runtime_route,
     summary as write_summary,
@@ -601,35 +602,18 @@ def _platform_rows(plan_data: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def routing_summary(rows: list[dict[str, Any]] | None = None) -> dict[str, Any]:
-    """Machine-readable Monitor→Hermes dispatch classes. No live write."""
+    """Machine-readable dispatch classes. No live write."""
     automatic: list[str] = []
+    deferred: list[str] = []
     human: list[dict[str, str]] = []
     blocked: list[str] = []
     seen: set[str] = set()
-    for row in rows or []:
-        plat = str(row.get("platform") or "")
-        if not plat:
-            continue
-        seen.add(plat)
-        route = str(row.get("route") or runtime_route(plat))
+
+    def _classify(plat: str, route: str) -> None:
         if route == ROUTE_AUTO_ON_SAFE_DIFF:
             automatic.append(plat)
-        elif route == ROUTE_HUMAN_SAVE_REQUIRED:
-            human.append(
-                {
-                    "platform": plat,
-                    "route": route,
-                    "command": str(row.get("human_command") or human_local_command(plat) or ""),
-                }
-            )
-        else:
-            blocked.append(plat)
-    for plat in ALL_PLATFORMS:
-        if plat in seen:
-            continue
-        route = runtime_route(plat)
-        if route == ROUTE_AUTO_ON_SAFE_DIFF:
-            automatic.append(plat)
+        elif route == ROUTE_FUSED_UPDATE_BUMP:
+            deferred.append(plat)
         elif route == ROUTE_HUMAN_SAVE_REQUIRED:
             human.append(
                 {
@@ -640,8 +624,23 @@ def routing_summary(rows: list[dict[str, Any]] | None = None) -> dict[str, Any]:
             )
         else:
             blocked.append(plat)
+
+    for row in rows or []:
+        plat = str(row.get("platform") or "")
+        if not plat:
+            continue
+        seen.add(plat)
+        route = str(row.get("route") or runtime_route(plat))
+        _classify(plat, route)
+
+    for plat in ALL_PLATFORMS:
+        if plat in seen:
+            continue
+        _classify(plat, runtime_route(plat))
+
     return {
         "automatic_safe_diff_targets": automatic,
+        "deferred_cycle_targets": deferred,
         "human_routed_targets": human,
         "blocked_targets": blocked,
         "monitor": "OBSERVATION_ONLY",
