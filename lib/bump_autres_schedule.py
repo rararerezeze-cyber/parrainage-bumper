@@ -174,6 +174,11 @@ def _load_raw() -> dict[str, Any] | None:
         return None
 
 
+def load_schedule() -> dict[str, Any] | None:
+    """Read the persisted schedule without creating or mutating anything."""
+    return _load_raw()
+
+
 def save_schedule(data: dict[str, Any]) -> None:
     SCHEDULE_PATH.parent.mkdir(parents=True, exist_ok=True)
     tmp = SCHEDULE_PATH.with_suffix(SCHEDULE_PATH.suffix + ".tmp")
