@@ -109,8 +109,16 @@ def test_parse_message_kraken_statut_same_as_status():
     offers = OffersRepository()
     p_en = parse_message("Kraken status", offers)
     p_fr = parse_message("Kraken statut", offers)
-    assert p_en["action"] == p_fr["action"] == "status"
-    assert p_en["program"] == p_fr["program"] == "kraken"
+    p_etat = parse_message("Kraken état", offers)
+    assert p_en["action"] == p_fr["action"] == p_etat["action"] == "status"
+    assert p_en["program"] == p_fr["program"] == p_etat["program"] == "kraken"
+
+
+def test_parse_message_values_aliases():
+    offers = OffersRepository()
+    assert parse_message("Kraken valeurs", offers)["action"] == "list"
+    assert parse_message("Kraken overrides", offers)["action"] == "list"
+    assert parse_message("Kraken modifications", offers)["action"] == "list"
 
 
 def test_parse_message_kraken_divergences():
@@ -163,6 +171,9 @@ def test_apply_divergences_for_program_with_no_pending_candidates():
         "Autofresh plateformes",
         "Kraken statut",
         "Kraken status",
+        "Kraken état",
+        "Kraken valeurs",
+        "Kraken modifications",
         "Kraken divergences",
         "Kraken plateformes",
     ],
@@ -235,21 +246,14 @@ def test_global_plateformes_never_uses_mapped_language():
     assert "mappée" not in text.lower()
 
 
-def test_per_program_plateformes_distinguishes_known_mapped_blocked():
-    """Regression for the 3 collapsed-into-one-ambiguous-number bug: known
-    (always 7), mapped-for-this-program, and write-status must be three
-    separately labeled counts/fields, never merged into one number."""
+def test_per_program_plateformes_distinguishes_known_followed_and_status():
     from lib.autofresh_help import ALL_PLATFORMS, build_platforms_status
 
     text = build_platforms_status(program="kraken")
     assert f"{len(ALL_PLATFORMS)} plateformes connues" in text
-    assert "mappées pour Kraken" in text or "mappée pour Kraken" in text
-    # Per-platform lines each show BOTH the mapped flag and the write status,
-    # never just a bare count.
-    for line in text.splitlines():
-        if line.startswith("• "):
-            assert "mappée" in line or "non mappée" in line
-            assert "·" in line  # separator before the write-status label
+    assert "plateforme(s) suivie(s) pour Kraken" in text
+    assert "SAFE_DIFF" not in text
+    assert "canary" not in text.lower()
 
 
 def test_referraldrop_shown_unmapped_for_kraken():
@@ -259,7 +263,7 @@ def test_referraldrop_shown_unmapped_for_kraken():
     from lib.autofresh_help import build_platforms_status
 
     text = build_platforms_status(program="kraken")
-    assert "ReferralDrop — non mappée" in text
+    assert "`ReferralDrop` — non suivie pour ce programme" in text
 
 
 def test_mapped_count_matches_real_mapping_files_on_disk():
@@ -306,12 +310,15 @@ def test_bump_meta_command_variants_are_recognized(text):
 
 @pytest.fixture()
 def _isolated_bump_schedule(tmp_path, monkeypatch):
-    """build_bump_status() reads/generates the real schedule file via
-    lib.bump_autres_schedule -- isolate it so these tests never touch (or
-    depend on) the actual repo data file."""
+    """Provide a persisted schedule without letting the status command create one."""
+    import random
+    from datetime import datetime, timezone
+
     import lib.bump_autres_schedule as sched
 
     monkeypatch.setattr(sched, "SCHEDULE_PATH", tmp_path / "bump-autres-schedule.json")
+    now = datetime.now(timezone.utc)
+    sched.ensure_schedule_for(now, rng=random.Random(1))
     return sched
 
 
@@ -323,8 +330,8 @@ def test_bump_status_works_without_a_github_token_schedule_is_local(_isolated_bu
     monkeypatch.delenv("GITHUB_TOKEN", raising=False)
     monkeypatch.delenv("GH_TOKEN", raising=False)
     text = build_bump_status()
-    assert "cycles prévus" in text
-    assert "cycles déclenchés" in text
+    assert "créneaux aléatoires prévus" in text
+    assert "cycles lancés" in text
     assert "indisponible" not in text.lower()
 
 
@@ -336,7 +343,7 @@ def test_bump_status_reflects_the_persisted_schedule_not_a_run_history_heuristic
     heuristic (explicitly rejected 2026-08-31)."""
     monkeypatch.delenv("GITHUB_TOKEN", raising=False)
     text = build_bump_status()
-    assert "planning aléatoire" in text
+    assert "créneaux aléatoires" in text
     assert "+5" not in text and "+ 5" not in text
 
 
@@ -349,7 +356,7 @@ def test_bump_status_surfaces_api_errors_without_crashing(_isolated_bump_schedul
     monkeypatch.setattr("lib.bump_autres_schedule.fetch_last_run", _boom)
     text = build_bump_status()
     # Best-effort cross-check failing must never crash or blank the schedule section.
-    assert "cycles prévus" in text
+    assert "créneaux aléatoires prévus" in text
 
 
 def test_bump_status_includes_super_parrain_section(_isolated_bump_schedule, monkeypatch):
@@ -359,9 +366,23 @@ def test_bump_status_includes_super_parrain_section(_isolated_bump_schedule, mon
     monkeypatch.delenv("GITHUB_TOKEN", raising=False)
     text = build_bump_status()
     assert "Super-Parrain" in text
-    assert "24h minimum atteint" in text
-    assert "jitter du cycle" in text
+    assert "délai minimum de 24 h atteint" in text
+    assert "décalage aléatoire" in text
     assert "prochaine éligibilité" in text
+
+
+def test_bump_status_never_creates_a_missing_schedule(tmp_path, monkeypatch):
+    import lib.bump_autres_schedule as sched
+
+    missing = tmp_path / "missing-schedule.json"
+    monkeypatch.setattr(sched, "SCHEDULE_PATH", missing)
+    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
+    monkeypatch.delenv("GH_TOKEN", raising=False)
+
+    text = build_bump_status()
+
+    assert "planning du jour : pas encore généré" in text
+    assert not missing.exists()
 
 
 def test_bump_meta_command_flows_end_to_end_through_apply_operator_command(
@@ -378,7 +399,7 @@ def test_bump_meta_command_flows_end_to_end_through_apply_operator_command(
     assert parsed["help_topic"] == TOPIC_BUMP
 
     result = apply_operator_command(parsed, message="Autofresh bump")
-    assert "cycles prévus" in result["text"]
+    assert "créneaux aléatoires prévus" in result["text"]
 
 
 def test_bump_meta_command_never_persists_or_invokes_a_writer(_isolated_bump_schedule, monkeypatch):
