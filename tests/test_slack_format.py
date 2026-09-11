@@ -192,7 +192,8 @@ def _status_result(**overrides):
             "human_routed_targets": [
                 {"platform": "referralcode-tv", "route": "HUMAN_SAVE_REQUIRED", "command": "python -u tools/local_headed_rctv_canary.py"}
             ],
-            "blocked_targets": ["referralcodes", "super-parrain", "referraldrop"],
+            "deferred_cycle_targets": ["super-parrain"],
+            "blocked_targets": ["referralcodes", "referraldrop"],
         },
     )
     result.update(overrides)
@@ -221,7 +222,10 @@ def test_status_result_summary_names_auto_and_human_targets_in_french():
     sections = "\n".join(b["text"]["text"] for b in payload["blocks"] if b.get("type") == "section")
     assert "Mise à jour possible après confirmation" in sections
     assert "1Parrainage" in sections
+    assert "Mise à jour intégrée au prochain cycle automatique" in sections
+    assert "Super-Parrain" in sections
     assert "Intervention manuelle nécessaire" in sections
+    assert "Mise à jour manuelle uniquement" in sections
 
 
 def _set_result(**overrides):
