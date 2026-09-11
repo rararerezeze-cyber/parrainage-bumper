@@ -9,8 +9,9 @@ WORKFLOW = ROOT / ".github" / "workflows" / "bump_autres_scheduler.yml"
 TEXT = WORKFLOW.read_text(encoding="utf-8")
 
 
-def test_polls_frequently_and_off_the_congested_minutes():
-    assert 'cron: "3,18,33,48 * * * *"' in TEXT
+def test_has_no_native_schedule_to_avoid_duplicate_cloudflare_polls():
+    assert "schedule:" not in TEXT
+    assert "cron:" not in TEXT
 
 
 def test_has_permissions_to_dispatch_and_commit():
