@@ -1,21 +1,20 @@
-# Autofresh ↔ Slack (Hermes-independent operator interface)
+# AutoFresh ↔ Slack
 
-Slack talks to the same GitHub Actions backend Hermes always used —
-directly, over HTTPS, via a serverless Cloudflare Worker. No local process,
-no Hermes runtime dependency, works with the PC off.
+Slack talks directly to the GitHub Actions backend over a serverless
+Cloudflare Worker. No local process and no Hermes runtime dependency are
+required; normal operation works with the PC off.
 
 ```
 Slack (/autofresh <command>, or a "Confirmer l'écriture" button click)
   → Cloudflare Worker (slack-worker/) — signature verification, allowlist
-  → GitHub Actions workflow_dispatch (hermes_operator.yml)
-  → lib/hermes_interface.py (same backend Hermes/Telegram always used)
-  → hermes_operator.yml's "Post Slack reply" step
+  → GitHub Actions workflow_dispatch (hermes_operator.yml; historical filename)
+  → lib/hermes_interface.py
+  → workflow "Post Slack reply" step
   → chat.postMessage back into the same Slack channel
 ```
 
-Hermes/Telegram's own path (`docs/hermes-autofresh-interface.md`) is
-completely unchanged and still works — this is an additional front door
-onto the same backend, not a replacement of the interface contract.
+The old Hermes/Telegram integration is legacy/optional. It is not part of
+the production Slack control path.
 
 ## Components
 
@@ -28,18 +27,22 @@ onto the same backend, not a replacement of the interface contract.
 
 ## Usage
 
+- `/autofresh aide` — complete user-facing command menu.
 - `/autofresh Kraken statut` — read-only status, replies in the same channel.
-- `/autofresh Kraken gain filleul 20 €` — persists the override immediately
-  (as it always has); if any platform becomes writer-eligible
-  (`can_auto_write`, real pending diff), the Slack reply includes a
-  **Confirmer l'écriture** button.
+- `/autofresh Kraken valeurs` — current personalized values/overrides.
+- `/autofresh bump` — read-only status of randomized bump schedules.
+- `/autofresh plateformes` — current capability/status of the seven platforms.
+- `/autofresh Kraken gain filleul 20 €` — persists the personalized value;
+  if a compatible platform has a real pending difference, the Slack reply
+  includes a **Confirmer l'écriture** button.
 - Clicking that button re-dispatches the identical command with
   `run_writers=true` — this is the only way a real platform write happens
   from Slack. No write ever happens from the slash command alone.
-- `/autofresh aide` (or empty text) — command help, no dispatch.
+The visible command vocabulary is French and avoids backend terms such as
+`pending_update`, `SAFE_DIFF`, `writer` or snake_case field names.
 
-Works identically in any channel the Slack app is invited to — nothing is
-hardcoded to a specific channel name or id.
+The current production channel is `#autofresh`; the backend remains
+channel-agnostic and replies to the channel id received from Slack.
 
 ## Security
 
@@ -95,3 +98,13 @@ dispatch with duplicate suppression. GitHub and Slack are mocked in those tests:
 they are not live E2E proof. A real read-only `/autofresh Kraken statut` and its
 matching GitHub run/Slack response are the final operator-control check. Real
 platform writing still requires a genuine SAFE_DIFF and explicit confirmation.
+
+
+## Bump scheduler reliability
+
+Cloudflare Cron wakes `bump_autres_scheduler.yml` at minutes 03/18/33/48.
+This is only a reliable poll/wake-up layer. It does not replace or alter
+the persisted five random daily slots and cannot turn actual site access
+into a fixed schedule. GitHub's native scheduler remains enabled as a
+backup; scheduler concurrency and slot idempotency handle duplicate
+wake-ups safely.
