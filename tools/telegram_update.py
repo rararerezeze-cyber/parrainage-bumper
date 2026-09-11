@@ -48,8 +48,8 @@ _PROG = r"([a-z0-9][a-z0-9\-_.]{1,40})"
 # non-capturing alternation — capture is added once at use site
 _PLAT_NC = (
     r"(?:super[\s\-]?parrain|parrainage(?:[.\s\-]?co)|code[\s\-]?parrainage|"
-    r"1[\s\-]?parrainage|referralcodes?(?:\.com)?|"
-    r"referralcode(?:[.\s\-]?tv)|referraldrop)"
+    r"1[\s\-]?parrainage|referralcode(?:[.\s\-]?tv)|"
+    r"referralcodes?(?:\.com)?|referraldrop)"
 )
 
 STATUS_RE = re.compile(
