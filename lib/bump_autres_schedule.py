@@ -85,6 +85,9 @@ SCHEDULE_PATH = DATA_DIR / "bump-autres-schedule.json"
 # does any real site work -- see LEDGER note below.
 LEDGER_PATH = DATA_DIR / "bump-autres-dispatch-ledger.json"
 LEDGER_MAX_ENTRIES = 200
+TARGET_SITES = ("code", "parrainage")
+MAX_RECOVERY_DISPATCHES = 1
+RECOVERY_DELAY_MINUTES = 10
 SLOTS_PER_DAY = 5
 # Guarantees a minimum gap of 2*BUCKET_MARGIN_MINUTES between two slots in
 # adjacent buckets (the worst case: one slot at its bucket's latest
@@ -242,16 +245,35 @@ def slot_id(period_date: str, index: int) -> str:
 
 def _load_ledger() -> dict[str, Any]:
     if not LEDGER_PATH.exists():
-        return {"version": 1, "dispatched_slot_ids": []}
+        return {
+            "version": 1,
+            "dispatched_slot_ids": [],
+            "site_completions": {},
+            "retryable_sites": {},
+        }
     try:
         data = json.loads(LEDGER_PATH.read_text(encoding="utf-8"))
-        if (isinstance(data, dict) and data.get("version") == 1
-                and isinstance(data.get("dispatched_slot_ids"), list)
-                and all(isinstance(sid, str) and sid for sid in data["dispatched_slot_ids"])):
-            return data
     except (ValueError, OSError) as exc:
         raise RuntimeError("Unreadable bump ledger; refusing site access") from exc
-    raise RuntimeError("Invalid bump ledger; refusing site access")
+    if not (
+        isinstance(data, dict)
+        and data.get("version") == 1
+        and isinstance(data.get("dispatched_slot_ids"), list)
+        and all(isinstance(sid, str) and sid for sid in data["dispatched_slot_ids"])
+    ):
+        raise RuntimeError("Invalid bump ledger; refusing site access")
+
+    completions = data.setdefault("site_completions", {})
+    retryable = data.setdefault("retryable_sites", {})
+    if not isinstance(completions, dict) or not isinstance(retryable, dict):
+        raise RuntimeError("Invalid bump ledger site state; refusing site access")
+    for mapping in (completions, retryable):
+        for sid, sites in mapping.items():
+            if not isinstance(sid, str) or not sid or not isinstance(sites, list):
+                raise RuntimeError("Invalid bump ledger site state; refusing site access")
+            if any(site not in TARGET_SITES for site in sites):
+                raise RuntimeError("Invalid bump ledger site id; refusing site access")
+    return data
 
 
 def _save_ledger(data: dict[str, Any]) -> None:
@@ -261,25 +283,141 @@ def _save_ledger(data: dict[str, Any]) -> None:
     tmp.replace(LEDGER_PATH)
 
 
+def completed_sites_for_slot(sid: str) -> set[str]:
+    if not sid:
+        return set()
+    data = _load_ledger()
+    explicit = set((data.get("site_completions") or {}).get(sid) or [])
+    if explicit:
+        return explicit
+    if sid in (data.get("dispatched_slot_ids") or []):
+        # Legacy slot-level records predate per-site accounting. Treat them as
+        # consumed to preserve the old no-replay safety guarantee.
+        return set(TARGET_SITES)
+    return set()
+
+
+def retryable_sites_for_slot(sid: str) -> set[str]:
+    if not sid:
+        return set()
+    data = _load_ledger()
+    return set((data.get("retryable_sites") or {}).get(sid) or [])
+
+
+def sites_for_slot_attempt(sid: str) -> list[str]:
+    """Sites that may be touched by this dispatch.
+
+    First dispatch: both sites. Recovery dispatch: only explicitly retryable
+    sites that are not already completed. Unknown/unsafe partial outcomes are
+    never replayed automatically.
+    """
+    if not sid:
+        return list(TARGET_SITES)
+    data = _load_ledger()
+    if sid in (data.get("dispatched_slot_ids") or []):
+        return []
+    completions_map = data.get("site_completions") or {}
+    retryable_map = data.get("retryable_sites") or {}
+    if sid not in completions_map and sid not in retryable_map:
+        return list(TARGET_SITES)
+    completed = set(completions_map.get(sid) or [])
+    retryable = set(retryable_map.get(sid) or [])
+    return [site for site in TARGET_SITES if site in retryable and site not in completed]
+
+
 def is_slot_already_processed(sid: str) -> bool:
-    """True once this exact logical slot has already run a real bump
-    cycle -- checked by bump_autres.yml itself before touching any site,
-    so a re-dispatch of the same slot (crash-window retry, or any other
-    cause) is always a safe, verified no-op."""
     if not sid:
         return False
     return sid in (_load_ledger().get("dispatched_slot_ids") or [])
 
 
-def record_slot_processed(sid: str) -> dict[str, Any]:
+def record_site_outcomes(
+    sid: str,
+    *,
+    completed_sites: list[str] | tuple[str, ...] | set[str] = (),
+    retryable_sites: list[str] | tuple[str, ...] | set[str] = (),
+) -> dict[str, Any]:
+    if not sid:
+        raise ValueError("slot id required")
+    completed = {site for site in completed_sites if site in TARGET_SITES}
+    retryable = {site for site in retryable_sites if site in TARGET_SITES}
+
     data = _load_ledger()
+    completions_map = data.setdefault("site_completions", {})
+    retryable_map = data.setdefault("retryable_sites", {})
+
+    merged = set(completions_map.get(sid) or [])
+    merged.update(completed)
+    if merged:
+        completions_map[sid] = [site for site in TARGET_SITES if site in merged]
+
+    retryable.difference_update(merged)
+    if retryable:
+        retryable_map[sid] = [site for site in TARGET_SITES if site in retryable]
+    else:
+        retryable_map.pop(sid, None)
+
     ids = data.setdefault("dispatched_slot_ids", [])
-    if sid not in ids:
+    if set(TARGET_SITES).issubset(merged) and sid not in ids:
         ids.append(sid)
+
+    # Keep the legacy full-slot list bounded. Site maps are pruned by the same
+    # logical horizon using insertion order, without inventing outcomes.
     if len(ids) > LEDGER_MAX_ENTRIES:
         data["dispatched_slot_ids"] = ids[-LEDGER_MAX_ENTRIES:]
+    for key in ("site_completions", "retryable_sites"):
+        mapping = data.get(key) or {}
+        if len(mapping) > LEDGER_MAX_ENTRIES:
+            keep = list(mapping.keys())[-LEDGER_MAX_ENTRIES:]
+            data[key] = {k: mapping[k] for k in keep}
+
     _save_ledger(data)
     return data
+
+
+def record_slot_processed(sid: str) -> dict[str, Any]:
+    """Compatibility helper: mark both target sites completed."""
+    return record_site_outcomes(sid, completed_sites=TARGET_SITES, retryable_sites=())
+
+
+def retryable_incomplete_slots(
+    schedule: dict[str, Any],
+    now: datetime,
+) -> list[dict[str, Any]]:
+    """Previously dispatched slots eligible for one safe, site-scoped recovery."""
+    out = []
+    for slot in schedule.get("slots") or []:
+        if slot.get("status") != STATUS_DISPATCHED:
+            continue
+        sid = slot_id(schedule.get("period_date") or "", slot.get("index"))
+        retryable = retryable_sites_for_slot(sid)
+        if not retryable:
+            continue
+        if int(slot.get("recovery_count") or 0) >= MAX_RECOVERY_DISPATCHES:
+            continue
+        baseline_raw = slot.get("recovery_dispatched_at") or slot.get("dispatched_at")
+        if not baseline_raw:
+            continue
+        baseline = datetime.fromisoformat(baseline_raw)
+        if (now - baseline) < timedelta(minutes=RECOVERY_DELAY_MINUTES):
+            continue
+        out.append(slot)
+    return sorted(out, key=lambda s: s.get("dispatched_at") or "")
+
+
+def mark_recovery_dispatched(
+    schedule: dict[str, Any],
+    index: int,
+    *,
+    now: datetime,
+) -> dict[str, Any]:
+    for slot in schedule.get("slots") or []:
+        if slot.get("index") == index:
+            slot["recovery_count"] = int(slot.get("recovery_count") or 0) + 1
+            slot["recovery_dispatched_at"] = now.isoformat()
+            break
+    return schedule
+
 
 
 def dispatch_workflow(token: str, *, ref: str = "main", slot_id: str | None = None) -> None:
@@ -334,10 +472,32 @@ def summarize(schedule: dict[str, Any], *, now: datetime) -> dict[str, Any]:
     )
     next_slot = pending[0] if pending else None
     last_done = max(done, key=lambda s: s["dispatched_at"]) if done else None
+    period = schedule.get("period_date") or ""
+    completed_cycles = 0
+    per_site_completed = {site: 0 for site in TARGET_SITES}
+    partial_cycles = 0
+    retryable_cycles = 0
+    for slot in plannable:
+        sid = slot_id(period, slot.get("index"))
+        completed = completed_sites_for_slot(sid)
+        for site in TARGET_SITES:
+            if site in completed:
+                per_site_completed[site] += 1
+        if set(TARGET_SITES).issubset(completed):
+            completed_cycles += 1
+        elif completed:
+            partial_cycles += 1
+        if retryable_sites_for_slot(sid):
+            retryable_cycles += 1
+
     return {
         "period_date": schedule.get("period_date"),
         "cycles_planned": len(plannable),
         "cycles_done": len(done),
+        "cycles_completed": completed_cycles,
+        "per_site_completed": per_site_completed,
+        "partial_cycles": partial_cycles,
+        "retryable_cycles": retryable_cycles,
         "next_planned_at": next_slot["planned_at"] if next_slot else None,
         "last_dispatched_at": last_done["dispatched_at"] if last_done else None,
         "any_catchup": any(s.get("catchup") for s in done),
