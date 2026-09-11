@@ -1,4 +1,4 @@
-"""French-language Telegram UX layer for Autofresh: menu, aide, exemples,
+"""French-language operator UX layer for Autofresh: menu, aide, exemples,
 plateformes, and friendly clarification for ambiguous field words.
 
 This module never touches OperatorOverrideStore and never triggers a writer
@@ -202,9 +202,9 @@ def build_platforms_status(*, program: str | None = None) -> str:
 
     lines.append("")
     lines.append(
-        "🔴 Aucune commande Telegram ne déclenche une écriture live instantanée "
-        "aujourd'hui : toute écriture réelle passe par le pipeline planifié/vérifié "
-        "(jamais en synchrone depuis Telegram — run_writers=false par défaut)."
+        "🔒 Depuis Slack, une modification enregistre d'abord l'override. "
+        "Une écriture plateforme n'est lancée qu'après confirmation explicite "
+        "et uniquement sur une route autorisée/SAFE_DIFF."
     )
     return "\n".join(lines)
 
@@ -224,63 +224,70 @@ def _gain_parrain_caveat() -> str:
 def build_main_menu() -> str:
     gain_parrain_note = _gain_parrain_caveat()
     return (
-        "🤖 AUTOFRESH\n"
+        "🤖 AUTOFRESH — COMMANDES SLACK\n"
         "\n"
         "📊 CONSULTATION  🟢 lecture seule\n"
-        "• <Programme> statut\n"
-        "• <Programme> overrides\n"
-        "• <Programme> divergences\n"
-        "• <Programme> plateformes\n"
+        "• /autofresh <Programme> statut\n"
+        "• /autofresh <Programme> overrides\n"
+        "• /autofresh <Programme> divergences\n"
+        "• /autofresh <Programme> plateformes\n"
         "\n"
-        "✏️ MODIFICATIONS  🟠 enregistre un override\n"
-        "• <Programme> code <code>\n"
-        "• <Programme> lien <url>\n"
-        "• <Programme> gain filleul <valeur>\n"
-        f"• <Programme> gain parrain <valeur> — {gain_parrain_note}\n"
-        "• <Programme> conditions <texte>\n"
+        "✏️ MODIFICATIONS  🟠 enregistre un override, sans écrire le site immédiatement\n"
+        "• /autofresh <Programme> code <code>\n"
+        "• /autofresh <Programme> lien <url>\n"
+        "• /autofresh <Programme> gain filleul <valeur>\n"
+        f"• /autofresh <Programme> gain parrain <valeur> — {gain_parrain_note}\n"
+        "• /autofresh <Programme> conditions <texte>\n"
+        "• /autofresh <Programme> dépôt minimum <valeur>\n"
+        "• /autofresh <Programme> dépense minimum <valeur>\n"
+        "• /autofresh <Programme> minimum de trade <valeur>\n"
+        "• /autofresh <Programme> nombre de transactions <valeur>\n"
+        "• /autofresh <Programme> délai <valeur>\n"
+        "• /autofresh <Programme> expiration <valeur>\n"
+        "• /autofresh <Programme> type de récompense <valeur>\n"
+        "• /autofresh <Programme> titre <valeur>\n"
         "\n"
-        "🎯 PAR PLATEFORME  🟠\n"
-        "• <Programme> Super-Parrain statut\n"
-        "• <Programme> Super-Parrain gain filleul <valeur>\n"
-        "• <Programme> 1Parrainage statut\n"
-        "  (idem pour Parrainage.co / Code-Parrainage / ReferralCode.tv / "
-        "ReferralCodes / ReferralDrop)\n"
+        "🎯 MODIFICATION PAR PLATEFORME  🟠\n"
+        "• /autofresh <Programme> Super-Parrain gain filleul <valeur>\n"
+        "  (idem pour Parrainage.co / Code-Parrainage / 1Parrainage / "
+        "ReferralCode.tv / ReferralCodes / ReferralDrop)\n"
         "\n"
-        "🧹 OVERRIDES  🟠\n"
-        "• <Programme> supprimer code\n"
-        "• <Programme> supprimer lien\n"
-        "• <Programme> supprimer gain filleul\n"
-        "• <Programme> supprimer conditions\n"
+        "🧹 SUPPRIMER UN OVERRIDE  🟠\n"
+        "• /autofresh <Programme> supprimer override code\n"
+        "• /autofresh <Programme> supprimer override lien\n"
+        "• /autofresh <Programme> supprimer override gain filleul\n"
+        "• /autofresh <Programme> supprimer override conditions\n"
+        "• /autofresh <Programme> Super-Parrain supprimer override gain filleul\n"
         "\n"
-        "ℹ️ AIDE\n"
-        "• Autofresh — ce menu\n"
-        "• Autofresh exemples — quelques exemples concrets\n"
-        "• Autofresh plateformes — état réel des 7 plateformes\n"
-        "• Autofresh bump — statut du bump Code-Parrainage/Parrainage.co\n"
+        "ℹ️ AIDE / ÉTAT GLOBAL\n"
+        "• /autofresh aide — ce menu\n"
+        "• /autofresh exemples — exemples concrets\n"
+        "• /autofresh plateformes — état réel des 7 plateformes\n"
+        "• /autofresh bump — état des bumpers\n"
         "\n"
         "Variantes acceptées : statut/status, gain filleul/récompense filleul, "
-        "gain parrain/récompense parrain, lien/link, supprimer/retirer/effacer.\n"
+        "gain parrain/récompense parrain, lien/link.\n"
         "\n"
-        "🔴 Aucune commande ne déclenche une écriture live instantanée aujourd'hui "
-        "— chaque écriture réelle passe par le pipeline planifié/vérifié."
+        "🔒 Une commande de modification persiste d'abord l'override. "
+        "Une écriture réelle sur une plateforme compatible nécessite ensuite "
+        "la confirmation explicite « Confirmer l'écriture » dans Slack."
     )
 
 
 def build_examples() -> str:
-    # French first everywhere ("statut", never "status") -- English verbs
-    # stay accepted as aliases in the parser, but visible documentation is
-    # French-only.
     return (
         "🤖 AUTOFRESH — EXEMPLES\n"
         "\n"
-        "🟢 Kraken statut\n"
-        "🟢 Kraken overrides\n"
-        "🟢 Kraken divergences\n"
-        "🟢 Autofresh plateformes\n"
-        "🟠 Kraken gain filleul 200 €\n"
-        "🟠 Kraken lien https://invite.kraken.com/XXXX\n"
-        "🟠 Kraken Super-Parrain gain filleul 25 €\n"
-        "🟠 Kraken supprimer override gain filleul\n"
+        "🟢 /autofresh Kraken statut\n"
+        "🟢 /autofresh Kraken overrides\n"
+        "🟢 /autofresh Kraken divergences\n"
+        "🟢 /autofresh Kraken plateformes\n"
+        "🟢 /autofresh plateformes\n"
+        "🟢 /autofresh bump\n"
+        "🟠 /autofresh Kraken gain filleul 200 €\n"
+        "🟠 /autofresh Kraken lien https://invite.kraken.com/XXXX\n"
+        "🟠 /autofresh Kraken Super-Parrain gain filleul 25 €\n"
+        "🟠 /autofresh Kraken supprimer override gain filleul\n"
     )
 
 
