@@ -117,6 +117,9 @@ jobs:
           path: |
             debug_bg.png
             debug_piece.png
+            debug_slider_after.png
+            debug_code_login.png
+            data/captures/code-parrainage-slider-diag.json
             debug_parrainage_login.png
             debug_parrainage_avant.png
             debug_parrainage_apres.png
