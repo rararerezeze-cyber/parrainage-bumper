@@ -142,7 +142,7 @@ def main(argv: list[str] | None = None) -> int:
         print("::warning::Slack notification configuration missing; delivery NOT VERIFIED.")
         return 1
     payload = ({"channel": channel, "text":
-                "AutoFresh — test de notification Slack. Aucune écriture sur une plateforme.",
+                "AutoFresh — test de livraison Slack. Aucune écriture sur une plateforme.",
                 "mrkdwn": False, "unfurl_links": False, "unfurl_media": False}
                if args.test else build_payload(events, channel))
     return 0 if payload is None or deliver(payload, token) else 1
