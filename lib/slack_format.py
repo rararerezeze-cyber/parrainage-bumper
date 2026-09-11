@@ -25,16 +25,75 @@ _MAX_TEXT_CHARS = 160
 _MAX_SECTION_CHARS = 2900  # Slack mrkdwn section text limit is 3000
 _MAX_PLATFORM_ROWS = 10
 
+_FIELD_LABELS = {
+    "personal_code": "code de parrainage",
+    "personal_link": "lien de parrainage",
+    "referee_reward": "gain filleul",
+    "referrer_reward": "gain parrain",
+    "conditions": "conditions",
+    "min_deposit": "dépôt minimum",
+    "min_spend": "dépense minimum",
+    "min_trade": "montant de trade minimum",
+    "trade_min": "montant de trade minimum",
+    "transaction_count": "nombre de transactions",
+    "qualification_days": "délai de qualification",
+    "expiry_date": "date d'expiration",
+    "reward_type": "type de récompense",
+    "title": "titre",
+}
+
+_PLATFORM_LABELS = {
+    "super-parrain": "Super-Parrain",
+    "parrainage-co": "Parrainage.co",
+    "code-parrainage": "Code-Parrainage",
+    "1parrainage": "1Parrainage",
+    "referralcodes": "ReferralCodes",
+    "referralcode-tv": "ReferralCode.tv",
+    "referraldrop": "ReferralDrop",
+}
+
+_STATUS_LABELS = {
+    "pending_update": "différence à traiter",
+    "in_sync": "à jour",
+    "blocked": "bloquée",
+    "error": "en erreur",
+}
+
+_ERROR_LABELS = {
+    "workflow_incomplete": "Exécution interrompue",
+    "parse_error": "Commande non reconnue",
+    "unauthorized": "Accès refusé",
+    "apply_error": "Modification refusée",
+    "persist_unconfirmed": "Enregistrement non confirmé",
+    "persist_verify_error": "Vérification de l'enregistrement impossible",
+    "serialized_lock_timeout": "Une autre commande est déjà en cours",
+    "unknown_program": "Programme inconnu",
+    "empty_command": "Commande vide",
+    "invalid_command": "Commande invalide",
+}
+
 
 def guard_workflow_result(result: dict[str, Any], job_status: str) -> dict[str, Any]:
-    """A runner-local success is not durable proof after a failed commit step."""
+    """Never present a failed workflow as a durable success."""
     if job_status == "success":
         return result
     guarded = copy.deepcopy(result)
-    guarded.update(ok=False, persist_confirmed=False, platforms=[],
-                   human_summary="Exécution incomplète : vérifier le workflow avant toute nouvelle écriture.")
-    guarded["errors"] = [{"code": "workflow_incomplete", "detail":
-        "Résultat non confirmé durablement. Ne pas relancer une écriture sans vérifier les preuves."}]
+    action = str((guarded.get("parsed") or {}).get("action") or "")
+    read_only = action in {"status", "list", "help", "divergences", "plateformes_program"}
+    guarded.update(ok=False, persist_confirmed=False, platforms=[])
+    if read_only:
+        guarded["human_summary"] = (
+            "La commande de consultation a été interrompue. "
+            "Aucune écriture n'a été lancée ; tu peux simplement réessayer."
+        )
+        detail = "La consultation n'a pas été finalisée. Aucune écriture n'a été effectuée."
+    else:
+        guarded["human_summary"] = (
+            "L'exécution a été interrompue avant confirmation durable du résultat. "
+            "Vérifie le workflow avant de relancer une écriture."
+        )
+        detail = "Le résultat n'a pas pu être confirmé durablement."
+    guarded["errors"] = [{"code": "workflow_incomplete", "detail": detail}]
     return guarded
 
 
@@ -48,38 +107,102 @@ def _truncate(s: str, max_chars: int) -> str:
     return cut.rstrip() + "…"
 
 
+
+def _field_label(field: Any) -> str:
+    key = str(field or "")
+    return _FIELD_LABELS.get(key, key.replace("_", " ") or "valeur")
+
+
+def _platform_label(platform: Any) -> str:
+    key = str(platform or "")
+    return _PLATFORM_LABELS.get(key, key or "plateforme")
+
+
+def _format_value(value: Any) -> str:
+    if value is None or value == "":
+        return "non défini"
+    text = str(value)
+    if text.startswith("http://") or text.startswith("https://"):
+        return f"<{text}>"
+    return text
+
+
+def _result_title(result: dict[str, Any]) -> str:
+    parsed = result.get("parsed") or {}
+    action = str(parsed.get("action") or "")
+    program = str(parsed.get("program") or "").strip()
+    program_label = program.capitalize() if program else ""
+    if action == "help":
+        topic = str((result.get("result") or {}).get("topic") or parsed.get("help_topic") or "menu")
+        return {
+            "menu": "Aide",
+            "exemples": "Exemples",
+            "plateformes": "Plateformes",
+            "bump": "Bumpers",
+        }.get(topic, "Aide")
+    if action == "divergences":
+        return f"Divergences — {program_label}" if program_label else "Divergences"
+    if action == "plateformes_program":
+        return f"Plateformes — {program_label}" if program_label else "Plateformes"
+    if action == "list":
+        return f"Valeurs personnalisées — {program_label}" if program_label else "Valeurs personnalisées"
+    if action == "status":
+        return f"Statut — {program_label}" if program_label else "Statut"
+    if action == "set":
+        return f"Modification — {program_label}" if program_label else "Modification"
+    if action == "remove":
+        return f"Suppression — {program_label}" if program_label else "Suppression"
+    return program_label or "Résultat"
+
+
 def notification_text(result: dict[str, Any]) -> str:
-    """Short single-line fallback for the ``text`` field."""
+    """Short single-line fallback for Slack notifications/accessibility."""
     if result.get("ok") is False:
         errs = result.get("errors") or []
         detail = (errs[0].get("detail") if errs else None) or "erreur inconnue"
-        return _truncate(f"Autofresh — échec : {detail}", _MAX_TEXT_CHARS)
-    parsed = result.get("parsed") or {}
-    program = (parsed.get("program") or "").strip()
-    action = (parsed.get("action") or "status").strip()
+        return _truncate(f"AutoFresh — échec : {detail}", _MAX_TEXT_CHARS)
     concise = _concise_summary(result)
     if concise:
-        # Already program-labelled and French ("*Kraken* — ..."); strip
-        # markdown emphasis rather than prefixing a redundant label on top
-        # of it (that previously produced "kraken set — Kraken* — ...").
         first_line = concise.splitlines()[0].replace("*", "").strip(" :-")
         return _truncate(first_line, _MAX_TEXT_CHARS)
     human = (result.get("human_summary") or "").strip()
     first_line = human.splitlines()[0] if human else ""
-    first_line = first_line.lstrip("#").strip(" :-")
-    label = f"{program} {action}".strip() if program else action
     if first_line:
-        return _truncate(f"{label} — {first_line}" if label else first_line, _MAX_TEXT_CHARS)
-    return _truncate(label or "Autofresh — terminé.", _MAX_TEXT_CHARS)
+        return _truncate(first_line.replace("*", "").strip(" :-"), _MAX_TEXT_CHARS)
+    return _truncate(f"AutoFresh — {_result_title(result)}", _MAX_TEXT_CHARS)
 
 
 def _platform_status_line(row: dict[str, Any]) -> str:
-    plat = row.get("platform") or "?"
-    status = row.get("status") or row.get("write_mode") or "?"
-    marker = "✅" if row.get("can_auto_write") else ("✏️" if row.get("route") == "HUMAN_SAVE_REQUIRED" else "•")
+    platform = _platform_label(row.get("platform"))
+    status = str(row.get("status") or row.get("write_mode") or "")
+    route = str(row.get("route") or "")
     changed = row.get("changed_fields") or {}
-    extra = f" ({', '.join(list(changed.keys())[:3])})" if changed else ""
-    return f"{marker} `{plat}` — {status}{extra}"
+    fields = ", ".join(_field_label(k) for k in list(changed.keys())[:4])
+
+    if status == "in_sync":
+        return f"✅ `{platform}` — à jour"
+
+    if status == "pending_update":
+        if row.get("can_auto_write"):
+            detail = "à synchroniser — écriture disponible après confirmation"
+            marker = "🟠"
+        elif route == "HUMAN_SAVE_REQUIRED":
+            detail = "à synchroniser — sauvegarde manuelle requise"
+            marker = "🖐️"
+        elif route in {"NEVER_AUTO_COMMIT", "AUTH_BLOCKED_MANUAL"}:
+            detail = "différence détectée — mise à jour manuelle uniquement"
+            marker = "⚠️"
+        else:
+            detail = "différence détectée"
+            marker = "⚠️"
+        if fields:
+            detail += f" ({fields})"
+        return f"{marker} `{platform}` — {detail}"
+
+    label = _STATUS_LABELS.get(status, status.replace("_", " ") or "état inconnu")
+    if fields:
+        label += f" ({fields})"
+    return f"• `{platform}` — {label}"
 
 
 def _platforms_block(platforms: list[dict[str, Any]]) -> dict[str, Any] | None:
@@ -98,10 +221,15 @@ def _platforms_block(platforms: list[dict[str, Any]]) -> dict[str, Any] | None:
 def _errors_block(errors: list[dict[str, Any]]) -> dict[str, Any] | None:
     if not errors:
         return None
-    lines = [f"• `{e.get('code')}` : {e.get('detail')}" for e in errors[:10]]
+    lines = []
+    for err in errors[:10]:
+        code = str(err.get("code") or "")
+        label = _ERROR_LABELS.get(code, "Erreur")
+        detail = str(err.get("detail") or "").strip()
+        lines.append(f"• *{label}*" + (f" — {detail}" if detail else ""))
     return {
         "type": "section",
-        "text": {"type": "mrkdwn", "text": ":x: *Erreurs*\n" + "\n".join(lines)[:_MAX_SECTION_CHARS]},
+        "text": {"type": "mrkdwn", "text": "❌ *Problème rencontré*\n" + "\n".join(lines)[:_MAX_SECTION_CHARS]},
     }
 
 
@@ -127,21 +255,25 @@ def _concise_status_summary(result: dict[str, Any]) -> str | None:
     if mapped is None:
         return None
 
-    label = program.capitalize() if program else "Autofresh"
-    line = f"*{label}* — {pending or 0} plateforme(s) à mettre à jour sur {mapped}"
-    if in_sync:
-        line += f", {in_sync} déjà synchronisée(s)"
-    line += "."
+    label = program.capitalize() if program else "AutoFresh"
+    lines = [
+        f"*{label}* — {mapped} plateforme(s) suivie(s) : "
+        f"{in_sync or 0} à jour, {pending or 0} avec une différence."
+    ]
 
     routing = result.get("routing") or {}
     auto_targets = routing.get("automatic_safe_diff_targets") or []
     human_targets = routing.get("human_routed_targets") or []
-    lines = [line]
+    blocked_targets = routing.get("blocked_targets") or []
     if auto_targets:
-        lines.append(f"✅ Écriture automatique possible : {', '.join(auto_targets)}.")
+        names = ", ".join(_platform_label(p) for p in auto_targets)
+        lines.append(f"🟠 Mise à jour possible après confirmation : {names}.")
     if human_targets:
-        names = ", ".join(str(h.get("platform")) for h in human_targets)
-        lines.append(f"🖐️ Action manuelle requise (hors Slack) : {names}.")
+        names = ", ".join(_platform_label(h.get("platform")) for h in human_targets)
+        lines.append(f"🖐️ Intervention manuelle nécessaire : {names}.")
+    if blocked_targets:
+        names = ", ".join(_platform_label(p) for p in blocked_targets)
+        lines.append(f"⚪ Pas d'écriture automatique : {names}.")
     return "\n".join(lines)
 
 
@@ -153,16 +285,23 @@ def _concise_set_remove_summary(result: dict[str, Any]) -> str | None:
     action = parsed.get("action")
     if not field:
         return None
-    label = program.capitalize() if program else "Autofresh"
-    scope = f"plateforme {platform}" if platform else "globale"
+
+    label = program.capitalize() if program else "AutoFresh"
+    field_label = _field_label(field)
+    scope = f"sur {_platform_label(platform)}" if platform else "pour toutes les plateformes compatibles"
+
     if action == "remove":
-        return f"*{label}* — override supprimé : `{field}` (portée : {scope})."
+        return f"*{label}* — valeur personnalisée supprimée : *{field_label}* ({scope})."
+
     data = result.get("result") or {}
     old = data.get("old_effective")
     new = data.get("new_effective")
     if data.get("note") == "value_already_effective":
-        return f"*{label}* — `{field}` déjà à jour : {new!r} (portée : {scope})."
-    return f"*{label}* — `{field}` : {old!r} → {new!r} (portée : {scope})."
+        return f"*{label}* — *{field_label}* déjà à jour : {_format_value(new)} ({scope})."
+    return (
+        f"*{label}* — *{field_label}* modifié ({scope}) : "
+        f"{_format_value(old)} → {_format_value(new)}."
+    )
 
 
 def _concise_summary(result: dict[str, Any]) -> str | None:
@@ -214,7 +353,7 @@ def _confirm_button_block(
                     "title": {"type": "plain_text", "text": "Confirmer l'écriture ?"},
                     "text": {
                         "type": "mrkdwn",
-                        "text": "Ceci lance un writer vérifié réel sur la/les plateforme(s) éligible(s).",
+                        "text": "Cette confirmation lance la mise à jour réelle des plateformes compatibles qui présentent une différence sûre.",
                     },
                     "confirm": {"type": "plain_text", "text": "Écrire"},
                     "deny": {"type": "plain_text", "text": "Annuler"},
@@ -246,7 +385,7 @@ def render_result(
     requester = ((result.get("auth") or {}).get("identity")) or "slack"
 
     header_icon = "✅" if ok else "❌"
-    header_title = f"{header_icon} Autofresh — {program or action}".strip()
+    header_title = f"{header_icon} AutoFresh — {_result_title(result)}".strip()
 
     blocks: list[dict[str, Any]] = [
         {"type": "header", "text": {"type": "plain_text", "text": header_title[:150]}},
@@ -286,16 +425,18 @@ def render_result(
             program=program,
         ))
 
-    ctx_parts = []
-    if correlation_id:
-        ctx_parts.append(f"correlation_id: `{correlation_id}`")
-    if requester:
-        ctx_parts.append(f"requester: `{requester}`")
-    if ctx_parts:
+    # Keep successful messages clean. A short technical reference is useful
+    # only when the workflow failed and the operator may need to inspect logs.
+    if not ok and correlation_id:
         blocks.append(
             {
                 "type": "context",
-                "elements": [{"type": "mrkdwn", "text": " · ".join(ctx_parts)}],
+                "elements": [
+                    {
+                        "type": "mrkdwn",
+                        "text": f"Référence technique : `{str(correlation_id)[:12]}`",
+                    }
+                ],
             }
         )
 
