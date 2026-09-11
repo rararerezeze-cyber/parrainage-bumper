@@ -70,16 +70,16 @@ export function clip(s, n) {
 
 export function helpText() {
   return (
-    "*AutoFresh — commandes Slack*\n" +
-    "*Lecture*\n" +
+    "*AutoFresh — aide*\n" +
+    "\n*Consultation*\n" +
     "• `/autofresh Kraken statut`\n" +
-    "• `/autofresh Kraken overrides`\n" +
+    "• `/autofresh Kraken valeurs`\n" +
     "• `/autofresh Kraken divergences`\n" +
     "• `/autofresh Kraken plateformes`\n" +
     "• `/autofresh plateformes`\n" +
     "• `/autofresh bump`\n" +
     "• `/autofresh exemples`\n" +
-    "\n*Modifier un override*\n" +
+    "\n*Modifier une valeur*\n" +
     "• `/autofresh Kraken code ABC123`\n" +
     "• `/autofresh Kraken lien https://…`\n" +
     "• `/autofresh Kraken gain filleul 20 €`\n" +
@@ -93,12 +93,21 @@ export function helpText() {
     "• `/autofresh Kraken expiration <valeur>`\n" +
     "• `/autofresh Kraken type de récompense <valeur>`\n" +
     "• `/autofresh Kraken titre <valeur>`\n" +
-    "\n*Par plateforme*\n" +
+    "\n*Cibler une plateforme*\n" +
     "• `/autofresh Kraken Super-Parrain gain filleul 25 €`\n" +
-    "• `/autofresh Kraken Super-Parrain supprimer override gain filleul`\n" +
-    "\nToute écriture réelle sur un site compatible nécessite ensuite le bouton *Confirmer l'écriture*."
+    "• `/autofresh Kraken Parrainage.co code ABC123`\n" +
+    "\n*Supprimer une valeur personnalisée*\n" +
+    "• `/autofresh Kraken supprimer code`\n" +
+    "• `/autofresh Kraken supprimer lien`\n" +
+    "• `/autofresh Kraken supprimer gain filleul`\n" +
+    "• `/autofresh Kraken supprimer conditions`\n" +
+    "• `/autofresh Kraken Super-Parrain supprimer gain filleul`\n" +
+    "\nVariantes acceptées : `statut/status/état`, `valeurs/overrides/modifications`, " +
+    "`supprimer/retirer/effacer`, `lien/link`.\n" +
+    "\nToute mise à jour réelle d'un site compatible nécessite ensuite le bouton *Confirmer l'écriture*."
   );
 }
+
 
 export function normalizeSlashCommandText(text) {
   const raw = String(text || "").trim();
