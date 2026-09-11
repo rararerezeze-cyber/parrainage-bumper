@@ -263,17 +263,21 @@ def _concise_status_summary(result: dict[str, Any]) -> str | None:
 
     routing = result.get("routing") or {}
     auto_targets = routing.get("automatic_safe_diff_targets") or []
+    deferred_targets = routing.get("deferred_cycle_targets") or []
     human_targets = routing.get("human_routed_targets") or []
     blocked_targets = routing.get("blocked_targets") or []
     if auto_targets:
         names = ", ".join(_platform_label(p) for p in auto_targets)
         lines.append(f"🟠 Mise à jour possible après confirmation : {names}.")
+    if deferred_targets:
+        names = ", ".join(_platform_label(p) for p in deferred_targets)
+        lines.append(f"🔵 Mise à jour intégrée au prochain cycle automatique : {names}.")
     if human_targets:
         names = ", ".join(_platform_label(h.get("platform")) for h in human_targets)
         lines.append(f"🖐️ Intervention manuelle nécessaire : {names}.")
     if blocked_targets:
         names = ", ".join(_platform_label(p) for p in blocked_targets)
-        lines.append(f"⚪ Pas d'écriture automatique : {names}.")
+        lines.append(f"⚪ Mise à jour manuelle uniquement : {names}.")
     return "\n".join(lines)
 
 
