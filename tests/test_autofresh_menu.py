@@ -251,7 +251,7 @@ def test_per_program_plateformes_distinguishes_known_followed_and_status():
 
     text = build_platforms_status(program="kraken")
     assert f"{len(ALL_PLATFORMS)} plateformes connues" in text
-    assert "plateforme(s) suivie(s) pour Kraken" in text
+    assert "plateformes suivies pour Kraken" in text
     assert "SAFE_DIFF" not in text
     assert "canary" not in text.lower()
 
