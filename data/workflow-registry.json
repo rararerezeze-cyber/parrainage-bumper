@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-08-24T18:59:45.122369+00:00",
+  "updated_at": "2026-09-11T20:15:00+00:00",
   "note": "Operator-facing classification of every GitHub Actions workflow in this repository. PRODUCTION runs the product. EVIDENCE_CLOSED / DIAGNOSTIC_CLOSED are kept as historical proof and are already refused at runtime by their own gates -- they are archived, never deleted. tests/test_workflow_registry.py fails if a workflow file is added, removed, or reclassified without updating this file.",
   "classes": {
     "PRODUCTION_SCHEDULED": "Runs on cron. Keeps the product alive.",
@@ -29,9 +29,9 @@
       "note": "Frequent (~15min) off-peak poller that generates/persists 5 randomized UTC slots/day (data/bump-autres-schedule.json, lib/bump_autres_schedule.py) and dispatches bump_autres.yml exactly once per due slot. Replaced a same-session fixed-cadence cron (first minute-0, then minute-7) that was explicitly rejected as the wrong behavior 2026-08-31."
     },
     "bump_referralcode_tv.yml": {
-      "class": "PRODUCTION_SCHEDULED",
+      "class": "PRODUCTION_MANUAL",
       "platform": "referralcode-tv",
-      "note": "Isolated best-effort bump. An expected Turnstile challenge is reported, never retried, never bypassed, and never fails the run."
+      "note": "Manual-only isolated bump attempt. GitHub-hosted Chromium is currently blocked before login by a standalone Cloudflare Turnstile challenge. No scheduled retries: repeated known-blocker runs add no production value. workflow_dispatch is retained for an explicit operator re-test if the external gate changes; no bypass is attempted."
     },
     "monitor_offers.yml": {
       "class": "PRODUCTION_SCHEDULED",
