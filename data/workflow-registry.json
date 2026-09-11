@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-09-11T20:15:00+00:00",
+  "updated_at": "2026-09-11T20:35:47+00:00",
   "note": "Operator-facing classification of every GitHub Actions workflow in this repository. PRODUCTION runs the product. EVIDENCE_CLOSED / DIAGNOSTIC_CLOSED are kept as historical proof and are already refused at runtime by their own gates -- they are archived, never deleted. tests/test_workflow_registry.py fails if a workflow file is added, removed, or reclassified without updating this file.",
   "classes": {
     "PRODUCTION_SCHEDULED": "Runs on cron. Keeps the product alive.",
@@ -10,7 +10,8 @@
     "DIAGNOSTIC_CLOSED": "Read-only investigation whose finding is recorded. Kept as history.",
     "DIAGNOSTIC_AVAILABLE": "Read-only, still useful on demand.",
     "OPTIONAL_TEST_ONLY": "Not the production path. Never the Autofresh Telegram bot.",
-    "CI_READ_ONLY": "Pull-request validation. No platform secret, no browser, no write, no schedule."
+    "CI_READ_ONLY": "Pull-request validation. No platform secret, no browser, no write, no schedule.",
+    "PRODUCTION_EXTERNAL_TRIGGER": "Production workflow with no native GitHub cron; invoked by an external production scheduler (Cloudflare)."
   },
   "workflows": {
     "bump_super_parrain.yml": {
@@ -24,9 +25,9 @@
       "note": "Healthy combined cycle. ReferralCode.tv is deliberately NOT in TARGET_SITES. No schedule trigger of its own since 2026-08-31 -- timing is owned entirely by bump_autres_scheduler.yml's persisted randomized 5-slots/day plan; this workflow never reads/writes that schedule, so a manual dispatch here can never shift the planned slots."
     },
     "bump_autres_scheduler.yml": {
-      "class": "PRODUCTION_SCHEDULED",
+      "class": "PRODUCTION_EXTERNAL_TRIGGER",
       "platform": "code-parrainage,parrainage-co",
-      "note": "Frequent (~15min) off-peak poller that generates/persists 5 randomized UTC slots/day (data/bump-autres-schedule.json, lib/bump_autres_schedule.py) and dispatches bump_autres.yml exactly once per due slot. Replaced a same-session fixed-cadence cron (first minute-0, then minute-7) that was explicitly rejected as the wrong behavior 2026-08-31."
+      "note": "Cloudflare wakes this workflow at minutes 03/18/33/48. It generates/persists 5 randomized UTC slots/day and dispatches bump_autres.yml only when a real slot is due. The duplicate native GitHub cron was removed on 2026-09-11; Cloudflare is the sole routine wake-up source."
     },
     "bump_referralcode_tv.yml": {
       "class": "PRODUCTION_MANUAL",
@@ -41,7 +42,7 @@
     "hermes_operator.yml": {
       "class": "PRODUCTION_MANUAL",
       "platform": null,
-      "note": "Hermes → AutoFresh backend command path. run_writers defaults to false."
+      "note": "Slack → AutoFresh backend command path (historical filename retained). run_writers defaults to false and only a signed, allowlisted Slack confirmation may arm writers."
     },
     "controlled_write.yml": {
       "class": "PRODUCTION_MANUAL",
