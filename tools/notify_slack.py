@@ -16,6 +16,74 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from lib.notify import FIELDS, read_events, build_event, should_notify
 
 
+_PLATFORM_LABELS = {
+    "super-parrain": "Super-Parrain",
+    "parrainage-co": "Parrainage.co",
+    "code-parrainage": "Code-Parrainage",
+    "1parrainage": "1Parrainage",
+    "referralcodes": "ReferralCodes",
+    "referralcode-tv": "ReferralCode.tv",
+    "referraldrop": "ReferralDrop",
+}
+
+_EVENT_LABELS = {
+    "real_write": "mise à jour réelle effectuée",
+    "post_verify_success": "mise à jour vérifiée",
+    "post_verify_failure": "vérification après écriture échouée",
+    "monitor_real_safe_diff": "changement public détecté",
+    "platform_status_change": "état de plateforme modifié",
+    "workflow_error": "erreur d'automatisation",
+    "human_required": "intervention manuelle requise",
+    "rollback": "retour arrière effectué",
+    "pending_created": "mise à jour mise en attente",
+    "pending_closed": "mise à jour en attente clôturée",
+    "circuit_breaker_open": "sécurité activée — écritures bloquées",
+    "canary_real": "test réel contrôlé",
+    "bump_notable": "remontée d'annonce",
+    "external_blocker": "blocage externe",
+}
+
+_REASON_LABELS = {
+    "cloudflare_turnstile_challenge": "challenge Cloudflare Turnstile",
+    "CAPTCHA_OR_ANTIBOT": "protection anti-bot / CAPTCHA",
+    "403_ANTIBOT": "accès refusé par une protection anti-bot",
+    "RATE_LIMIT": "limite de requêtes atteinte",
+    "AUTH_BLOCKED": "authentification requise",
+    "EXPECTED_EXTERNAL_BLOCKER": "blocage externe connu",
+}
+
+_LEVEL_ICONS = {
+    "INFO": "ℹ️",
+    "SUCCESS": "✅",
+    "WARNING": "⚠️",
+    "ERROR": "❌",
+    "HUMAN_REQUIRED": "🖐️",
+}
+
+
+def _label_platform(value: object) -> str:
+    key = str(value or "")
+    return _PLATFORM_LABELS.get(key, key or "AutoFresh")
+
+
+def _label_reason(value: object) -> str:
+    key = str(value or "")
+    return _REASON_LABELS.get(key, key.replace("_", " ").lower())
+
+
+def _event_line(event: dict) -> str:
+    level = str(event.get("level") or "").upper()
+    icon = _LEVEL_ICONS.get(level, "•")
+    platform = _label_platform(event.get("platform"))
+    label = _EVENT_LABELS.get(
+        str(event.get("event") or ""),
+        str(event.get("event") or "").replace("_", " "),
+    )
+    detail = event.get("block_reason") or event.get("result")
+    suffix = f" — {_label_reason(detail)}" if detail else ""
+    return f"{icon} {platform} — {label}{suffix}"
+
+
 def build_payload(events: list[dict], channel: str) -> dict | None:
     lines = []
     for raw in events:
@@ -27,18 +95,19 @@ def build_payload(events: list[dict], channel: str) -> dict | None:
             for k, v in raw.items()
             if k in FIELDS and k not in {"level", "event"}
         })
-        line = " | ".join(str(safe.get(k) or "") for k in (
-            "level", "platform", "program", "event", "result", "block_reason"
-        )).strip(" |")
-        # Plain text only: no user mentions or automatic links.
-        lines.append(line[:500])
+        lines.append(_event_line(safe)[:500])
     if not lines:
         return None
-    text = "AutoFresh — événements\n" + "\n".join(lines[:40])
+    text = "AutoFresh — notifications\n" + "\n".join(lines[:40])
     if len(lines) > 40:
-        text += f"\n+{len(lines) - 40} événements dans l’archive du workflow."
-    return {"channel": channel, "text": text, "mrkdwn": False,
-            "unfurl_links": False, "unfurl_media": False}
+        text += f"\n+{len(lines) - 40} événement(s) dans l'archive du workflow."
+    return {
+        "channel": channel,
+        "text": text,
+        "mrkdwn": False,
+        "unfurl_links": False,
+        "unfurl_media": False,
+    }
 
 
 def deliver(payload: dict, token: str) -> bool:
@@ -73,7 +142,7 @@ def main(argv: list[str] | None = None) -> int:
         print("::warning::Slack notification configuration missing; delivery NOT VERIFIED.")
         return 1
     payload = ({"channel": channel, "text":
-                "AutoFresh — test de livraison Slack depuis GitHub. Aucune écriture plateforme.",
+                "AutoFresh — test de notification Slack. Aucune écriture sur une plateforme.",
                 "mrkdwn": False, "unfurl_links": False, "unfurl_media": False}
                if args.test else build_payload(events, channel))
     return 0 if payload is None or deliver(payload, token) else 1
