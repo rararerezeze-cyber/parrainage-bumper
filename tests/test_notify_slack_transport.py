@@ -23,8 +23,8 @@ def test_build_payload_ignores_outbox_metadata_fields():
 
     assert payload is not None
     assert payload["channel"] == "C_TEST"
-    assert "HUMAN_REQUIRED" in payload["text"]
-    assert "referralcode-tv" in payload["text"]
-    assert "external_blocker" in payload["text"]
-    assert "cloudflare_turnstile_challenge" in payload["text"]
+    assert "🖐️" in payload["text"]
+    assert "ReferralCode.tv" in payload["text"]
+    assert "blocage externe" in payload["text"]
+    assert "challenge Cloudflare Turnstile" in payload["text"]
     assert "schema_version" not in payload["text"]
