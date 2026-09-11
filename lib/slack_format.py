@@ -155,11 +155,33 @@ def _result_title(result: dict[str, Any]) -> str:
     return program_label or "Résultat"
 
 
+def _clean_error_detail(code: str, detail: Any) -> str:
+    text = str(detail or "").strip()
+    if code == "parse_error":
+        if text.startswith("unknown_program:"):
+            return f"Programme inconnu : {text.split(':', 1)[1]}. Utilise /autofresh aide."
+        if text.startswith("unknown_field:"):
+            return f"Valeur non reconnue : {text.split(':', 1)[1]}. Utilise /autofresh aide."
+        if text in {"empty_message", "invalid_message"}:
+            return "Commande vide ou invalide. Utilise /autofresh aide."
+    if code == "unauthorized":
+        return "Cette commande n'est pas autorisée pour ce compte Slack."
+    if code == "serialized_lock_timeout":
+        return "Une autre modification est déjà en cours. Réessaie dans quelques instants."
+    return text
+
+
+def _count_label(count: int, singular: str, plural: str | None = None) -> str:
+    return singular if count == 1 else (plural or singular + "s")
+
+
 def notification_text(result: dict[str, Any]) -> str:
     """Short single-line fallback for Slack notifications/accessibility."""
     if result.get("ok") is False:
         errs = result.get("errors") or []
-        detail = (errs[0].get("detail") if errs else None) or "erreur inconnue"
+        first = errs[0] if errs else {}
+        code = str(first.get("code") or "")
+        detail = _clean_error_detail(code, first.get("detail")) or "erreur inconnue"
         return _truncate(f"AutoFresh — échec : {detail}", _MAX_TEXT_CHARS)
     concise = _concise_summary(result)
     if concise:
@@ -225,7 +247,7 @@ def _errors_block(errors: list[dict[str, Any]]) -> dict[str, Any] | None:
     for err in errors[:10]:
         code = str(err.get("code") or "")
         label = _ERROR_LABELS.get(code, "Erreur")
-        detail = str(err.get("detail") or "").strip()
+        detail = _clean_error_detail(code, err.get("detail"))
         lines.append(f"• *{label}*" + (f" — {detail}" if detail else ""))
     return {
         "type": "section",
@@ -241,7 +263,7 @@ def _errors_block(errors: list[dict[str, Any]]) -> dict[str, Any] | None:
 # primary view. help/divergences/plateformes are NOT in this set: per
 # AGENTS.md, their human_summary IS already the complete, ready-to-send
 # French reply and must be relayed verbatim, never rebuilt here.
-_STRUCTURED_ACTIONS = {"status", "set", "remove"}
+_STRUCTURED_ACTIONS = {"status", "list", "divergences", "set", "remove"}
 
 
 def _concise_status_summary(result: dict[str, Any]) -> str | None:
@@ -256,9 +278,12 @@ def _concise_status_summary(result: dict[str, Any]) -> str | None:
         return None
 
     label = program.capitalize() if program else "AutoFresh"
+    mapped_i = int(mapped or 0)
+    pending_i = int(pending or 0)
+    in_sync_i = int(in_sync or 0)
     lines = [
-        f"*{label}* — {mapped} plateforme(s) suivie(s) : "
-        f"{in_sync or 0} à jour, {pending or 0} avec une différence."
+        f"*{label}* — {mapped_i} {_count_label(mapped_i, 'plateforme suivie', 'plateformes suivies')} : "
+        f"{in_sync_i} à jour, {pending_i} {_count_label(pending_i, 'avec une différence', 'avec une différence')}."
     ]
 
     routing = result.get("routing") or {}
@@ -268,16 +293,56 @@ def _concise_status_summary(result: dict[str, Any]) -> str | None:
     blocked_targets = routing.get("blocked_targets") or []
     if auto_targets:
         names = ", ".join(_platform_label(p) for p in auto_targets)
-        lines.append(f"🟠 Mise à jour possible après confirmation : {names}.")
+        lines.append(f"🟠 Compatible avec une mise à jour après confirmation : {names}.")
     if deferred_targets:
         names = ", ".join(_platform_label(p) for p in deferred_targets)
-        lines.append(f"🔵 Mise à jour intégrée au prochain cycle automatique : {names}.")
+        lines.append(f"🔵 Mise à jour au prochain cycle automatique si nécessaire : {names}.")
     if human_targets:
         names = ", ".join(_platform_label(h.get("platform")) for h in human_targets)
         lines.append(f"🖐️ Intervention manuelle nécessaire : {names}.")
     if blocked_targets:
         names = ", ".join(_platform_label(p) for p in blocked_targets)
         lines.append(f"⚪ Mise à jour manuelle uniquement : {names}.")
+    return "\n".join(lines)
+
+
+def _concise_list_summary(result: dict[str, Any]) -> str:
+    parsed = result.get("parsed") or {}
+    program = str(parsed.get("program") or "").strip()
+    label = program.capitalize() if program else "AutoFresh"
+    overrides = (result.get("result") or {}).get("overrides") or []
+    if not overrides:
+        return f"*{label}* — aucune valeur personnalisée enregistrée."
+
+    lines = [f"*{label}* — valeurs personnalisées :"]
+    for item in overrides[:20]:
+        field = _field_label(item.get("field"))
+        value = _format_value(item.get("value"))
+        platform = item.get("platform")
+        scope = _platform_label(platform) if platform else "toutes les plateformes compatibles"
+        lines.append(f"• *{field}* — {value} · {scope}")
+    if len(overrides) > 20:
+        lines.append(f"… +{len(overrides) - 20} autre(s)")
+    return "\n".join(lines)
+
+
+def _concise_divergences_summary(result: dict[str, Any]) -> str:
+    parsed = result.get("parsed") or {}
+    program = str(parsed.get("program") or "").strip()
+    label = program.capitalize() if program else "AutoFresh"
+    items = (result.get("result") or {}).get("divergences") or []
+    if not items:
+        return f"*{label}* — aucune divergence en attente."
+
+    lines = [f"*{label}* — {len(items)} {_count_label(len(items), 'divergence en attente', 'divergences en attente')} :"]
+    for item in items[:20]:
+        platform = _platform_label(item.get("platform"))
+        field = _field_label(item.get("field"))
+        current = _format_value(item.get("curated_value"))
+        observed = _format_value(item.get("observed_value"))
+        lines.append(f"• `{platform}` — *{field}* : {current} → {observed}")
+    if len(items) > 20:
+        lines.append(f"… +{len(items) - 20} autre(s)")
     return "\n".join(lines)
 
 
@@ -317,6 +382,10 @@ def _concise_summary(result: dict[str, Any]) -> str | None:
         return None
     if action == "status":
         return _concise_status_summary(result)
+    if action == "list":
+        return _concise_list_summary(result)
+    if action == "divergences":
+        return _concise_divergences_summary(result)
     return _concise_set_remove_summary(result)
 
 
