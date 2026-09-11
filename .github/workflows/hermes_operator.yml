@@ -189,7 +189,7 @@ jobs:
           # snapshot already preserved as an Actions artifact. It must never
           # create a repository commit for a read-only Slack command, otherwise
           # sequential status/help requests can conflict during rebase.
-          git restore --worktree --staged data/captures/hermes-last-result.json 2>/dev/null || true
+          git restore --worktree --staged data/captures/hermes-last-result.json
           # Same class of bug fixed in capture_readonly.yml and
           # monitor_offers.yml this session: `git add` aborts the ENTIRE
           # invocation (stages nothing at all, not even the paths that do
