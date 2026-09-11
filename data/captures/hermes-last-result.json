@@ -2,9 +2,9 @@
   "schema_version": 1,
   "ok": true,
   "action": "autofresh",
-  "command": "Autofresh bump",
-  "correlation_id": "d9f82398-c9e1-47a4-b24f-c535738c6521",
-  "at": "2026-09-11T12:19:12.404944+00:00",
+  "command": "Autofresh plateformes",
+  "correlation_id": "9a7c9a2e-f96f-4d82-873e-c77352b95917",
+  "at": "2026-09-11T12:21:05.697565+00:00",
   "monitor": "OBSERVATION_ONLY",
   "mode": "HERMES_OPERATOR",
   "errors": [],
@@ -16,7 +16,7 @@
   },
   "parsed": {
     "action": "help",
-    "help_topic": "bump",
+    "help_topic": "plateformes",
     "program": null,
     "offer_name": null,
     "platform": null,
@@ -27,10 +27,10 @@
   "persist_confirmed": true,
   "result": {
     "action": "help",
-    "topic": "bump",
-    "text": "*Bumper Code-Parrainage / Parrainage.co*\n• cycles prévus aujourd'hui : 5\n• cycles déclenchés (pas une preuve de bump) : 2/5\n• prochain passage prévu : 2026-09-11T10:46:16.363613+00:00 (planning aléatoire)\n• dernier passage : 2026-09-11T09:58:37.769648+00:00\n• rattrapage : oui\n• erreur : dernier run GitHub Actions = failure\n\n*Super-Parrain*\n• dernier succès réel : 2026-09-10T23:43:07.635209+00:00\n• 24h minimum atteint : non\n• jitter du cycle : 57 min\n• prochaine éligibilité : 2026-09-12T00:40:07.635209+00:00"
+    "topic": "plateformes",
+    "text": "🎯 AUTOFRESH — PLATEFORMES\n7 plateformes connues\nÉcriture vérifiée : 5/7\n\n• Super-Parrain — écriture vérifiée ✅ · relance historique autorisée\n• Parrainage.co — écriture vérifiée ✅ · auto si différence sûre détectée\n• Code-Parrainage — écriture vérifiée ✅ · auto si différence sûre détectée\n• 1Parrainage — écriture vérifiée ✅ · auto si différence sûre détectée\n• ReferralCodes — test d'écriture en cours (canary) · jamais automatique\n• ReferralCode.tv — écriture vérifiée ✅ · sauvegarde manuelle requise\n• ReferralDrop — bloqué (authentification manuelle requise) · bloqué (authentification)\n\n🔒 Depuis Slack, une modification enregistre d'abord l'override. Une écriture plateforme n'est lancée qu'après confirmation explicite et uniquement sur une route autorisée/SAFE_DIFF."
   },
-  "human_summary": "*Bumper Code-Parrainage / Parrainage.co*\n• cycles prévus aujourd'hui : 5\n• cycles déclenchés (pas une preuve de bump) : 2/5\n• prochain passage prévu : 2026-09-11T10:46:16.363613+00:00 (planning aléatoire)\n• dernier passage : 2026-09-11T09:58:37.769648+00:00\n• rattrapage : oui\n• erreur : dernier run GitHub Actions = failure\n\n*Super-Parrain*\n• dernier succès réel : 2026-09-10T23:43:07.635209+00:00\n• 24h minimum atteint : non\n• jitter du cycle : 57 min\n• prochaine éligibilité : 2026-09-12T00:40:07.635209+00:00",
+  "human_summary": "🎯 AUTOFRESH — PLATEFORMES\n7 plateformes connues\nÉcriture vérifiée : 5/7\n\n• Super-Parrain — écriture vérifiée ✅ · relance historique autorisée\n• Parrainage.co — écriture vérifiée ✅ · auto si différence sûre détectée\n• Code-Parrainage — écriture vérifiée ✅ · auto si différence sûre détectée\n• 1Parrainage — écriture vérifiée ✅ · auto si différence sûre détectée\n• ReferralCodes — test d'écriture en cours (canary) · jamais automatique\n• ReferralCode.tv — écriture vérifiée ✅ · sauvegarde manuelle requise\n• ReferralDrop — bloqué (authentification manuelle requise) · bloqué (authentification)\n\n🔒 Depuis Slack, une modification enregistre d'abord l'override. Une écriture plateforme n'est lancée qu'après confirmation explicite et uniquement sur une route autorisée/SAFE_DIFF.",
   "platforms": [],
   "write_status": {
     "WRITE_VERIFIED": "5/7",
@@ -120,5 +120,5 @@
     ],
     "updated_at": "2026-09-10T23:43:10.074553+00:00"
   },
-  "idempotency_key": "7445e3fa0632ac6b94e02453"
+  "idempotency_key": "ada56849027d1088694942db"
 }
