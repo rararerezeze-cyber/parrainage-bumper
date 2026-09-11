@@ -233,6 +233,46 @@ def _write_slider_diag(diag: dict) -> None:
         pass
 
 
+def _classify_slider_state(
+    captcha_valide=None,
+    *,
+    widget_visible=None,
+    root_text="",
+    success_marker=False,
+    failure_marker=False,
+):
+    """Classify the slider UI without guessing that an unknown DOM means failure.
+
+    Code-Parrainage changed its client-side success signalling around 2026-09-06:
+    the same drag geometry that was live-proven on 2026-09-05 started returning no
+    recognised local success flag.  The login POST/redirect is the authoritative
+    verifier, so an unknown UI state is deliberately returned as "indeterminate"
+    and run_code() is allowed to submit exactly once before deciding.
+    """
+    value = str(captcha_valide or "").strip().casefold()
+    if value in {"true", "1", "yes", "ok", "success", "valid", "valide"}:
+        return "success"
+    if success_marker or widget_visible is False:
+        return "success"
+
+    text = str(root_text or "").strip().casefold()
+    failure_tokens = (
+        "essaye encore",
+        "essayez encore",
+        "réessayez",
+        "reessayez",
+        "incorrect",
+        "échec",
+        "echec",
+        "failed",
+    )
+    if value in {"false", "0", "no", "ko", "invalid", "invalide"}:
+        return "failure"
+    if failure_marker or any(token in text for token in failure_tokens):
+        return "failure"
+    return "indeterminate"
+
+
 async def solve_slider(page):
     present = False
     for sel in ['div[class*="captcha"]', 'div[class*="slider"]', 'div:has-text("Glissez")']:
@@ -243,7 +283,7 @@ async def solve_slider(page):
         except Exception:
             pass
     if not present:
-        _write_slider_diag({"present": False, "ok": True, "note": "no slider widget"})
+        _write_slider_diag({"present": False, "ok": True, "state": "not_present", "note": "no slider widget"})
         return True
 
     log.info("  Slider CAPTCHA en cours...")
@@ -253,9 +293,17 @@ async def solve_slider(page):
         "target_x": None,
         "drag_px": None,
         "captcha_valide": None,
-        "widget_gone": None,
+        "widget_visible": None,
+        "root_class": None,
+        "root_text": None,
+        "success_marker": False,
+        "failure_marker": False,
+        "state": "pending",
         "ok": False,
-        "note": "existing solver only — no bypass, no extra attempts on same puzzle",
+        "note": (
+            "existing drag solver only; unknown client-side state is verified "
+            "authoritatively by one normal login submit"
+        ),
     }
     await human_sleep(1, 2)
 
@@ -263,18 +311,26 @@ async def solve_slider(page):
     try:
         canvases = page.locator('.slidercaptcha canvas')
         n = await canvases.count()
-        if n >= 1: bg_bytes = await canvases.nth(0).screenshot()
-        if n >= 2: piece_bytes = await canvases.nth(1).screenshot()
+        if n >= 1:
+            bg_bytes = await canvases.nth(0).screenshot()
+        if n >= 2:
+            piece_bytes = await canvases.nth(1).screenshot()
         log.info(f"  {n} canvas captures")
         diag["canvas_count"] = n
     except Exception as e:
         log.debug(f"  canvas: {e}")
         diag["canvas_error"] = str(e)[:200]
 
-    if bg_bytes: open("debug_bg.png", "wb").write(bg_bytes)
-    if piece_bytes: open("debug_piece.png", "wb").write(piece_bytes)
+    if bg_bytes:
+        open("debug_bg.png", "wb").write(bg_bytes)
+    if piece_bytes:
+        open("debug_piece.png", "wb").write(piece_bytes)
 
-    target_x = find_gap_position(bg_bytes, piece_bytes) if (bg_bytes and piece_bytes) else random.randint(120, 180)
+    target_x = (
+        find_gap_position(bg_bytes, piece_bytes)
+        if (bg_bytes and piece_bytes)
+        else random.randint(120, 180)
+    )
 
     handle = page.locator('div.slider').first
     try:
@@ -282,12 +338,14 @@ async def solve_slider(page):
     except Exception:
         log.warning("  Handle introuvable")
         diag["error"] = "handle_not_found"
+        diag["state"] = "failure"
         _write_slider_diag(diag)
         return False
 
     box = await handle.bounding_box()
     if not box:
         diag["error"] = "handle_box_missing"
+        diag["state"] = "failure"
         _write_slider_diag(diag)
         return False
 
@@ -299,41 +357,104 @@ async def solve_slider(page):
     log.info(f"  drag cible={real_dist}px")
     diag["target_x"] = target_x
     diag["drag_px"] = real_dist
+    diag["handle_box"] = {
+        "x": round(box["x"], 2),
+        "y": round(box["y"], 2),
+        "width": round(box["width"], 2),
+        "height": round(box["height"], 2),
+    }
+    if canvas_box:
+        diag["canvas_box"] = {
+            "x": round(canvas_box["x"], 2),
+            "y": round(canvas_box["y"], 2),
+            "width": round(canvas_box["width"], 2),
+            "height": round(canvas_box["height"], 2),
+        }
 
-    # Une glissade refusee invalide le puzzle. Les decalages supplementaires
-    # sur la meme image ne peuvent plus reussir; le retry recharge un defi neuf.
-    distances = [real_dist]
-    for dist in distances:
-        box = await handle.bounding_box()
-        if not box: break
-        sx = box["x"] + box["width"] / 2
-        sy = box["y"] + box["height"] / 2
-        await human_drag(page, sx, sy, dist)
-        try:
-            val = await page.locator('#captcha_valide, input[name="captcha_valide"]').first.input_value()
-            diag["captcha_valide"] = val
-            if val in ("true", "1", "yes", "ok"):
-                log.info("  Slider OK !")
-                diag["ok"] = True
-                _write_slider_diag(diag)
-                return True
-        except Exception:
-            pass
-        try:
-            if not await page.locator('.slidercaptcha').first.is_visible():
-                log.info("  Slider OK (widget disparu) !")
-                diag["widget_gone"] = True
-                diag["ok"] = True
-                _write_slider_diag(diag)
-                return True
-            diag["widget_gone"] = False
-        except Exception:
-            pass
-        await human_sleep(1.5, 2.5)
+    # A refused drag invalidates this puzzle.  One drag per fresh challenge only;
+    # retry() creates a fresh page/challenge instead of hammering the same image.
+    await human_drag(page, sx, sy, real_dist)
+    await human_sleep(1.0, 1.8)
 
-    log.warning("  Slider non resolu")
+    # Keep every client-side probe tightly bounded.  Since 2026-09-06 the old
+    # captcha_valide signal can be absent; the previous unbounded input_value()
+    # then consumed Playwright's ~30 s default timeout on every failed attempt.
+    captcha_valide = None
+    try:
+        flag = page.locator('#captcha_valide, input[name="captcha_valide"]').first
+        if await flag.count():
+            captcha_valide = await flag.input_value(timeout=800)
+    except Exception as e:
+        diag["captcha_flag_error"] = str(e)[:160]
+    diag["captcha_valide"] = captcha_valide
+
+    root = page.locator('.slidercaptcha').first
+    root_visible = None
+    root_text = ""
+    try:
+        if await root.count():
+            root_visible = await root.is_visible()
+            diag["root_class"] = await root.get_attribute("class", timeout=800)
+            if root_visible:
+                root_text = (await root.inner_text(timeout=800)).strip()[:200]
+        else:
+            root_visible = False
+    except Exception as e:
+        diag["root_probe_error"] = str(e)[:160]
+    diag["widget_visible"] = root_visible
+    diag["root_text"] = root_text
+
+    success_marker = False
+    failure_marker = False
+    try:
+        success = page.locator(
+            '.sliderContainer_success, .slidercaptcha.slider-success, '
+            '.slidercaptcha .slider-success'
+        ).first
+        success_marker = bool(await success.count()) and await success.is_visible()
+    except Exception:
+        pass
+    try:
+        failure = page.locator(
+            '.sliderContainer_fail, .slidercaptcha.slider-fail, '
+            '.slidercaptcha .slider-fail'
+        ).first
+        failure_marker = bool(await failure.count()) and await failure.is_visible()
+    except Exception:
+        pass
+    diag["success_marker"] = success_marker
+    diag["failure_marker"] = failure_marker
+
+    state = _classify_slider_state(
+        captcha_valide,
+        widget_visible=root_visible,
+        root_text=root_text,
+        success_marker=success_marker,
+        failure_marker=failure_marker,
+    )
+    diag["state"] = state
+    diag["ok"] = state == "success"
+
+    try:
+        await page.screenshot(path="debug_slider_after.png")
+    except Exception:
+        pass
     _write_slider_diag(diag)
-    return False
+
+    if state == "success":
+        log.info("  Slider OK !")
+        return True
+    if state == "failure":
+        log.warning("  Slider explicitement refuse")
+        return False
+
+    # Do NOT manufacture a success from DOM heuristics.  The client-side signal
+    # is unknown, so let the normal login submit/redirect be the final authority.
+    # run_code() submits once; if the server rejects it, retry() gets a fresh
+    # challenge.  This restores compatibility with a changed success DOM without
+    # bypassing or weakening the CAPTCHA.
+    log.warning("  Slider etat indetermine - verification par soumission login")
+    return None
 
 # -- RETRY --------------------------------------------------------------------
 class NonRetryableError(RuntimeError):
@@ -640,8 +761,14 @@ async def run_code(browser):
             await robust_fill(page, 'input[type="email"]', cfg["email"])
             await robust_fill(page, 'input[type="password"]', cfg["password"])
             await human_sleep(1, 2)
-            if not await solve_slider(page):
-                raise RuntimeError("Slider CAPTCHA non resolu")
+            slider_result = await solve_slider(page)
+            if slider_result is False:
+                raise RuntimeError("Slider CAPTCHA explicitement refuse")
+            if slider_result is None:
+                log.info(
+                    "  Signal slider inconnu - soumission unique; "
+                    "la reponse serveur fera foi"
+                )
             await asyncio.sleep(random.uniform(0.8, 1.5))
             await human_click(page, page.locator(
                 'button:has-text("Se connecter"), button[type="submit"]').first)
@@ -649,9 +776,23 @@ async def run_code(browser):
                 await page.wait_for_url(lambda u: "/login" not in u, timeout=20000)
             except Exception:
                 pass
-            await page.wait_for_load_state("networkidle")
-            await human_sleep(3, 5)
+            try:
+                await page.wait_for_load_state("networkidle", timeout=10000)
+            except Exception:
+                # The URL/session check below is authoritative.  Background
+                # requests must not turn a successful login into a false fail.
+                pass
+            await human_sleep(2, 4)
             if not await verify_login(page, "/login", name):
+                try:
+                    await page.screenshot(path="debug_code_login.png")
+                except Exception:
+                    pass
+                if slider_result is None:
+                    raise RuntimeError(
+                        "Login refuse apres slider indetermine "
+                        "(serveur = autorite)"
+                    )
                 raise RuntimeError("Login echoue")
 
             await page.goto(f"{cfg['url']}/moncompte", wait_until="networkidle")
