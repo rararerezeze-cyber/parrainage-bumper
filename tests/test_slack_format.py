@@ -73,6 +73,17 @@ def test_render_result_includes_full_human_summary_in_blocks_even_if_long():
     assert len(joined) >= 5000  # full content preserved across chunked blocks (unlike `text`)
 
 
+def test_parse_error_hides_internal_error_code_detail():
+    payload = render_result(_base_result(
+        ok=False,
+        parsed=None,
+        errors=[{"code": "parse_error", "detail": "unknown_program:foobar"}],
+    ))
+    dumped = json.dumps(payload, ensure_ascii=False)
+    assert "Programme inconnu : foobar" in dumped
+    assert "unknown_program" not in dumped
+
+
 def test_render_result_includes_errors_block_when_present():
     payload = render_result(_base_result(ok=False, errors=[{"code": "unauthorized", "detail": "no token"}]))
     texts = [b["text"]["text"] for b in payload["blocks"] if b.get("type") == "section"]
@@ -206,7 +217,7 @@ def test_status_result_gets_a_concise_french_summary_not_a_raw_json_dump():
     assert "WRITE_VERIFIED" not in sections
     assert '"telegram_live_capable"' not in sections
     assert "Kraken" in sections
-    assert "6 plateforme(s) suivie(s)" in sections
+    assert "6 plateformes suivies" in sections
     assert "0 à jour, 6 avec une différence" in sections
 
 
@@ -220,12 +231,74 @@ def test_status_result_summary_never_leaks_raw_local_shell_command():
 def test_status_result_summary_names_auto_and_human_targets_in_french():
     payload = render_result(_status_result())
     sections = "\n".join(b["text"]["text"] for b in payload["blocks"] if b.get("type") == "section")
-    assert "Mise à jour possible après confirmation" in sections
+    assert "Compatible avec une mise à jour après confirmation" in sections
     assert "1Parrainage" in sections
-    assert "Mise à jour intégrée au prochain cycle automatique" in sections
+    assert "Mise à jour au prochain cycle automatique si nécessaire" in sections
     assert "Super-Parrain" in sections
     assert "Intervention manuelle nécessaire" in sections
     assert "Mise à jour manuelle uniquement" in sections
+
+
+def test_list_result_is_clean_and_uses_user_facing_field_names():
+    result = _base_result(
+        command="Kraken valeurs",
+        parsed={"action": "list", "program": "kraken", "field": None, "platform": None},
+        result={
+            "action": "list",
+            "overrides": [
+                {
+                    "field": "personal_code",
+                    "value": "ABC123",
+                    "platform": None,
+                },
+                {
+                    "field": "referee_reward",
+                    "value": "20 €",
+                    "platform": "super-parrain",
+                },
+            ],
+        },
+        human_summary="raw technical list should not appear",
+    )
+    payload = render_result(result)
+    sections = "\n".join(
+        b["text"]["text"] for b in payload["blocks"] if b.get("type") == "section"
+    )
+    assert "valeurs personnalisées" in sections
+    assert "code de parrainage" in sections
+    assert "gain filleul" in sections
+    assert "Super-Parrain" in sections
+    assert "personal_code" not in sections
+    assert "referee_reward" not in sections
+    assert "raw technical list" not in sections
+
+
+def test_divergences_result_is_clean_and_uses_user_facing_labels():
+    result = _base_result(
+        command="Kraken divergences",
+        parsed={"action": "divergences", "program": "kraken", "field": None, "platform": None},
+        result={
+            "action": "divergences",
+            "divergences": [
+                {
+                    "platform": "parrainage-co",
+                    "field": "referee_reward",
+                    "curated_value": "20 €",
+                    "observed_value": "50 €",
+                }
+            ],
+        },
+        human_summary="raw divergence text",
+    )
+    payload = render_result(result)
+    sections = "\n".join(
+        b["text"]["text"] for b in payload["blocks"] if b.get("type") == "section"
+    )
+    assert "1 divergence en attente" in sections
+    assert "Parrainage.co" in sections
+    assert "gain filleul" in sections
+    assert "referee_reward" not in sections
+    assert "raw divergence text" not in sections
 
 
 def _set_result(**overrides):
