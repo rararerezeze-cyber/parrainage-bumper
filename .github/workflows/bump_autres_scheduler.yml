@@ -1,13 +1,13 @@
 name: Bump scheduler (randomized daily slots)
-# Owns the actual timing of bump_autres.yml. Generates/persists 5 random
+# Owns the actual timing of bump_autres.yml once woken by Cloudflare. Generates/persists 5 random
 # UTC slots per calendar day (never rerolled once a day has started -- see
 # lib/bump_autres_schedule.py) and dispatches exactly once per due slot.
 # bump_autres.yml itself carries no schedule trigger of its own and never
 # touches this state -- a manual/test dispatch of it can never shift or
 # redefine the 5 planned slots.
 on:
-  schedule:
-    - cron: "3,18,33,48 * * * *"  # every ~15 min, off minute-0/30 congestion
+  # Timing wake-up is owned by the Cloudflare cron on autofresh-slack.
+  # Keep only workflow_dispatch here to avoid running the same poller twice.
   workflow_dispatch:
 permissions:
   actions: write
