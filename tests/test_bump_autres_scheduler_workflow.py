@@ -4,14 +4,18 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import yaml
+
 ROOT = Path(__file__).resolve().parent.parent
 WORKFLOW = ROOT / ".github" / "workflows" / "bump_autres_scheduler.yml"
 TEXT = WORKFLOW.read_text(encoding="utf-8")
 
 
 def test_has_no_native_schedule_to_avoid_duplicate_cloudflare_polls():
-    assert "schedule:" not in TEXT
-    assert "cron:" not in TEXT
+    data = yaml.safe_load(TEXT)
+    triggers = data.get(True) or data.get("on") or {}
+    assert "schedule" not in triggers
+    assert "workflow_dispatch" in triggers
 
 
 def test_has_permissions_to_dispatch_and_commit():
