@@ -1,4 +1,4 @@
-"""French-language operator UX layer for Autofresh: menu, aide, exemples,
+"""French-language operator UX layer for AutoFresh: menu, aide, exemples,
 plateformes, and friendly clarification for ambiguous field words.
 
 This module never touches OperatorOverrideStore and never triggers a writer
@@ -92,25 +92,25 @@ def ambiguous_field_reply(word: str) -> str | None:
 
 
 _STATUS_FR = {
-    "UNPREPARED": "non préparé",
-    "WRITE_PREPARED": "préparé (écriture jamais testée)",
-    "CANARY_READY": "test d'écriture en cours (canary)",
-    "WRITE_VERIFIED": "écriture vérifiée ✅",
-    "AUTH_BLOCKED_GOOGLE": "bloqué (authentification Google)",
-    "AUTH_BLOCKED_MANUAL": "bloqué (authentification manuelle requise)",
-    "MANUAL_ONLY": "manuel uniquement",
-    "CANARY_FAILED": "échec du dernier test",
+    "UNPREPARED": "écriture non préparée",
+    "WRITE_PREPARED": "écriture préparée mais non validée",
+    "CANARY_READY": "écriture automatique non validée",
+    "WRITE_VERIFIED": "écriture testée et vérifiée",
+    "AUTH_BLOCKED_GOOGLE": "authentification Google requise",
+    "AUTH_BLOCKED_MANUAL": "authentification manuelle requise",
+    "MANUAL_ONLY": "mise à jour manuelle uniquement",
+    "CANARY_FAILED": "dernier test d'écriture en échec",
 }
 
 _ROUTE_FR = {
-    "AUTO_ON_SAFE_DIFF": "auto si différence sûre détectée",
+    "AUTO_ON_SAFE_DIFF": "écriture disponible après confirmation si une différence sûre est détectée",
     "HUMAN_SAVE_REQUIRED": "sauvegarde manuelle requise",
-    "NEVER_AUTO_COMMIT": "jamais automatique",
-    "AUTH_BLOCKED_MANUAL": "bloqué (authentification)",
-    "CANARY_PENDING_SKIP": "en attente de validation",
-    "COOKIE_SESSION_NOT_PC_OFF": "session cookie non automatisable",
-    "BUMPER_NOT_AUTHORIZED": "relance historique non autorisée",
-    "FUSED_UPDATE_BUMP": "relance historique autorisée",
+    "NEVER_AUTO_COMMIT": "mise à jour manuelle uniquement",
+    "AUTH_BLOCKED_MANUAL": "mise à jour manuelle — authentification requise",
+    "CANARY_PENDING_SKIP": "écriture en attente de validation",
+    "COOKIE_SESSION_NOT_PC_OFF": "session locale requise",
+    "BUMPER_NOT_AUTHORIZED": "mise à jour automatique non autorisée",
+    "FUSED_UPDATE_BUMP": "mise à jour intégrée au prochain cycle automatique",
 }
 
 _PLATFORM_LABEL_FR = {
@@ -147,64 +147,64 @@ def _is_mapped_for_program(platform_id: str, program: str) -> bool:
         return False
 
 
+def _platform_capability_text(status: str, route: str) -> str:
+    if route == "AUTO_ON_SAFE_DIFF":
+        return "mise à jour disponible après confirmation si une différence est détectée"
+    if route == "FUSED_UPDATE_BUMP":
+        return "mise à jour intégrée au prochain cycle automatique si nécessaire"
+    if route == "HUMAN_SAVE_REQUIRED":
+        return "sauvegarde manuelle requise"
+    if route == "NEVER_AUTO_COMMIT":
+        return "mise à jour manuelle uniquement"
+    if route == "AUTH_BLOCKED_MANUAL":
+        return "mise à jour manuelle — authentification requise"
+    return status_label_fr(status)
+
+
 def build_platforms_status(*, program: str | None = None) -> str:
-    """Real per-platform capability table, translated to French.
-
-    Pulls live from lib.write_status.summary() (+ a real mapping-file check
-    when *program* is given) every call -- never a cached or hardcoded
-    copy, so it reflects whatever writers/mappings actually exist today.
-
-    Deliberately keeps three distinct concepts separate rather than
-    collapsing them into one ambiguous count:
-      - "connue"  : one of the 7 platforms Autofresh knows about at all.
-      - "mappée"  : (program-specific only) a curated mapping file exists
-        for THIS program on that platform -- says nothing about whether a
-        write has ever been verified there.
-      - écriture  : the real write-readiness ladder (UNPREPARED ...
-        WRITE_VERIFIED / AUTH_BLOCKED...), independent of "mappée".
-    """
+    """User-facing capability table built from live write-status data."""
     data = write_summary()
     rows = {r["platform"]: r for r in data.get("platforms") or []}
-    header = "🎯 AUTOFRESH — PLATEFORMES" + (f" ({program.capitalize()})" if program else "")
+    header = "🎯 AUTOFRESH — PLATEFORMES" + (f" — {program.capitalize()}" if program else "")
     lines = [header, f"{len(ALL_PLATFORMS)} plateformes connues"]
 
     if program:
         mapped_flags = {pid: _is_mapped_for_program(pid, program) for pid in ALL_PLATFORMS}
         mapped_count = sum(1 for v in mapped_flags.values() if v)
-        unmapped = [pid for pid, v in mapped_flags.items() if not v]
-        lines.append(f"{mapped_count} {'mappée' if mapped_count == 1 else 'mappées'} pour {program.capitalize()}")
-        if unmapped:
-            details = ", ".join(
-                f"{platform_label_fr(pid)} — {status_label_fr(rows.get(pid, {}).get('status') or 'UNPREPARED')}"
-                for pid in unmapped
-            )
-            noun = "non mappée" if len(unmapped) == 1 else "non mappées"
-            lines.append(f"{len(unmapped)} {noun} : {details}")
+        lines.append(
+            f"{mapped_count} plateforme{'s' if mapped_count != 1 else ''} "
+            f"suivie{'s' if mapped_count != 1 else ''} pour {program.capitalize()}"
+        )
         lines.append("")
         for pid in ALL_PLATFORMS:
             row = rows.get(pid) or {}
+            label = platform_label_fr(pid)
+            if not mapped_flags[pid]:
+                lines.append(f"• `{label}` — non suivie pour ce programme")
+                continue
             status = row.get("status") or "UNPREPARED"
-            mapped_label = "mappée" if mapped_flags[pid] else "non mappée"
+            route = row.get("route") or ""
             lines.append(
-                f"• {platform_label_fr(pid)} — {mapped_label} · {status_label_fr(status)}"
+                f"• `{label}` — {_platform_capability_text(status, route)}"
             )
     else:
-        lines.append(f"Écriture vérifiée : {data.get('WRITE_VERIFIED')}")
+        verified = data.get("WRITE_VERIFIED") or data.get("write_verified_ratio") or "—"
+        lines.append(f"Écriture techniquement vérifiée : {verified} plateformes")
         lines.append("")
         for pid in ALL_PLATFORMS:
             row = rows.get(pid) or {}
             status = row.get("status") or "UNPREPARED"
             route = row.get("route") or ""
             lines.append(
-                f"• {platform_label_fr(pid)} — {status_label_fr(status)}"
-                + (f" · {route_label_fr(route)}" if route else "")
+                f"• `{platform_label_fr(pid)}` — "
+                f"{_platform_capability_text(status, route)}"
             )
 
     lines.append("")
     lines.append(
-        "🔒 Depuis Slack, une modification enregistre d'abord l'override. "
-        "Une écriture plateforme n'est lancée qu'après confirmation explicite "
-        "et uniquement sur une route autorisée/SAFE_DIFF."
+        "🔒 Une modification saisie dans Slack enregistre d'abord la nouvelle valeur. "
+        "La mise à jour réelle d'un site n'est proposée qu'aux plateformes compatibles "
+        "et demande une confirmation explicite."
     )
     return "\n".join(lines)
 
@@ -224,15 +224,15 @@ def _gain_parrain_caveat() -> str:
 def build_main_menu() -> str:
     gain_parrain_note = _gain_parrain_caveat()
     return (
-        "🤖 AUTOFRESH — COMMANDES SLACK\n"
+        "🤖 AUTOFRESH — AIDE\n"
         "\n"
-        "📊 CONSULTATION  🟢 lecture seule\n"
+        "📊 CONSULTATION\n"
         "• /autofresh <Programme> statut\n"
-        "• /autofresh <Programme> overrides\n"
+        "• /autofresh <Programme> valeurs\n"
         "• /autofresh <Programme> divergences\n"
         "• /autofresh <Programme> plateformes\n"
         "\n"
-        "✏️ MODIFICATIONS  🟠 enregistre un override, sans écrire le site immédiatement\n"
+        "✏️ MODIFIER UNE VALEUR\n"
         "• /autofresh <Programme> code <code>\n"
         "• /autofresh <Programme> lien <url>\n"
         "• /autofresh <Programme> gain filleul <valeur>\n"
@@ -247,30 +247,31 @@ def build_main_menu() -> str:
         "• /autofresh <Programme> type de récompense <valeur>\n"
         "• /autofresh <Programme> titre <valeur>\n"
         "\n"
-        "🎯 MODIFICATION PAR PLATEFORME  🟠\n"
+        "🎯 CIBLER UNE PLATEFORME\n"
         "• /autofresh <Programme> Super-Parrain gain filleul <valeur>\n"
-        "  (idem pour Parrainage.co / Code-Parrainage / 1Parrainage / "
-        "ReferralCode.tv / ReferralCodes / ReferralDrop)\n"
+        "• /autofresh <Programme> Parrainage.co code <code>\n"
+        "  (idem pour Code-Parrainage / 1Parrainage / ReferralCode.tv / ReferralCodes / ReferralDrop)\n"
         "\n"
-        "🧹 SUPPRIMER UN OVERRIDE  🟠\n"
-        "• /autofresh <Programme> supprimer override code\n"
-        "• /autofresh <Programme> supprimer override lien\n"
-        "• /autofresh <Programme> supprimer override gain filleul\n"
-        "• /autofresh <Programme> supprimer override conditions\n"
-        "• /autofresh <Programme> Super-Parrain supprimer override gain filleul\n"
+        "🧹 SUPPRIMER UNE VALEUR PERSONNALISÉE\n"
+        "• /autofresh <Programme> supprimer code\n"
+        "• /autofresh <Programme> supprimer lien\n"
+        "• /autofresh <Programme> supprimer gain filleul\n"
+        "• /autofresh <Programme> supprimer conditions\n"
+        "• /autofresh <Programme> Super-Parrain supprimer gain filleul\n"
         "\n"
-        "ℹ️ AIDE / ÉTAT GLOBAL\n"
-        "• /autofresh aide — ce menu\n"
-        "• /autofresh exemples — exemples concrets\n"
-        "• /autofresh plateformes — état réel des 7 plateformes\n"
-        "• /autofresh bump — état des bumpers\n"
+        "ℹ️ ÉTAT GLOBAL\n"
+        "• /autofresh aide\n"
+        "• /autofresh exemples\n"
+        "• /autofresh plateformes\n"
+        "• /autofresh bump\n"
         "\n"
-        "Variantes acceptées : statut/status, gain filleul/récompense filleul, "
-        "gain parrain/récompense parrain, lien/link.\n"
+        "Variantes acceptées : statut/status/état, valeurs/overrides/modifications, "
+        "supprimer/retirer/effacer, lien/link, gain filleul/récompense filleul, "
+        "gain parrain/récompense parrain.\n"
         "\n"
-        "🔒 Une commande de modification persiste d'abord l'override. "
-        "Une écriture réelle sur une plateforme compatible nécessite ensuite "
-        "la confirmation explicite « Confirmer l'écriture » dans Slack."
+        "🔒 Une modification enregistre d'abord la nouvelle valeur. "
+        "Une écriture réelle sur un site compatible nécessite ensuite le bouton "
+        "« Confirmer l'écriture » dans Slack."
     )
 
 
@@ -279,7 +280,7 @@ def build_examples() -> str:
         "🤖 AUTOFRESH — EXEMPLES\n"
         "\n"
         "🟢 /autofresh Kraken statut\n"
-        "🟢 /autofresh Kraken overrides\n"
+        "🟢 /autofresh Kraken valeurs\n"
         "🟢 /autofresh Kraken divergences\n"
         "🟢 /autofresh Kraken plateformes\n"
         "🟢 /autofresh plateformes\n"
@@ -287,26 +288,82 @@ def build_examples() -> str:
         "🟠 /autofresh Kraken gain filleul 200 €\n"
         "🟠 /autofresh Kraken lien https://invite.kraken.com/XXXX\n"
         "🟠 /autofresh Kraken Super-Parrain gain filleul 25 €\n"
-        "🟠 /autofresh Kraken supprimer override gain filleul\n"
+        "🟠 /autofresh Kraken supprimer gain filleul\n"
     )
 
 
+def _format_paris_time(raw: str | None) -> str:
+    if not raw:
+        return "—"
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+
+    dt = datetime.fromisoformat(raw)
+    local = dt.astimezone(ZoneInfo("Europe/Paris"))
+    return local.strftime("%d/%m/%Y à %H:%M")
+
+
+def _human_delay(seconds: float) -> str:
+    minutes = max(0, int(seconds // 60))
+    hours, mins = divmod(minutes, 60)
+    if hours and mins:
+        return f"{hours} h {mins:02d}"
+    if hours:
+        return f"{hours} h"
+    return f"{mins} min"
+
+
 def _build_bump_autres_section() -> str:
-    """Reads the persisted, randomized 5-slots-per-day schedule
-    (lib.bump_autres_schedule) -- never a "last run + Nh" heuristic, which
-    would falsely imply a fixed cadence that does not exist (rejected
-    2026-08-31). GITHUB_TOKEN is only used for the optional 'erreur
-    éventuelle' cross-check against the last real GitHub Actions run;
-    cycles/next-slot/last-passage all come from the schedule file itself.
-    """
+    """Read-only Slack status for the persisted randomized schedule."""
     import os
     from datetime import datetime, timezone
 
-    from lib.bump_autres_schedule import ensure_schedule_for, fetch_last_run, format_bump_status_fr, summarize
+    from lib.bump_autres_schedule import fetch_last_run, load_schedule, summarize
 
     now = datetime.now(timezone.utc)
-    schedule = ensure_schedule_for(now)
+    schedule = load_schedule()
+    if not schedule or schedule.get("period_date") != now.date().isoformat():
+        return (
+            "*Code-Parrainage + Parrainage.co*\n"
+            "• planning du jour : pas encore généré\n"
+            "• aucune action déclenchée par cette commande"
+        )
+
     summary = summarize(schedule, now=now)
+    lines = ["*Code-Parrainage + Parrainage.co*"]
+    lines.append(f"• créneaux aléatoires prévus aujourd'hui : {summary['cycles_planned']}")
+    lines.append(
+        f"• cycles lancés : {summary['cycles_done']}/{summary['cycles_planned']}"
+    )
+
+    next_raw = summary.get("next_planned_at")
+    if next_raw:
+        planned = datetime.fromisoformat(next_raw)
+        if planned <= now:
+            lines.append(
+                "• prochain créneau : en retard de "
+                f"{_human_delay((now - planned).total_seconds())} "
+                f"(prévu {_format_paris_time(next_raw)}, heure de Paris)"
+            )
+            lines.append("• rattrapage : attendu au prochain passage du planificateur")
+        else:
+            lines.append(
+                f"• prochain créneau : {_format_paris_time(next_raw)} "
+                "(heure de Paris)"
+            )
+    else:
+        lines.append("• prochain créneau : aucun autre aujourd'hui")
+
+    if summary.get("last_dispatched_at"):
+        lines.append(
+            f"• dernier cycle lancé : {_format_paris_time(summary['last_dispatched_at'])} "
+            "(heure de Paris)"
+        )
+    else:
+        lines.append("• dernier cycle lancé : aucun aujourd'hui")
+
+    if summary.get("any_catchup"):
+        lines.append("• retard déjà rattrapé aujourd'hui : oui")
 
     last_run = None
     token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
@@ -314,15 +371,18 @@ def _build_bump_autres_section() -> str:
         try:
             last_run = fetch_last_run(token)
         except Exception:  # noqa: BLE001
-            last_run = None  # best-effort only -- never blocks the schedule-driven summary
+            last_run = None
 
-    return format_bump_status_fr(summary, last_run=last_run)
+    if last_run and last_run.get("conclusion") == "failure":
+        lines.append("• dernier cycle GitHub : échec — diagnostic requis")
+    elif last_run and last_run.get("conclusion") == "success":
+        lines.append("• dernier cycle GitHub : terminé sans erreur de workflow")
+
+    return "\n".join(lines)
 
 
 def _build_super_parrain_bump_section() -> str:
-    """Read-only surface of lib.super_parrain_schedule's existing 24h +
-    persistent jitter logic -- never modifies or re-derives it, per the
-    explicit 2026-08-31 instruction to leave that logic intact."""
+    """Read-only surface of the existing 24h + persistent-jitter logic."""
     from lib.super_parrain_schedule import (
         current_jitter_minutes,
         is_eligible,
@@ -330,27 +390,30 @@ def _build_super_parrain_bump_section() -> str:
     )
 
     last_at = last_super_action_at()
-    eligible, next_at, hours_remaining = is_eligible()
+    eligible, next_at, _hours_remaining = is_eligible()
     jitter = current_jitter_minutes()
 
     lines = ["*Super-Parrain*"]
     lines.append(
-        f"• dernier succès réel : {last_at.isoformat() if last_at else 'aucun'}"
+        f"• dernier cycle réussi : {_format_paris_time(last_at.isoformat()) if last_at else 'aucun'}"
+        + (" (heure de Paris)" if last_at else "")
     )
-    lines.append(f"• 24h minimum atteint : {'oui' if eligible else 'non'}")
+    lines.append(f"• délai minimum de 24 h atteint : {'oui' if eligible else 'non'}")
     lines.append(
-        f"• jitter du cycle : {jitter} min" if jitter is not None else "• jitter du cycle : aucun (premier créneau)"
+        f"• décalage aléatoire de ce cycle : {jitter} min"
+        if jitter is not None
+        else "• décalage aléatoire : pas encore défini"
     )
     lines.append(
-        "• prochaine éligibilité : atteinte" if eligible else f"• prochaine éligibilité : {next_at.isoformat()}"
+        "• prochaine éligibilité : maintenant"
+        if eligible
+        else f"• prochaine éligibilité : {_format_paris_time(next_at.isoformat())} (heure de Paris)"
     )
     return "\n".join(lines)
 
 
 def build_bump_status() -> str:
-    """Live 'Autofresh bump' Slack/Telegram reply: bump_autres.yml's
-    randomized-slot schedule status, plus a read-only summary of
-    Super-Parrain's separate 24h+jitter cycle."""
+    """Live '/autofresh bump' reply: randomized slots plus Super-Parrain."""
     return _build_bump_autres_section() + "\n\n" + _build_super_parrain_bump_section()
 
 

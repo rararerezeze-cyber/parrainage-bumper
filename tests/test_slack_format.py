@@ -73,23 +73,36 @@ def test_render_result_includes_full_human_summary_in_blocks_even_if_long():
     assert len(joined) >= 5000  # full content preserved across chunked blocks (unlike `text`)
 
 
+def test_parse_error_hides_internal_error_code_detail():
+    payload = render_result(_base_result(
+        ok=False,
+        parsed=None,
+        errors=[{"code": "parse_error", "detail": "unknown_program:foobar"}],
+    ))
+    dumped = json.dumps(payload, ensure_ascii=False)
+    assert "Programme inconnu : foobar" in dumped
+    assert "unknown_program" not in dumped
+
+
 def test_render_result_includes_errors_block_when_present():
     payload = render_result(_base_result(ok=False, errors=[{"code": "unauthorized", "detail": "no token"}]))
     texts = [b["text"]["text"] for b in payload["blocks"] if b.get("type") == "section"]
-    assert any("unauthorized" in t for t in texts)
+    assert any("Accès refusé" in t for t in texts)
 
 
 def test_render_result_includes_platform_rows():
     platforms = [
-        {"platform": "kraken-super-parrain", "status": "pending_update", "can_auto_write": False, "route": "HUMAN_SAVE_REQUIRED", "changed_fields": {"referee_reward": {}}},
+        {"platform": "super-parrain", "status": "pending_update", "can_auto_write": False, "route": "HUMAN_SAVE_REQUIRED", "changed_fields": {"referee_reward": {}}},
         {"platform": "1parrainage", "status": "pending_update", "can_auto_write": True, "route": "AUTO_ON_SAFE_DIFF", "changed_fields": {"referee_reward": {}}},
     ]
     payload = render_result(_base_result(platforms=platforms))
     section_texts = "\n".join(
         b["text"]["text"] for b in payload["blocks"] if b.get("type") == "section" and "text" in b
     )
-    assert "1parrainage" in section_texts
-    assert "kraken-super-parrain" in section_texts
+    assert "1Parrainage" in section_texts
+    assert "Super-Parrain" in section_texts
+    assert "pending_update" not in section_texts
+    assert "referee_reward" not in section_texts
 
 
 def test_render_result_adds_confirm_button_when_writer_eligible_platform_pending():
@@ -144,13 +157,21 @@ def test_render_result_no_confirm_button_when_result_not_ok():
     assert not [b for b in payload["blocks"] if b.get("type") == "actions"]
 
 
-def test_render_result_includes_correlation_id_and_requester_context():
+def test_success_reply_hides_technical_context():
     payload = render_result(_base_result())
+    assert not [b for b in payload["blocks"] if b.get("type") == "context"]
+
+
+def test_failure_reply_keeps_only_short_technical_reference():
+    payload = render_result(_base_result(
+        ok=False,
+        errors=[{"code": "workflow_incomplete", "detail": "test"}],
+    ))
     ctx = [b for b in payload["blocks"] if b.get("type") == "context"]
     assert ctx
     text = ctx[0]["elements"][0]["text"]
     assert "corr-1" in text
-    assert "slack:U123" in text
+    assert "slack:U123" not in text
 
 
 def test_render_result_never_leaks_secret_shaped_tokens():
@@ -182,7 +203,8 @@ def _status_result(**overrides):
             "human_routed_targets": [
                 {"platform": "referralcode-tv", "route": "HUMAN_SAVE_REQUIRED", "command": "python -u tools/local_headed_rctv_canary.py"}
             ],
-            "blocked_targets": ["referralcodes", "super-parrain", "referraldrop"],
+            "deferred_cycle_targets": ["super-parrain"],
+            "blocked_targets": ["referralcodes", "referraldrop"],
         },
     )
     result.update(overrides)
@@ -195,22 +217,88 @@ def test_status_result_gets_a_concise_french_summary_not_a_raw_json_dump():
     assert "WRITE_VERIFIED" not in sections
     assert '"telegram_live_capable"' not in sections
     assert "Kraken" in sections
-    assert "6 plateforme(s) à mettre à jour sur 6" in sections
+    assert "6 plateformes suivies" in sections
+    assert "0 à jour, 6 avec une différence" in sections
 
 
 def test_status_result_summary_never_leaks_raw_local_shell_command():
     payload = render_result(_status_result())
     sections = "\n".join(b["text"]["text"] for b in payload["blocks"] if b.get("type") == "section")
     assert "local_headed_rctv_canary" not in sections
-    assert "referralcode-tv" in sections  # platform named, just not the raw command
+    assert "ReferralCode.tv" in sections  # platform named, just not the raw command
 
 
 def test_status_result_summary_names_auto_and_human_targets_in_french():
     payload = render_result(_status_result())
     sections = "\n".join(b["text"]["text"] for b in payload["blocks"] if b.get("type") == "section")
-    assert "Écriture automatique possible" in sections
-    assert "1parrainage" in sections
-    assert "Action manuelle requise" in sections
+    assert "Compatible avec une mise à jour après confirmation" in sections
+    assert "1Parrainage" in sections
+    assert "Mise à jour au prochain cycle automatique si nécessaire" in sections
+    assert "Super-Parrain" in sections
+    assert "Intervention manuelle nécessaire" in sections
+    assert "Mise à jour manuelle uniquement" in sections
+
+
+def test_list_result_is_clean_and_uses_user_facing_field_names():
+    result = _base_result(
+        command="Kraken valeurs",
+        parsed={"action": "list", "program": "kraken", "field": None, "platform": None},
+        result={
+            "action": "list",
+            "overrides": [
+                {
+                    "field": "personal_code",
+                    "value": "ABC123",
+                    "platform": None,
+                },
+                {
+                    "field": "referee_reward",
+                    "value": "20 €",
+                    "platform": "super-parrain",
+                },
+            ],
+        },
+        human_summary="raw technical list should not appear",
+    )
+    payload = render_result(result)
+    sections = "\n".join(
+        b["text"]["text"] for b in payload["blocks"] if b.get("type") == "section"
+    )
+    assert "valeurs personnalisées" in sections
+    assert "code de parrainage" in sections
+    assert "gain filleul" in sections
+    assert "Super-Parrain" in sections
+    assert "personal_code" not in sections
+    assert "referee_reward" not in sections
+    assert "raw technical list" not in sections
+
+
+def test_divergences_result_is_clean_and_uses_user_facing_labels():
+    result = _base_result(
+        command="Kraken divergences",
+        parsed={"action": "divergences", "program": "kraken", "field": None, "platform": None},
+        result={
+            "action": "divergences",
+            "divergences": [
+                {
+                    "platform": "parrainage-co",
+                    "field": "referee_reward",
+                    "curated_value": "20 €",
+                    "observed_value": "50 €",
+                }
+            ],
+        },
+        human_summary="raw divergence text",
+    )
+    payload = render_result(result)
+    sections = "\n".join(
+        b["text"]["text"] for b in payload["blocks"] if b.get("type") == "section"
+    )
+    assert "1 divergence en attente" in sections
+    assert "Parrainage.co" in sections
+    assert "gain filleul" in sections
+    assert "referee_reward" not in sections
+    assert "raw divergence text" not in sections
 
 
 def _set_result(**overrides):
@@ -234,7 +322,7 @@ def test_set_result_gets_a_concise_old_to_new_line_not_full_prose():
 def test_set_result_shows_platform_scope_when_platform_specific():
     payload = render_result(_set_result(parsed={"action": "set", "program": "kraken", "field": "personal_code", "platform": "super-parrain"}))
     sections = "\n".join(b["text"]["text"] for b in payload["blocks"] if b.get("type") == "section")
-    assert "plateforme super-parrain" in sections
+    assert "sur Super-Parrain" in sections
 
 
 def test_remove_result_gets_a_concise_line():
@@ -243,8 +331,9 @@ def test_remove_result_gets_a_concise_line():
         human_summary="removed override kraken personal_code ...",
     ))
     sections = "\n".join(b["text"]["text"] for b in payload["blocks"] if b.get("type") == "section")
-    assert "override supprimé" in sections
-    assert "personal_code" in sections
+    assert "valeur personnalisée supprimée" in sections
+    assert "code de parrainage" in sections
+    assert "personal_code" not in sections
 
 
 def test_meta_read_actions_still_relay_human_summary_verbatim():
@@ -262,7 +351,16 @@ def test_meta_read_actions_still_relay_human_summary_verbatim():
 def test_failed_result_still_shows_human_summary_or_errors_not_blank():
     payload = render_result(_status_result(ok=False, errors=[{"code": "unauthorized", "detail": "no token"}]))
     sections = "\n".join(b["text"]["text"] for b in payload["blocks"] if b.get("type") == "section")
-    assert "unauthorized" in sections
+    assert "Accès refusé" in sections
+
+
+def test_meta_headers_use_real_topic_not_generic_help():
+    payload = render_result(_base_result(
+        parsed={"action": "help", "program": None, "help_topic": "bump"},
+        result={"action": "help", "topic": "bump"},
+        human_summary="Bumpers",
+    ))
+    assert payload["blocks"][0]["text"]["text"] == "✅ AutoFresh — Bumpers"
 
 
 def test_notification_text_for_set_result_is_clean_no_stray_markdown_or_duplication():

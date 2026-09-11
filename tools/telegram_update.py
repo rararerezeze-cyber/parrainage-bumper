@@ -47,17 +47,18 @@ from lib.paths import OPERATOR_OVERRIDES_PATH
 _PROG = r"([a-z0-9][a-z0-9\-_.]{1,40})"
 # non-capturing alternation — capture is added once at use site
 _PLAT_NC = (
-    r"(?:super[\s\-]?parrain|parrainage\.?co|code[\s\-]?parrainage|1\s?parrainage|"
-    r"referralcodes?(?:\.com)?|referralcode\.?tv|referraldrop)"
+    r"(?:super[\s\-]?parrain|parrainage(?:[.\s\-]?co)|code[\s\-]?parrainage|"
+    r"1[\s\-]?parrainage|referralcode(?:[.\s\-]?tv)|"
+    r"referralcodes?(?:\.com)?|referraldrop)"
 )
 
 STATUS_RE = re.compile(
-    rf"(?i)^\s*{_PROG}\s+(status|statut|overrides|divergences|plateformes)\s*$"
+    rf"(?i)^\s*{_PROG}\s+(status|statut|état|etat|overrides|valeurs|modifications|divergences|plateformes)\s*$"
 )
 REMOVE_RE = re.compile(
     rf"(?i)^\s*{_PROG}"
     rf"(?:\s+({_PLAT_NC}))?"
-    r"\s+supprimer\s+override\s+(.+?)\s*$"
+    r"\s+(?:supprimer|retirer|effacer)(?:\s+override)?\s+(.+?)\s*$"
 )
 
 # Program [Platform] field value
@@ -147,9 +148,9 @@ def parse_message(message: str, offers: OffersRepository) -> dict:
         if not offer:
             raise ValueError(f"unknown_program:{m.group(1)}")
         verb = m.group(2).lower()
-        if verb in ("status", "statut"):
+        if verb in ("status", "statut", "état", "etat"):
             action = "status"
-        elif verb == "overrides":
+        elif verb in ("overrides", "valeurs", "modifications"):
             action = "list"
         elif verb == "divergences":
             action = "divergences"
@@ -242,9 +243,9 @@ def parse_message(message: str, offers: OffersRepository) -> dict:
         }
 
     raise ValueError(
-        "Message non reconnu. Exemples: 'Kraken code ABC123' | "
+        "Message non reconnu. Exemples : 'Kraken code ABC123' | "
         "'Kraken gain filleul 20 €' | 'Kraken Super-Parrain gain filleul 25 €' | "
-        "'Kraken status' | 'Kraken supprimer override gain filleul'"
+        "'Kraken statut' | 'Kraken supprimer gain filleul'"
     )
 
 

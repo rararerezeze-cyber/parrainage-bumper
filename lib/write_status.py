@@ -61,6 +61,7 @@ ROUTE_COOKIE_SESSION_NOT_PC_OFF = "COOKIE_SESSION_NOT_PC_OFF"
 # Distinct from ROUTE_CANARY_PENDING_SKIP (content-writer not verified yet)
 # so operator-facing status never conflates the two independent gates.
 ROUTE_BUMPER_NOT_AUTHORIZED = "BUMPER_NOT_AUTHORIZED"
+ROUTE_FUSED_UPDATE_BUMP = "FUSED_UPDATE_BUMP"
 
 HUMAN_LOCAL_COMMANDS = {
     "referralcode-tv": "python -u tools/local_headed_rctv_canary.py",
@@ -432,7 +433,7 @@ def runtime_route(platform: str) -> str:
             from lib.super_parrain_schedule import is_historical_bumper_authorized
 
             if is_historical_bumper_authorized():
-                return "FUSED_UPDATE_BUMP"
+                return ROUTE_FUSED_UPDATE_BUMP
         except Exception:
             pass
         return ROUTE_BUMPER_NOT_AUTHORIZED

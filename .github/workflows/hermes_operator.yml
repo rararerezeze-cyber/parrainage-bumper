@@ -73,16 +73,16 @@ jobs:
         with:
           python-version: "3.11"
       - name: Dependencies
+        env:
+          HERMES_INPUT_RUN_WRITERS: ${{ github.event.inputs.run_writers }}
         run: |
           pip install -r requirements.txt
-          python - <<'PY'
-          from lib.write_status import summary
-          s = summary()
-          open("/tmp/need_browser","w").write("1" if s.get("write_verified_count") else "0")
-          print("WRITE_VERIFIED", s.get("WRITE_VERIFIED"))
-          PY
-          if [ "$(cat /tmp/need_browser)" = "1" ]; then
+          # Browser binaries are only needed after an explicit Slack write
+          # confirmation. Read-only commands and write previews stay fast.
+          if [ "$HERMES_INPUT_RUN_WRITERS" = "true" ]; then
             playwright install --with-deps chromium
+          else
+            echo "browser_install_skipped=true"
           fi
       - name: Run Hermes Autofresh command
         id: run
@@ -185,6 +185,11 @@ jobs:
           set -e
           git config user.name "autofresh-bot"
           git config user.email "autofresh-bot@users.noreply.github.com"
+          # data/captures/hermes-last-result.json is an ephemeral response
+          # snapshot already preserved as an Actions artifact. It must never
+          # create a repository commit for a read-only Slack command, otherwise
+          # sequential status/help requests can conflict during rebase.
+          git restore --worktree --staged data/captures/hermes-last-result.json
           # Same class of bug fixed in capture_readonly.yml and
           # monitor_offers.yml this session: `git add` aborts the ENTIRE
           # invocation (stages nothing at all, not even the paths that do

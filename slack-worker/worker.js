@@ -46,6 +46,7 @@ import {
 } from "./lib.js";
 
 const WORKFLOW_FILE = "hermes_operator.yml";
+const SCHEDULER_WORKFLOW_FILE = "bump_autres_scheduler.yml";
 // Cloudflare KV enforces a hard minimum of 60s for expirationTtl -- a
 // smaller value makes env.IDEMPOTENCY.put() throw (verified live against
 // the real namespace: "Invalid expiration_ttl of 30. Expiration TTL must
@@ -80,10 +81,25 @@ export default {
       // tail` / dashboard visibility.
       console.error("unhandled_exception", url.pathname, err && err.stack ? err.stack : err);
       if (url.pathname === "/slack/commands") {
-        return ephemeral("Erreur interne Autofresh -- réessaie, ou consulte les logs du Worker si ça persiste.");
+        return ephemeral("Erreur interne AutoFresh — réessaie dans quelques instants.");
       }
       return new Response(null, { status: 200 }); // interactivity: ack anyway, nothing more we can tell the user here
     }
+  },
+
+  async scheduled(controller, env, ctx) {
+    // GitHub's native cron has repeatedly arrived hours late. Cloudflare
+    // only wakes the existing scheduler workflow; it never decides when a
+    // real site visit happens. The persisted random slots remain the sole
+    // timing authority inside bump_autres_scheduler.yml.
+    const key = `scheduler:${controller.scheduledTime || "tick"}`;
+    ctx.waitUntil((async () => {
+      if (await seenRecently(env, key)) return;
+      const result = await dispatchSchedulerWorkflow(env);
+      if (!result.ok) {
+        console.error("scheduler_dispatch_failed", result.status, result.error || "");
+      }
+    })());
   },
 };
 
@@ -116,7 +132,7 @@ async function handleSlashCommand(request, env, ctx) {
   }
 
   if (!isSafeCommandText(text)) {
-    return ephemeral("Commande rejetée (caractères non autorisés). " + helpText());
+    return ephemeral("Commande non reconnue ou caractères non autorisés.\n\n" + helpText());
   }
 
   const dedupeKey = `slash:${userId}:${triggerId}`;
@@ -134,11 +150,11 @@ async function handleSlashCommand(request, env, ctx) {
   });
 
   if (!dispatched.ok) {
-    return ephemeral(`Échec du déclenchement (${dispatched.status}). Vérifie GH_DISPATCH_TOKEN.`);
+    return ephemeral("Impossible de transmettre la commande à AutoFresh pour le moment.");
   }
 
   return ephemeral(
-    `🔄 Reçu — « ${clip(text, 200)} »\ncorrelation_id: \`${correlationId}\`\nRésultat détaillé sous peu dans ce salon.`
+    `🔄 Commande reçue — « ${clip(text, 200)} »\nRésultat dans ce salon dans quelques instants.`
   );
 }
 
@@ -207,8 +223,8 @@ async function handleInteractivity(request, env, ctx) {
     ctx.waitUntil(
       postResponseUrl(responseUrl, {
         text: dispatched.ok
-          ? "⏳ Écriture confirmée — exécution en cours. Résultat sous peu dans ce salon."
-          : `Échec du déclenchement de l'écriture (${dispatched.status}).`,
+          ? "⏳ Mise à jour confirmée — exécution en cours. Le résultat sera publié dans ce salon."
+          : "Impossible de lancer la mise à jour pour le moment.",
         replace_original: false,
       })
     );
@@ -241,6 +257,29 @@ async function dispatchWorkflow(env, { command, requester, correlationId, runWri
         "X-GitHub-Api-Version": "2022-11-28",
       },
       body: JSON.stringify(body),
+    });
+    return { ok: res.ok, status: res.status };
+  } catch {
+    return { ok: false, status: 0, error: "network_error" };
+  }
+}
+
+async function dispatchSchedulerWorkflow(env) {
+  const repo = env.GITHUB_REPO;
+  const token = env.GH_DISPATCH_TOKEN;
+  if (!repo || !token) {
+    return { ok: false, status: 0, error: "missing_github_config" };
+  }
+  try {
+    const res = await fetch(dispatchUrl(repo, SCHEDULER_WORKFLOW_FILE), {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/vnd.github+json",
+        "User-Agent": "autofresh-cloudflare-scheduler",
+        "X-GitHub-Api-Version": "2022-11-28",
+      },
+      body: JSON.stringify({ ref: env.GITHUB_REF || "main" }),
     });
     return { ok: res.ok, status: res.status };
   } catch {

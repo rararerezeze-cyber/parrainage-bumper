@@ -71,6 +71,48 @@ test("Worker signed request path: read/preview stays unarmed; confirmation dispa
   }
 });
 
+test("Cloudflare cron only wakes the persisted bump scheduler workflow", async () => {
+  const originalFetch = globalThis.fetch;
+  const calls = [];
+  const seen = new Map();
+  const env = {
+    GH_DISPATCH_TOKEN: "test-dispatch-token",
+    GITHUB_REPO: "example/test",
+    GITHUB_REF: "main",
+    IDEMPOTENCY: {
+      get: async (key) => seen.get(key),
+      put: async (key, value, options) => {
+        assert.ok(options.expirationTtl >= 60);
+        seen.set(key, value);
+      },
+    },
+  };
+  globalThis.fetch = async (url, options) => {
+    calls.push({ url, body: JSON.parse(options.body) });
+    return new Response(null, { status: 204 });
+  };
+  const pending = [];
+  const ctx = { waitUntil: (p) => pending.push(p) };
+  try {
+    await worker.scheduled({ scheduledTime: 123456789 }, env, ctx);
+    await Promise.all(pending);
+    assert.equal(calls.length, 1);
+    assert.equal(
+      calls[0].url,
+      "https://api.github.com/repos/example/test/actions/workflows/bump_autres_scheduler.yml/dispatches"
+    );
+    assert.deepEqual(calls[0].body, { ref: "main" });
+
+    // Same Cloudflare cron delivery retried: KV dedupe prevents a second wake-up.
+    const pending2 = [];
+    await worker.scheduled({ scheduledTime: 123456789 }, env, { waitUntil: (p) => pending2.push(p) });
+    await Promise.all(pending2);
+    assert.equal(calls.length, 1);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test("IDEMPOTENCY_TTL_SECONDS respects Cloudflare KV's hard minimum of 60s", () => {
   // Regression guard for the 2026-08-31 incident: a value below 60 makes
   // env.IDEMPOTENCY.put() throw on every dispatching slash command
@@ -164,7 +206,7 @@ test("isUserAllowed: empty allowlist fails closed", () => {
 test("helpText exposes the real Slack operator surface", () => {
   const text = helpText();
   assert.match(text, /\/autofresh Kraken statut/);
-  assert.match(text, /\/autofresh Kraken overrides/);
+  assert.match(text, /\/autofresh Kraken valeurs/);
   assert.match(text, /\/autofresh Kraken divergences/);
   assert.match(text, /\/autofresh Kraken plateformes/);
   assert.match(text, /\/autofresh plateformes/);
@@ -172,7 +214,7 @@ test("helpText exposes the real Slack operator surface", () => {
   assert.match(text, /gain filleul/);
   assert.match(text, /dépôt minimum/);
   assert.match(text, /minimum de trade/);
-  assert.match(text, /supprimer override/);
+  assert.match(text, /supprimer gain filleul/);
   assert.doesNotMatch(text, /\/autofresh Autofresh aide/);
 });
 
