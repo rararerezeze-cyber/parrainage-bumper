@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "updated_at": "2026-09-10T23:43:10.074553+00:00",
-  "note": "Strict write readiness. WRITE_VERIFIED requires full post-verify evidence. Telegram live writes only for WRITE_VERIFIED platforms.",
+  "updated_at": "2026-09-11T20:35:47+00:00",
+  "note": "Strict write readiness. WRITE_VERIFIED requires full post-verify evidence. Slack is the primary operator path; the legacy telegram_live_capable field remains the machine-readable unattended-writer allow-list.",
   "write_verified_count": 5,
   "write_verified_ratio": "5/7",
   "telegram_live_capable": [
@@ -294,7 +294,7 @@
       "status": "WRITE_VERIFIED",
       "canary_program": "kraken",
       "autonomy": "HUMAN_SAVE_REQUIRED",
-      "notes": "WRITE_VERIFIED headed canary eid=23004. SAVE_REQUIRES_CAPTCHA — content save stays HUMAN_SAVE_REQUIRED and Telegram must never auto-save. GitHub-hosted Chromium receives a Cloudflare Turnstile interstitial before login (read-only run 32565187359); no bypass. The scheduled bump is not disabled: it runs isolated in bump_referralcode_tv.yml (own concurrency group, own credentials, no CAPTCHA-solver key) as BUMP_ISOLATED_BEST_EFFORT — at most one #cliccami boost per run when login succeeds, and the challenge is classified EXPECTED_EXTERNAL_BLOCKER without retry, without bypass, and without failing the Code-Parrainage/Parrainage.co cycle.",
+      "notes": "WRITE_VERIFIED headed canary eid=23004. SAVE_REQUIRES_CAPTCHA: content save stays HUMAN_SAVE_REQUIRED and Slack must never auto-save it. GitHub-hosted Chromium receives a standalone Cloudflare Turnstile interstitial before login (read-only run 32565187359); no bypass. Repeated scheduled bump attempts were removed on 2026-09-11 because the external gate is deterministic and those runs had no production value. The isolated workflow remains available via workflow_dispatch for an explicit future re-test if the external gate changes.",
       "kraken_listing": "KRAKEN_EXISTS",
       "eid_status": "23004",
       "auth_edit_path": "AUTH_EDIT_PATH_PROVEN",
@@ -337,9 +337,9 @@
         "source": "local_headed_rctv_canary"
       },
       "scheduled_bump_workflow": ".github/workflows/bump_referralcode_tv.yml",
-      "scheduled_bump_isolation": "ISOLATED_FROM_ALL_OTHER_PLATFORMS",
-      "scheduled_bump_autonomy": "BUMP_ISOLATED_BEST_EFFORT",
-      "scheduled_bump_runtime_note": "scheduled_bump_runtime records the proven login classification on GitHub (AUTH_BLOCKED_CHALLENGE_GITHUB), not a disabled workflow. Content save remains HUMAN_SAVE_REQUIRED regardless of bump outcome."
+      "scheduled_bump_isolation": "ISOLATED_MANUAL_ONLY_FROM_ALL_OTHER_PLATFORMS",
+      "scheduled_bump_autonomy": "MANUAL_ONLY_EXTERNAL_GATE",
+      "scheduled_bump_runtime_note": "No cron remains. The isolated workflow is manual-only while GitHub-hosted login is blocked by standalone Turnstile. A manual re-test may be run only to check whether the external gate changed; no CAPTCHA bypass or retry loop is used."
     },
     "referraldrop": {
       "status": "AUTH_BLOCKED_MANUAL",
