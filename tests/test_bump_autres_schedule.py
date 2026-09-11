@@ -390,3 +390,95 @@ def test_module_has_no_local_timezone_dependency():
     src = inspect.getsource(sched)
     for forbidden in ("zoneinfo", "pytz", "astimezone("):
         assert forbidden not in src
+
+
+
+# --- per-site partial completion / safe recovery ---------------------------
+
+def test_first_slot_attempt_targets_both_sites():
+    assert sched.sites_for_slot_attempt("2026-08-31:0") == ["code", "parrainage"]
+
+
+def test_partial_success_skips_completed_site_on_recovery():
+    sid = "2026-08-31:0"
+    sched.record_site_outcomes(
+        sid,
+        completed_sites=["parrainage"],
+        retryable_sites=["code"],
+    )
+    assert sched.completed_sites_for_slot(sid) == {"parrainage"}
+    assert sched.retryable_sites_for_slot(sid) == {"code"}
+    assert sched.sites_for_slot_attempt(sid) == ["code"]
+    assert sched.is_slot_already_processed(sid) is False
+
+
+def test_full_site_completion_promotes_to_legacy_full_slot_guard():
+    sid = "2026-08-31:0"
+    sched.record_site_outcomes(
+        sid,
+        completed_sites=["parrainage"],
+        retryable_sites=["code"],
+    )
+    sched.record_site_outcomes(
+        sid,
+        completed_sites=["code"],
+        retryable_sites=[],
+    )
+    assert sched.completed_sites_for_slot(sid) == {"code", "parrainage"}
+    assert sched.is_slot_already_processed(sid) is True
+    assert sched.sites_for_slot_attempt(sid) == []
+
+
+def test_unsafe_partial_failure_is_never_replayed_automatically():
+    sid = "2026-08-31:0"
+    sched.record_site_outcomes(
+        sid,
+        completed_sites=["parrainage"],
+        retryable_sites=[],
+    )
+    assert sched.sites_for_slot_attempt(sid) == []
+
+
+def test_retryable_incomplete_slot_gets_only_one_delayed_recovery():
+    schedule = sched.ensure_schedule_for(MIDNIGHT, rng=random.Random(1))
+    slot = schedule["slots"][0]
+    planned = datetime.fromisoformat(slot["planned_at"])
+    dispatched = planned + timedelta(minutes=1)
+    schedule = sched.mark_dispatched(schedule, slot["index"], now=dispatched)
+    sid = sched.slot_id(schedule["period_date"], slot["index"])
+    sched.record_site_outcomes(
+        sid,
+        completed_sites=["parrainage"],
+        retryable_sites=["code"],
+    )
+
+    too_early = dispatched + timedelta(minutes=sched.RECOVERY_DELAY_MINUTES - 1)
+    assert sched.retryable_incomplete_slots(schedule, too_early) == []
+
+    later = dispatched + timedelta(minutes=sched.RECOVERY_DELAY_MINUTES + 1)
+    due = sched.retryable_incomplete_slots(schedule, later)
+    assert [s["index"] for s in due] == [slot["index"]]
+
+    schedule = sched.mark_recovery_dispatched(schedule, slot["index"], now=later)
+    assert sched.retryable_incomplete_slots(
+        schedule, later + timedelta(hours=1)
+    ) == []
+
+
+def test_summary_distinguishes_dispatch_from_real_per_site_completion():
+    schedule = sched.ensure_schedule_for(MIDNIGHT, rng=random.Random(1))
+    slot = schedule["slots"][0]
+    when = datetime.fromisoformat(slot["planned_at"]) + timedelta(minutes=1)
+    schedule = sched.mark_dispatched(schedule, slot["index"], now=when)
+    sid = sched.slot_id(schedule["period_date"], slot["index"])
+    sched.record_site_outcomes(
+        sid,
+        completed_sites=["parrainage"],
+        retryable_sites=[],
+    )
+    summary = sched.summarize(schedule, now=when)
+    assert summary["cycles_done"] == 1
+    assert summary["cycles_completed"] == 0
+    assert summary["partial_cycles"] == 1
+    assert summary["per_site_completed"]["parrainage"] == 1
+    assert summary["per_site_completed"]["code"] == 0
