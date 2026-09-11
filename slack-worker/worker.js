@@ -37,6 +37,7 @@ import {
   parseAllowedUsers,
   isUserAllowed,
   helpText,
+  normalizeSlashCommandText,
   buildDispatchBody,
   dispatchUrl,
   parseConfirmValue,
@@ -102,14 +103,15 @@ async function handleSlashCommand(request, env, ctx) {
   const userId = form.get("user_id") || "";
   const channelId = form.get("channel_id") || "";
   const triggerId = form.get("trigger_id") || "";
-  const text = (form.get("text") || "").trim();
+  const rawText = (form.get("text") || "").trim();
+  const text = normalizeSlashCommandText(rawText);
 
   const allowed = parseAllowedUsers(env.SLACK_ALLOWED_USERS);
   if (!isUserAllowed(userId, allowed)) {
     return ephemeral("Non autorisé.");
   }
 
-  if (!text || /^(aide|help)$/i.test(text)) {
+  if (!text || /^(aide|help|commandes|menu)$/i.test(text)) {
     return ephemeral(helpText());
   }
 
