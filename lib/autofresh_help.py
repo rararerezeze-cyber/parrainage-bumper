@@ -335,6 +335,25 @@ def _build_bump_autres_section() -> str:
     lines.append(
         f"• cycles lancés : {summary['cycles_done']}/{summary['cycles_planned']}"
     )
+    lines.append(
+        f"• cycles entièrement réussis : "
+        f"{summary.get('cycles_completed', 0)}/{summary['cycles_planned']}"
+    )
+    per_site = summary.get("per_site_completed") or {}
+    lines.append(
+        "• réussites par site : "
+        f"Code-Parrainage {per_site.get('code', 0)}/{summary['cycles_planned']} · "
+        f"Parrainage.co {per_site.get('parrainage', 0)}/{summary['cycles_planned']}"
+    )
+    if summary.get("partial_cycles"):
+        lines.append(
+            f"• cycles partiels à ne pas compter comme complets : "
+            f"{summary['partial_cycles']}"
+        )
+    if summary.get("retryable_cycles"):
+        lines.append(
+            f"• récupération sûre planifiée : {summary['retryable_cycles']}"
+        )
 
     next_raw = summary.get("next_planned_at")
     if next_raw:

@@ -84,31 +84,34 @@ def test_dependency_and_bump_steps_are_gated_on_the_idempotency_output():
     assert "if: steps.idempotency.outputs.should_run == 'true'" in bump_step
 
 
-def test_idempotency_check_uses_the_shared_ledger_function():
+def test_idempotency_check_uses_per_site_ledger_routing():
     check_step = _slice_between("Exactly-once slot check", "📦 Dépendances")
-    assert "from lib.bump_autres_schedule import is_slot_already_processed" in check_step
+    assert "sites_for_slot_attempt" in check_step
+    assert "target_sites" in check_step
 
 
-def test_empty_slot_id_never_short_circuits_via_the_ledger():
-    """A manual/test dispatch (empty slot_id) must always run -- the
-    is_slot_already_processed() check itself already guards this (see
-    lib.bump_autres_schedule), and the workflow computes `already` as
-    `bool(slot_id) and ...` so an empty slot_id short-circuits to False
-    before the ledger is even consulted."""
+def test_empty_slot_id_runs_both_sites_without_ledger_short_circuit():
     check_step = _slice_between("Exactly-once slot check", "📦 Dépendances")
-    assert "bool(slot_id) and is_slot_already_processed(slot_id)" in check_step
+    assert "sites_for_slot_attempt(slot_id)" in check_step
 
 
-def test_ledger_record_step_only_fires_on_a_real_successful_scheduler_dispatch():
-    record_step = _slice_between("Record slot as processed", "Save notification dedup state")
+def test_bump_step_uses_only_ledger_authorized_target_sites():
+    bump_step = _slice_between("🚀 Bump Code Parrainage", "📋 Logs")
+    assert "TARGET_SITES:" in bump_step
+    assert "steps.idempotency.outputs.target_sites" in bump_step
+
+
+def test_per_site_outcome_persistence_runs_even_after_partial_failure():
+    record_step = _slice_between("Persist per-site slot outcome", "Save notification dedup state")
     condition_line = next(line for line in record_step.splitlines() if line.strip().startswith("if:"))
-    assert "success()" in condition_line
+    assert "always()" in condition_line
     assert "steps.idempotency.outputs.should_run == 'true'" in condition_line
     assert "steps.idempotency.outputs.slot_id != ''" in condition_line
+    assert "OUTCOME_FILE: data/captures/bump-autres-site-outcomes.json" in record_step
 
 
 def test_ledger_persistence_uses_isolated_checkout_helper():
-    record_step = _slice_between("Record slot as processed", "Save notification dedup state")
+    record_step = _slice_between("Persist per-site slot outcome", "Save notification dedup state")
     assert "python tools/persist_bump_ledger.py" in record_step
     assert "git pull" not in record_step
 

@@ -45,6 +45,68 @@ def test_ledger_persists_with_dirty_checkout_and_new_remote_commit(tmp_path):
     assert git(remote, "rev-parse", "main") == head
 
 
+def test_partial_bump_outcome_persists_success_and_retryable_site(tmp_path):
+    remote, checkout = tmp_path / "remote.git", tmp_path / "checkout"
+    remote.mkdir()
+    git(remote, "init", "--bare", "--initial-branch=main")
+    git(tmp_path, "clone", str(remote), str(checkout))
+    git(checkout, "config", "user.name", "Test")
+    git(checkout, "config", "user.email", "test@example.invalid")
+    (checkout / "data").mkdir()
+    (checkout / "data/bump-autres-dispatch-ledger.json").write_text(
+        json.dumps({"version": 1, "dispatched_slot_ids": []})
+    )
+    git(checkout, "add", ".")
+    git(checkout, "commit", "-m", "seed")
+    git(checkout, "push", "origin", "main")
+
+    outcome = checkout / "outcome.json"
+    outcome.write_text(json.dumps({
+        "version": 1,
+        "sites": {
+            "parrainage": {"status": "success", "safe_to_retry": False},
+            "code": {"status": "failed", "safe_to_retry": True},
+        },
+    }))
+    persistence.persist_outcome(checkout, "2026-09-11:0", outcome)
+
+    ledger = json.loads(git(remote, "show", "main:data/bump-autres-dispatch-ledger.json"))
+    assert ledger["site_completions"]["2026-09-11:0"] == ["parrainage"]
+    assert ledger["retryable_sites"]["2026-09-11:0"] == ["code"]
+    assert "2026-09-11:0" not in ledger["dispatched_slot_ids"]
+
+
+def test_partial_bump_unsafe_failure_is_not_marked_retryable(tmp_path):
+    remote, checkout = tmp_path / "remote.git", tmp_path / "checkout"
+    remote.mkdir()
+    git(remote, "init", "--bare", "--initial-branch=main")
+    git(tmp_path, "clone", str(remote), str(checkout))
+    git(checkout, "config", "user.name", "Test")
+    git(checkout, "config", "user.email", "test@example.invalid")
+    (checkout / "data").mkdir()
+    (checkout / "data/bump-autres-dispatch-ledger.json").write_text(
+        json.dumps({"version": 1, "dispatched_slot_ids": []})
+    )
+    git(checkout, "add", ".")
+    git(checkout, "commit", "-m", "seed")
+    git(checkout, "push", "origin", "main")
+
+    outcome = checkout / "outcome.json"
+    outcome.write_text(json.dumps({
+        "version": 1,
+        "sites": {
+            "parrainage": {"status": "success", "safe_to_retry": False},
+            "code": {"status": "failed", "safe_to_retry": False},
+        },
+    }))
+    persistence.persist_outcome(checkout, "2026-09-11:0", outcome)
+
+    ledger = json.loads(git(remote, "show", "main:data/bump-autres-dispatch-ledger.json"))
+    assert ledger["site_completions"]["2026-09-11:0"] == ["parrainage"]
+    assert "2026-09-11:0" not in (ledger.get("retryable_sites") or {})
+
+
+
 @pytest.mark.parametrize("state", ["failure", "cancelled", "unknown"])
 def test_failed_workflow_cannot_display_success_or_confirmation(state):
     original = {"ok": True, "persist_confirmed": True, "platforms": [

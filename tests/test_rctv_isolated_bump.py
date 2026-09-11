@@ -189,7 +189,8 @@ def test_rctv_workflow_is_isolated_from_the_other_bumpers():
 
     # Distinct targets: no shared browser session, no shared run.
     assert 'TARGET_SITES: "referralcode"' in rctv
-    assert 'TARGET_SITES:              "code,parrainage"' in autres
+    assert "steps.idempotency.outputs.target_sites" in autres
+    assert "referralcode" not in autres.split("TARGET_SITES:", 1)[1].split("\n", 1)[0]
     assert "code,parrainage" not in rctv
     assert "REFERRALCODE_EMAIL" not in autres
 

@@ -65,20 +65,21 @@ jobs:
           set -e
           python - <<'PY'
           import os
-          from lib.bump_autres_schedule import is_slot_already_processed
-          from lib.bump_autres_schedule import LEDGER_PATH
+          from lib.bump_autres_schedule import LEDGER_PATH, sites_for_slot_attempt
 
           slot_id = os.environ.get("SLOT_ID", "").strip()
           if slot_id and not LEDGER_PATH.is_file():
               raise RuntimeError("Missing durable ledger; refusing site access")
-          already = bool(slot_id) and is_slot_already_processed(slot_id)
+          target_sites = sites_for_slot_attempt(slot_id)
+          should_run = bool(target_sites)
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
-              fh.write(f"should_run={'false' if already else 'true'}\n")
+              fh.write(f"should_run={'true' if should_run else 'false'}\n")
               fh.write(f"slot_id={slot_id}\n")
-          if already:
-              print(f"slot_id={slot_id!r} already processed -- skipping, no site access.")
+              fh.write(f"target_sites={','.join(target_sites)}\n")
+          if should_run:
+              print(f"slot_id={slot_id!r} target_sites={target_sites!r}")
           else:
-              print(f"slot_id={slot_id!r} not yet processed (or manual dispatch) -- proceeding.")
+              print(f"slot_id={slot_id!r} fully processed or unsafe to replay -- no site access.")
           PY
         env:
           SLOT_ID: ${{ github.event.inputs.slot_id }}
@@ -101,7 +102,7 @@ jobs:
           # Cloudflare Turnstile interstitial before login (read-only run
           # 32565187359). Do not retry or bypass it and do not let that external
           # blocker fail the healthy Code-Parrainage/Parrainage.co cycle.
-          TARGET_SITES:              "code,parrainage"
+          TARGET_SITES:              ${{ steps.idempotency.outputs.target_sites }}
         run: |
           python bumper.py
       - name: 📋 Logs
@@ -120,22 +121,23 @@ jobs:
             debug_slider_after.png
             debug_code_login.png
             data/captures/code-parrainage-slider-diag.json
+            data/captures/bump-autres-site-outcomes.json
             debug_parrainage_login.png
             debug_parrainage_avant.png
             debug_parrainage_apres.png
             debug_referralcode_login.png
 
-      - name: Record slot as processed (exactly-once ledger)
-        # Only after a REAL, successful bump of a scheduler-originated
-        # slot (should_run was true AND slot_id non-empty) -- a manual/
-        # test dispatch (empty slot_id) never touches the ledger, and a
-        # dispatch that was itself skipped as a duplicate must not
-        # re-write an already-correct ledger entry.
-        if: success() && steps.idempotency.outputs.should_run == 'true' && steps.idempotency.outputs.slot_id != ''
+      - name: Persist per-site slot outcome
+        # Always persist a scheduler-originated run's verified per-site outcome,
+        # even when another site failed. This prevents a later recovery from
+        # replaying a site that already bumped successfully.
+        if: always() && steps.idempotency.outputs.should_run == 'true' && steps.idempotency.outputs.slot_id != ''
         run: |
+          test -f data/captures/bump-autres-site-outcomes.json
           python tools/persist_bump_ledger.py
         env:
           SLOT_ID: ${{ steps.idempotency.outputs.slot_id }}
+          OUTCOME_FILE: data/captures/bump-autres-site-outcomes.json
 
       - name: Save notification dedup state
         if: always()

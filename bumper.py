@@ -750,6 +750,7 @@ async def run_super(browser):
 async def run_code(browser):
     cfg = CONFIG["code"]
     name = "code-parrainage"
+    SITE_ACTION_STARTED["code"] = False
     log.info(f"\n--- code-parrainage.net ---")
     ctx = await new_context(browser)
 
@@ -811,6 +812,7 @@ async def run_code(browser):
                 try:
                     if not await btn.is_visible(): continue
                     await btn.scroll_into_view_if_needed()
+                    SITE_ACTION_STARTED["code"] = True
                     await human_click(page, btn)
                     bumped += 1
                     log.info(f"  Actualiser {progress}/{count}")
@@ -819,6 +821,10 @@ async def run_code(browser):
                     log.warning(f"  Erreur bouton index={i}: {e}")
             log.info(f"  {bumped} annonces remontees")
             if bumped != count:
+                if SITE_ACTION_STARTED.get("code"):
+                    raise NonRetryableError(
+                        f"Remontee incomplete apres action: {bumped}/{count}"
+                    )
                 raise RuntimeError(f"Remontee incomplete: {bumped}/{count}")
         finally:
             await page.close()
@@ -1069,6 +1075,7 @@ async def smart_login_parrainage(page, email, password):
 async def run_parrainage(browser):
     cfg = CONFIG["parrainage"]
     name = "parrainage_co"
+    SITE_ACTION_STARTED["parrainage"] = False
     log.info(f"\n--- parrainage.co ---")
     ctx = await new_context(browser)
 
@@ -1106,17 +1113,30 @@ async def run_parrainage(browser):
             else:
                 log.info("  Cookie valid")
 
-            # Boost-all
+            # Boost-all. Once this request starts, an ambiguous failure must
+            # never be retried automatically: the site may already have applied
+            # the bump even if the browser lost the response.
             page.on("dialog", lambda d: asyncio.ensure_future(d.accept()))
-            resp = await page.goto(f"{cfg['url']}/account/offers/boost-all",
-                                   wait_until="domcontentloaded", timeout=30000)
-            log.info(f"  boost-all -> {resp.status if resp else '?'} {page.url}")
-            if not resp or not (200 <= resp.status < 400):
-                raise RuntimeError(f"boost-all HTTP {resp.status if resp else 'sans reponse'}")
-            if "/login" in page.url:
-                raise RuntimeError("Session expiree pendant boost-all")
-            await human_sleep(2, 4)
-            log.info("  Boost success")
+            SITE_ACTION_STARTED["parrainage"] = True
+            try:
+                resp = await page.goto(
+                    f"{cfg['url']}/account/offers/boost-all",
+                    wait_until="domcontentloaded",
+                    timeout=30000,
+                )
+                log.info(f"  boost-all -> {resp.status if resp else '?'} {page.url}")
+                if not resp or not (200 <= resp.status < 400):
+                    raise RuntimeError(
+                        f"boost-all HTTP {resp.status if resp else 'sans reponse'}"
+                    )
+                if "/login" in page.url:
+                    raise RuntimeError("Session expiree pendant boost-all")
+                await human_sleep(2, 4)
+                log.info("  Boost success")
+            except Exception as exc:
+                raise NonRetryableError(
+                    f"Resultat inconnu apres requete boost-all: {exc}"
+                ) from exc
         finally:
             await page.close()
 
@@ -1340,6 +1360,31 @@ PLATFORM_IDS = {
 }
 
 
+SITE_ACTION_STARTED = {}
+
+
+def _write_site_outcomes(outcomes):
+    """Durable runner-local evidence consumed by the workflow ledger step."""
+    try:
+        from pathlib import Path
+        path = Path("data/captures/bump-autres-site-outcomes.json")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            json.dumps(
+                {
+                    "version": 1,
+                    "generated_at": datetime.now().isoformat(),
+                    "sites": outcomes,
+                },
+                ensure_ascii=False,
+                indent=2,
+            ) + "\n",
+            encoding="utf-8",
+        )
+    except Exception as exc:
+        log.warning("  Impossible d'ecrire le bilan par site: %s", exc)
+
+
 def _record_expected_blocker(site_id, reason):
     """Report a proven external gate once per TTL. Never writes platform state.
 
@@ -1431,6 +1476,7 @@ async def main():
 
         failures = []
         expected_blockers = []
+        outcomes = {}
         executed = 0
         for site_id in to_run:
             runner = RUNNERS.get(site_id)
@@ -1447,7 +1493,13 @@ async def main():
                 continue
             try:
                 executed += 1
+                SITE_ACTION_STARTED.setdefault(site_id, False)
                 await runner(browser)
+                outcomes[site_id] = {
+                    "status": "success",
+                    "action_started": bool(SITE_ACTION_STARTED.get(site_id, False)),
+                    "safe_to_retry": False,
+                }
                 if site_id == "referralcode":
                     _record_bump(site_id, run_referralcode.last_cycle)
             except ExpectedExternalBlocker as e:
@@ -1459,13 +1511,33 @@ async def main():
                     site_id, e,
                 )
                 expected_blockers.append(f"{site_id}: {e}")
+                outcomes[site_id] = {
+                    "status": "external_blocker",
+                    "action_started": bool(SITE_ACTION_STARTED.get(site_id, False)),
+                    "safe_to_retry": False,
+                    "error": str(e),
+                }
                 _record_expected_blocker(site_id, str(e))
             except Exception as e:
                 log.error(f"  {site_id} - Erreur: {e}")
+                action_started = bool(SITE_ACTION_STARTED.get(site_id, False))
+                outcomes[site_id] = {
+                    "status": "failed",
+                    "action_started": action_started,
+                    "safe_to_retry": not action_started,
+                    "error": str(e),
+                }
                 failures.append(f"{site_id}: {e}")
             await human_sleep(2, 5)
 
         await browser.close()
+
+    if any(site in {"code", "parrainage"} for site in to_run):
+        _write_site_outcomes({
+            site: data
+            for site, data in outcomes.items()
+            if site in {"code", "parrainage"}
+        })
 
     log.info("\n" + "=" * 50)
     log.info("  Cycle termine !")

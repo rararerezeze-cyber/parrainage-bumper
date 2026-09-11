@@ -140,6 +140,7 @@ def test_scheduled_combined_workflow_excludes_blocked_rctv_runtime():
         / "workflows"
         / "bump_autres.yml"
     ).read_text(encoding="utf-8")
-    assert 'TARGET_SITES:              "code,parrainage"' in workflow
+    assert "steps.idempotency.outputs.target_sites" in workflow
+    assert "referralcode" not in workflow.split("TARGET_SITES:", 1)[1].split("\n", 1)[0]
     assert "REFERRALCODE_EMAIL:" not in workflow
     assert "REFERRALCODE_PASSWORD:" not in workflow
