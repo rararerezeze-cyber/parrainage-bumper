@@ -214,7 +214,7 @@ def test_status_result_summary_never_leaks_raw_local_shell_command():
     payload = render_result(_status_result())
     sections = "\n".join(b["text"]["text"] for b in payload["blocks"] if b.get("type") == "section")
     assert "local_headed_rctv_canary" not in sections
-    assert "referralcode-tv" in sections  # platform named, just not the raw command
+    assert "ReferralCode.tv" in sections  # platform named, just not the raw command
 
 
 def test_status_result_summary_names_auto_and_human_targets_in_french():
