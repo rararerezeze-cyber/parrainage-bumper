@@ -137,6 +137,21 @@ def test_permissions_are_minimal():
     assert "actions: write" not in perms_code
 
 
+def test_read_only_and_preview_commands_skip_browser_install():
+    deps = _slice_between("- name: Dependencies", "- name: Run Hermes Autofresh command")
+    assert "HERMES_INPUT_RUN_WRITERS: ${{ github.event.inputs.run_writers }}" in deps
+    assert 'if [ "$HERMES_INPUT_RUN_WRITERS" = "true" ]; then' in deps
+    assert "playwright install --with-deps chromium" in deps
+    assert "browser_install_skipped=true" in deps
+
+
+def test_ephemeral_last_result_is_restored_before_durable_staging():
+    assert "git restore --worktree --staged data/captures/hermes-last-result.json" in COMMIT_STEP_CODE
+    assert COMMIT_STEP_CODE.index(
+        "git restore --worktree --staged data/captures/hermes-last-result.json"
+    ) < COMMIT_STEP_CODE.index('for p in data/operator-overrides.json')
+
+
 def test_commit_step_never_silently_swallows_a_failed_push():
     assert "git push || true" not in COMMIT_STEP_CODE
     assert "git pull --rebase" in COMMIT_STEP_CODE
