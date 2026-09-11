@@ -13,7 +13,7 @@ import urllib.request
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from lib.notify import read_events, build_event, should_notify
+from lib.notify import FIELDS, read_events, build_event, should_notify
 
 
 def build_payload(events: list[dict], channel: str) -> dict | None:
@@ -23,7 +23,9 @@ def build_payload(events: list[dict], channel: str) -> dict | None:
         if not should_notify(event, level):
             continue
         safe = build_event(level, event, **{
-            k: v for k, v in raw.items() if k not in {"level", "event"}
+            k: v
+            for k, v in raw.items()
+            if k in FIELDS and k not in {"level", "event"}
         })
         line = " | ".join(str(safe.get(k) or "") for k in (
             "level", "platform", "program", "event", "result", "block_reason"
