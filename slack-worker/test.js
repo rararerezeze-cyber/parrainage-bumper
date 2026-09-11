@@ -7,6 +7,7 @@ import {
   parseAllowedUsers,
   isUserAllowed,
   helpText,
+  normalizeSlashCommandText,
   buildDispatchBody,
   dispatchUrl,
   parseConfirmValue,
@@ -160,13 +161,26 @@ test("isUserAllowed: empty allowlist fails closed", () => {
   assert.equal(isUserAllowed("U111", parseAllowedUsers(undefined)), false);
 });
 
-test("helpText mentions every documented AGENTS.md command shape", () => {
+test("helpText exposes the real Slack operator surface", () => {
   const text = helpText();
-  assert.match(text, /statut/);
-  assert.match(text, /overrides/);
-  assert.match(text, /divergences/);
-  assert.match(text, /plateformes/);
+  assert.match(text, /\/autofresh Kraken statut/);
+  assert.match(text, /\/autofresh Kraken overrides/);
+  assert.match(text, /\/autofresh Kraken divergences/);
+  assert.match(text, /\/autofresh Kraken plateformes/);
+  assert.match(text, /\/autofresh plateformes/);
+  assert.match(text, /\/autofresh bump/);
   assert.match(text, /gain filleul/);
+  assert.match(text, /dépôt minimum/);
+  assert.match(text, /minimum de trade/);
+  assert.match(text, /supprimer override/);
+  assert.doesNotMatch(text, /\/autofresh Autofresh aide/);
+});
+
+test("normalizeSlashCommandText makes slash meta commands natural", () => {
+  assert.equal(normalizeSlashCommandText("bump"), "Autofresh bump");
+  assert.equal(normalizeSlashCommandText("plateformes"), "Autofresh plateformes");
+  assert.equal(normalizeSlashCommandText("exemples"), "Autofresh exemples");
+  assert.equal(normalizeSlashCommandText("Kraken statut"), "Kraken statut");
 });
 
 test("buildDispatchBody: coerces runWriters to the literal strings the workflow expects", () => {
