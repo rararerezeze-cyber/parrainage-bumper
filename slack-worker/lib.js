@@ -70,19 +70,45 @@ export function clip(s, n) {
 
 export function helpText() {
   return (
-    "*Autofresh — commandes opérateur*\n" +
+    "*AutoFresh — commandes Slack*\n" +
+    "*Lecture*\n" +
     "• `/autofresh Kraken statut`\n" +
     "• `/autofresh Kraken overrides`\n" +
     "• `/autofresh Kraken divergences`\n" +
     "• `/autofresh Kraken plateformes`\n" +
+    "• `/autofresh plateformes`\n" +
+    "• `/autofresh bump`\n" +
+    "• `/autofresh exemples`\n" +
+    "\n*Modifier un override*\n" +
     "• `/autofresh Kraken code ABC123`\n" +
+    "• `/autofresh Kraken lien https://…`\n" +
     "• `/autofresh Kraken gain filleul 20 €`\n" +
+    "• `/autofresh Kraken gain parrain 20 €`\n" +
+    "• `/autofresh Kraken conditions <texte>`\n" +
+    "• `/autofresh Kraken dépôt minimum <valeur>`\n" +
+    "• `/autofresh Kraken dépense minimum <valeur>`\n" +
+    "• `/autofresh Kraken minimum de trade <valeur>`\n" +
+    "• `/autofresh Kraken nombre de transactions <valeur>`\n" +
+    "• `/autofresh Kraken délai <valeur>`\n" +
+    "• `/autofresh Kraken expiration <valeur>`\n" +
+    "• `/autofresh Kraken type de récompense <valeur>`\n" +
+    "• `/autofresh Kraken titre <valeur>`\n" +
+    "\n*Par plateforme*\n" +
     "• `/autofresh Kraken Super-Parrain gain filleul 25 €`\n" +
-    "• `/autofresh Kraken supprimer override gain filleul`\n" +
-    "• `/autofresh Autofresh aide`\n" +
-    "Les écritures réelles nécessitent toujours une confirmation (bouton) séparée."
+    "• `/autofresh Kraken Super-Parrain supprimer override gain filleul`\n" +
+    "\nToute écriture réelle sur un site compatible nécessite ensuite le bouton *Confirmer l'écriture*."
   );
 }
+
+export function normalizeSlashCommandText(text) {
+  const raw = String(text || "").trim();
+  const folded = raw.toLocaleLowerCase("fr-FR");
+  if (folded === "plateformes" || folded === "plateforme") return "Autofresh plateformes";
+  if (folded === "exemples" || folded === "exemple") return "Autofresh exemples";
+  if (folded === "bump" || folded === "bumps") return "Autofresh bump";
+  return raw;
+}
+
 
 /** Build the GitHub workflow_dispatch request body for hermes_operator.yml.
  * `runWriters` is always boolean-coerced to the literal strings "true"/
