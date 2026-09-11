@@ -821,6 +821,10 @@ async def run_code(browser):
                     log.warning(f"  Erreur bouton index={i}: {e}")
             log.info(f"  {bumped} annonces remontees")
             if bumped != count:
+                if SITE_ACTION_STARTED.get("code"):
+                    raise NonRetryableError(
+                        f"Remontee incomplete apres action: {bumped}/{count}"
+                    )
                 raise RuntimeError(f"Remontee incomplete: {bumped}/{count}")
         finally:
             await page.close()
@@ -1109,18 +1113,30 @@ async def run_parrainage(browser):
             else:
                 log.info("  Cookie valid")
 
-            # Boost-all
+            # Boost-all. Once this request starts, an ambiguous failure must
+            # never be retried automatically: the site may already have applied
+            # the bump even if the browser lost the response.
             page.on("dialog", lambda d: asyncio.ensure_future(d.accept()))
             SITE_ACTION_STARTED["parrainage"] = True
-            resp = await page.goto(f"{cfg['url']}/account/offers/boost-all",
-                                   wait_until="domcontentloaded", timeout=30000)
-            log.info(f"  boost-all -> {resp.status if resp else '?'} {page.url}")
-            if not resp or not (200 <= resp.status < 400):
-                raise RuntimeError(f"boost-all HTTP {resp.status if resp else 'sans reponse'}")
-            if "/login" in page.url:
-                raise RuntimeError("Session expiree pendant boost-all")
-            await human_sleep(2, 4)
-            log.info("  Boost success")
+            try:
+                resp = await page.goto(
+                    f"{cfg['url']}/account/offers/boost-all",
+                    wait_until="domcontentloaded",
+                    timeout=30000,
+                )
+                log.info(f"  boost-all -> {resp.status if resp else '?'} {page.url}")
+                if not resp or not (200 <= resp.status < 400):
+                    raise RuntimeError(
+                        f"boost-all HTTP {resp.status if resp else 'sans reponse'}"
+                    )
+                if "/login" in page.url:
+                    raise RuntimeError("Session expiree pendant boost-all")
+                await human_sleep(2, 4)
+                log.info("  Boost success")
+            except Exception as exc:
+                raise NonRetryableError(
+                    f"Resultat inconnu apres requete boost-all: {exc}"
+                ) from exc
         finally:
             await page.close()
 
