@@ -53,7 +53,7 @@ jobs:
           pip install -r requirements.txt
       - name: Rebuild registry + coverage
         env:
-          AUTOFRESH_PHASE: "VALIDATION_LIVE"
+          AUTOFRESH_PHASE: "PRODUCTION"
           AUTOFRESH_LIVE_WRITES: "0"
         run: |
           python tools/build_offer_sources.py
@@ -61,7 +61,7 @@ jobs:
           python monitor.py --priority
       - name: Run monitor (observation only)
         env:
-          AUTOFRESH_PHASE: "VALIDATION_LIVE"
+          AUTOFRESH_PHASE: "PRODUCTION"
           AUTOFRESH_LIVE_WRITES: "0"
         run: |
           set +e

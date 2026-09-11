@@ -99,7 +99,7 @@ jobs:
           # ambient per-job token, scoped by this workflow's own
           # `permissions: actions: read` above. Never used for anything else.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          AUTOFRESH_PHASE: "VALIDATION_LIVE"
+          AUTOFRESH_PHASE: "PRODUCTION"
           GITHUB_ACTIONS: "true"
           # workflow_dispatch inputs passed ONLY via env -- never spliced into
           # the shell/Python source text below. GitHub Actions serializes an

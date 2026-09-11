@@ -94,10 +94,9 @@ This is separate from command replies, whose destination is `reply_channel`.
 
 Tests cover a signed HTTP request through the actual Worker handler, unauthorized
 and invalid-signature rejection, an unarmed preview, and a single confirmed
-dispatch with duplicate suppression. GitHub and Slack are mocked in those tests:
-they are not live E2E proof. A real read-only `/autofresh Kraken statut` and its
-matching GitHub run/Slack response are the final operator-control check. Real
-platform writing still requires a genuine SAFE_DIFF and explicit confirmation.
+dispatch with duplicate suppression. Production Slack delivery and command
+round-trips have been observed live; real platform writing still requires a
+genuine SAFE_DIFF, explicit confirmation, and backend post-verification.
 
 
 ## Bump scheduler reliability
@@ -105,6 +104,5 @@ platform writing still requires a genuine SAFE_DIFF and explicit confirmation.
 Cloudflare Cron wakes `bump_autres_scheduler.yml` at minutes 03/18/33/48.
 This is only a reliable poll/wake-up layer. It does not replace or alter
 the persisted five random daily slots and cannot turn actual site access
-into a fixed schedule. GitHub's native scheduler remains enabled as a
-backup; scheduler concurrency and slot idempotency handle duplicate
-wake-ups safely.
+into a fixed schedule. The duplicate native GitHub cron was removed on
+2026-09-11; Cloudflare is the sole routine wake-up source.

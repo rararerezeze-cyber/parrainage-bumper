@@ -114,7 +114,7 @@ jobs:
           AUTOFRESH_SUPER: "1"
           AUTOFRESH_MODE: "canary"
           AUTOFRESH_CANARY_PROGRAMS: "kraken"
-          AUTOFRESH_PHASE: "VALIDATION_LIVE"
+          AUTOFRESH_PHASE: "PRODUCTION"
         run: |
           set -e
           ACTION="${{ steps.decide.outputs.action }}"
