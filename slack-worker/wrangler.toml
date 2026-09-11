@@ -8,7 +8,7 @@ GITHUB_REF = "main"
 
 # Reliable ~15-minute wake-up for the persisted random-slot scheduler.
 # This only dispatches bump_autres_scheduler.yml; it never decides the
-# real site-access time itself. GitHub's own schedule remains a backup.
+# real site-access time itself. GitHub has no duplicate native cron.
 [triggers]
 crons = ["3,18,33,48 * * * *"]
 
