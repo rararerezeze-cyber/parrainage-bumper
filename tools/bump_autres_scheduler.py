@@ -35,6 +35,8 @@ from lib.bump_autres_schedule import (
     due_undispatched_slots,
     ensure_schedule_for,
     mark_dispatched,
+    mark_recovery_dispatched,
+    retryable_incomplete_slots,
     save_schedule,
     slot_id as build_slot_id,
 )
@@ -50,29 +52,25 @@ def main() -> int:
     now = datetime.now(timezone.utc)
     schedule = ensure_schedule_for(now)
     due = due_undispatched_slots(schedule, now)
+    recovery = retryable_incomplete_slots(schedule, now)
 
-    print(f"period={schedule['period_date']} due_slots={len(due)}")
+    print(
+        f"period={schedule['period_date']} due_slots={len(due)} "
+        f"safe_recoveries={len(recovery)}"
+    )
 
-    if not due:
+    if not due and not recovery:
         return 0
 
     for slot in due:
         sid = build_slot_id(schedule["period_date"], slot["index"])
         print(f"dispatching slot index={slot['index']} planned_at={slot['planned_at']} slot_id={sid}")
-        # slot_id travels with the dispatch as a workflow_dispatch input --
-        # bump_autres.yml checks its durable ledger before any real site
-        # work, so a re-dispatch of this same logical slot (crash-window
-        # retry here, or any other cause) is always a safe no-op even if
-        # THIS scheduler run never successfully commits below.
         dispatch_workflow(token, slot_id=sid)
         dispatch_now = datetime.now(timezone.utc)
         schedule = mark_dispatched(schedule, slot["index"], now=dispatch_now)
         save_schedule(schedule)
         dispatched_slot = next(s for s in schedule["slots"] if s["index"] == slot["index"])
         if dispatched_slot.get("catchup"):
-            # BEST_EFFORT/FAIL_OPEN: emit() never raises, so a notify
-            # outage can never turn a successful catch-up dispatch into a
-            # failed scheduler run.
             emit(
                 LEVEL_WARNING,
                 EVENT_WORKFLOW_ERROR,
@@ -81,7 +79,21 @@ def main() -> int:
                 result=f"slot_{slot['index']}_dispatched_over_{CATCHUP_TOLERANCE_MINUTES}min_late",
             )
 
-    print(f"dispatched_slots={len(due)}")
+    # One delayed recovery is allowed only for sites explicitly classified
+    # safe_to_retry because no site action had started. The workflow itself
+    # reads the durable per-site ledger and touches only those sites.
+    for slot in recovery:
+        sid = build_slot_id(schedule["period_date"], slot["index"])
+        print(f"recovering slot index={slot['index']} slot_id={sid}")
+        dispatch_workflow(token, slot_id=sid)
+        schedule = mark_recovery_dispatched(
+            schedule,
+            slot["index"],
+            now=datetime.now(timezone.utc),
+        )
+        save_schedule(schedule)
+
+    print(f"dispatched_slots={len(due)} recovery_dispatches={len(recovery)}")
     return 0
 
 
