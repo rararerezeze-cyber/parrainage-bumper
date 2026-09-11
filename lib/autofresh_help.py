@@ -147,6 +147,20 @@ def _is_mapped_for_program(platform_id: str, program: str) -> bool:
         return False
 
 
+def _platform_capability_text(status: str, route: str) -> str:
+    if route == "AUTO_ON_SAFE_DIFF":
+        return "mise à jour disponible après confirmation si une différence est détectée"
+    if route == "FUSED_UPDATE_BUMP":
+        return "mise à jour intégrée au prochain cycle automatique si nécessaire"
+    if route == "HUMAN_SAVE_REQUIRED":
+        return "sauvegarde manuelle requise"
+    if route == "NEVER_AUTO_COMMIT":
+        return "mise à jour manuelle uniquement"
+    if route == "AUTH_BLOCKED_MANUAL":
+        return "mise à jour manuelle — authentification requise"
+    return status_label_fr(status)
+
+
 def build_platforms_status(*, program: str | None = None) -> str:
     """User-facing capability table built from live write-status data."""
     data = write_summary()
@@ -157,7 +171,10 @@ def build_platforms_status(*, program: str | None = None) -> str:
     if program:
         mapped_flags = {pid: _is_mapped_for_program(pid, program) for pid in ALL_PLATFORMS}
         mapped_count = sum(1 for v in mapped_flags.values() if v)
-        lines.append(f"{mapped_count} plateforme(s) suivie(s) pour {program.capitalize()}")
+        lines.append(
+            f"{mapped_count} plateforme{'s' if mapped_count != 1 else ''} "
+            f"suivie{'s' if mapped_count != 1 else ''} pour {program.capitalize()}"
+        )
         lines.append("")
         for pid in ALL_PLATFORMS:
             row = rows.get(pid) or {}
@@ -167,21 +184,21 @@ def build_platforms_status(*, program: str | None = None) -> str:
                 continue
             status = row.get("status") or "UNPREPARED"
             route = row.get("route") or ""
-            detail = status_label_fr(status)
-            if route:
-                detail += f" · {route_label_fr(route)}"
-            lines.append(f"• `{label}` — {detail}")
+            lines.append(
+                f"• `{label}` — {_platform_capability_text(status, route)}"
+            )
     else:
-        lines.append(f"Écriture testée et vérifiée : {data.get('WRITE_VERIFIED')}")
+        verified = data.get("WRITE_VERIFIED") or data.get("write_verified_ratio") or "—"
+        lines.append(f"Écriture techniquement vérifiée : {verified} plateformes")
         lines.append("")
         for pid in ALL_PLATFORMS:
             row = rows.get(pid) or {}
             status = row.get("status") or "UNPREPARED"
             route = row.get("route") or ""
-            detail = status_label_fr(status)
-            if route:
-                detail += f" · {route_label_fr(route)}"
-            lines.append(f"• `{platform_label_fr(pid)}` — {detail}")
+            lines.append(
+                f"• `{platform_label_fr(pid)}` — "
+                f"{_platform_capability_text(status, route)}"
+            )
 
     lines.append("")
     lines.append(
