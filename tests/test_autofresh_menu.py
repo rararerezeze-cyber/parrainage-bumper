@@ -138,6 +138,27 @@ def test_parse_message_kraken_plateformes():
     assert parsed["program"] == "kraken"
 
 
+def test_multiword_enseigne_display_names_work_for_status_and_writes():
+    offers = OffersRepository()
+
+    status = parse_message("Trade Republic statut", offers)
+    assert status["action"] == "status"
+    assert status["program"] == "traderepublic"
+    assert status["offer_name"] == "Trade Republic"
+
+    set_value = parse_message("NRJ Mobile gain filleul 20 €", offers)
+    assert set_value["action"] == "set"
+    assert set_value["program"] == "nrj-mobile"
+    assert set_value["offer_name"] == "NRJ Mobile"
+    assert set_value["value"] == "20 €"
+
+    targeted = parse_message("L'Olivier Assurance Super-Parrain code ABC123", offers)
+    assert targeted["action"] == "set"
+    assert targeted["program"] == "lolivier"
+    assert targeted["platform"] == "super-parrain"
+    assert targeted["value"] == "ABC123"
+
+
 def test_unknown_command_raises_cleanly_not_a_crash():
     offers = OffersRepository()
     with pytest.raises(ValueError):
