@@ -55,6 +55,8 @@ def _local_auth(monkeypatch, tmp_path):
         ("Autofresh plateformes", TOPIC_PLATEFORMES),
         ("Autofresh enseignes", TOPIC_ENSEIGNES),
         ("Autofresh offres", TOPIC_ENSEIGNES),
+        ("enseignes", TOPIC_ENSEIGNES),
+        ("offres", TOPIC_ENSEIGNES),
     ],
 )
 def test_detect_meta_command_matches(raw, expected_topic):
