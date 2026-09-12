@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 """FULL OPERATOR CONTROL — Telegram natural language entry.
 
-Examples:
-  Kraken code ABC123
-  Kraken gain filleul 20 €
-  Kraken Super-Parrain gain filleul 25 €
-  Kraken conditions Déposer 100 € sous 15 jours
-  Kraken status
-  Kraken overrides
-  Kraken supprimer override gain filleul
-  Kraken Super-Parrain supprimer override gain filleul
+Examples (replace ENSEIGNE with any offer known to AutoFresh):
+  ENSEIGNE code ABC123
+  ENSEIGNE gain filleul 20 €
+  ENSEIGNE Super-Parrain gain filleul 25 €
+  ENSEIGNE conditions Déposer 100 € sous 15 jours
+  ENSEIGNE statut
+  ENSEIGNE valeurs
+  ENSEIGNE supprimer gain filleul
 
 Precedence:
   PLATFORM_OPERATOR > GLOBAL_OPERATOR > ACCEPTED_MONITOR > CANONICAL
@@ -223,8 +222,9 @@ def parse_message(message: str, offers: OffersRepository) -> dict:
             if hint:
                 raise ValueError(hint)
             raise ValueError(
-                "Message non reconnu. Ex: 'Kraken gain filleul 20 €' | "
-                "'Kraken Super-Parrain code ABC' | 'Kraken status'"
+                "Message non reconnu. Exemples : '[Enseigne] gain filleul 20 €' | "
+                "'[Enseigne] Super-Parrain code ABC' | '[Enseigne] statut'. "
+                "Utilise '/autofresh enseignes' pour voir les noms disponibles."
             )
         field_raw, value = fv
         field = normalize_field_name(field_raw)
@@ -243,9 +243,10 @@ def parse_message(message: str, offers: OffersRepository) -> dict:
         }
 
     raise ValueError(
-        "Message non reconnu. Exemples : 'Kraken code ABC123' | "
-        "'Kraken gain filleul 20 €' | 'Kraken Super-Parrain gain filleul 25 €' | "
-        "'Kraken statut' | 'Kraken supprimer gain filleul'"
+        "Message non reconnu. Exemples : '[Enseigne] code ABC123' | "
+        "'[Enseigne] gain filleul 20 €' | '[Enseigne] statut' | "
+        "'[Enseigne] supprimer gain filleul'. "
+        "Utilise '/autofresh enseignes' pour voir les noms disponibles."
     )
 
 
