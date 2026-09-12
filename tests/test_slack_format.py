@@ -80,7 +80,8 @@ def test_parse_error_hides_internal_error_code_detail():
         errors=[{"code": "parse_error", "detail": "unknown_program:foobar"}],
     ))
     dumped = json.dumps(payload, ensure_ascii=False)
-    assert "Programme inconnu : foobar" in dumped
+    assert "Enseigne inconnue : foobar" in dumped
+    assert "/autofresh enseignes" in dumped
     assert "unknown_program" not in dumped
 
 
