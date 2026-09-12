@@ -159,7 +159,10 @@ def _clean_error_detail(code: str, detail: Any) -> str:
     text = str(detail or "").strip()
     if code == "parse_error":
         if text.startswith("unknown_program:"):
-            return f"Programme inconnu : {text.split(':', 1)[1]}. Utilise /autofresh aide."
+            return (
+                f"Enseigne inconnue : {text.split(':', 1)[1]}. "
+                "Utilise /autofresh enseignes pour voir les noms disponibles."
+            )
         if text.startswith("unknown_field:"):
             return f"Valeur non reconnue : {text.split(':', 1)[1]}. Utilise /autofresh aide."
         if text in {"empty_message", "invalid_message"}:
