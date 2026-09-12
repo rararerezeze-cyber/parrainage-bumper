@@ -71,17 +71,88 @@ def _label_reason(value: object) -> str:
     return _REASON_LABELS.get(key, key.replace("_", " ").lower())
 
 
+def _program_label(value: object) -> str:
+    text = str(value or "").strip()
+    return text[:1].upper() + text[1:] if text else ""
+
+
 def _event_line(event: dict) -> str:
+    """Render one runtime event for a non-technical Slack operator.
+
+    Known events that are safe/non-actionable get an explicit explanation
+    instead of exposing backend vocabulary such as FAIL_CLOSED, candidate,
+    missed_slot or a redacted internal reason.
+    """
     level = str(event.get("level") or "").upper()
-    icon = _LEVEL_ICONS.get(level, "•")
+    ev = str(event.get("event") or "")
+    action = str(event.get("action") or "")
+    result = str(event.get("result") or "")
     platform = _label_platform(event.get("platform"))
-    label = _EVENT_LABELS.get(
-        str(event.get("event") or ""),
-        str(event.get("event") or "").replace("_", " "),
-    )
+    program = _program_label(event.get("program"))
+
+    if ev == "monitor_real_safe_diff":
+        target = program or platform
+        if program:
+            return (
+                f"🔎 {target} — une différence a été détectée sur l'offre publique. "
+                f"Aucune modification n'a été faite. Pour voir le détail : "
+                f"/autofresh {program} divergences"
+            )
+        return (
+            f"🔎 {target} — une différence a été détectée sur une offre publique. "
+            "Aucune modification n'a été faite."
+        )
+
+    if ev == "workflow_error" and action == "missed_slot_catchup":
+        return (
+            "⚠️ Bumper Code-Parrainage + Parrainage.co — un créneau a démarré "
+            "en retard puis a été rattrapé automatiquement. Aucune action nécessaire."
+        )
+
+    if (
+        ev == "workflow_error"
+        and str(event.get("platform") or "") == "super-parrain"
+        and action == "content_prefill"
+        and result == "FAIL_CLOSED"
+    ):
+        subject = f"Super-Parrain / {program}" if program else "Super-Parrain"
+        return (
+            f"⚠️ {subject} — la mise à jour du contenu a été annulée par sécurité "
+            "car deux vérifications n'étaient pas d'accord. Le bumper continue "
+            "sans modifier le contenu."
+        )
+
+    if ev == "external_blocker":
+        reason = _label_reason(event.get("block_reason") or event.get("result"))
+        icon = _LEVEL_ICONS.get(level, "⚠️")
+        return (
+            f"{icon} {platform}"
+            + (f" / {program}" if program else "")
+            + f" — blocage externe du site ({reason}). "
+            "Aucune tentative de contournement."
+        )
+
+    if ev == "post_verify_success":
+        return (
+            f"✅ {platform}"
+            + (f" / {program}" if program else "")
+            + " — mise à jour effectuée et vérifiée."
+        )
+
+    if ev == "post_verify_failure":
+        return (
+            f"❌ {platform}"
+            + (f" / {program}" if program else "")
+            + " — une mise à jour a été tentée mais la vérification finale a échoué. "
+            "Ne relance pas l'écriture sans contrôle."
+        )
+
+    level_icon = _LEVEL_ICONS.get(level, "•")
+    label = _EVENT_LABELS.get(ev, ev.replace("_", " "))
     detail = event.get("block_reason") or event.get("result")
-    suffix = f" — {_label_reason(detail)}" if detail else ""
-    return f"{icon} {platform} — {label}{suffix}"
+    suffix = f" — {_label_reason(detail)}" if detail and detail != "[REDACTED]" else ""
+    subject = platform + (f" / {program}" if program else "")
+    return f"{level_icon} {subject} — {label}{suffix}"
 
 
 def build_payload(events: list[dict], channel: str) -> dict | None:
@@ -98,7 +169,7 @@ def build_payload(events: list[dict], channel: str) -> dict | None:
         lines.append(_event_line(safe)[:500])
     if not lines:
         return None
-    text = "AutoFresh — notifications\n" + "\n".join(lines[:40])
+    text = "AutoFresh — à savoir\n" + "\n".join(lines[:40])
     if len(lines) > 40:
         text += f"\n+{len(lines) - 40} événement(s) dans l'archive du workflow."
     return {

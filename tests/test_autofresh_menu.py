@@ -413,3 +413,26 @@ def test_bump_meta_command_never_persists_or_invokes_a_writer(_isolated_bump_sch
     assert r["ok"] is True
     assert r["platforms"] == []
     assert r["human_summary"]
+
+
+
+def test_main_menu_starts_with_four_commands_to_remember():
+    from lib.autofresh_help import build_main_menu
+
+    text = build_main_menu()
+    assert "Les 4 commandes à retenir" in text
+    assert "/autofresh Kraken statut" in text
+    assert "/autofresh Kraken valeurs" in text
+    assert "/autofresh Kraken gain filleul 200 €" in text
+    assert "/autofresh bump" in text
+    assert "Confirmer l'écriture" in text
+
+
+def test_examples_explain_what_each_read_command_does():
+    from lib.autofresh_help import build_examples
+
+    text = build_examples()
+    assert "est-ce que tout est à jour ?" in text
+    assert "quelles valeurs AutoFresh utilise ?" in text
+    assert "qu'est-ce qui diffère sur les sites ?" in text
+    assert "où en sont les remontées automatiques ?" in text
