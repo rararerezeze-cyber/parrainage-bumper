@@ -26,6 +26,7 @@ from lib.write_status import ALL_PLATFORMS, STATUS_WRITE_VERIFIED, summary as wr
 TOPIC_MENU = "menu"
 TOPIC_EXEMPLES = "exemples"
 TOPIC_PLATEFORMES = "plateformes"
+TOPIC_ENSEIGNES = "enseignes"
 TOPIC_BUMP = "bump"
 
 
@@ -51,6 +52,14 @@ _GLOBAL_META: dict[str, str] = {
     "autofresh exemple": TOPIC_EXEMPLES,
     "autofresh plateformes": TOPIC_PLATEFORMES,
     "autofresh plateforme": TOPIC_PLATEFORMES,
+    "autofresh enseignes": TOPIC_ENSEIGNES,
+    "autofresh enseigne": TOPIC_ENSEIGNES,
+    "autofresh offres": TOPIC_ENSEIGNES,
+    "autofresh programmes": TOPIC_ENSEIGNES,
+    "enseignes": TOPIC_ENSEIGNES,
+    "enseigne": TOPIC_ENSEIGNES,
+    "offres": TOPIC_ENSEIGNES,
+    "programmes": TOPIC_ENSEIGNES,
     "autofresh bump": TOPIC_BUMP,
     "autofresh bumps": TOPIC_BUMP,
     "bump statut": TOPIC_BUMP,
@@ -87,7 +96,7 @@ def ambiguous_field_reply(word: str) -> str | None:
         "Tu veux consulter ou modifier quelle récompense ?\n"
         "• Gain filleul\n"
         "• Gain parrain\n"
-        "Exemple : Kraken gain filleul 200 €"
+        "Exemple : [Enseigne] gain filleul 200 €"
     )
 
 
@@ -225,18 +234,21 @@ def build_main_menu() -> str:
     return (
         "🤖 AUTOFRESH — MODE D'EMPLOI\n"
         "\n"
+        "AutoFresh fonctionne pour toutes les enseignes présentes dans sa liste. "
+        "Commence par /autofresh enseignes si tu veux voir les noms disponibles.\n"
+        "\n"
         "Les 4 commandes à retenir :\n"
         "\n"
-        "1️⃣ Voir si une offre est à jour\n"
-        "• /autofresh Kraken statut\n"
+        "1️⃣ Voir si une enseigne est à jour\n"
+        "• /autofresh [Enseigne] statut\n"
         "\n"
-        "2️⃣ Voir les valeurs enregistrées\n"
-        "• /autofresh Kraken valeurs\n"
+        "2️⃣ Voir les valeurs enregistrées pour une enseigne\n"
+        "• /autofresh [Enseigne] valeurs\n"
         "\n"
         "3️⃣ Modifier une valeur\n"
-        "• /autofresh Kraken gain filleul 200 €\n"
-        "• /autofresh Kraken code MONCODE\n"
-        "• /autofresh Kraken lien https://...\n"
+        "• /autofresh [Enseigne] gain filleul 200 €\n"
+        "• /autofresh [Enseigne] code MONCODE\n"
+        "• /autofresh [Enseigne] lien https://...\n"
         "Après la commande, AutoFresh te montre ce qui changerait. "
         "Si une écriture réelle est possible, tu dois ensuite appuyer sur "
         "« Confirmer l'écriture ».\n"
@@ -245,13 +257,15 @@ def build_main_menu() -> str:
         "• /autofresh bump\n"
         "\n"
         "Commandes utiles en plus :\n"
-        "• /autofresh Kraken divergences — voir les différences détectées\n"
-        "• /autofresh Kraken plateformes — voir où Kraken est géré\n"
-        "• /autofresh plateformes — voir l'état des 7 plateformes\n"
-        "• /autofresh Kraken supprimer gain filleul — supprimer une valeur personnalisée\n"
-        "• /autofresh exemples — afficher quelques exemples\n"
+        "• /autofresh enseignes — afficher toutes les enseignes connues\n"
+        "• /autofresh [Enseigne] divergences — voir les différences détectées\n"
+        "• /autofresh [Enseigne] plateformes — voir sur quels sites cette enseigne est gérée\n"
+        "• /autofresh plateformes — voir l'état des plateformes de parrainage\n"
+        "• /autofresh [Enseigne] supprimer gain filleul — supprimer une valeur personnalisée\n"
+        "• /autofresh exemples — afficher quelques exemples génériques\n"
         "\n"
-        "Tu peux remplacer « Kraken » par le nom d'un autre programme suivi.\n"
+        "Remplace simplement [Enseigne] par le nom de l'annonce concernée. "
+        "La même syntaxe fonctionne pour toutes les enseignes connues d'AutoFresh.\n"
         "\n"
         "Autres valeurs modifiables : conditions, dépôt minimum, dépense minimum, "
         "minimum de trade, nombre de transactions, délai, expiration, type de "
@@ -266,29 +280,67 @@ def build_main_menu() -> str:
 
 def build_examples() -> str:
     return (
-        "🤖 AUTOFRESH — EXEMPLES SIMPLES\n"
+        "🤖 AUTOFRESH — EXEMPLES GÉNÉRIQUES\n"
+        "\n"
+        "Remplace [Enseigne] par n'importe quel nom affiché avec /autofresh enseignes.\n"
         "\n"
         "Consulter :\n"
-        "• /autofresh Kraken statut — est-ce que tout est à jour ?\n"
-        "• /autofresh Kraken valeurs — quelles valeurs AutoFresh utilise ?\n"
-        "• /autofresh Kraken divergences — qu'est-ce qui diffère sur les sites ?\n"
+        "• /autofresh [Enseigne] statut — est-ce que cette annonce est à jour ?\n"
+        "• /autofresh [Enseigne] valeurs — quelles valeurs AutoFresh utilise ?\n"
+        "• /autofresh [Enseigne] divergences — qu'est-ce qui diffère sur les sites ?\n"
+        "• /autofresh [Enseigne] plateformes — sur quels sites l'annonce existe ?\n"
         "• /autofresh bump — où en sont les remontées automatiques ?\n"
         "\n"
         "Modifier :\n"
-        "• /autofresh Kraken gain filleul 200 €\n"
-        "• /autofresh Kraken code ABC123\n"
-        "• /autofresh Kraken lien https://invite.exemple/...\n"
+        "• /autofresh [Enseigne] gain filleul 200 €\n"
+        "• /autofresh [Enseigne] code ABC123\n"
+        "• /autofresh [Enseigne] lien https://invite.exemple/...\n"
         "\n"
         "Cibler un seul site :\n"
-        "• /autofresh Kraken Super-Parrain gain filleul 25 €\n"
+        "• /autofresh [Enseigne] Super-Parrain gain filleul 25 €\n"
         "\n"
         "Supprimer une valeur personnalisée :\n"
-        "• /autofresh Kraken supprimer gain filleul\n"
+        "• /autofresh [Enseigne] supprimer gain filleul\n"
         "\n"
         "Une modification est d'abord préparée. Si AutoFresh peut réellement "
         "mettre un site à jour, un bouton « Confirmer l'écriture » apparaît."
     )
 
+
+
+def build_enseignes_status() -> str:
+    """List every referral brand/offer known to AutoFresh."""
+    from lib.offers import OffersRepository
+
+    rows = OffersRepository().load_all()
+    names = []
+    seen = set()
+    for row in rows:
+        name = str(row.get("name") or row.get("lk") or "").strip()
+        if not name:
+            continue
+        key = name.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        names.append(name)
+    names.sort(key=str.casefold)
+
+    lines = [
+        "🏷️ AUTOFRESH — ENSEIGNES",
+        f"{len(names)} enseigne{'s' if len(names) != 1 else ''} connue{'s' if len(names) != 1 else ''}.",
+        "",
+        "Utilise l'un de ces noms à la place de [Enseigne] dans les commandes :",
+    ]
+    lines.extend(f"• {name}" for name in names)
+    lines.extend(
+        [
+            "",
+            "Exemple de syntaxe : /autofresh [Enseigne] statut",
+            "Toutes ces enseignes utilisent les mêmes commandes AutoFresh.",
+        ]
+    )
+    return "\n".join(lines)
 
 def _format_paris_time(raw: str | None) -> str:
     if not raw:
@@ -439,6 +491,8 @@ def build_topic(topic: str, *, program: str | None = None) -> str:
         return build_examples()
     if topic == TOPIC_PLATEFORMES:
         return build_platforms_status(program=program)
+    if topic == TOPIC_ENSEIGNES:
+        return build_enseignes_status()
     if topic == TOPIC_BUMP:
         return build_bump_status()
     return build_main_menu()

@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 """FULL OPERATOR CONTROL — Telegram natural language entry.
 
-Examples:
-  Kraken code ABC123
-  Kraken gain filleul 20 €
-  Kraken Super-Parrain gain filleul 25 €
-  Kraken conditions Déposer 100 € sous 15 jours
-  Kraken status
-  Kraken overrides
-  Kraken supprimer override gain filleul
-  Kraken Super-Parrain supprimer override gain filleul
+Examples (replace ENSEIGNE with any offer known to AutoFresh):
+  ENSEIGNE code ABC123
+  ENSEIGNE gain filleul 20 €
+  ENSEIGNE Super-Parrain gain filleul 25 €
+  ENSEIGNE conditions Déposer 100 € sous 15 jours
+  ENSEIGNE statut
+  ENSEIGNE valeurs
+  ENSEIGNE supprimer gain filleul
 
 Precedence:
   PLATFORM_OPERATOR > GLOBAL_OPERATOR > ACCEPTED_MONITOR > CANONICAL
@@ -96,6 +95,33 @@ def resolve_program(token: str, offers: OffersRepository) -> dict | None:
     return None
 
 
+def _canonicalize_program_prefix(message: str, offers: OffersRepository) -> str:
+    """Replace a leading human-facing offer name with its single-token slug.
+
+    The command regexes deliberately keep a simple first token, but many real
+    AutoFresh enseignes contain spaces or punctuation (Trade Republic,
+    ParionsSport FDJ, L'Olivier Assurance, NRJ Mobile). Matching the longest
+    known name first lets every offer use the same Slack syntax without forcing
+    the operator to know internal slugs.
+    """
+    raw = (message or "").strip()
+    folded = raw.casefold()
+    matches: list[tuple[int, str, str]] = []
+    for offer in offers.load_all():
+        slug = str(offer.get("lk") or "").strip()
+        name = str(offer.get("name") or "").strip()
+        for alias in (name, slug):
+            if not alias or not slug:
+                continue
+            alias_folded = alias.casefold()
+            if folded == alias_folded or folded.startswith(alias_folded + " "):
+                matches.append((len(alias), alias, slug))
+    if not matches:
+        return raw
+    _length, alias, slug = max(matches, key=lambda item: item[0])
+    return slug + raw[len(alias):]
+
+
 def _split_field_value(rest: str) -> tuple[str, str] | None:
     rest = rest.strip()
     low = rest.lower()
@@ -141,6 +167,10 @@ def parse_message(message: str, offers: OffersRepository) -> dict:
             "field": None,
             "value": None,
         }
+
+    # Accept the real display name of every enseigne, including multi-word
+    # names, then route through the existing slug-based parser.
+    msg = _canonicalize_program_prefix(msg, offers)
 
     m = STATUS_RE.match(msg)
     if m:
@@ -223,8 +253,9 @@ def parse_message(message: str, offers: OffersRepository) -> dict:
             if hint:
                 raise ValueError(hint)
             raise ValueError(
-                "Message non reconnu. Ex: 'Kraken gain filleul 20 €' | "
-                "'Kraken Super-Parrain code ABC' | 'Kraken status'"
+                "Message non reconnu. Exemples : '[Enseigne] gain filleul 20 €' | "
+                "'[Enseigne] Super-Parrain code ABC' | '[Enseigne] statut'. "
+                "Utilise '/autofresh enseignes' pour voir les noms disponibles."
             )
         field_raw, value = fv
         field = normalize_field_name(field_raw)
@@ -243,9 +274,10 @@ def parse_message(message: str, offers: OffersRepository) -> dict:
         }
 
     raise ValueError(
-        "Message non reconnu. Exemples : 'Kraken code ABC123' | "
-        "'Kraken gain filleul 20 €' | 'Kraken Super-Parrain gain filleul 25 €' | "
-        "'Kraken statut' | 'Kraken supprimer gain filleul'"
+        "Message non reconnu. Exemples : '[Enseigne] code ABC123' | "
+        "'[Enseigne] gain filleul 20 €' | '[Enseigne] statut' | "
+        "'[Enseigne] supprimer gain filleul'. "
+        "Utilise '/autofresh enseignes' pour voir les noms disponibles."
     )
 
 

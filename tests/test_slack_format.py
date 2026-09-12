@@ -80,7 +80,8 @@ def test_parse_error_hides_internal_error_code_detail():
         errors=[{"code": "parse_error", "detail": "unknown_program:foobar"}],
     ))
     dumped = json.dumps(payload, ensure_ascii=False)
-    assert "Programme inconnu : foobar" in dumped
+    assert "Enseigne inconnue : foobar" in dumped
+    assert "/autofresh enseignes" in dumped
     assert "unknown_program" not in dumped
 
 
@@ -371,3 +372,29 @@ def test_notification_text_for_set_result_is_clean_no_stray_markdown_or_duplicat
     assert text.count("Kraken") == 1
     assert "*" not in text
     assert not text.lower().startswith("kraken set —")
+
+
+
+def test_help_header_labels_enseignes_topic_explicitly():
+    payload = render_result(_base_result(
+        parsed={"action": "help", "program": None, "help_topic": "enseignes"},
+        result={"action": "help", "topic": "enseignes"},
+        human_summary="Liste des enseignes",
+    ))
+    assert payload["blocks"][0]["text"]["text"] == "✅ AutoFresh — Enseignes"
+
+
+def test_real_offer_name_is_preferred_over_internal_slug_in_slack():
+    payload = render_result(_base_result(
+        parsed={
+            "action": "status",
+            "program": "traderepublic",
+            "offer_name": "Trade Republic",
+            "field": None,
+            "platform": None,
+        },
+        plan={"summary": {"platforms_mapped": 2, "pending_update": 0, "in_sync": 2}},
+    ))
+    dumped = json.dumps(payload, ensure_ascii=False)
+    assert "Trade Republic" in dumped
+    assert "Traderepublic" not in dumped

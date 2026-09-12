@@ -71,40 +71,27 @@ export function clip(s, n) {
 export function helpText() {
   return (
     "*AutoFresh — aide*\n" +
-    "\n*Consultation*\n" +
-    "• `/autofresh Kraken statut`\n" +
-    "• `/autofresh Kraken valeurs`\n" +
-    "• `/autofresh Kraken divergences`\n" +
-    "• `/autofresh Kraken plateformes`\n" +
-    "• `/autofresh plateformes`\n" +
-    "• `/autofresh bump`\n" +
-    "• `/autofresh exemples`\n" +
+    "AutoFresh fonctionne avec toutes les enseignes connues. " +
+    "Tape `/autofresh enseignes` pour afficher la liste.\n" +
+    "\n*Les commandes principales*\n" +
+    "• `/autofresh [Enseigne] statut` — voir si l'annonce est à jour\n" +
+    "• `/autofresh [Enseigne] valeurs` — voir les valeurs utilisées\n" +
+    "• `/autofresh [Enseigne] divergences` — voir les différences détectées\n" +
+    "• `/autofresh [Enseigne] plateformes` — voir sur quels sites elle est gérée\n" +
+    "• `/autofresh bump` — voir l'état des remontées automatiques\n" +
     "\n*Modifier une valeur*\n" +
-    "• `/autofresh Kraken code ABC123`\n" +
-    "• `/autofresh Kraken lien https://…`\n" +
-    "• `/autofresh Kraken gain filleul 20 €`\n" +
-    "• `/autofresh Kraken gain parrain 20 €`\n" +
-    "• `/autofresh Kraken conditions <texte>`\n" +
-    "• `/autofresh Kraken dépôt minimum <valeur>`\n" +
-    "• `/autofresh Kraken dépense minimum <valeur>`\n" +
-    "• `/autofresh Kraken minimum de trade <valeur>`\n" +
-    "• `/autofresh Kraken nombre de transactions <valeur>`\n" +
-    "• `/autofresh Kraken délai <valeur>`\n" +
-    "• `/autofresh Kraken expiration <valeur>`\n" +
-    "• `/autofresh Kraken type de récompense <valeur>`\n" +
-    "• `/autofresh Kraken titre <valeur>`\n" +
-    "\n*Cibler une plateforme*\n" +
-    "• `/autofresh Kraken Super-Parrain gain filleul 25 €`\n" +
-    "• `/autofresh Kraken Parrainage.co code ABC123`\n" +
+    "• `/autofresh [Enseigne] code ABC123`\n" +
+    "• `/autofresh [Enseigne] lien https://…`\n" +
+    "• `/autofresh [Enseigne] gain filleul 20 €`\n" +
+    "• `/autofresh [Enseigne] conditions <texte>`\n" +
+    "\n*Cibler un seul site*\n" +
+    "• `/autofresh [Enseigne] Super-Parrain gain filleul 25 €`\n" +
     "\n*Supprimer une valeur personnalisée*\n" +
-    "• `/autofresh Kraken supprimer code`\n" +
-    "• `/autofresh Kraken supprimer lien`\n" +
-    "• `/autofresh Kraken supprimer gain filleul`\n" +
-    "• `/autofresh Kraken supprimer conditions`\n" +
-    "• `/autofresh Kraken Super-Parrain supprimer gain filleul`\n" +
-    "\nVariantes acceptées : `statut/status/état`, `valeurs/overrides/modifications`, " +
-    "`supprimer/retirer/effacer`, `lien/link`.\n" +
-    "\nToute mise à jour réelle d'un site compatible nécessite ensuite le bouton *Confirmer l'écriture*."
+    "• `/autofresh [Enseigne] supprimer gain filleul`\n" +
+    "\nRemplace simplement *[Enseigne]* par le nom affiché dans " +
+    "`/autofresh enseignes`. La même syntaxe fonctionne pour toutes les annonces suivies.\n" +
+    "\nToute mise à jour réelle d'un site compatible nécessite ensuite le bouton " +
+    "*Confirmer l'écriture*."
   );
 }
 
@@ -113,6 +100,7 @@ export function normalizeSlashCommandText(text) {
   const raw = String(text || "").trim();
   const folded = raw.toLocaleLowerCase("fr-FR");
   if (folded === "plateformes" || folded === "plateforme") return "Autofresh plateformes";
+  if (folded === "enseignes" || folded === "enseigne" || folded === "offres" || folded === "programmes") return "Autofresh enseignes";
   if (folded === "exemples" || folded === "exemple") return "Autofresh exemples";
   if (folded === "bump" || folded === "bumps") return "Autofresh bump";
   return raw;

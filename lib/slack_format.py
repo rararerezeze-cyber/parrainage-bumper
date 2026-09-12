@@ -127,17 +127,25 @@ def _format_value(value: Any) -> str:
     return text
 
 
+def _program_label(parsed: dict[str, Any]) -> str:
+    offer_name = str(parsed.get("offer_name") or "").strip()
+    if offer_name:
+        return offer_name
+    program = str(parsed.get("program") or "").strip()
+    return program.capitalize() if program else ""
+
+
 def _result_title(result: dict[str, Any]) -> str:
     parsed = result.get("parsed") or {}
     action = str(parsed.get("action") or "")
-    program = str(parsed.get("program") or "").strip()
-    program_label = program.capitalize() if program else ""
+    program_label = _program_label(parsed)
     if action == "help":
         topic = str((result.get("result") or {}).get("topic") or parsed.get("help_topic") or "menu")
         return {
             "menu": "Aide",
             "exemples": "Exemples",
             "plateformes": "Plateformes",
+            "enseignes": "Enseignes",
             "bump": "Bumpers",
         }.get(topic, "Aide")
     if action == "divergences":
@@ -159,7 +167,10 @@ def _clean_error_detail(code: str, detail: Any) -> str:
     text = str(detail or "").strip()
     if code == "parse_error":
         if text.startswith("unknown_program:"):
-            return f"Programme inconnu : {text.split(':', 1)[1]}. Utilise /autofresh aide."
+            return (
+                f"Enseigne inconnue : {text.split(':', 1)[1]}. "
+                "Utilise /autofresh enseignes pour voir les noms disponibles."
+            )
         if text.startswith("unknown_field:"):
             return f"Valeur non reconnue : {text.split(':', 1)[1]}. Utilise /autofresh aide."
         if text in {"empty_message", "invalid_message"}:
@@ -277,7 +288,7 @@ def _concise_status_summary(result: dict[str, Any]) -> str | None:
     if mapped is None:
         return None
 
-    label = program.capitalize() if program else "AutoFresh"
+    label = _program_label(parsed) or "AutoFresh"
     mapped_i = int(mapped or 0)
     pending_i = int(pending or 0)
     in_sync_i = int(in_sync or 0)
@@ -308,8 +319,7 @@ def _concise_status_summary(result: dict[str, Any]) -> str | None:
 
 def _concise_list_summary(result: dict[str, Any]) -> str:
     parsed = result.get("parsed") or {}
-    program = str(parsed.get("program") or "").strip()
-    label = program.capitalize() if program else "AutoFresh"
+    label = _program_label(parsed) or "AutoFresh"
     overrides = (result.get("result") or {}).get("overrides") or []
     if not overrides:
         return f"*{label}* — aucune valeur personnalisée enregistrée."
@@ -328,8 +338,7 @@ def _concise_list_summary(result: dict[str, Any]) -> str:
 
 def _concise_divergences_summary(result: dict[str, Any]) -> str:
     parsed = result.get("parsed") or {}
-    program = str(parsed.get("program") or "").strip()
-    label = program.capitalize() if program else "AutoFresh"
+    label = _program_label(parsed) or "AutoFresh"
     items = (result.get("result") or {}).get("divergences") or []
     if not items:
         return f"*{label}* — aucune divergence en attente."
@@ -348,14 +357,13 @@ def _concise_divergences_summary(result: dict[str, Any]) -> str:
 
 def _concise_set_remove_summary(result: dict[str, Any]) -> str | None:
     parsed = result.get("parsed") or {}
-    program = str(parsed.get("program") or "").strip()
     field = parsed.get("field")
     platform = parsed.get("platform")
     action = parsed.get("action")
     if not field:
         return None
 
-    label = program.capitalize() if program else "AutoFresh"
+    label = _program_label(parsed) or "AutoFresh"
     field_label = _field_label(field)
     scope = f"sur {_platform_label(platform)}" if platform else "pour toutes les plateformes compatibles"
 

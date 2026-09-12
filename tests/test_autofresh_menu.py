@@ -11,6 +11,7 @@ from lib.autofresh_help import (
     TOPIC_EXEMPLES,
     TOPIC_MENU,
     TOPIC_PLATEFORMES,
+    TOPIC_ENSEIGNES,
     ambiguous_field_reply,
     build_bump_status,
     detect_meta_command,
@@ -52,6 +53,10 @@ def _local_auth(monkeypatch, tmp_path):
         ("AUTOFRESH COMMANDES", TOPIC_MENU),
         ("Autofresh exemples", TOPIC_EXEMPLES),
         ("Autofresh plateformes", TOPIC_PLATEFORMES),
+        ("Autofresh enseignes", TOPIC_ENSEIGNES),
+        ("Autofresh offres", TOPIC_ENSEIGNES),
+        ("enseignes", TOPIC_ENSEIGNES),
+        ("offres", TOPIC_ENSEIGNES),
     ],
 )
 def test_detect_meta_command_matches(raw, expected_topic):
@@ -135,6 +140,27 @@ def test_parse_message_kraken_plateformes():
     assert parsed["program"] == "kraken"
 
 
+def test_multiword_enseigne_display_names_work_for_status_and_writes():
+    offers = OffersRepository()
+
+    status = parse_message("Trade Republic statut", offers)
+    assert status["action"] == "status"
+    assert status["program"] == "traderepublic"
+    assert status["offer_name"] == "Trade Republic"
+
+    set_value = parse_message("NRJ Mobile gain filleul 20 €", offers)
+    assert set_value["action"] == "set"
+    assert set_value["program"] == "nrj-mobile"
+    assert set_value["offer_name"] == "NRJ Mobile"
+    assert set_value["value"] == "20 €"
+
+    targeted = parse_message("L'Olivier Assurance Super-Parrain code ABC123", offers)
+    assert targeted["action"] == "set"
+    assert targeted["program"] == "lolivier"
+    assert targeted["platform"] == "super-parrain"
+    assert targeted["value"] == "ABC123"
+
+
 def test_unknown_command_raises_cleanly_not_a_crash():
     offers = OffersRepository()
     with pytest.raises(ValueError):
@@ -169,6 +195,7 @@ def test_apply_divergences_for_program_with_no_pending_candidates():
         "Aide Autofresh",
         "Autofresh exemples",
         "Autofresh plateformes",
+        "Autofresh enseignes",
         "Kraken statut",
         "Kraken status",
         "Kraken état",
@@ -279,11 +306,12 @@ def test_mapped_count_matches_real_mapping_files_on_disk():
     assert computed_mapped == real_mapped
 
 
-def test_examples_use_french_statut_not_english_status():
+def test_examples_are_generic_and_use_french_statut():
     from lib.autofresh_help import build_examples
 
     text = build_examples()
-    assert "Kraken statut" in text
+    assert "[Enseigne] statut" in text
+    assert "Kraken statut" not in text
     assert "Kraken status" not in text
 
 
@@ -416,23 +444,54 @@ def test_bump_meta_command_never_persists_or_invokes_a_writer(_isolated_bump_sch
 
 
 
-def test_main_menu_starts_with_four_commands_to_remember():
+def test_main_menu_starts_with_four_generic_commands_to_remember():
     from lib.autofresh_help import build_main_menu
 
     text = build_main_menu()
     assert "Les 4 commandes à retenir" in text
-    assert "/autofresh Kraken statut" in text
-    assert "/autofresh Kraken valeurs" in text
-    assert "/autofresh Kraken gain filleul 200 €" in text
+    assert "/autofresh [Enseigne] statut" in text
+    assert "/autofresh [Enseigne] valeurs" in text
+    assert "/autofresh [Enseigne] gain filleul 200 €" in text
+    assert "/autofresh enseignes" in text
     assert "/autofresh bump" in text
     assert "Confirmer l'écriture" in text
+    assert "Kraken" not in text
 
 
 def test_examples_explain_what_each_read_command_does():
     from lib.autofresh_help import build_examples
 
     text = build_examples()
-    assert "est-ce que tout est à jour ?" in text
+    assert "est-ce que cette annonce est à jour ?" in text
     assert "quelles valeurs AutoFresh utilise ?" in text
     assert "qu'est-ce qui diffère sur les sites ?" in text
     assert "où en sont les remontées automatiques ?" in text
+
+
+
+def test_enseignes_topic_lists_real_offer_names_and_is_read_only():
+    from lib.autofresh_help import build_enseignes_status
+
+    text = build_enseignes_status()
+    assert "AUTOFRESH — ENSEIGNES" in text
+    for name in ("BoursoBank", "PayPal", "Wise", "Trade Republic", "Kraken"):
+        assert f"• {name}" in text
+
+    result = run_autofresh_command(
+        "Autofresh enseignes",
+        requester={"source": "test"},
+        persist=True,
+        plan=True,
+        run_writers=True,
+    )
+    assert result["ok"] is True
+    assert "BoursoBank" in result["human_summary"]
+    assert result["platforms"] == []
+
+
+def test_generic_help_does_not_present_one_brand_as_the_default():
+    from lib.autofresh_help import build_examples, build_main_menu
+
+    for text in (build_main_menu(), build_examples()):
+        assert "[Enseigne]" in text
+        assert "Kraken" not in text
