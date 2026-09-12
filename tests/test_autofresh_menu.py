@@ -462,7 +462,7 @@ def test_examples_explain_what_each_read_command_does():
     from lib.autofresh_help import build_examples
 
     text = build_examples()
-    assert "est-ce que tout est à jour ?" in text
+    assert "est-ce que cette annonce est à jour ?" in text
     assert "quelles valeurs AutoFresh utilise ?" in text
     assert "qu'est-ce qui diffère sur les sites ?" in text
     assert "où en sont les remontées automatiques ?" in text
