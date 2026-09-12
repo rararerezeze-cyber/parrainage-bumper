@@ -124,10 +124,12 @@ def _event_line(event: dict) -> str:
 
     if ev == "external_blocker":
         reason = _label_reason(event.get("block_reason") or event.get("result"))
+        icon = _LEVEL_ICONS.get(level, "⚠️")
         return (
-            f"⚠️ {platform}"
+            f"{icon} {platform}"
             + (f" / {program}" if program else "")
-            + f" — action bloquée par le site ({reason}). Aucune tentative de contournement."
+            + f" — blocage externe du site ({reason}). "
+            "Aucune tentative de contournement."
         )
 
     if ev == "post_verify_success":
