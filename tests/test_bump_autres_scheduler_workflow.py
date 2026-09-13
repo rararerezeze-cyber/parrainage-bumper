@@ -31,10 +31,9 @@ def test_invokes_the_scheduler_script():
     assert "tools/bump_autres_scheduler.py" in TEXT
 
 
-def test_commits_the_schedule_state_with_a_real_push_failure_gate():
-    assert "data/bump-autres-schedule.json" in TEXT
-    assert "if ! git push; then" in TEXT
-    assert "exit 1" in TEXT
+def test_persists_schedule_state_through_race_safe_helper():
+    assert "tools/persist_bump_schedule_state.py" in TEXT
+    assert "git pull --rebase" not in TEXT
 
 
 def test_workflow_dispatch_available_for_manual_testing():
