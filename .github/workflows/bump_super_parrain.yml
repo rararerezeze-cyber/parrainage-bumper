@@ -262,16 +262,24 @@ jobs:
             echo "no commit"
           else
             git commit -m "chore: super-parrain canary/bump results"
-            # A failed pull/push must never be swallowed: the artifacts this
-            # run produced would otherwise claim results were persisted when
-            # they only ever landed on this ephemeral runner's local disk.
-            # No retry loop -- one attempt, fail loudly (visible red run).
-            if ! git pull --rebase origin main; then
-              echo "::error::git pull --rebase failed -- super-parrain bump/canary results were NOT pushed. This run's results do not reflect a durably persisted change."
-              exit 1
-            fi
-            if ! git push origin HEAD:main; then
-              echo "::error::git push failed -- super-parrain bump/canary results were NOT pushed. This run's results do not reflect a durably persisted change."
+            # Retry Git persistence only; never replay the platform cycle.
+            # Run 34748209421 completed 40/40 saves but GitHub transiently
+            # rejected commit_refs after the cycle had already succeeded.
+            persisted=0
+            for attempt in 1 2 3 4; do
+              if ! git pull --rebase origin main; then
+                echo "::error::git pull --rebase failed -- refusing to guess through a state conflict."
+                exit 1
+              fi
+              if git push origin HEAD:main; then
+                persisted=1
+                break
+              fi
+              echo "::warning::GitHub rejected the state push (attempt $attempt/4); retrying persistence only."
+              sleep $((attempt * 2))
+            done
+            if [ "$persisted" != "1" ]; then
+              echo "::error::git push failed after 4 persistence-only attempts -- super-parrain results were NOT pushed."
               exit 1
             fi
           fi
