@@ -79,9 +79,12 @@ def test_commit_step_never_silently_swallows_a_failed_push():
     assert "exit 1" in after_commit
 
 
-def test_no_retry_storm_added():
+def test_persistence_retry_is_bounded_and_never_replays_platform_action():
+    assert "for attempt in 1 2 3 4; do" in COMMIT_STEP_CODE
     assert COMMIT_STEP_CODE.count("git pull --rebase origin main") == 1
-    assert COMMIT_STEP_CODE.count("if ! git push origin HEAD:main; then") == 1
+    assert COMMIT_STEP_CODE.count("git push origin HEAD:main") == 1
+    assert "retrying persistence only" in COMMIT_STEP_CODE
+    assert "python tools/super_parrain_cycle.py --execute" not in COMMIT_STEP_CODE
 
 
 def test_last_super_run_still_never_committed_from_canary_pending_path():
