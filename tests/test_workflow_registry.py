@@ -17,6 +17,7 @@ WORKFLOW_DIR = ROOT / ".github" / "workflows"
 REGISTRY = json.loads((ROOT / "data" / "workflow-registry.json").read_text(encoding="utf-8"))
 
 SCHEDULED = {
+    "autofresh_scheduler_watchdog.yml",
     "bump_super_parrain.yml",
     "monitor_offers.yml",
 }
@@ -223,3 +224,19 @@ def test_ci_does_not_disable_notifications():
         if stripped.startswith("#"):
             continue
         assert not stripped.startswith("AUTOFRESH_NOTIFY_DISABLED"), stripped
+
+
+def test_scheduler_watchdog_is_fallback_only():
+    raw = (WORKFLOW_DIR / "autofresh_scheduler_watchdog.yml").read_text(encoding="utf-8")
+    assert "bump_autres_scheduler.yml/dispatches" in raw
+    assert "age > 25 * 60" in raw
+    assert 'cron: "10,40 * * * *"' in raw
+    for forbidden in (
+        "SUPER_PARRAIN_PASSWORD",
+        "PARRAINAGE_CO_PASSWORD",
+        "CODE_PARRAINAGE_PASSWORD",
+        "playwright",
+        "bumper.py",
+        "--execute",
+    ):
+        assert forbidden not in raw, forbidden

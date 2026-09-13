@@ -27,20 +27,24 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Require Cloudflare deployment credentials
+      - name: Test Slack Worker
+        run: node --test slack-worker/test.js
+
+      - name: Detect Cloudflare deployment credentials
+        id: cloudflare
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
-            echo "::error::Missing CLOUDFLARE_API_TOKEN and/or CLOUDFLARE_ACCOUNT_ID."
-            exit 1
+          if [ -n "$CLOUDFLARE_API_TOKEN" ] && [ -n "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "available=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=0" >> "$GITHUB_OUTPUT"
+            echo "::warning::Cloudflare deploy skipped: add CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID repository secrets to enable automatic deployment."
           fi
 
-      - name: Test Slack Worker
-        run: node --test slack-worker/test.js
-
       - name: Deploy AutoFresh Slack Worker
+        if: steps.cloudflare.outputs.available == '1'
         working-directory: slack-worker
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
