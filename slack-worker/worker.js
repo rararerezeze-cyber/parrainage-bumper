@@ -54,6 +54,12 @@ const SCHEDULER_WORKFLOW_FILE = "bump_autres_scheduler.yml";
 // every dispatching slash command on 2026-08-31 (the /autofresh aide path
 // never reaches seenRecently() and was unaffected).
 export const IDEMPOTENCY_TTL_SECONDS = 60;
+// Scheduler wake-ups are keyed by a 15-minute bucket rather than the raw
+// Cloudflare scheduledTime. This protects GitHub from duplicate cron sources
+// firing a few seconds apart while keeping each intended 15-minute wake-up
+// independent. Keep the bucket marker alive beyond one full interval.
+export const SCHEDULER_DEDUPE_TTL_SECONDS = 20 * 60;
+const SCHEDULER_BUCKET_MS = 15 * 60 * 1000;
 
 export default {
   async fetch(request, env, ctx) {
@@ -92,9 +98,10 @@ export default {
     // only wakes the existing scheduler workflow; it never decides when a
     // real site visit happens. The persisted random slots remain the sole
     // timing authority inside bump_autres_scheduler.yml.
-    const key = `scheduler:${controller.scheduledTime || "tick"}`;
+    const scheduledTime = Number(controller.scheduledTime) || Date.now();
+    const key = schedulerBucketKey(scheduledTime);
     ctx.waitUntil((async () => {
-      if (await seenRecently(env, key)) return;
+      if (await seenRecently(env, key, SCHEDULER_DEDUPE_TTL_SECONDS)) return;
       const result = await dispatchSchedulerWorkflow(env);
       if (!result.ok) {
         console.error("scheduler_dispatch_failed", result.status, result.error || "");
@@ -287,11 +294,16 @@ async function dispatchSchedulerWorkflow(env) {
   }
 }
 
-async function seenRecently(env, key) {
+export function schedulerBucketKey(scheduledTime) {
+  const bucket = Math.floor(Number(scheduledTime) / SCHEDULER_BUCKET_MS);
+  return `scheduler:15m:${bucket}`;
+}
+
+async function seenRecently(env, key, expirationTtl = IDEMPOTENCY_TTL_SECONDS) {
   if (!env.IDEMPOTENCY) return false; // fail open on missing binding rather than fail closed on ops
   const existing = await env.IDEMPOTENCY.get(key);
   if (existing) return true;
-  await env.IDEMPOTENCY.put(key, "1", { expirationTtl: IDEMPOTENCY_TTL_SECONDS });
+  await env.IDEMPOTENCY.put(key, "1", { expirationTtl });
   return false;
 }
 
