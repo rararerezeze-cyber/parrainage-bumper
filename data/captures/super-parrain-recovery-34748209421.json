@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "source_run_id": "34748209421",
+  "artifact_id": "10314584823",
+  "artifact_sha256": "d246cbe737e5adb4a9afef2df7e1576fbb6feeddd3250cb97df698528625a74f",
+  "recovered_at": "2026-09-13T08:56:00+00:00",
+  "facts": {
+    "bump_result": "SUCCESS",
+    "content_result": "NO_CONTENT_WRITE",
+    "server_actions": 40,
+    "last_super_run": "2026-09-13T08:47:39.145396",
+    "jitter_minutes": 132,
+    "next_eligible_at": "2026-09-14T10:59:39.145396+00:00"
+  },
+  "reason": "Run 34748209421 completed 40/40 Super-Parrain saves but GitHub rejected the subsequent git push. This recovery restores cooldown state without replaying any platform action."
+}
