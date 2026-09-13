@@ -75,7 +75,8 @@ def test_commit_step_never_silently_swallows_a_failed_push():
         "a failure after the commit (pull/push) must not be swallowed by || true"
     )
     assert "if ! git pull --rebase origin main; then" in COMMIT_STEP_CODE
-    assert "if ! git push origin HEAD:main; then" in COMMIT_STEP_CODE
+    assert "git push origin HEAD:main" in COMMIT_STEP_CODE
+    assert 'if [ "$persisted" != "1" ]; then' in COMMIT_STEP_CODE
     assert "exit 1" in after_commit
 
 
