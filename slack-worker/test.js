@@ -14,7 +14,7 @@ import {
   isSafeCommandText,
   clip,
 } from "./lib.js";
-import worker, { IDEMPOTENCY_TTL_SECONDS } from "./worker.js";
+import worker, { IDEMPOTENCY_TTL_SECONDS, SCHEDULER_DEDUPE_TTL_SECONDS, schedulerBucketKey } from "./worker.js";
 
 test("Worker signed request path: read/preview stays unarmed; confirmation dispatches once", async () => {
   const originalFetch = globalThis.fetch;
@@ -94,7 +94,8 @@ test("Cloudflare cron only wakes the persisted bump scheduler workflow", async (
   const pending = [];
   const ctx = { waitUntil: (p) => pending.push(p) };
   try {
-    await worker.scheduled({ scheduledTime: 123456789 }, env, ctx);
+    const scheduledTime = Date.UTC(2026, 8, 13, 8, 3, 0);
+    await worker.scheduled({ scheduledTime }, env, ctx);
     await Promise.all(pending);
     assert.equal(calls.length, 1);
     assert.equal(
@@ -103,14 +104,28 @@ test("Cloudflare cron only wakes the persisted bump scheduler workflow", async (
     );
     assert.deepEqual(calls[0].body, { ref: "main" });
 
-    // Same Cloudflare cron delivery retried: KV dedupe prevents a second wake-up.
+    // A duplicate cron source firing seconds later lands in the same 15-minute
+    // bucket and must not create a second GitHub workflow_dispatch.
     const pending2 = [];
-    await worker.scheduled({ scheduledTime: 123456789 }, env, { waitUntil: (p) => pending2.push(p) });
+    await worker.scheduled({ scheduledTime: scheduledTime + 13_000 }, env, { waitUntil: (p) => pending2.push(p) });
     await Promise.all(pending2);
     assert.equal(calls.length, 1);
+
+    // The next intended 15-minute wake-up remains independent.
+    const pending3 = [];
+    await worker.scheduled({ scheduledTime: scheduledTime + 15 * 60 * 1000 }, env, { waitUntil: (p) => pending3.push(p) });
+    await Promise.all(pending3);
+    assert.equal(calls.length, 2);
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+test("scheduler dedupe uses stable 15-minute buckets and a long-enough TTL", () => {
+  const t = Date.UTC(2026, 8, 13, 8, 3, 0);
+  assert.equal(schedulerBucketKey(t), schedulerBucketKey(t + 13_000));
+  assert.notEqual(schedulerBucketKey(t), schedulerBucketKey(t + 15 * 60 * 1000));
+  assert.ok(SCHEDULER_DEDUPE_TTL_SECONDS > 15 * 60);
 });
 
 test("IDEMPOTENCY_TTL_SECONDS respects Cloudflare KV's hard minimum of 60s", () => {
