@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-09-13T08:50:00+00:00",
+  "updated_at": "2026-09-13T09:22:00+00:00",
   "note": "Operator-facing classification of every GitHub Actions workflow in this repository. PRODUCTION runs the product. EVIDENCE_CLOSED / DIAGNOSTIC_CLOSED are kept as historical proof and are already refused at runtime by their own gates -- they are archived, never deleted. tests/test_workflow_registry.py fails if a workflow file is added, removed, or reclassified without updating this file.",
   "classes": {
     "PRODUCTION_SCHEDULED": "Runs on cron. Keeps the product alive.",
@@ -148,7 +148,12 @@
     "deploy_slack_worker.yml": {
       "class": "DEPLOYMENT_AUTOMATION",
       "platform": null,
-      "note": "Deploys the production autofresh-slack Cloudflare Worker from main after slack-worker changes. Runs the Worker unit tests first and fails closed if Cloudflare deployment credentials are missing."
+      "note": "Tests the production autofresh-slack Worker on main changes and deploys it when Cloudflare credentials are configured. Missing deployment credentials produce a visible warning and skip deployment instead of turning unrelated repository health red."
+    },
+    "autofresh_scheduler_watchdog.yml": {
+      "class": "PRODUCTION_SCHEDULED",
+      "platform": null,
+      "note": "Lightweight fallback for the Cloudflare wake-up layer. Every 30 minutes it checks the latest bump_autres_scheduler run and dispatches exactly one fallback wake-up only when the primary Cloudflare scheduler has been silent for more than 25 minutes. It never decides site-access timing and never touches a referral platform directly."
     }
   }
 }
