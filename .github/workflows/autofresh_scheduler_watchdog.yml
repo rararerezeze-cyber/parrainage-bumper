@@ -21,6 +21,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - name: Restore notification dedup state
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: data/notifications/dedup.json
+          key: autofresh-notify-dedup-${{ github.workflow }}-${{ github.run_id }}
+          restore-keys: |
+            autofresh-notify-dedup-${{ github.workflow }}-
+
       - name: Check latest Cloudflare scheduler wake-up
         id: check
         env:
@@ -61,6 +70,14 @@ jobs:
           set -euo pipefail
           gh api --method POST             "repos/$REPO/actions/workflows/bump_autres_scheduler.yml/dispatches"             -f ref=main
           echo "::warning::Cloudflare scheduler wake-up was stale; dispatched one GitHub fallback wake-up."
+
+      - name: Save notification dedup state
+        if: always() && hashFiles('data/notifications/dedup.json') != ''
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: data/notifications/dedup.json
+          key: autofresh-notify-dedup-${{ github.workflow }}-${{ github.run_id }}
 
       - name: Export notification outbox
         if: always()
