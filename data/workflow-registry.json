@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-09-11T20:35:47+00:00",
+  "updated_at": "2026-09-13T08:50:00+00:00",
   "note": "Operator-facing classification of every GitHub Actions workflow in this repository. PRODUCTION runs the product. EVIDENCE_CLOSED / DIAGNOSTIC_CLOSED are kept as historical proof and are already refused at runtime by their own gates -- they are archived, never deleted. tests/test_workflow_registry.py fails if a workflow file is added, removed, or reclassified without updating this file.",
   "classes": {
     "PRODUCTION_SCHEDULED": "Runs on cron. Keeps the product alive.",
@@ -11,7 +11,8 @@
     "DIAGNOSTIC_AVAILABLE": "Read-only, still useful on demand.",
     "OPTIONAL_TEST_ONLY": "Not the production path. Never the Autofresh Telegram bot.",
     "CI_READ_ONLY": "Pull-request validation. No platform secret, no browser, no write, no schedule.",
-    "PRODUCTION_EXTERNAL_TRIGGER": "Production workflow with no native GitHub cron; invoked by an external production scheduler (Cloudflare)."
+    "PRODUCTION_EXTERNAL_TRIGGER": "Production workflow with no native GitHub cron; invoked by an external production scheduler (Cloudflare).",
+    "DEPLOYMENT_AUTOMATION": "Deployment-only workflow. Tests and deploys infrastructure code; it does not execute referral platform business actions."
   },
   "workflows": {
     "bump_super_parrain.yml": {
@@ -143,6 +144,11 @@
       "class": "CI_READ_ONLY",
       "platform": null,
       "note": "Runs the suite plus JSON/YAML/import/whitespace validation on every PR. contents: read, no secrets, no playwright install, no schedule. Also asserts the suite leaves the working tree clean."
+    },
+    "deploy_slack_worker.yml": {
+      "class": "DEPLOYMENT_AUTOMATION",
+      "platform": null,
+      "note": "Deploys the production autofresh-slack Cloudflare Worker from main after slack-worker changes. Runs the Worker unit tests first and fails closed if Cloudflare deployment credentials are missing."
     }
   }
 }
