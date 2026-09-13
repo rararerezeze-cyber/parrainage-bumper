@@ -36,28 +36,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python tools/bump_autres_scheduler.py
-      - name: Commit schedule state
+      - name: Persist schedule state safely
         if: always()
-        run: |
-          set -e
-          git config user.name "autofresh-bot"
-          git config user.email "autofresh-bot@users.noreply.github.com"
-          if [ -f data/bump-autres-schedule.json ]; then
-            git add data/bump-autres-schedule.json
-          fi
-          if git diff --cached --quiet; then
-            echo "no commit"
-            exit 0
-          fi
-          git commit -m "chore(bump): scheduled slot state"
-          if ! git pull --rebase origin main; then
-            echo "::error::git pull --rebase failed -- schedule state was NOT pushed."
-            exit 1
-          fi
-          if ! git push; then
-            echo "::error::git push failed -- schedule state was NOT pushed."
-            exit 1
-          fi
+        run: python tools/persist_bump_schedule_state.py
       - name: Save notification dedup state
         if: always()
         uses: actions/cache/save@v4
