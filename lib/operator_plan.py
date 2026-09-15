@@ -13,6 +13,7 @@ from lib.operator_overrides import (
     apply_effective_to_offer,
     resolve_effective_value,
 )
+from lib.native_field_format import adapt_monitor_value_to_native
 from lib.phase import phase_name
 from lib.renderer import MappingRepository, Renderer, TemplateRepository
 from lib.template_builder import extract_values_via_template
@@ -56,6 +57,7 @@ class PlatformImpact:
     can_auto_write: bool
     changed_fields: dict[str, dict[str, str | None]] = field(default_factory=dict)
     field_sources: dict[str, str] = field(default_factory=dict)
+    manual_fields: list[str] = field(default_factory=list)
     error: str | None = None
     route: str = ""
     human_command: str | None = None
@@ -72,6 +74,7 @@ class PlatformImpact:
             "can_auto_write": self.can_auto_write,
             "changed_fields": self.changed_fields,
             "field_sources": self.field_sources,
+            "manual_fields": self.manual_fields,
             "error": self.error,
             "route": self.route,
             "human_command": self.human_command,
@@ -209,12 +212,10 @@ def plan_program_impact(
 
             changed: dict[str, dict[str, str | None]] = {}
             field_sources: dict[str, str] = {}
+            manual_fields: list[str] = []
             for f in mapping.mutable_fields:
                 new_v = variables.get(f)
                 old_v = hist_values.get(f)
-                eff = resolve_effective_value(
-                    program, f, platform=ref.platform, canonical=None, store=store
-                )
                 # source of effective for this platform field
                 offer_key = (mapping.offer_fields or {}).get(f)
                 canon = base_offer.get(offer_key) if offer_key else None
@@ -229,17 +230,43 @@ def plan_program_impact(
                 if str(old_v or "") != str(new_v or ""):
                     changed[f] = {"old": old_v, "new": new_v}
 
-            status = "in_sync" if not changed else "pending_update"
+            # A verified/operator value can legitimately differ from a value
+            # visible on a platform even when that field is NOT safe to mutate
+            # with the current template. Do not hide that difference and do not
+            # turn it into an automatic write. Surface it as manual instead.
+            for f, native_old in (mapping.platform_values or {}).items():
+                if f in mapping.mutable_fields:
+                    continue
+                offer_key = (mapping.offer_fields or {}).get(f)
+                canon = base_offer.get(offer_key) if offer_key else None
+                eff = resolve_effective_value(
+                    program,
+                    f,
+                    platform=ref.platform,
+                    canonical=str(canon) if canon is not None else None,
+                    store=store,
+                )
+                if eff.source == SOURCE_CANONICAL or eff.value is None:
+                    continue
+                desired = adapt_monitor_value_to_native(f, eff.value, native_old)
+                field_sources[f] = eff.source
+                if str(native_old or "") != str(desired or ""):
+                    changed[f] = {"old": native_old, "new": desired}
+                    manual_fields.append(f)
+
+            auto_changed = [f for f in changed if f not in manual_fields]
+            if not changed:
+                status = "in_sync"
+            elif not auto_changed:
+                status = "manual"
+            else:
+                status = "pending_update"
+
             cap = platform_capability(ref.platform)
             if write_mode in {STATUS_AUTH_BLOCKED, STATUS_AUTH_BLOCKED_MANUAL}:
-                status = "auth_blocked" if status == "pending_update" else status
-            elif cap == "MANUAL" and write_mode not in {
-                STATUS_WRITE_PREPARED,
-                STATUS_WRITE_VERIFIED,
-                STATUS_CANARY_READY,
-            }:
-                if status == "pending_update":
-                    status = "manual"
+                status = "auth_blocked" if changed else status
+            elif cap == "MANUAL" and changed:
+                status = "manual"
 
             impacts.append(
                 PlatformImpact(
@@ -248,9 +275,10 @@ def plan_program_impact(
                     language=ref.language,
                     status=status,
                     write_mode=write_mode,
-                    can_auto_write=bool(can_auto and status == "pending_update"),
+                    can_auto_write=bool(can_auto and status == "pending_update" and auto_changed),
                     changed_fields=changed,
                     field_sources=field_sources,
+                    manual_fields=manual_fields,
                     error=(
                         None
                         if route != "AUTH_BLOCKED_MANUAL"
@@ -324,6 +352,7 @@ def plan_program_impact(
         "summary": {
             "platforms_mapped": len(impacts),
             "pending_update": sum(1 for i in impacts if i.status == "pending_update"),
+            "manual_update": sum(1 for i in impacts if i.status == "manual"),
             "in_sync": sum(1 for i in impacts if i.status == "in_sync"),
             "auto_capable_labels": auto_capable,
             "write_verified_live": write_verified_live,
