@@ -10,7 +10,7 @@ on:
       - ".github/workflows/audit_1parrainage_edit_inventory.yml"
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: audit-1parrainage-edit-inventory-${{ github.ref }}
@@ -46,6 +46,21 @@ jobs:
           d=json.loads(p.read_text(encoding="utf-8"))
           assert d.get("platform_writes") == 0
           PY
+      - name: Persist proven edit index on the PR branch
+        if: success() && github.event_name == 'pull_request'
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          git config user.name "autofresh-bot"
+          git config user.email "autofresh-bot@users.noreply.github.com"
+          git add data/oneparrainage-edit-index.json
+          if git diff --cached --quiet; then
+            echo "Edit index unchanged"
+          else
+            git commit -m "chore(1parrainage): persist authenticated edit index"
+            git push origin "HEAD:${HEAD_REF}"
+          fi
+
       - name: Upload inventory artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -55,4 +70,4 @@ jobs:
           if-no-files-found: error
           path: |
             diagnostic-artifacts/1parrainage-edit-inventory.json
-            diagnostic-artifacts/1parrainage-edit-index.json
+            data/oneparrainage-edit-index.json
