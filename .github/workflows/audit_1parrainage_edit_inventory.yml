@@ -2,15 +2,9 @@ name: Audit 1Parrainage full edit inventory (read-only)
 
 on:
   workflow_dispatch:
-  pull_request:
-    paths:
-      - "tools/audit_1parrainage_edit_inventory.py"
-      - "platforms/oneparrainage/**"
-      - "data/platform-occurrences/1parrainage.json"
-      - ".github/workflows/audit_1parrainage_edit_inventory.yml"
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: audit-1parrainage-edit-inventory-${{ github.ref }}
@@ -46,25 +40,6 @@ jobs:
           d=json.loads(p.read_text(encoding="utf-8"))
           assert d.get("platform_writes") == 0
           PY
-      - name: Persist proven edit index on the PR branch
-        if: success() && github.event_name == 'pull_request'
-        env:
-          HEAD_REF: ${{ github.head_ref }}
-        run: |
-          git config user.name "autofresh-bot"
-          git config user.email "autofresh-bot@users.noreply.github.com"
-          cp data/oneparrainage-edit-index.json /tmp/oneparrainage-edit-index.json
-          git fetch origin "${HEAD_REF}"
-          git checkout -B "${HEAD_REF}" "origin/${HEAD_REF}"
-          cp /tmp/oneparrainage-edit-index.json data/oneparrainage-edit-index.json
-          git add data/oneparrainage-edit-index.json
-          if git diff --cached --quiet; then
-            echo "Edit index unchanged"
-          else
-            git commit -m "chore(1parrainage): persist authenticated edit index"
-            git push origin "${HEAD_REF}"
-          fi
-
       - name: Upload inventory artifact
         if: always()
         uses: actions/upload-artifact@v4
