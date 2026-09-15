@@ -41,7 +41,7 @@ OCCURRENCES = ROOT / "data/platform-occurrences/1parrainage.json"
 MAPPINGS = ROOT / "data/platform-mappings"
 TEMPLATES = ROOT / "data/platform-templates/1parrainage"
 DEFAULT_OUT = ROOT / "diagnostic-artifacts/1parrainage-edit-inventory.json"
-DEFAULT_INDEX_OUT = ROOT / "diagnostic-artifacts/1parrainage-edit-index.json"
+DEFAULT_INDEX_OUT = ROOT / "data/oneparrainage-edit-index.json"
 EDIT_RE = re.compile(r"/espace_parrain/parrainages/edit/(\d+)/?", re.I)
 DISCOVERY_STARTS = (
     f"{BASE}/espace_parrain/",
@@ -169,6 +169,20 @@ async def _capture_edit(page, url: str) -> dict:
     }
 
 
+ACCOUNT_ONLY_ALIASES = {
+    "bitget": "bitget",
+    "freeprints": "freeprints",
+}
+
+
+def _account_program(editor: dict) -> str | None:
+    visible = str(editor.get("visible_excerpt") or "").lower()
+    for needle, program in ACCOUNT_ONLY_ALIASES.items():
+        if f"offre de parrainage {needle}" in visible:
+            return program
+    return None
+
+
 def _match(editor: dict, public_rows: list[dict]) -> dict:
     text = editor.get("plain") or ""
     scored = []
@@ -292,15 +306,30 @@ async def run(out: Path) -> dict:
     programs: dict[str, dict] = {}
     for item in editors:
         m = item.get("match") or {}
-        if not m.get("confident") or not m.get("program"):
+        program = m.get("program") if m.get("confident") else _account_program(item)
+        if not program:
             continue
-        p = programs.setdefault(m["program"], {"edit_urls": [], "internal_ids": [], "matched_public_offer_ids": [], "scores": []})
+        account_only = not bool(m.get("confident"))
+        p = programs.setdefault(
+            program,
+            {
+                "edit_urls": [],
+                "internal_ids": [],
+                "matched_public_offer_ids": [],
+                "scores": [],
+                "account_only": account_only,
+            },
+        )
         p["edit_urls"].append(item["edit_url"])
         if item.get("internal_id"):
             p["internal_ids"].append(item["internal_id"])
-        if m.get("offer_id"):
+        if m.get("confident") and m.get("offer_id"):
             p["matched_public_offer_ids"].append(m["offer_id"])
-        p["scores"].append(m.get("score"))
+        if m.get("confident"):
+            p["scores"].append(m.get("score"))
+        if account_only:
+            p["account_only"] = True
+            p["editor_body"] = item.get("body") or ""
 
     # Enrich each resolved program with exact public occurrence IDs and a
     # conservative live-replacement readiness policy derived from the current
@@ -332,7 +361,7 @@ async def run(out: Path) -> dict:
             "match": e.get("match"),
         }
         for e in editors
-        if not (e.get("match") or {}).get("confident")
+        if not (e.get("match") or {}).get("confident") and not _account_program(e)
     ]
 
     report = {
