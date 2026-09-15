@@ -1,11 +1,6 @@
 name: Audit 1Parrainage boost (read-only)
 
 on:
-  pull_request:
-    paths:
-      - "tools/audit_1parrainage_boost_readonly.py"
-      - ".github/workflows/audit_1parrainage_boost.yml"
-      - "platforms/oneparrainage/**"
   workflow_dispatch:
 
 permissions:
