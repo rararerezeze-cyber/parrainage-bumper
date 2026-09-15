@@ -38,7 +38,10 @@ from platforms.oneparrainage.writer import (
 )
 
 OCCURRENCES = ROOT / "data/platform-occurrences/1parrainage.json"
+MAPPINGS = ROOT / "data/platform-mappings"
+TEMPLATES = ROOT / "data/platform-templates/1parrainage"
 DEFAULT_OUT = ROOT / "diagnostic-artifacts/1parrainage-edit-inventory.json"
+DEFAULT_INDEX_OUT = ROOT / "diagnostic-artifacts/1parrainage-edit-index.json"
 EDIT_RE = re.compile(r"/espace_parrain/parrainages/edit/(\d+)/?", re.I)
 DISCOVERY_STARTS = (
     f"{BASE}/espace_parrain/",
@@ -193,6 +196,56 @@ def _match(editor: dict, public_rows: list[dict]) -> dict:
     }
 
 
+def _mapping_policy(program: str, editor_bodies: list[str], public_offer_ids: list[str]) -> dict:
+    path = MAPPINGS / f"1parrainage.{program}.fr.json"
+    template_path = TEMPLATES / f"{program}.fr.txt"
+    if not path.exists() or not template_path.exists():
+        return {
+            "mapping_exists": path.exists(),
+            "template_exists": template_path.exists(),
+            "live_replace_ready": False,
+            "reason": "mapping_or_template_missing",
+        }
+    mapping = json.loads(path.read_text(encoding="utf-8"))
+    template = template_path.read_text(encoding="utf-8")
+    markers = mapping.get("markers") or {}
+    mutable = list(mapping.get("mutable_fields") or [])
+    values = dict(mapping.get("platform_values") or {})
+    marker_counts = {}
+    field_checks = {}
+    for field in mutable:
+        marker = str(markers.get(field) or "")
+        old = values.get(field)
+        count = template.count(marker) if marker else 0
+        marker_counts[field] = count
+        checks = []
+        for body in editor_bodies:
+            visible = _plain(body)
+            checks.append({
+                "old_value_present": bool(old is not None and str(old).strip() and str(old).lower() in visible),
+                "visible_occurrences": visible.count(str(old).lower()) if old is not None and str(old).strip() else 0,
+            })
+        field_checks[field] = {
+            "old_value": old,
+            "marker_count": count,
+            "editors": checks,
+            "ready": bool(count > 0 and old is not None and str(old).strip() and all(c["visible_occurrences"] >= count for c in checks)),
+        }
+    return {
+        "mapping_exists": True,
+        "template_exists": True,
+        "mutable_fields": mutable,
+        "platform_values": values,
+        "marker_counts": marker_counts,
+        "field_checks": field_checks,
+        "public_offer_ids": public_offer_ids,
+        "live_replace_ready": bool(mutable and all(v["ready"] for v in field_checks.values())),
+        "reason": None if mutable and all(v["ready"] for v in field_checks.values()) else (
+            "no_mutable_fields" if not mutable else "marker_or_live_value_not_proven"
+        ),
+    }
+
+
 async def run(out: Path) -> dict:
     public_rows = _public_occurrences()
     if not os.environ.get("ONEPARRAINAGE_EMAIL") or not os.environ.get("ONEPARRAINAGE_PASSWORD"):
@@ -239,6 +292,25 @@ async def run(out: Path) -> dict:
             p["matched_public_offer_ids"].append(m["offer_id"])
         p["scores"].append(m.get("score"))
 
+    # Enrich each resolved program with exact public occurrence IDs and a
+    # conservative live-replacement readiness policy derived from the current
+    # mapping/template. This does not alter the account.
+    occurrence_data = json.loads(OCCURRENCES.read_text(encoding="utf-8"))
+    for program, info in programs.items():
+        public_offer_ids = [
+            str(x.get("offer_id"))
+            for x in (occurrence_data.get("programs") or {}).get(program, [])
+            if x.get("offer_id")
+        ]
+        editor_bodies = [
+            e.get("body") or ""
+            for e in editors
+            if (e.get("match") or {}).get("confident")
+            and (e.get("match") or {}).get("program") == program
+        ]
+        info["public_offer_ids"] = public_offer_ids
+        info["policy"] = _mapping_policy(program, editor_bodies, public_offer_ids)
+
     public_programs = sorted({r["program"] for r in public_rows if r.get("plain")})
     resolved_programs = sorted(programs)
     unresolved_public_programs = sorted(set(public_programs) - set(resolved_programs))
@@ -273,6 +345,24 @@ async def run(out: Path) -> dict:
     }
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+    index = {
+        "schema_version": 1,
+        "platform": "1parrainage",
+        "source": "authenticated_read_only_inventory",
+        "platform_writes": 0,
+        "program_count": len(programs),
+        "public_occurrences_total": len(public_rows),
+        "edit_urls_found": len(editors),
+        "unresolved_public_programs": unresolved_public_programs,
+        "ambiguous_editors": ambiguous_editors,
+        "programs": programs,
+    }
+    DEFAULT_INDEX_OUT.parent.mkdir(parents=True, exist_ok=True)
+    DEFAULT_INDEX_OUT.write_text(
+        json.dumps(index, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
     return report
 
 
