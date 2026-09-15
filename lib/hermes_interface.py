@@ -667,11 +667,8 @@ def routing_summary(rows: list[dict[str, Any]] | None = None) -> dict[str, Any]:
         route = str(row.get("route") or runtime_route(plat))
         _classify(plat, route)
 
-    for plat in ALL_PLATFORMS:
-        if plat in seen:
-            continue
-        _classify(plat, runtime_route(plat))
-
+    # This routing summary is program-specific. Platforms without a mapping
+    # for the current program must not become phantom buttons/actions.
     return {
         "automatic_safe_diff_targets": automatic,
         "deferred_cycle_targets": deferred,
