@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-09-13T09:22:00+00:00",
+  "updated_at": "2026-09-15T08:30:00+00:00",
   "note": "Operator-facing classification of every GitHub Actions workflow in this repository. PRODUCTION runs the product. EVIDENCE_CLOSED / DIAGNOSTIC_CLOSED are kept as historical proof and are already refused at runtime by their own gates -- they are archived, never deleted. tests/test_workflow_registry.py fails if a workflow file is added, removed, or reclassified without updating this file.",
   "classes": {
     "PRODUCTION_SCHEDULED": "Runs on cron. Keeps the product alive.",
@@ -154,6 +154,11 @@
       "class": "PRODUCTION_SCHEDULED",
       "platform": null,
       "note": "Lightweight fallback for the Cloudflare wake-up layer. Every 30 minutes it checks the latest bump_autres_scheduler run and dispatches exactly one fallback wake-up only when the primary Cloudflare scheduler has been silent for more than 25 minutes. It never decides site-access timing and never touches a referral platform directly."
+    },
+    "autofresh_daily_status.yml": {
+      "class": "PRODUCTION_SCHEDULED",
+      "platform": null,
+      "note": "Read-only daily Slack dashboard at 18:45 UTC. Summarizes due randomized bumps, Super-Parrain eligibility, still-actionable monitor candidates, and the human-only ReferralCode.tv shortcut. No platform credential, browser, writer or CAPTCHA handling."
     }
   }
 }
