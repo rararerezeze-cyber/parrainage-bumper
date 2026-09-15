@@ -32,17 +32,16 @@
     "personal_code": "high",
     "personal_link": "high"
   },
-  "notes": "Authenticated full CKEditor body and exact edit target captured read-only on 2026-09-15. Campaign-dependent reward prose is intentionally immutable; only stable referral identity is synchronized.",
+  "notes": "Authenticated editor target captured read-only 2026-09-15. Static template is a span-policy skeleton only; the real CKEditor body is reread immediately before save and only the audited occurrences are replaced.",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",
     "referee_reward": "platform_literal_until_officially_confirmed",
-    "announcement_text": "platform_target_only"
+    "announcement_text": "live_editor_body"
   },
   "quality": "authenticated_full_editor_inventory",
   "style_policy": "native_platform_style_only",
   "platform_offer_id": null,
-  "occurrences": [],
   "occurrence_count": 0,
   "edit_url_source": "authenticated_read_only_inventory",
   "edit_url_learned_at": "2026-09-15T14:12:12+00:00",
