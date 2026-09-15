@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-09-15T14:20:00+00:00",
+  "updated_at": "2026-09-15T15:00:00+00:00",
   "note": "Operator-facing classification of every GitHub Actions workflow in this repository. PRODUCTION runs the product. EVIDENCE_CLOSED / DIAGNOSTIC_CLOSED are kept as historical proof and are already refused at runtime by their own gates -- they are archived, never deleted. tests/test_workflow_registry.py fails if a workflow file is added, removed, or reclassified without updating this file.",
   "classes": {
     "PRODUCTION_SCHEDULED": "Runs on cron. Keeps the product alive.",
@@ -164,6 +164,11 @@
       "class": "DIAGNOSTIC_AVAILABLE",
       "platform": "1parrainage",
       "note": "Authenticated read-only inventory of all internal edit pages and public full-detail bodies. Zero platform writes; used to prove program->edit URL coverage before widening automatic writers."
+    },
+    "audit_1parrainage_boost.yml": {
+      "class": "DIAGNOSTIC_AVAILABLE",
+      "platform": "1parrainage",
+      "note": "Authenticated read-only inspection of boost/remount controls. No click, no purchase, no form POST; used to distinguish paid Boost from normal announcement remontée."
     }
   }
 }
