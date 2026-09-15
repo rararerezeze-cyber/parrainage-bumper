@@ -459,30 +459,64 @@ def _run_autofresh_command_locked(
             import sys
 
             root = Path(__file__).resolve().parents[1]
+            wr_path = DATA_DIR / "captures" / "verified-writers-report.json"
+            # The repository carries the previous report as durable evidence.
+            # Remove the checkout copy before this run so a writer crash can
+            # never be mistaken for a fresh result.
+            try:
+                wr_path.unlink(missing_ok=True)
+            except Exception:
+                pass
+
+            writer_cmd = [
+                sys.executable,
+                str(root / "tools" / "run_verified_writers.py"),
+                "--from-telegram",
+                "--program",
+                parsed["program"],
+                "--field",
+                str(parsed.get("field") or ""),
+            ]
+            if parsed.get("platform"):
+                writer_cmd.extend(["--platform", str(parsed["platform"])])
+
             proc = subprocess.run(
-                [
-                    sys.executable,
-                    str(root / "tools" / "run_verified_writers.py"),
-                    "--from-telegram",
-                    "--program",
-                    parsed["program"],
-                ],
+                writer_cmd,
                 cwd=str(root),
                 capture_output=True,
                 text=True,
                 timeout=600,
             )
-            wr_path = DATA_DIR / "captures" / "verified-writers-report.json"
-            if wr_path.exists():
+            if proc.returncode == 0 and wr_path.exists():
                 writers_report = json.loads(wr_path.read_text(encoding="utf-8"))
             else:
                 writers_report = {
+                    "error": "writer_dispatch_failed",
                     "stdout": (proc.stdout or "")[-2000:],
+                    "stderr": (proc.stderr or "")[-2000:],
                     "returncode": proc.returncode,
+                    "confirmed_field": parsed.get("field"),
+                    "platform_filter": parsed.get("platform"),
                 }
         except Exception as exc:  # noqa: BLE001
             writers_report = {"error": str(exc)}
     base["writers"] = writers_report
+
+    # A successful post-verified writer persists the new platform baseline.
+    # Recompute the plan from disk so the Slack result reflects the state AFTER
+    # the write, not the stale pre-confirmation snapshot.
+    if writers_report is not None and plan and parsed.get("program"):
+        try:
+            plan_data = plan_program_impact(
+                parsed["program"], platform_filter=parsed.get("platform")
+            )
+            base["plan"] = plan_data
+            base["platforms"] = _platform_rows(plan_data)
+            base["routing"] = routing_summary(base["platforms"])
+        except Exception as exc:  # noqa: BLE001
+            base["errors"].append(
+                {"code": "post_write_replan_failed", "detail": str(exc)}
+            )
 
     # Super-Parrain pending enqueue (content update when eligible)
     try:
