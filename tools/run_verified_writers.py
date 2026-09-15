@@ -67,8 +67,6 @@ def _scope_plan_to_field(plan, confirmed_field: str | None):
         plan.changed_fields = {}
         return plan, "NO_CONFIRMED_SAFE_DIFF"
 
-    mapping = MappingRepository().load(plan.platform, plan.program, plan.language)
-    template = TemplateRepository().load_text(plan.platform, plan.program, plan.language)
     variables = dict(getattr(plan, "variables", {}) or {})
 
     for field, delta in original.items():
@@ -91,6 +89,8 @@ def _scope_plan_to_field(plan, confirmed_field: str | None):
         plan.structure_preserved = True
         return plan, None
 
+    mapping = MappingRepository().load(plan.platform, plan.program, plan.language)
+    template = TemplateRepository().load_text(plan.platform, plan.program, plan.language)
     rendered = template
     for field in mapping.mutable_fields:
         marker_value = mapping.markers.get(field)
