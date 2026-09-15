@@ -3,23 +3,27 @@
   "program": "totalenergies",
   "language": "fr",
   "status": "ready",
-  "role": "platform_target_historical_text_only",
+  "role": "authenticated_full_editor_target",
   "not_business_source_of_truth": true,
   "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=31",
   "mutable_fields": [
     "personal_code",
-    "personal_link"
+    "personal_link",
+    "referee_reward"
   ],
   "platform_values": {
     "personal_code": "114052844",
-    "personal_link": "https://redir-totalenergies.web.app/je-parraine?_bp=114052844"
+    "personal_link": "https://redir-totalenergies.web.app/je-parraine?_bp=114052844",
+    "referee_reward": "20€ OFFERTS"
   },
   "confidences": {
     "personal_code": "high",
-    "personal_link": "medium"
+    "personal_link": "high",
+    "referee_reward": "high"
   },
   "notes": [
-    "lien offers.json non trouve dans le texte",
-    "bonus non marque (ambigu / non trouve) — texte laisse fixe"
+    "full CKEditor body captured read-only",
+    "internal edit id 2548253 matched public offer 31 at similarity 1.0",
+    "zero platform writes during discovery"
   ]
 }

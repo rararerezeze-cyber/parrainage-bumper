@@ -1,0 +1,2 @@
+Code parrainage : {{PERSONAL_CODE}}
+Renseignez le code parrainage {{PERSONAL_CODE}} lors de l'inscription.

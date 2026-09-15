@@ -26,7 +26,7 @@
   "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=100408",
   "edit_url": "https://www.1parrainage.com/espace_parrain/parrainages/edit/2541207/",
   "platform_values": {
-    "personal_code": "cpbrgddy",
+    "personal_code": "fc9djsk9",
     "personal_link": "https://invite.kraken.com/JDNW/s5qudqe4",
     "referee_reward": "200 € en cryptomonnaies"
   },
@@ -35,7 +35,7 @@
     "personal_link": "medium",
     "referee_reward": "medium"
   },
-  "notes": "WRITE_VERIFIED 2026-08-13: public now matches OPERATOR_VALIDATED cpbrgddy / s5qudqe4 / 200 € en cryptomonnaies. Native style only — no emoji reinjection; list_brand=coupon promotionnel Kraken; edit_id=2541207 ≠ offer_id=100408",
+  "notes": "WRITE_VERIFIED 2026-08-13: public now matches OPERATOR_VALIDATED cpbrgddy / s5qudqe4 / 200 € en cryptomonnaies. Native style only — no emoji reinjection; list_brand=coupon promotionnel Kraken; edit_id=2541207 ≠ offer_id=100408; Authenticated read-only inventory 2026-09-15 shows 1Parrainage currently publishes code fc9djsk9 with the already-verified s5qudqe4 link and 200 € reward. Published platform identity remains the baseline unless an operator explicitly overrides it.",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",
@@ -53,6 +53,11 @@
     }
   ],
   "occurrence_count": 1,
-  "edit_url_source": "headed_manual_discovery",
-  "edit_url_learned_at": "2026-08-13T10:29:29.092808+00:00"
+  "edit_url_source": "authenticated_read_only_inventory",
+  "edit_url_learned_at": "2026-09-15T14:12:12+00:00",
+  "live_marker_counts": {
+    "personal_code": 1,
+    "personal_link": 1,
+    "referee_reward": 1
+  }
 }

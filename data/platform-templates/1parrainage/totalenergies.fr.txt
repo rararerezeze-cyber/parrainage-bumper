@@ -1,10 +1,29 @@
-offre :
+<p>{{REFEREE_REWARD}}</p>
 
-Inscrivez-vous sur le site TotalEnergies
+<p>Lien de parrainage :</p>
 
-Lors de votre inscription, rens
-...
+<p>{{PERSONAL_LINK}}</p>
 
-J’en profite
+<p>Code parrainage :</p>
 
-<img loading="lazy" class="img-responsive" width="115" border="0" height="38" src='/uploads/leslogos/kraken.jpg'
+<p>{{PERSONAL_CODE}}</p>
+
+<p>&Eacute;tapes &agrave; suivre pour b&eacute;n&eacute;ficier de l&rsquo;offre :</p>
+
+<p>Inscrivez-vous sur le site TotalEnergies</p>
+
+<p>Lors de votre inscription, renseignez le code parrain {{PERSONAL_CODE}}</p>
+
+<p>Votre prime sera automatiquement d&eacute;duite de votre premi&egrave;re facture</p>
+
+<p>&Agrave; savoir :<br />
+&bull; Offre r&eacute;serv&eacute;e aux nouveaux clients TotalEnergies<br />
+&bull; La r&eacute;duction s&rsquo;applique uniquement sur la premi&egrave;re facture<br />
+&bull; Contactez-moi pour toute question ou aide concernant l&rsquo;inscription</p>
+
+<p>Besoin d&rsquo;aide ou d&rsquo;un suivi personnalis&eacute; ?<br />
+DM-moi &mdash; je vous accompagne &eacute;tape par &eacute;tape</p>
+
+<p>https://discord.gg/dDEMb6jEbn</p>
+
+<p>&nbsp;</p>

@@ -1,0 +1,49 @@
+name: Audit 1Parrainage boost (read-only)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: audit-1parrainage-boost-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+      - name: Inspect boost page without clicking
+        env:
+          ONEPARRAINAGE_EMAIL: ${{ secrets.ONEPARRAINAGE_EMAIL }}
+          ONEPARRAINAGE_PASSWORD: ${{ secrets.ONEPARRAINAGE_PASSWORD }}
+        run: python tools/audit_1parrainage_boost_readonly.py
+      - name: Assert zero platform writes
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("diagnostic-artifacts/1parrainage-boost-readonly.json")
+          d=json.loads(p.read_text(encoding="utf-8"))
+          assert d.get("platform_writes") == 0
+          assert d.get("boost_clicks") == 0
+          PY
+      - name: Upload artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: 1parrainage-boost-readonly
+          retention-days: 7
+          if-no-files-found: error
+          path: diagnostic-artifacts/1parrainage-boost-readonly.json

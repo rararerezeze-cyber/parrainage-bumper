@@ -15,6 +15,7 @@ import re
 import sys
 from dataclasses import dataclass
 from html import unescape
+from html.entities import codepoint2name
 from pathlib import Path
 from typing import Any
 from urllib.parse import urljoin, urlsplit
@@ -38,6 +39,7 @@ log = logging.getLogger("oneparrainage.writer")
 BASE = "https://www.1parrainage.com"
 LOGIN_URL = f"{BASE}/login"
 PUBLIC_LIST = "https://www.1parrainage.com/listeannonces_98906_Adrien89.php"
+EDIT_INDEX_PATH = _ROOT / "data" / "oneparrainage-edit-index.json"
 # Proven on headed WRITE_VERIFIED + GH 31695046367 headless login/edit.
 CK_ID = "edit_parrainage_presentation"
 EDIT_FORM = 'form[action*="parrainages/edit"]'
@@ -97,6 +99,10 @@ class WritePlan:
     structure_preserved: bool
     mutable_fields: list[str]
     platform_offer_id: str | None = None
+    public_offer_ids: list[str] | None = None
+    edit_urls: list[str] | None = None
+    marker_counts: dict[str, int] | None = None
+    live_validation_required: bool = False
     style_policy: str = "native_platform_style_only"
 
 
@@ -111,6 +117,117 @@ class WriteResult:
     error: str | None = None
     steps: list[str] | None = None
     evidence_checks: dict[str, bool] | None = None
+    occurrence_results: list[dict[str, Any]] | None = None
+
+
+def _load_edit_index() -> dict[str, Any]:
+    try:
+        raw = json.loads(EDIT_INDEX_PATH.read_text(encoding="utf-8"))
+        return raw if isinstance(raw, dict) else {}
+    except Exception:
+        return {}
+
+
+def _indexed_program(program: str) -> dict[str, Any]:
+    return dict((_load_edit_index().get("programs") or {}).get(program) or {})
+
+
+def _named_entity_encode(value: str) -> str:
+    out: list[str] = []
+    for ch in str(value):
+        if ch == "&":
+            out.append("&amp;")
+        elif ch == "<":
+            out.append("&lt;")
+        elif ch == ">":
+            out.append("&gt;")
+        elif ord(ch) > 127 and (name := codepoint2name.get(ord(ch))):
+            out.append(f"&{name};")
+        else:
+            out.append(ch)
+    return "".join(out)
+
+
+def _replacement_variants(value: str) -> list[tuple[str, str]]:
+    raw = str(value)
+    named = _named_entity_encode(raw)
+    nbsp = named.replace(" ", "&nbsp;")
+    variants: list[tuple[str, str]] = []
+    for token, mode in ((raw, "literal"), (named, "named"), (nbsp, "named_nbsp")):
+        if token and token not in {v[0] for v in variants}:
+            variants.append((token, mode))
+    return variants
+
+
+def _encode_new_for_mode(value: str, mode: str) -> str:
+    if mode == "literal":
+        return str(value)
+    encoded = _named_entity_encode(str(value))
+    return encoded.replace(" ", "&nbsp;") if mode == "named_nbsp" else encoded
+
+
+def _replace_live_field(source: str, old: str, new: str, count: int) -> tuple[str, int]:
+    """Replace exactly the first N historically-authorized spans.
+
+    The marker count comes from the curated template. The live CKEditor body
+    is the structure authority; this function never does a global replacement.
+    """
+    if count <= 0 or old is None or new is None:
+        return source, 0
+    current = source
+    replaced = 0
+    variants = _replacement_variants(str(old))
+    while replaced < count:
+        candidates: list[tuple[int, str, str]] = []
+        for token, mode in variants:
+            pos = current.find(token)
+            if pos >= 0:
+                candidates.append((pos, token, mode))
+        if not candidates:
+            break
+        pos, token, mode = min(candidates, key=lambda x: x[0])
+        replacement = _encode_new_for_mode(str(new), mode)
+        current = current[:pos] + replacement + current[pos + len(token):]
+        replaced += 1
+    return current, replaced
+
+
+def _build_live_rendered(current_html: str, plan: WritePlan) -> tuple[str, dict[str, Any]]:
+    rendered = current_html
+    details: dict[str, Any] = {}
+    counts = plan.marker_counts or {}
+    for field, diff in (plan.changed_fields or {}).items():
+        old = plan.platform_values.get(field)
+        new = plan.variables.get(field)
+        expected = int(counts.get(field) or 0)
+        if old is None or new is None or expected <= 0:
+            raise RuntimeError(f"live_replace_policy_missing:{field}")
+        rendered, actual = _replace_live_field(rendered, str(old), str(new), expected)
+        details[field] = {
+            "expected_spans": expected,
+            "replaced_spans": actual,
+            "old": old,
+            "new": new,
+        }
+        if actual != expected:
+            raise RuntimeError(
+                f"live_replace_span_mismatch:{field}:expected={expected}:actual={actual}"
+            )
+    if rendered == current_html and plan.changed_fields:
+        raise RuntimeError("live_replace_no_change")
+    return rendered, details
+
+
+def _visible_contains(value: str, expected: str | None) -> bool:
+    if not expected:
+        return True
+    return str(expected).lower() in unescape(value or "").lower()
+
+
+def _public_detail_for_offer_id(offer_id: str) -> str:
+    url = f"{BASE}/detail_parrain.php?par=98906&offre={offer_id}"
+    html = fetch_text(url)
+    return _extract_public_detail_block(html)
 
 
 def build_write_plan(
@@ -141,15 +258,29 @@ def build_write_plan(
         if old != new:
             changed[field] = {"old": old, "new": new}
 
-    structure_preserved = structure_preserved_via_markers(
-        template,
-        historical,
-        rendered,
-        mapping.mutable_fields,
-        mapping.markers,
-        hist_vals,
-        variables,
-    )
+    indexed = _indexed_program(program)
+    policy = indexed.get("policy") or {}
+    marker_counts = {
+        str(k): int(v)
+        for k, v in (policy.get("marker_counts") or {}).items()
+        if isinstance(v, (int, float))
+    }
+    if indexed and policy.get("live_replace_ready"):
+        # Exact editor structure is revalidated immediately before each real
+        # save. Static list-card goldens are not trusted as the live body.
+        structure_preserved = True
+        live_validation_required = True
+    else:
+        structure_preserved = structure_preserved_via_markers(
+            template,
+            historical,
+            rendered,
+            mapping.mutable_fields,
+            mapping.markers,
+            hist_vals,
+            variables,
+        )
+        live_validation_required = False
 
     offer_id = getattr(mapping, "platform_offer_id", None)
     if not offer_id:
@@ -164,12 +295,16 @@ def build_write_plan(
             except Exception:
                 offer_id = None
 
+    indexed_edit_urls = [str(x) for x in (indexed.get("edit_urls") or []) if x]
+    indexed_public_ids = [str(x) for x in (indexed.get("public_offer_ids") or []) if x]
+    primary_edit = indexed_edit_urls[0] if indexed_edit_urls else getattr(mapping, "edit_url", None)
+
     return WritePlan(
         platform=platform,
         program=program,
         language=language,
         announcement_url=mapping.announcement_url or PUBLIC_LIST,
-        edit_url=getattr(mapping, "edit_url", None),
+        edit_url=primary_edit,
         historical=historical,
         rendered=rendered,
         variables=variables,
@@ -178,6 +313,10 @@ def build_write_plan(
         structure_preserved=structure_preserved,
         mutable_fields=list(mapping.mutable_fields),
         platform_offer_id=str(offer_id) if offer_id else None,
+        public_offer_ids=indexed_public_ids or ([str(offer_id)] if offer_id else []),
+        edit_urls=indexed_edit_urls or ([str(primary_edit)] if primary_edit else []),
+        marker_counts=marker_counts,
+        live_validation_required=live_validation_required,
     )
 
 
@@ -775,6 +914,26 @@ def fetch_public_full_view(plan: WritePlan) -> dict[str, str]:
     }
 
 
+def _plain_body(value: str) -> str:
+    text = unescape(value or "")
+    text = re.sub(r"(?i)<br\s*/?>|</p>|</div>|</li>|</tr>", "\n", text)
+    text = re.sub(r"<[^>]+>", " ", text)
+    return " ".join(text.split()).strip().lower()
+
+
+def _changed_values_present(value: str, plan: WritePlan) -> bool:
+    visible = _plain_body(value)
+    for field in (plan.changed_fields or {}):
+        expected = plan.variables.get(field)
+        if expected and str(expected).lower() not in visible:
+            return False
+    return True
+
+
+def _live_body_matches(expected_html: str, actual_html: str) -> bool:
+    return _plain_body(expected_html) == _plain_body(actual_html)
+
+
 async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult:
     steps: list[str] = []
     blocked = write_blocked_reason(plan.platform, plan.program, plan.language)
@@ -787,9 +946,19 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
         )
     circ = live_write_blocked_reason("1parrainage")
     if circ and not dry_run:
-        return WriteResult(ok=False, plan=plan, error=f"CIRCUIT_OPEN: {circ}", steps=["circuit"])
+        return WriteResult(
+            ok=False,
+            plan=plan,
+            error=f"CIRCUIT_OPEN: {circ}",
+            steps=["circuit"],
+        )
     if not plan.structure_preserved:
-        return WriteResult(ok=False, plan=plan, error="structure_not_preserved", steps=steps)
+        return WriteResult(
+            ok=False,
+            plan=plan,
+            error="structure_not_preserved",
+            steps=steps,
+        )
     if not plan.changed_fields:
         return WriteResult(
             ok=True,
@@ -807,22 +976,40 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
                 "immutable_preserved": True,
             },
         )
-    forbidden = abort_forbidden_publish(
-        plan.rendered,
-        *(str((d or {}).get("new") or "") for d in (plan.changed_fields or {}).values()),
-    )
+
+    changed_new_values = [
+        str(plan.variables.get(field) or "")
+        for field in (plan.changed_fields or {})
+        if plan.variables.get(field)
+    ]
+    forbidden = abort_forbidden_publish(*changed_new_values)
     if forbidden:
         return WriteResult(
-            ok=False, plan=plan, error=forbidden, steps=["forbidden_publish"]
+            ok=False,
+            plan=plan,
+            error=forbidden,
+            steps=["forbidden_publish"],
         )
+
+    target_edit_urls = [u for u in (plan.edit_urls or []) if u]
+    if plan.live_validation_required and not target_edit_urls:
+        return WriteResult(
+            ok=False,
+            plan=plan,
+            error="live_edit_index_missing",
+            steps=["index_missing"],
+        )
+
     if dry_run or not content_write_allowed("1parrainage"):
         return WriteResult(
             ok=True,
             plan=plan,
             steps=[
-                "dry-run only"
-                if dry_run
-                else f"LIVE_DISABLED ({phase_name()}) — need CANARY_READY/WRITE_VERIFIED"
+                (
+                    f"dry-run/live-validation target_count={len(target_edit_urls)}"
+                    if dry_run
+                    else f"LIVE_DISABLED ({phase_name()}) — need CANARY_READY/WRITE_VERIFIED"
+                )
             ],
             post_match=None,
         )
@@ -831,8 +1018,11 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
     cfg = _cfg()
     from playwright.async_api import async_playwright
 
-    edit_url = None
-    account_text = None
+    occurrence_results: list[dict[str, Any]] = []
+    account_bodies: list[str] = []
+    desired_bodies: list[str] = []
+    resolved_urls: list[str] = []
+
     async with async_playwright() as pw:
         browser = await pw.chromium.launch(
             headless=True,
@@ -849,97 +1039,213 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
         try:
             steps.append("login")
             await _login(page, cfg)
-            steps.append("find_edit")
-            edit_url = await _resolve_edit_url(page, plan)
-            steps.append(f"edit_url={edit_url}")
-            await page.goto(edit_url, wait_until="domcontentloaded", timeout=60000)
-            await bumper.human_sleep(1.2, 2.0)
-            try:
-                await page.screenshot(path="debug_1parrainage_write_before.png", full_page=True)
-            except Exception:
-                pass
-            steps.append("fill_save")
-            fill_steps = await _fill_and_save(
-                page,
-                plan.rendered,
-                plan.variables.get("personal_code"),
-                plan.variables.get("personal_link"),
-            )
-            steps.extend(fill_steps)
-            steps.append("reread_account")
-            await page.goto(edit_url, wait_until="domcontentloaded", timeout=60000)
-            await bumper.human_sleep(1.0, 1.8)
-            account_text = await _reread_account_fields(page)
-            steps.append(f"account_reread_len={len(account_text or '')}")
-        except Exception as exc:
-            maybe_trip_from_error(str(exc), platform="1parrainage")
-            return WriteResult(
-                ok=False, plan=plan, edit_url=edit_url, error=str(exc), steps=steps
-            )
+
+            if not target_edit_urls:
+                steps.append("find_edit")
+                target_edit_urls = [await _resolve_edit_url(page, plan)]
+
+            for pos, edit_url in enumerate(target_edit_urls, start=1):
+                item_steps: list[str] = []
+                try:
+                    resolved_urls.append(edit_url)
+                    steps.append(f"edit[{pos}]={edit_url}")
+                    await page.goto(
+                        edit_url,
+                        wait_until="domcontentloaded",
+                        timeout=60000,
+                    )
+                    await _detect_challenge(page)
+                    await bumper.human_sleep(0.8, 1.4)
+                    if not await _ck_ready(page):
+                        raise RuntimeError("ckeditor_not_ready")
+
+                    current_html = await _ck_get(page)
+                    if not current_html:
+                        raise RuntimeError("empty_current_editor_body")
+
+                    if plan.live_validation_required:
+                        desired_html, replace_details = _build_live_rendered(
+                            current_html, plan
+                        )
+                        item_steps.append(
+                            "live_replace="
+                            + json.dumps(
+                                replace_details,
+                                ensure_ascii=False,
+                                separators=(",", ":"),
+                            )
+                        )
+                    else:
+                        desired_html = plan.rendered
+
+                    forbidden_live = abort_forbidden_publish(
+                        desired_html, *changed_new_values
+                    )
+                    if forbidden_live:
+                        raise RuntimeError(forbidden_live)
+
+                    if pos == 1:
+                        try:
+                            await page.screenshot(
+                                path="debug_1parrainage_write_before.png",
+                                full_page=True,
+                            )
+                        except Exception:
+                            pass
+
+                    fill_steps = await _fill_and_save(
+                        page,
+                        desired_html,
+                        plan.variables.get("personal_code"),
+                        plan.variables.get("personal_link"),
+                    )
+                    item_steps.extend(fill_steps)
+                    if "saved" not in fill_steps:
+                        raise RuntimeError("save_not_confirmed")
+
+                    await page.goto(
+                        edit_url,
+                        wait_until="domcontentloaded",
+                        timeout=60000,
+                    )
+                    await _detect_challenge(page)
+                    await bumper.human_sleep(0.8, 1.4)
+                    if not await _ck_ready(page):
+                        raise RuntimeError("ckeditor_not_ready_after_save")
+                    reread_html = await _ck_get(page)
+                    account_ok = bool(reread_html) and _changed_values_present(
+                        reread_html, plan
+                    )
+                    body_match = bool(reread_html) and _live_body_matches(
+                        desired_html, reread_html
+                    )
+                    item = {
+                        "edit_url": edit_url,
+                        "saved": True,
+                        "account_values_present": account_ok,
+                        "account_body_match": body_match,
+                        "ok": bool(account_ok and body_match),
+                        "steps": item_steps,
+                    }
+                    occurrence_results.append(item)
+                    account_bodies.append(reread_html or "")
+                    desired_bodies.append(desired_html)
+                    if not item["ok"]:
+                        raise RuntimeError(
+                            "account_post_verify_failed:"
+                            f"values={account_ok}:body={body_match}"
+                        )
+                except Exception as exc:
+                    maybe_trip_from_error(str(exc), platform="1parrainage")
+                    occurrence_results.append(
+                        {
+                            "edit_url": edit_url,
+                            "saved": "saved" in item_steps,
+                            "ok": False,
+                            "error": str(exc),
+                            "steps": item_steps,
+                        }
+                    )
+                    return WriteResult(
+                        ok=False,
+                        plan=plan,
+                        edit_url=edit_url,
+                        error=str(exc),
+                        steps=steps + item_steps,
+                        evidence_checks={
+                            "authenticated": True,
+                            "targeted_edit": True,
+                            "submit_ok": False,
+                            "reread_account": False,
+                            "expected_values_present": False,
+                            "immutable_preserved": False,
+                        },
+                        occurrence_results=occurrence_results,
+                    )
         finally:
             await page.close()
             await ctx.close()
             await browser.close()
 
-    account_ok = bool(account_text) and (
-        _norm(plan.rendered) in _norm(account_text) or _values_present(account_text, plan)
-    )
-    published = None
-    public_match = None
-    if plan.announcement_url:
-        steps.append("reread_public")
-        await asyncio.sleep(2)
-        try:
-            html = fetch_text(
-                plan.announcement_url.split("#")[0] if plan.announcement_url else PUBLIC_LIST
-            )
-            published = _extract_public_block(html, plan)
-            public_match = _norm(published) == _norm(plan.rendered) or _norm(
-                plan.rendered
-            ) in _norm(published)
-            steps.append(f"post_match_public={public_match}")
-        except Exception as exc:
-            steps.append(f"public_reread_error={exc}")
-            public_match = None
+    # Public verification is performed against each known full-detail occurrence,
+    # never against the truncated list card.
+    public_results: list[dict[str, Any]] = []
+    public_ids = [str(x) for x in (plan.public_offer_ids or []) if x]
+    if not public_ids and plan.platform_offer_id:
+        public_ids = [str(plan.platform_offer_id)]
 
-    if public_match is True:
-        match = True
-    elif public_match is False and not account_ok:
-        match = False
-    else:
-        match = account_ok or public_match is True
+    if public_ids:
+        steps.append("reread_public_full_detail")
+        await asyncio.sleep(2)
+        for offer_id in public_ids:
+            try:
+                block = _public_detail_for_offer_id(offer_id)
+                values_ok = _changed_values_present(block, plan)
+                public_results.append(
+                    {
+                        "offer_id": offer_id,
+                        "values_present": values_ok,
+                        "ok": values_ok,
+                    }
+                )
+            except Exception as exc:
+                public_results.append(
+                    {
+                        "offer_id": offer_id,
+                        "ok": False,
+                        "error": str(exc),
+                    }
+                )
+
+    account_ok = bool(occurrence_results) and all(
+        bool(item.get("ok")) for item in occurrence_results
+    )
+    public_ok = (
+        all(bool(item.get("ok")) for item in public_results)
+        if public_results
+        else True
+    )
+    match = bool(account_ok and public_ok)
 
     checks = {
         "authenticated": True,
-        "targeted_edit": bool(plan.changed_fields),
-        "submit_ok": "saved" in steps,
+        "targeted_edit": bool(plan.changed_fields and resolved_urls),
+        "submit_ok": bool(occurrence_results)
+        and all(bool(item.get("saved")) for item in occurrence_results),
         "reread_account": account_ok,
-        "expected_values_present": _values_present(account_text or "", plan)
-        or (bool(published) and _values_present(published, plan)),
-        "immutable_preserved": plan.structure_preserved,
+        "expected_values_present": bool(account_ok and public_ok),
+        "immutable_preserved": bool(account_ok),
+        "reread_public": public_ok,
     }
-    if public_match is not None:
-        checks["reread_public"] = public_match
     steps.append(f"post_match={match}")
+    post_text = account_bodies[0] if account_bodies else None
+
     if not match:
         return WriteResult(
             ok=False,
             plan=plan,
-            edit_url=edit_url,
-            post_publish_text=published,
-            account_reread_text=account_text,
+            edit_url=resolved_urls[0] if resolved_urls else None,
+            post_publish_text=post_text,
+            account_reread_text=post_text,
             post_match=False,
             error="POST-UPDATE MISMATCH — STOP",
             steps=steps,
             evidence_checks=checks,
+            occurrence_results=occurrence_results + [
+                {"public": item} for item in public_results
+            ],
         )
+
     return WriteResult(
         ok=True,
         plan=plan,
-        edit_url=edit_url,
-        post_publish_text=published or account_text,
-        account_reread_text=account_text,
+        edit_url=resolved_urls[0] if resolved_urls else None,
+        post_publish_text=post_text,
+        account_reread_text=post_text,
         post_match=True,
         steps=steps,
         evidence_checks=checks,
+        occurrence_results=occurrence_results + [
+            {"public": item} for item in public_results
+        ],
     )

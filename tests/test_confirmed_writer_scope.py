@@ -78,6 +78,9 @@ def test_scope_plan_never_writes_when_confirmed_field_is_not_pending(monkeypatch
 
 def test_persist_verified_baseline_closes_the_written_state(monkeypatch, tmp_path):
     plan = _fake_plan()
+    # Generic/static writer persistence. 1Parrainage intentionally keeps its
+    # static golden because the authenticated CKEditor body is authoritative.
+    plan.platform = "code-parrainage"
     plan.changed_fields = {
         "referee_reward": {"old": "10 €", "new": "20 €"}
     }

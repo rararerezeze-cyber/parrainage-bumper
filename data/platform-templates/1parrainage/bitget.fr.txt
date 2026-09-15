@@ -1,0 +1,4 @@
+Lien de parrainage :
+{{PERSONAL_LINK}}
+Code parrain :
+{{PERSONAL_CODE}}

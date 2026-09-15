@@ -67,8 +67,6 @@ def _scope_plan_to_field(plan, confirmed_field: str | None):
         plan.changed_fields = {}
         return plan, "NO_CONFIRMED_SAFE_DIFF"
 
-    mapping = MappingRepository().load(plan.platform, plan.program, plan.language)
-    template = TemplateRepository().load_text(plan.platform, plan.program, plan.language)
     variables = dict(getattr(plan, "variables", {}) or {})
 
     for field, delta in original.items():
@@ -81,6 +79,18 @@ def _scope_plan_to_field(plan, confirmed_field: str | None):
             return None, f"unscopable_unconfirmed_field:{field}"
         variables[field] = old
 
+    # 1Parrainage's proven writer does not publish this static render. It
+    # rereads each authenticated CKEditor body and replaces only the confirmed
+    # field with an exact audited span count. Keep unrelated variables at their
+    # published baseline and let that live-body validator remain authoritative.
+    if plan.platform == "1parrainage" and getattr(plan, "live_validation_required", False):
+        plan.variables = variables
+        plan.changed_fields = {confirmed_field: original[confirmed_field]}
+        plan.structure_preserved = True
+        return plan, None
+
+    mapping = MappingRepository().load(plan.platform, plan.program, plan.language)
+    template = TemplateRepository().load_text(plan.platform, plan.program, plan.language)
     rendered = template
     for field in mapping.mutable_fields:
         marker_value = mapping.markers.get(field)
@@ -110,15 +120,24 @@ def _scope_plan_to_field(plan, confirmed_field: str | None):
     return plan, None
 
 
-def _persist_verified_baseline(plan) -> dict:
-    """Close a post-verified write durably so it does not reappear as pending."""
+def _persist_verified_baseline(plan, result=None) -> dict:
+    """Close a post-verified write durably so it never reappears as pending.
+
+    1Parrainage is special: its live CKEditor body is the post-write authority,
+    not the static list/template render. Therefore its golden is left intact;
+    only the verified published values and authenticated occurrence metadata
+    are persisted.
+    """
     now = datetime.now(timezone.utc).isoformat()
 
     gp = golden_path(plan.platform, plan.program, plan.language)
-    gp.parent.mkdir(parents=True, exist_ok=True)
-    tmp_g = gp.with_suffix(gp.suffix + ".tmp")
-    tmp_g.write_text(plan.rendered, encoding="utf-8")
-    tmp_g.replace(gp)
+    golden_written = False
+    if plan.platform != "1parrainage":
+        gp.parent.mkdir(parents=True, exist_ok=True)
+        tmp_g = gp.with_suffix(gp.suffix + ".tmp")
+        tmp_g.write_text(plan.rendered, encoding="utf-8")
+        tmp_g.replace(gp)
+        golden_written = True
 
     mp = mapping_path(plan.platform, plan.program, plan.language)
     data = json.loads(mp.read_text(encoding="utf-8"))
@@ -128,15 +147,33 @@ def _persist_verified_baseline(plan) -> dict:
         if value is not None:
             platform_values[field] = value
     data["platform_values"] = platform_values
+    data["write_status"] = "WRITE_VERIFIED"
     data["last_write_at"] = now
+
+    if result is not None:
+        edit_url = getattr(result, "edit_url", None)
+        if edit_url:
+            data["edit_url"] = edit_url
+    edit_urls = [str(x) for x in (getattr(plan, "edit_urls", None) or []) if x]
+    if edit_urls:
+        data["edit_urls"] = edit_urls
+    public_offer_ids = [
+        str(x) for x in (getattr(plan, "public_offer_ids", None) or []) if x
+    ]
+    if public_offer_ids:
+        data["public_offer_ids"] = public_offer_ids
+
     tmp_m = mp.with_suffix(mp.suffix + ".tmp")
     tmp_m.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     tmp_m.replace(mp)
 
     return {
-        "golden": str(gp.relative_to(ROOT)),
+        "golden": str(gp.relative_to(ROOT)) if golden_written else None,
+        "golden_written": golden_written,
         "mapping": str(mp.relative_to(ROOT)),
         "persisted_at": now,
+        "edit_urls": edit_urls,
+        "public_offer_ids": public_offer_ids,
     }
 
 
@@ -220,6 +257,16 @@ def _try_platform_if_verified(
 ) -> dict:
     if not may_auto_execute_on_safe_diff(platform):
         return _skip_route(platform)
+    st = get_platform_status(platform)
+    mapping_file = MAPPINGS_DIR / f"{platform}.{program}.{language}.json"
+    if not mapping_file.exists():
+        return {
+            "platform": platform,
+            "skipped": True,
+            "reason": "program_not_mapped",
+            "route": runtime_route(platform),
+            "status": st,
+        }
     # Import platform writer dynamically when PC_OFF_READY
     writers = {
         "code-parrainage": "platforms.code_parrainage.writer",
@@ -243,7 +290,17 @@ def _try_platform_if_verified(
     except Exception as exc:  # noqa: BLE001
         return {"platform": platform, "ok": False, "error": f"import:{exc}"}
 
-    plan = build(platform, program, language)
+    try:
+        plan = build(platform, program, language)
+    except Exception as exc:  # noqa: BLE001
+        return {
+            "platform": platform,
+            "ok": False,
+            "error": f"plan_build_failed:{type(exc).__name__}:{exc}",
+            "route": runtime_route(platform),
+            "confirmed_field": confirmed_field,
+        }
+
     scoped, scope_note = _scope_plan_to_field(plan, confirmed_field)
     if scoped is None:
         return {
@@ -288,10 +345,11 @@ def _try_platform_if_verified(
         "action": "UPDATED_VERIFIED" if verified else "FAILED",
         "confirmed_field": confirmed_field,
         "changed_fields": dict(getattr(plan, "changed_fields", {}) or {}),
+        "occurrence_results": getattr(result, "occurrence_results", None),
     }
     if verified:
         try:
-            out["baseline"] = _persist_verified_baseline(plan)
+            out["baseline"] = _persist_verified_baseline(plan, result)
             out["baseline_persisted"] = True
         except Exception as exc:  # noqa: BLE001
             # A platform write without a durable local baseline is not closed:

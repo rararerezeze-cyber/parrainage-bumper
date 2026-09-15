@@ -483,24 +483,18 @@ def _writers_result_block(result: dict[str, Any]) -> dict[str, Any] | None:
 
 
 def _rctv_manual_needed(result: dict[str, Any]) -> bool:
-    """Whether the current operator result needs a human ReferralCode.tv visit."""
-    for row in result.get("platforms") or []:
+    """Only show the manual button when THIS program has an RCTV row."""
+    rows = result.get("post_platforms") or result.get("platforms") or []
+    for row in rows:
         if str(row.get("platform") or "") != "referralcode-tv":
             continue
         status = str(row.get("status") or row.get("write_mode") or "")
         route = str(row.get("route") or "")
-        if status in {"pending_update", "blocked"} or route in {
-            "HUMAN_SAVE_REQUIRED",
-            "NEVER_AUTO_COMMIT",
-            "AUTH_BLOCKED_MANUAL",
-        }:
-            return True
-
-    routing = result.get("routing") or {}
-    for item in routing.get("human_routed_targets") or []:
-        if str((item or {}).get("platform") or "") == "referralcode-tv":
-            return True
-    return "referralcode-tv" in (routing.get("blocked_targets") or [])
+        return (
+            status in {"pending_update", "manual", "blocked", "auth_blocked"}
+            or route == "HUMAN_SAVE_REQUIRED"
+        )
+    return False
 
 
 def _rctv_manual_button_block() -> dict[str, Any]:
