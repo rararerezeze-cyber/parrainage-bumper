@@ -17,7 +17,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from lib.paths import MAPPINGS_DIR
+from lib.paths import MAPPINGS_DIR, golden_path, mapping_path
+from lib.renderer import MappingRepository, TemplateRepository
+from lib.template_builder import structure_preserved_via_markers
 from lib.write_status import (
     STATUS_WRITE_VERIFIED,
     get_platform_status,
@@ -42,6 +44,100 @@ def _mapping_write_status(platform: str, program: str, language: str = "fr") -> 
         return None
     data = json.loads(p.read_text(encoding="utf-8"))
     return data.get("write_status")
+
+
+def _scope_plan_to_field(plan, confirmed_field: str | None):
+    """Limit a live write to the exact field explicitly confirmed by the operator.
+
+    A writer renders the whole listing body, so merely filtering changed_fields
+    would be unsafe: unrelated pending values would still be present in
+    plan.rendered/plan.variables and could be published. For every unrelated
+    pending field we restore the value currently represented by the platform
+    baseline before rendering the target body.
+
+    Returns (plan, note). note is NO_CONFIRMED_SAFE_DIFF when this platform has
+    no pending change for the confirmed field. Any other note is fail-closed.
+    """
+    confirmed_field = (confirmed_field or "").strip()
+    if not confirmed_field:
+        return None, "missing_confirmed_field"
+
+    original = dict(getattr(plan, "changed_fields", {}) or {})
+    if confirmed_field not in original:
+        plan.changed_fields = {}
+        return plan, "NO_CONFIRMED_SAFE_DIFF"
+
+    mapping = MappingRepository().load(plan.platform, plan.program, plan.language)
+    template = TemplateRepository().load_text(plan.platform, plan.program, plan.language)
+    variables = dict(getattr(plan, "variables", {}) or {})
+
+    for field, delta in original.items():
+        if field == confirmed_field:
+            continue
+        old = (delta or {}).get("old")
+        if old is None:
+            old = (getattr(plan, "platform_values", {}) or {}).get(field)
+        if old is None:
+            return None, f"unscopable_unconfirmed_field:{field}"
+        variables[field] = old
+
+    rendered = template
+    for field in mapping.mutable_fields:
+        marker_value = mapping.markers.get(field)
+        value = variables.get(field)
+        if not marker_value:
+            return None, f"missing_marker:{field}"
+        if value is None:
+            return None, f"missing_scoped_value:{field}"
+        rendered = rendered.replace(marker_value, str(value))
+
+    preserved = structure_preserved_via_markers(
+        template,
+        plan.historical,
+        rendered,
+        mapping.mutable_fields,
+        mapping.markers,
+        dict(getattr(plan, "platform_values", {}) or {}),
+        variables,
+    )
+    if not preserved:
+        return None, "scoped_structure_not_preserved"
+
+    plan.variables = variables
+    plan.rendered = rendered
+    plan.changed_fields = {confirmed_field: original[confirmed_field]}
+    plan.structure_preserved = True
+    return plan, None
+
+
+def _persist_verified_baseline(plan) -> dict:
+    """Close a post-verified write durably so it does not reappear as pending."""
+    now = datetime.now(timezone.utc).isoformat()
+
+    gp = golden_path(plan.platform, plan.program, plan.language)
+    gp.parent.mkdir(parents=True, exist_ok=True)
+    tmp_g = gp.with_suffix(gp.suffix + ".tmp")
+    tmp_g.write_text(plan.rendered, encoding="utf-8")
+    tmp_g.replace(gp)
+
+    mp = mapping_path(plan.platform, plan.program, plan.language)
+    data = json.loads(mp.read_text(encoding="utf-8"))
+    platform_values = dict(data.get("platform_values") or {})
+    for field in getattr(plan, "mutable_fields", []) or []:
+        value = (getattr(plan, "variables", {}) or {}).get(field)
+        if value is not None:
+            platform_values[field] = value
+    data["platform_values"] = platform_values
+    data["last_write_at"] = now
+    tmp_m = mp.with_suffix(mp.suffix + ".tmp")
+    tmp_m.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    tmp_m.replace(mp)
+
+    return {
+        "golden": str(gp.relative_to(ROOT)),
+        "mapping": str(mp.relative_to(ROOT)),
+        "persisted_at": now,
+    }
 
 
 def _skip_route(platform: str) -> dict:
@@ -115,7 +211,13 @@ def _try_super_parrain(program: str) -> dict:
     return out
 
 
-def _try_platform_if_verified(platform: str, program: str, language: str = "fr") -> dict:
+def _try_platform_if_verified(
+    platform: str,
+    program: str,
+    language: str = "fr",
+    *,
+    confirmed_field: str | None = None,
+) -> dict:
     if not may_auto_execute_on_safe_diff(platform):
         return _skip_route(platform)
     # Import platform writer dynamically when PC_OFF_READY
@@ -130,7 +232,7 @@ def _try_platform_if_verified(platform: str, program: str, language: str = "fr")
             "platform": platform,
             "skipped": True,
             "reason": "no_live_writer_module_or_use_specialized_canary",
-            "status": st,
+            "status": get_platform_status(platform),
         }
     try:
         import importlib
@@ -142,24 +244,65 @@ def _try_platform_if_verified(platform: str, program: str, language: str = "fr")
         return {"platform": platform, "ok": False, "error": f"import:{exc}"}
 
     plan = build(platform, program, language)
+    scoped, scope_note = _scope_plan_to_field(plan, confirmed_field)
+    if scoped is None:
+        return {
+            "platform": platform,
+            "ok": False,
+            "error": scope_note or "field_scope_failed",
+            "confirmed_field": confirmed_field,
+        }
+    plan = scoped
+    if scope_note == "NO_CONFIRMED_SAFE_DIFF":
+        return {
+            "platform": platform,
+            "ok": True,
+            "note": scope_note,
+            "route": runtime_route(platform),
+            "confirmed_field": confirmed_field,
+        }
     if not getattr(plan, "structure_preserved", True):
-        return {"platform": platform, "ok": False, "error": "structure_not_preserved"}
+        return {
+            "platform": platform,
+            "ok": False,
+            "error": "structure_not_preserved",
+            "confirmed_field": confirmed_field,
+        }
     if not getattr(plan, "changed_fields", None):
         return {
             "platform": platform,
             "ok": True,
-            "note": "NO_SAFE_DIFF",
+            "note": "NO_CONFIRMED_SAFE_DIFF",
             "route": runtime_route(platform),
+            "confirmed_field": confirmed_field,
         }
+
     result = asyncio.run(execute(plan, dry_run=False))
-    return {
+    verified = bool(getattr(result, "ok", False) and getattr(result, "post_match", None) is True)
+    out = {
         "platform": platform,
-        "ok": getattr(result, "ok", False),
+        "ok": verified,
         "post_match": getattr(result, "post_match", None),
         "error": getattr(result, "error", None),
         "route": runtime_route(platform),
-        "action": "UPDATED" if getattr(result, "ok", False) else "FAILED",
+        "action": "UPDATED_VERIFIED" if verified else "FAILED",
+        "confirmed_field": confirmed_field,
+        "changed_fields": dict(getattr(plan, "changed_fields", {}) or {}),
     }
+    if verified:
+        try:
+            out["baseline"] = _persist_verified_baseline(plan)
+            out["baseline_persisted"] = True
+        except Exception as exc:  # noqa: BLE001
+            # A platform write without a durable local baseline is not closed:
+            # report failure so Slack/operator sees that reconciliation is needed.
+            out["ok"] = False
+            out["action"] = "VERIFY_PERSIST_FAILED"
+            out["baseline_persisted"] = False
+            out["error"] = f"baseline_persist_failed:{exc}"
+    elif getattr(result, "ok", False) and getattr(result, "post_match", None) is not True:
+        out["error"] = out.get("error") or "write_not_post_verified"
+    return out
 
 
 def main() -> int:
@@ -167,6 +310,16 @@ def main() -> int:
     ap.add_argument("--from-telegram", action="store_true")
     ap.add_argument("--program", default="kraken")
     ap.add_argument("--plan-only", action="store_true", help="Never live write")
+    ap.add_argument(
+        "--field",
+        default="",
+        help="Exact logical field explicitly confirmed by the operator (required for live writes)",
+    )
+    ap.add_argument(
+        "--platform",
+        default="",
+        help="Optional exact platform scope from the operator command",
+    )
     args = ap.parse_args()
 
     ws = write_summary()
@@ -185,13 +338,33 @@ def main() -> int:
             }
         )
     else:
-        reports.append(_try_super_parrain(args.program))
-        for plat in AUTO_SAFE_DIFF_PLATFORMS:
-            reports.append(_try_platform_if_verified(plat, args.program))
-        for plat in NEVER_AUTO_DISPATCH:
-            if plat == "super-parrain":
-                continue
-            reports.append(_skip_route(plat))
+        # Super-Parrain is a fused deferred route, never part of this immediate
+        # PC-off confirmation path. Keep it visible only for global commands.
+        if not args.platform:
+            reports.append(_try_super_parrain(args.program))
+
+        auto_targets = [
+            plat
+            for plat in AUTO_SAFE_DIFF_PLATFORMS
+            if not args.platform or plat == args.platform
+        ]
+        for plat in auto_targets:
+            reports.append(
+                _try_platform_if_verified(
+                    plat,
+                    args.program,
+                    confirmed_field=args.field,
+                )
+            )
+
+        # Explicitly scoped human/blocked platform commands remain fail-closed.
+        if args.platform and args.platform not in AUTO_SAFE_DIFF_PLATFORMS:
+            reports.append(_skip_route(args.platform))
+        elif not args.platform:
+            for plat in NEVER_AUTO_DISPATCH:
+                if plat == "super-parrain":
+                    continue
+                reports.append(_skip_route(plat))
 
     out = ROOT / "data" / "captures" / "verified-writers-report.json"
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -199,6 +372,8 @@ def main() -> int:
         "at": datetime.now(timezone.utc).isoformat(),
         "from_telegram": args.from_telegram,
         "program": args.program,
+        "confirmed_field": args.field or None,
+        "platform_filter": args.platform or None,
         "write_status": ws,
         "reports": reports,
     }
