@@ -224,3 +224,30 @@ def test_missed_slot_rich_notification_remains_non_actionable_for_writes():
     actions = _actions(payload)
     assert [a.get("action_id") for a in actions] == ["autofresh_command"]
     assert __import__("json").loads(actions[0]["value"])["command"] == "Autofresh bump"
+
+
+
+def test_referralcode_turnstile_alert_has_direct_manual_bump_button():
+    events = [
+        {
+            "level": "HUMAN_REQUIRED",
+            "platform": "referralcode-tv",
+            "event": "external_blocker",
+            "action": "scheduled_bump",
+            "result": "EXPECTED_EXTERNAL_BLOCKER",
+            "block_reason": "cloudflare_turnstile_challenge",
+        }
+    ]
+
+    payload = build_payload(events, "C_TEST")
+    assert payload is not None
+    dumped = str(payload["blocks"])
+    assert "ReferralCode.tv — remontée manuelle" in dumped
+    assert "Turnstile" in dumped
+    actions = _actions(payload)
+    manual = next(a for a in actions if a.get("action_id") == "autofresh_open_rctv")
+    assert manual["text"]["text"] == "Remonter manuellement"
+    assert manual["url"] == "https://www.referralcode.tv/my-account/?tab=listings"
+    assert "value" not in manual
+    assert "autofresh_apply_candidate" not in {a.get("action_id") for a in actions}
+    assert "autofresh_confirm_write" not in {a.get("action_id") for a in actions}

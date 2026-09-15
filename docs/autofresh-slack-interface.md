@@ -130,3 +130,16 @@ slash commands:
 
 Slash commands remain available as a fallback/admin surface, but are no longer
 required for the common notification-response path.
+
+
+### ReferralCode.tv manual bump
+
+ReferralCode.tv remains deliberately human-only because the normal GitHub-hosted
+browser is stopped by Cloudflare Turnstile. When ReferralCode.tv is involved in
+an operator result or a blocker notification, Slack shows **Remonter
+manuellement**. This is a plain URL button to
+`https://www.referralcode.tv/my-account/?tab=listings`.
+
+The button never dispatches a GitHub workflow, never starts a writer, never
+clicks the site's boost control and never attempts to solve/bypass Turnstile.
+The operator completes the boost on ReferralCode.tv in their own browser.
