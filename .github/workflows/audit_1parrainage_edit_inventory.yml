@@ -53,12 +53,16 @@ jobs:
         run: |
           git config user.name "autofresh-bot"
           git config user.email "autofresh-bot@users.noreply.github.com"
+          cp data/oneparrainage-edit-index.json /tmp/oneparrainage-edit-index.json
+          git fetch origin "${HEAD_REF}"
+          git checkout -B "${HEAD_REF}" "origin/${HEAD_REF}"
+          cp /tmp/oneparrainage-edit-index.json data/oneparrainage-edit-index.json
           git add data/oneparrainage-edit-index.json
           if git diff --cached --quiet; then
             echo "Edit index unchanged"
           else
             git commit -m "chore(1parrainage): persist authenticated edit index"
-            git push origin "HEAD:${HEAD_REF}"
+            git push origin "${HEAD_REF}"
           fi
 
       - name: Upload inventory artifact
