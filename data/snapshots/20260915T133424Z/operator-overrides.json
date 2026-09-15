@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-09-15T13:34:24.048536+00:00",
+  "updated_at": "2026-08-31T10:48:08.026378+00:00",
   "note": "Operator overrides (Telegram). Precedence: PLATFORM_OPERATOR > GLOBAL_OPERATOR > ACCEPTED_MONITOR > CANONICAL. Monitor observations must never overwrite these.",
   "overrides": [
     {
@@ -35,17 +35,6 @@
       "updated_at": "2026-08-12T23:52:07.348302+00:00",
       "message": "OPERATOR_VALIDATED current live Kraken/Super-Parrain values. Catalog 4hpz4gdy / proinvite / 20EUR BTC must never publish.",
       "id": "global:kraken:referee_reward"
-    },
-    {
-      "program": "totalenergies",
-      "field": "referee_reward",
-      "value": "50 €",
-      "platform": null,
-      "source": "GLOBAL_OPERATOR_OVERRIDE",
-      "created_at": "2026-09-15T13:34:24.048506+00:00",
-      "updated_at": "2026-09-15T13:34:24.048506+00:00",
-      "message": "TotalEnergies gain filleul 50 €",
-      "id": "global:totalenergies:referee_reward"
     }
   ]
 }
