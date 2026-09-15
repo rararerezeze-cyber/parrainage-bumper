@@ -121,7 +121,12 @@ def _persist_verified_state(platform: str, program: str, language: str, plan, re
     Without this, a successful Slack write remains "pending" in the local
     golden/mapping state and a later confirmation can repeat the same write.
     """
-    golden_path(platform, program, language).write_bytes(plan.rendered.encode("utf-8"))
+    # 1Parrainage validates and writes against the live CKEditor body from
+    # the authenticated edit index. Its historical list-card template is not
+    # the post-write body authority, so never overwrite its golden with the
+    # stale/static render. Other writers still persist their exact rendered body.
+    if platform != "1parrainage":
+        golden_path(platform, program, language).write_bytes(plan.rendered.encode("utf-8"))
     mp = mapping_path(platform, program, language)
     data = json.loads(mp.read_text(encoding="utf-8"))
     published = dict(data.get("platform_values") or {})
@@ -135,6 +140,14 @@ def _persist_verified_state(platform: str, program: str, language: str, plan, re
     edit_url = getattr(result, "edit_url", None)
     if edit_url:
         data["edit_url"] = edit_url
+    edit_urls = [str(x) for x in (getattr(plan, "edit_urls", None) or []) if x]
+    if edit_urls:
+        data["edit_urls"] = edit_urls
+    public_offer_ids = [
+        str(x) for x in (getattr(plan, "public_offer_ids", None) or []) if x
+    ]
+    if public_offer_ids:
+        data["public_offer_ids"] = public_offer_ids
     mp.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
@@ -215,6 +228,7 @@ def _try_platform_if_verified(platform: str, program: str, language: str = "fr")
         "route": runtime_route(platform),
         "action": "UPDATED_VERIFIED" if verified else "FAILED",
         "changed_fields": getattr(plan, "changed_fields", {}) or {},
+        "occurrence_results": getattr(result, "occurrence_results", None),
     }
 
 
