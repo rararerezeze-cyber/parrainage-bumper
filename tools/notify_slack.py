@@ -246,7 +246,8 @@ def _monitor_event_text(event: dict, *, rich: bool) -> str:
     if not rich:
         return (
             f"🔎 {program} — changement détecté : {field} {old} → {new}. "
-            "Aucune modification n'a été faite."
+            "Aucune modification n'a été faite. "
+            f"Boutons disponibles dans Slack ; secours : /autofresh {program} divergences"
         )
 
     lines = [
@@ -299,8 +300,9 @@ def _event_line(event: dict) -> str:
     ):
         subject = f"Super-Parrain / {program}" if program else "Super-Parrain"
         return (
-            f"⚠️ {subject} — vérifications contradictoires : la mise à jour du contenu "
-            "a été bloquée. Le bumper continue. Aucune action immédiate."
+            f"⚠️ {subject} — la mise à jour du contenu a été annulée par sécurité "
+            "car deux vérifications n'étaient pas d'accord. Le bumper continue. "
+            "Aucune action immédiate."
         )
 
     if ev == "post_verify_failure":
