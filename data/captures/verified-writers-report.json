@@ -1,139 +1,141 @@
 {
-  "at": "2026-08-12T20:49:13.665111+00:00",
+  "at": "2026-09-15T13:37:41.944507+00:00",
   "from_telegram": true,
-  "program": "kraken",
+  "program": "totalenergies",
   "write_status": {
-    "WRITE_VERIFIED": "0/7",
-    "write_verified_count": 0,
-    "telegram_live_capable": [],
-    "telegram_live_capable_count": 0,
+    "WRITE_VERIFIED": "5/7",
+    "write_verified_count": 5,
+    "telegram_live_capable": [
+      "parrainage-co",
+      "code-parrainage",
+      "1parrainage"
+    ],
+    "telegram_live_capable_count": 3,
     "by_status": {
+      "WRITE_VERIFIED": 5,
       "CANARY_READY": 1,
-      "WRITE_PREPARED": 5,
-      "AUTH_BLOCKED_GOOGLE": 1
+      "AUTH_BLOCKED_MANUAL": 1
     },
     "platforms": [
       {
         "platform": "super-parrain",
-        "status": "CANARY_READY",
-        "telegram_action": "CANARY_ONLY",
-        "canary_program": "kraken",
-        "notes": "Writer + post-verify + cooldown ready. Not WRITE_VERIFIED until real auth edit + submit + reread + field post-match.",
-        "last_write_verified_at": null
+        "status": "WRITE_VERIFIED",
+        "telegram_action": "FUSED_UPDATE_BUMP",
+        "autonomy": "FUSED_UPDATE_BUMP",
+        "route": "FUSED_UPDATE_BUMP",
+        "canary_program": "poulpeo",
+        "notes": "WRITE_VERIFIED — content-writer proof (login+edit+save+reread+post_match). Historical bumper authorized and restored; runtime NORMAL_BUMP with ~24h cooldown + persistent jitter. FUSED_UPDATE_BUMP active: content update only on real SAFE_DIFF, otherwise bump-only.",
+        "last_write_verified_at": "2026-08-15T08:28:55.596484+00:00"
       },
       {
         "platform": "parrainage-co",
-        "status": "WRITE_PREPARED",
-        "telegram_action": "PLAN_ONLY",
+        "status": "WRITE_VERIFIED",
+        "telegram_action": "AUTO_ON_SAFE_DIFF",
+        "autonomy": "PC_OFF_READY",
+        "route": "AUTO_ON_SAFE_DIFF",
         "canary_program": "kraken",
-        "notes": "Controlled writer exists; needs one successful canary with post-verify.",
-        "last_write_verified_at": null
+        "notes": "GH run 31950145270 (2026-08-16): real canary+rollback save on referee_reward, offer 113735 — canonical account+public match proven at every phase, personal_code/personal_link unchanged throughout, original value restored and confirmed. Auto only on real SAFE_DIFF.",
+        "last_write_verified_at": "2026-08-16T13:41:32.579960+00:00"
       },
       {
         "platform": "code-parrainage",
-        "status": "WRITE_PREPARED",
-        "telegram_action": "PLAN_ONLY",
+        "status": "WRITE_VERIFIED",
+        "telegram_action": "AUTO_ON_SAFE_DIFF",
+        "autonomy": "PC_OFF_READY",
+        "route": "AUTO_ON_SAFE_DIFF",
         "canary_program": "kraken",
-        "notes": "Templates/mappings ready; live edit canary not completed.",
-        "last_write_verified_at": null
+        "notes": "WRITE_VERIFIED 2026-08-17 (GH run 32044775992, real canary+rollback on referee_reward): offre_sha256 changed on canary and restored exactly on rollback (byte-identical to before); public raw_html_sha256 same pattern; real POST captured to modification.php (status 302) with the correct payload at each phase; identity (company=Kraken, code_ou_lien=cpbrgddy) unchanged at all 4 checkpoints; no critical_fail; no unexpected_dialog; exactly 2 Save clicks. Promoted via manual reconciliation because the script's own account-side canonical_contains() check has a known truncation bug (compares a 200-char DOM preview against the full ~787-char rendered text -- see evidence.account_reread_note); the public-side check and every other independent signal confirm real success. Root cause of the PRIOR failed run (GH 31962858807) was an unhandled native confirm() dialog that Playwright dismissed by default -- fixed via the strict dialog gate + network instrumentation + guaranteed rollback + fresh pre-rollback identity re-guard added across commits 03e2715..8b5ccc3. Auto only on a real SAFE_DIFF.",
+        "last_write_verified_at": "2026-08-17T16:20:23.771989+00:00"
       },
       {
         "platform": "1parrainage",
-        "status": "WRITE_PREPARED",
-        "telegram_action": "PLAN_ONLY",
+        "status": "WRITE_VERIFIED",
+        "telegram_action": "AUTO_ON_SAFE_DIFF",
+        "autonomy": "PC_OFF_READY",
+        "route": "AUTO_ON_SAFE_DIFF",
         "canary_program": "kraken",
-        "notes": "Templates/mappings ready; live edit canary not completed.",
-        "last_write_verified_at": null
+        "notes": "PC_OFF_READY — headed WRITE_VERIFIED remains authoritative and GH headless save is PROVEN by run 32559662078: exactly two actual Save clicks, account plus full-public canary verification, exact source and normalized rollback, and public marker removal. Duplicate run 32559814742 was refused by the already-PROVEN gate before browser startup with zero Save clicks and zero platform writes. Auto only on a real SAFE_DIFF. No fake write.",
+        "last_write_verified_at": "2026-08-13T10:29:40.550997+00:00"
       },
       {
         "platform": "referralcodes",
-        "status": "WRITE_PREPARED",
-        "telegram_action": "PLAN_ONLY",
+        "status": "CANARY_READY",
+        "telegram_action": "NEVER_AUTO_COMMIT",
+        "autonomy": "IMPORT_UI_BETA_NOT_PROVEN",
+        "route": "NEVER_AUTO_COMMIT",
         "canary_program": "kraken",
-        "notes": "Official Agent Import preferred. WRITE_VERIFIED only after schema validation + single canary import + reread post-match.",
+        "notes": "GH 32265735051 (2026-08-19) VALIDATE ONLY, read-only, never clicked Commit: login OK, shop_id=4769 Kraken valid, draft_id=135, commit=false; Validate surfaced no existing-listing identifier. Official Agent Import docs describe bulk upload, while the official FAQ directs changes to the account Edit icon, limits a profile to one referral per shop/app, rejects duplicates, and warns repeated duplicate submissions may be flagged as spam. Therefore Agent Import is not a documented update path: NEVER_AUTO_COMMIT is durable without needing a speculative Commit. Keep native $200.",
         "last_write_verified_at": null
       },
       {
         "platform": "referralcode-tv",
-        "status": "WRITE_PREPARED",
-        "telegram_action": "PLAN_ONLY",
+        "status": "WRITE_VERIFIED",
+        "telegram_action": "HUMAN_SAVE_REQUIRED",
+        "autonomy": "HUMAN_SAVE_REQUIRED",
+        "route": "HUMAN_SAVE_REQUIRED",
         "canary_program": "kraken",
-        "notes": "Sequential browser writer prepared. WRITE_VERIFIED only after auth/edit with REFERRALCODE_* + post-verify. No CAPTCHA bypass.",
-        "last_write_verified_at": null
+        "notes": "WRITE_VERIFIED headed canary eid=23004. SAVE_REQUIRES_CAPTCHA: content save stays HUMAN_SAVE_REQUIRED and Slack must never auto-save it. GitHub-hosted Chromium receives a standalone Cloudflare Turnstile interstitial before login (read-only run 32565187359); no bypass. Repeated scheduled bump attempts were removed on 2026-09-11 because the external gate is deterministic and those runs had no production value. The isolated workflow remains available via workflow_dispatch for an explicit future re-test if the external gate changes.",
+        "last_write_verified_at": "2026-08-13T12:47:36.402325+00:00"
       },
       {
         "platform": "referraldrop",
-        "status": "AUTH_BLOCKED_GOOGLE",
-        "telegram_action": "AUTH_BLOCKED",
+        "status": "AUTH_BLOCKED_MANUAL",
+        "telegram_action": "AUTH_BLOCKED_MANUAL",
+        "autonomy": "AUTH_BLOCKED_MANUAL",
+        "route": "AUTH_BLOCKED_MANUAL",
         "canary_program": null,
-        "notes": "Google Sign-In required. No OAuth bypass. May remain non-automated if legitimate durable automation is impossible.",
+        "notes": "No official OAuth / public write API (llms.txt account/admin/API not public). AUTH_BLOCKED_MANUAL durable. No bypass.",
         "last_write_verified_at": null
       }
     ],
-    "updated_at": "2026-08-12T20:49:13.521552+00:00"
+    "updated_at": "2026-09-14T16:11:47.328724+00:00"
   },
   "reports": [
     {
-      "note": "no_write_verified_platforms_or_plan_only",
-      "WRITE_VERIFIED": "0/7",
-      "platforms": [
-        {
-          "platform": "super-parrain",
-          "status": "CANARY_READY",
-          "telegram_action": "CANARY_ONLY",
-          "canary_program": "kraken",
-          "notes": "Writer + post-verify + cooldown ready. Not WRITE_VERIFIED until real auth edit + submit + reread + field post-match.",
-          "last_write_verified_at": null
-        },
-        {
-          "platform": "parrainage-co",
-          "status": "WRITE_PREPARED",
-          "telegram_action": "PLAN_ONLY",
-          "canary_program": "kraken",
-          "notes": "Controlled writer exists; needs one successful canary with post-verify.",
-          "last_write_verified_at": null
-        },
-        {
-          "platform": "code-parrainage",
-          "status": "WRITE_PREPARED",
-          "telegram_action": "PLAN_ONLY",
-          "canary_program": "kraken",
-          "notes": "Templates/mappings ready; live edit canary not completed.",
-          "last_write_verified_at": null
-        },
-        {
-          "platform": "1parrainage",
-          "status": "WRITE_PREPARED",
-          "telegram_action": "PLAN_ONLY",
-          "canary_program": "kraken",
-          "notes": "Templates/mappings ready; live edit canary not completed.",
-          "last_write_verified_at": null
-        },
-        {
-          "platform": "referralcodes",
-          "status": "WRITE_PREPARED",
-          "telegram_action": "PLAN_ONLY",
-          "canary_program": "kraken",
-          "notes": "Official Agent Import preferred. WRITE_VERIFIED only after schema validation + single canary import + reread post-match.",
-          "last_write_verified_at": null
-        },
-        {
-          "platform": "referralcode-tv",
-          "status": "WRITE_PREPARED",
-          "telegram_action": "PLAN_ONLY",
-          "canary_program": "kraken",
-          "notes": "Sequential browser writer prepared. WRITE_VERIFIED only after auth/edit with REFERRALCODE_* + post-verify. No CAPTCHA bypass.",
-          "last_write_verified_at": null
-        },
-        {
-          "platform": "referraldrop",
-          "status": "AUTH_BLOCKED_GOOGLE",
-          "telegram_action": "AUTH_BLOCKED",
-          "canary_program": null,
-          "notes": "Google Sign-In required. No OAuth bypass. May remain non-automated if legitimate durable automation is impossible.",
-          "last_write_verified_at": null
-        }
-      ]
+      "platform": "super-parrain",
+      "skipped": true,
+      "reason": "FUSED_UPDATE_BUMP",
+      "route": "FUSED_UPDATE_BUMP",
+      "status": "WRITE_VERIFIED"
+    },
+    {
+      "platform": "1parrainage",
+      "ok": false,
+      "error": "structure_not_preserved"
+    },
+    {
+      "platform": "code-parrainage",
+      "ok": true,
+      "note": "NO_SAFE_DIFF",
+      "route": "AUTO_ON_SAFE_DIFF"
+    },
+    {
+      "platform": "parrainage-co",
+      "ok": true,
+      "note": "NO_SAFE_DIFF",
+      "route": "AUTO_ON_SAFE_DIFF"
+    },
+    {
+      "platform": "referralcode-tv",
+      "skipped": true,
+      "reason": "HUMAN_SAVE_REQUIRED",
+      "route": "HUMAN_SAVE_REQUIRED",
+      "status": "WRITE_VERIFIED",
+      "human_command": "python -u tools/local_headed_rctv_canary.py"
+    },
+    {
+      "platform": "referralcodes",
+      "skipped": true,
+      "reason": "NEVER_AUTO_COMMIT",
+      "route": "NEVER_AUTO_COMMIT",
+      "status": "CANARY_READY"
+    },
+    {
+      "platform": "referraldrop",
+      "skipped": true,
+      "reason": "AUTH_BLOCKED_MANUAL",
+      "route": "AUTH_BLOCKED_MANUAL",
+      "status": "AUTH_BLOCKED_MANUAL"
     }
   ]
 }
