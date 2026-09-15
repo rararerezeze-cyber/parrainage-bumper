@@ -21,6 +21,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Restore notification dedup state
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: data/notifications/dedup.json
+          key: autofresh-notify-dedup-${{ github.workflow }}-${{ github.run_id }}
+          restore-keys: |
+            autofresh-notify-dedup-${{ github.workflow }}-
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -30,6 +39,14 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           AUTOFRESH_SLACK_CHANNEL: ${{ vars.AUTOFRESH_SLACK_CHANNEL }}
         run: python tools/slack_daily_status.py
+
+      - name: Save notification dedup state
+        if: always()
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: data/notifications/dedup.json
+          key: autofresh-notify-dedup-${{ github.workflow }}-${{ github.run_id }}
 
       - name: Archive daily status
         if: always()
