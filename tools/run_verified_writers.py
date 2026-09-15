@@ -17,7 +17,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from lib.paths import MAPPINGS_DIR
+from lib.paths import MAPPINGS_DIR, golden_path, mapping_path
 from lib.write_status import (
     STATUS_WRITE_VERIFIED,
     get_platform_status,
@@ -115,10 +115,44 @@ def _try_super_parrain(program: str) -> dict:
     return out
 
 
+def _persist_verified_state(platform: str, program: str, language: str, plan, result) -> None:
+    """Persist the exact post-verified representation used for the real write.
+
+    Without this, a successful Slack write remains "pending" in the local
+    golden/mapping state and a later confirmation can repeat the same write.
+    """
+    golden_path(platform, program, language).write_bytes(plan.rendered.encode("utf-8"))
+    mp = mapping_path(platform, program, language)
+    data = json.loads(mp.read_text(encoding="utf-8"))
+    published = dict(data.get("platform_values") or {})
+    for field in plan.mutable_fields:
+        value = plan.variables.get(field)
+        if value is not None:
+            published[field] = value
+    data["platform_values"] = published
+    data["write_status"] = "WRITE_VERIFIED"
+    data["last_write_at"] = datetime.now(timezone.utc).isoformat()
+    edit_url = getattr(result, "edit_url", None)
+    if edit_url:
+        data["edit_url"] = edit_url
+    mp.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
 def _try_platform_if_verified(platform: str, program: str, language: str = "fr") -> dict:
     if not may_auto_execute_on_safe_diff(platform):
         return _skip_route(platform)
-    # Import platform writer dynamically when PC_OFF_READY
+    st = get_platform_status(platform)
+    mapping_file = MAPPINGS_DIR / f"{platform}.{program}.{language}.json"
+    if not mapping_file.exists():
+        return {
+            "platform": platform,
+            "skipped": True,
+            "reason": "program_not_mapped",
+            "route": runtime_route(platform),
+            "status": st,
+        }
+
+    # Import platform writer dynamically when PC_OFF_READY.
     writers = {
         "code-parrainage": "platforms.code_parrainage.writer",
         "1parrainage": "platforms.oneparrainage.writer",
@@ -141,9 +175,23 @@ def _try_platform_if_verified(platform: str, program: str, language: str = "fr")
     except Exception as exc:  # noqa: BLE001
         return {"platform": platform, "ok": False, "error": f"import:{exc}"}
 
-    plan = build(platform, program, language)
+    try:
+        plan = build(platform, program, language)
+    except Exception as exc:  # noqa: BLE001
+        return {
+            "platform": platform,
+            "ok": False,
+            "error": f"plan_build_failed:{type(exc).__name__}:{exc}",
+            "route": runtime_route(platform),
+        }
     if not getattr(plan, "structure_preserved", True):
-        return {"platform": platform, "ok": False, "error": "structure_not_preserved"}
+        return {
+            "platform": platform,
+            "ok": False,
+            "error": "structure_not_preserved",
+            "route": runtime_route(platform),
+            "changed_fields": getattr(plan, "changed_fields", {}) or {},
+        }
     if not getattr(plan, "changed_fields", None):
         return {
             "platform": platform,
@@ -152,13 +200,21 @@ def _try_platform_if_verified(platform: str, program: str, language: str = "fr")
             "route": runtime_route(platform),
         }
     result = asyncio.run(execute(plan, dry_run=False))
+    verified = bool(getattr(result, "ok", False) and getattr(result, "post_match", False))
+    if verified:
+        _persist_verified_state(platform, program, language, plan, result)
     return {
         "platform": platform,
-        "ok": getattr(result, "ok", False),
+        "ok": verified,
         "post_match": getattr(result, "post_match", None),
-        "error": getattr(result, "error", None),
+        "error": (
+            None
+            if verified
+            else (getattr(result, "error", None) or "post_verify_failed")
+        ),
         "route": runtime_route(platform),
-        "action": "UPDATED" if getattr(result, "ok", False) else "FAILED",
+        "action": "UPDATED_VERIFIED" if verified else "FAILED",
+        "changed_fields": getattr(plan, "changed_fields", {}) or {},
     }
 
 
