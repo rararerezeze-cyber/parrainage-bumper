@@ -211,12 +211,22 @@ def _mapping_policy(program: str, editor_bodies: list[str], public_offer_ids: li
     markers = mapping.get("markers") or {}
     mutable = list(mapping.get("mutable_fields") or [])
     values = dict(mapping.get("platform_values") or {})
+    declared_live_counts = {
+        str(k): int(v)
+        for k, v in (mapping.get("live_marker_counts") or {}).items()
+        if isinstance(v, (int, float)) and int(v) > 0
+    }
     marker_counts = {}
     field_checks = {}
     for field in mutable:
         marker = str(markers.get(field) or "")
         old = values.get(field)
-        count = template.count(marker) if marker else 0
+        # Prefer an explicitly audited live CKEditor span count. This is used
+        # only when the historical public-list template was truncated. The
+        # live writer revalidates the exact count against the editor body
+        # immediately before Save, so this cannot turn a stale template into
+        # blind/global replacement.
+        count = declared_live_counts.get(field, template.count(marker) if marker else 0)
         marker_counts[field] = count
         checks = []
         for body in editor_bodies:
