@@ -484,6 +484,36 @@ def _run_autofresh_command_locked(
             writers_report = {"error": str(exc)}
     base["writers"] = writers_report
 
+    # A confirmed writer run must expose what ACTUALLY happened, not only the
+    # pre-write plan. Re-plan from the just-persisted verified state so Slack
+    # can distinguish successful writes, safe no-ops and unresolved/manual
+    # differences.
+    base["post_plan"] = {}
+    base["post_platforms"] = []
+    base["writer_outcome_ok"] = None
+    if writers_report is not None:
+        mapped_platforms = {
+            str(row.get("platform") or "")
+            for row in base.get("platforms") or []
+            if row.get("platform")
+        }
+        relevant_reports = [
+            item
+            for item in (writers_report.get("reports") or [])
+            if str(item.get("platform") or "") in mapped_platforms
+        ]
+        writer_failures = [
+            item for item in relevant_reports if item.get("ok") is False
+        ]
+        base["writer_outcome_ok"] = not writer_failures
+        base["writer_failures"] = writer_failures
+        if plan and parsed.get("program"):
+            post_plan = plan_program_impact(
+                parsed["program"], platform_filter=parsed.get("platform")
+            )
+            base["post_plan"] = post_plan
+            base["post_platforms"] = _platform_rows(post_plan)
+
     # Super-Parrain pending enqueue (content update when eligible)
     try:
         from lib.super_parrain_schedule import enqueue_pending
@@ -578,6 +608,7 @@ def _platform_rows(plan_data: dict[str, Any]) -> list[dict[str, Any]]:
                     and pending
                 ),
                 "changed_fields": p.get("changed_fields") or {},
+                "manual_fields": p.get("manual_fields") or [],
                 "error": p.get("error"),
                 "human_command": p.get("human_command") or human_local_command(str(plat or "")),
             }
@@ -633,10 +664,10 @@ def routing_summary(rows: list[dict[str, Any]] | None = None) -> dict[str, Any]:
         route = str(row.get("route") or runtime_route(plat))
         _classify(plat, route)
 
-    for plat in ALL_PLATFORMS:
-        if plat in seen:
-            continue
-        _classify(plat, runtime_route(plat))
+    # Routing is program-specific here. Do not invent actions for platforms
+    # where this program has no mapping (the old fallback caused TotalEnergies
+    # to show a ReferralCode.tv button even though no TotalEnergies listing is
+    # managed there).
 
     return {
         "automatic_safe_diff_targets": automatic,
