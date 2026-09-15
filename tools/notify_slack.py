@@ -109,6 +109,7 @@ _LEVEL_ICONS = {
 
 _MAX_RICH_EVENTS = 12
 _MAX_BLOCK_TEXT = 2900
+_RCTV_LISTINGS_URL = "https://www.referralcode.tv/my-account/?tab=listings"
 
 
 @lru_cache(maxsize=256)
@@ -206,6 +207,7 @@ def _button(
     action_id: str,
     *,
     value: str | None = None,
+    url: str | None = None,
     style: str | None = None,
     confirm: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
@@ -216,6 +218,8 @@ def _button(
     }
     if value is not None:
         out["value"] = value[:2000]
+    if url is not None:
+        out["url"] = url
     if style:
         out["style"] = style
     if confirm:
@@ -350,6 +354,20 @@ def _later_button(event: dict) -> dict[str, Any]:
     return _button("Plus tard", "autofresh_later", value=_later_value(event))
 
 
+def _rctv_manual_button() -> dict[str, Any]:
+    """Open the legitimate human-only ReferralCode.tv listings page.
+
+    This is a URL navigation control only: no GitHub dispatch, no writer,
+    no challenge solving and no automatic click on the site.
+    """
+    return _button(
+        "Remonter manuellement",
+        "autofresh_open_rctv",
+        url=_RCTV_LISTINGS_URL,
+        style="primary",
+    )
+
+
 def _monitor_blocks(event: dict) -> list[dict[str, Any]]:
     elements: list[dict[str, Any]] = []
     command = _accept_command(event)
@@ -397,6 +415,8 @@ def _monitor_blocks(event: dict) -> list[dict[str, Any]]:
 
 def _inspection_blocks(event: dict, text: str) -> list[dict[str, Any]]:
     elements: list[dict[str, Any]] = []
+    if str(event.get("platform") or "") == "referralcode-tv":
+        elements.append(_rctv_manual_button())
     program = _program_label(event.get("program"))
     if program:
         for label, command, suffix in (
@@ -473,6 +493,19 @@ def _event_blocks(event: dict) -> list[dict[str, Any]]:
         if btn:
             blocks.append({"type": "actions", "elements": [btn]})
         return blocks
+
+    if (
+        ev in {"external_blocker", "human_required"}
+        and str(event.get("platform") or "") == "referralcode-tv"
+    ):
+        text = (
+            "🖐️ *ReferralCode.tv — remontée manuelle*\n"
+            "AutoFresh ne peut pas effectuer la remontée depuis GitHub car le site "
+            "présente un challenge Cloudflare Turnstile. Utilise le bouton ci-dessous "
+            "pour ouvrir directement tes annonces et effectuer la remontée toi-même. "
+            "Aucun contournement du challenge n'est tenté."
+        )
+        return _inspection_blocks(event, text)
 
     if ev in {"external_blocker", "human_required", "circuit_breaker_open"}:
         return _inspection_blocks(event, _event_line(event))

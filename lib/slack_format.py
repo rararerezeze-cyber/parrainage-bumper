@@ -24,6 +24,7 @@ from typing import Any
 _MAX_TEXT_CHARS = 160
 _MAX_SECTION_CHARS = 2900  # Slack mrkdwn section text limit is 3000
 _MAX_PLATFORM_ROWS = 10
+_RCTV_LISTINGS_URL = "https://www.referralcode.tv/my-account/?tab=listings"
 
 _FIELD_LABELS = {
     "personal_code": "code de parrainage",
@@ -405,6 +406,42 @@ def _writer_eligible_rows(platforms: list[dict[str, Any]]) -> list[dict[str, Any
     ]
 
 
+def _rctv_manual_needed(result: dict[str, Any]) -> bool:
+    """Whether the current operator result needs a human ReferralCode.tv visit."""
+    for row in result.get("platforms") or []:
+        if str(row.get("platform") or "") != "referralcode-tv":
+            continue
+        status = str(row.get("status") or row.get("write_mode") or "")
+        route = str(row.get("route") or "")
+        if status in {"pending_update", "blocked"} or route in {
+            "HUMAN_SAVE_REQUIRED",
+            "NEVER_AUTO_COMMIT",
+            "AUTH_BLOCKED_MANUAL",
+        }:
+            return True
+
+    routing = result.get("routing") or {}
+    for item in routing.get("human_routed_targets") or []:
+        if str((item or {}).get("platform") or "") == "referralcode-tv":
+            return True
+    return "referralcode-tv" in (routing.get("blocked_targets") or [])
+
+
+def _rctv_manual_button_block() -> dict[str, Any]:
+    return {
+        "type": "actions",
+        "elements": [
+            {
+                "type": "button",
+                "style": "primary",
+                "action_id": "autofresh_open_rctv",
+                "text": {"type": "plain_text", "text": "Remonter manuellement"},
+                "url": _RCTV_LISTINGS_URL,
+            }
+        ],
+    }
+
+
 def _confirm_button_block(
     *,
     command: str,
@@ -505,6 +542,12 @@ def render_result(
             correlation_id=correlation_id,
             program=program,
         ))
+
+    # ReferralCode.tv stays human-only behind its Turnstile gate. When it is
+    # part of the pending/manual impact, offer navigation to the real listings
+    # page instead of a fake "automatic" action.
+    if ok and _rctv_manual_needed(result):
+        blocks.append(_rctv_manual_button_block())
 
     # Keep successful messages clean. A short technical reference is useful
     # only when the workflow failed and the operator may need to inspect logs.

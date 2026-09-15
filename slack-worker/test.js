@@ -92,6 +92,13 @@ test("Worker signed request path: read/preview stays unarmed; confirmation dispa
         value: JSON.stringify({ correlation_id: "later-1" }) }] });
     await request("/slack/interactivity", { payload: later });
     assert.equal(calls.length, 5);
+
+    // ReferralCode.tv URL button is navigation-only, even though Slack can
+    // still send an interaction payload for URL buttons.
+    const rctv = JSON.stringify({ user: { id: "U_TEST" }, channel: { id: "C_TEST" },
+      actions: [{ action_id: "autofresh_open_rctv" }] });
+    await request("/slack/interactivity", { payload: rctv });
+    assert.equal(calls.length, 5);
   } finally {
     globalThis.fetch = originalFetch;
   }

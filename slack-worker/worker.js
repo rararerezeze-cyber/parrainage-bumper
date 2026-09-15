@@ -204,6 +204,13 @@ async function handleInteractivity(request, env, ctx) {
   const action = (payload?.actions || [])[0];
   const actionId = action?.action_id || "";
 
+  // URL navigation to ReferralCode.tv is human-only. Slack may still send an
+  // interaction payload for a URL button; acknowledge it without dispatching
+  // GitHub or attempting any browser/challenge automation.
+  if (actionId === "autofresh_open_rctv") {
+    return new Response(null, { status: 200 });
+  }
+
   // "Plus tard" is intentionally UI-only. It never changes an override,
   // never dispatches a writer, and never creates a hidden ignore rule.
   if (actionId === "autofresh_later") {

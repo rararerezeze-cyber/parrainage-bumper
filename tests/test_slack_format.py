@@ -398,3 +398,44 @@ def test_real_offer_name_is_preferred_over_internal_slug_in_slack():
     dumped = json.dumps(payload, ensure_ascii=False)
     assert "Trade Republic" in dumped
     assert "Traderepublic" not in dumped
+
+
+
+def test_referralcode_manual_pending_gets_direct_listings_button():
+    platforms = [
+        {
+            "platform": "referralcode-tv",
+            "status": "pending_update",
+            "can_auto_write": False,
+            "route": "HUMAN_SAVE_REQUIRED",
+            "changed_fields": {"referee_reward": {}},
+        }
+    ]
+    payload = render_result(_base_result(
+        command="Kraken gain filleul 20 €",
+        parsed={"action": "set", "program": "kraken", "field": "referee_reward"},
+        platforms=platforms,
+    ))
+    actions = [
+        element
+        for block in payload["blocks"]
+        if block.get("type") == "actions"
+        for element in block.get("elements", [])
+    ]
+    manual = next(a for a in actions if a.get("action_id") == "autofresh_open_rctv")
+    assert manual["text"]["text"] == "Remonter manuellement"
+    assert manual["url"] == "https://www.referralcode.tv/my-account/?tab=listings"
+    assert "value" not in manual
+    assert "autofresh_confirm_write" not in {a.get("action_id") for a in actions}
+
+
+def test_referralcode_human_route_gets_manual_button_even_without_platform_rows():
+    result = _status_result(platforms=[])
+    payload = render_result(result)
+    actions = [
+        element
+        for block in payload["blocks"]
+        if block.get("type") == "actions"
+        for element in block.get("elements", [])
+    ]
+    assert any(a.get("action_id") == "autofresh_open_rctv" for a in actions)
