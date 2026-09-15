@@ -331,3 +331,98 @@ test("clip truncates on a character boundary with an ellipsis", () => {
   assert.equal(clip("hello world", 5), "hell…");
   assert.equal(clip("hi", 10), "hi");
 });
+
+
+test("interactive notification closure visibly replaces the original without arming writers", async () => {
+  const originalFetch = globalThis.fetch;
+  const githubCalls = [];
+  const responseCalls = [];
+  const pending = [];
+  const seen = new Map();
+  const env = {
+    SLACK_SIGNING_SECRET: "test-signing-secret",
+    SLACK_ALLOWED_USERS: "U_TEST",
+    GH_DISPATCH_TOKEN: "test-dispatch-token",
+    GITHUB_REPO: "example/test",
+    IDEMPOTENCY: {
+      get: async (key) => seen.get(key),
+      put: async (key, value) => seen.set(key, value),
+    },
+  };
+
+  async function request(action) {
+    const payload = JSON.stringify({
+      user: { id: "U_TEST" },
+      channel: { id: "C_TEST" },
+      response_url: "https://hooks.slack.test/response",
+      actions: [action],
+    });
+    const body = new URLSearchParams({ payload }).toString();
+    const timestamp = String(Math.floor(Date.now() / 1000));
+    const signature = await computeSlackSignature(env.SLACK_SIGNING_SECRET, timestamp, body);
+    const res = await worker.fetch(new Request("https://example.invalid/slack/interactivity", {
+      method: "POST",
+      body,
+      headers: {
+        "X-Slack-Request-Timestamp": timestamp,
+        "X-Slack-Signature": signature,
+      },
+    }), env, { waitUntil: (p) => pending.push(p) });
+    await Promise.all(pending.splice(0));
+    return res;
+  }
+
+  globalThis.fetch = async (url, options) => {
+    const body = JSON.parse(options.body);
+    if (String(url).startsWith("https://hooks.slack.test/")) {
+      responseCalls.push(body);
+      return new Response(JSON.stringify({ ok: true }), { status: 200 });
+    }
+    githubCalls.push(body);
+    return new Response(null, { status: 204 });
+  };
+
+  try {
+    await request({
+      action_id: "autofresh_later",
+      value: JSON.stringify({ correlation_id: "later-ui" }),
+    });
+    assert.equal(githubCalls.length, 0);
+    assert.equal(responseCalls.at(-1).replace_original, true);
+    assert.match(responseCalls.at(-1).text, /reporté/i);
+
+    await request({
+      action_id: "autofresh_mark_done",
+      value: JSON.stringify({ correlation_id: "done-ui" }),
+    });
+    assert.equal(githubCalls.length, 0);
+    assert.equal(responseCalls.at(-1).replace_original, true);
+    assert.match(responseCalls.at(-1).text, /terminé manuellement/i);
+
+    await request({
+      action_id: "autofresh_apply_candidate",
+      value: JSON.stringify({
+        command: "Kraken gain filleul 50 €",
+        correlation_id: "accept-ui",
+      }),
+    });
+    assert.equal(githubCalls.length, 1);
+    assert.equal(githubCalls[0].inputs.run_writers, "false");
+    assert.equal(responseCalls.at(-1).replace_original, true);
+    assert.match(responseCalls.at(-1).text, /changement accepté/i);
+
+    await request({
+      action_id: "autofresh_confirm_write",
+      value: JSON.stringify({
+        command: "Kraken gain filleul 50 €",
+        correlation_id: "write-ui",
+      }),
+    });
+    assert.equal(githubCalls.length, 2);
+    assert.equal(githubCalls[1].inputs.run_writers, "true");
+    assert.equal(responseCalls.at(-1).replace_original, true);
+    assert.match(responseCalls.at(-1).text, /écriture confirmée/i);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
