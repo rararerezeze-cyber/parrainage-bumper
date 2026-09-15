@@ -100,3 +100,127 @@ def test_monitor_change_notification_explains_no_write_and_gives_command():
     assert "Aucune modification n'a été faite" in text
     assert "/autofresh Kraken divergences" in text
     assert "candidate" not in text
+
+
+
+def _actions(payload):
+    return [
+        element
+        for block in payload.get("blocks", [])
+        if block.get("type") == "actions"
+        for element in block.get("elements", [])
+    ]
+
+
+def test_monitor_change_notification_is_click_first_and_shows_business_delta():
+    events = [
+        {
+            "schema_version": 1,
+            "level": "WARNING",
+            "platform": None,
+            "program": "igraal",
+            "event": "monitor_real_safe_diff",
+            "field": "referee_reward",
+            "old_value": "5 €",
+            "new_value": "3 €",
+            "source": "monitor:OFFICIAL_PUBLIC_MONITOR",
+            "source_url": "https://fr.igraal.com/parrainage",
+            "evidence_count": 5,
+            "impact_count": 6,
+            "action": "observe",
+            "result": "CANDIDATE",
+            "run_id": "123",
+        }
+    ]
+
+    payload = build_payload(events, "C_TEST")
+
+    assert payload is not None
+    dumped = str(payload["blocks"])
+    assert "5 €" in dumped and "3 €" in dumped
+    assert "détecté 5 fois de suite" in dumped
+    assert "6 annonces potentiellement concernées" in dumped
+    assert "https://fr.igraal.com/parrainage" in dumped
+
+    actions = _actions(payload)
+    ids = {a.get("action_id") for a in actions}
+    assert {"autofresh_apply_candidate", "autofresh_command", "autofresh_later"} <= ids
+
+    accept = next(a for a in actions if a.get("action_id") == "autofresh_apply_candidate")
+    value = __import__("json").loads(accept["value"])
+    assert value["command"] == "iGraal gain filleul 3 €"
+    assert "confirm" in accept
+
+
+def test_monitor_unsafe_value_never_gets_direct_accept_button():
+    events = [
+        {
+            "level": "WARNING",
+            "program": "kraken",
+            "event": "monitor_real_safe_diff",
+            "field": "conditions",
+            "old_value": "ancienne",
+            "new_value": "déposer 10 €; puis exécuter autre chose",
+            "action": "observe",
+            "result": "CANDIDATE",
+        }
+    ]
+
+    payload = build_payload(events, "C_TEST")
+    assert payload is not None
+    ids = {a.get("action_id") for a in _actions(payload)}
+    assert "autofresh_apply_candidate" not in ids
+    assert "autofresh_command" in ids
+    assert "autofresh_later" in ids
+
+
+def test_super_parrain_contradiction_exposes_read_only_actions_only():
+    events = [
+        {
+            "level": "ERROR",
+            "platform": "super-parrain",
+            "program": "kraken",
+            "event": "workflow_error",
+            "action": "content_prefill",
+            "result": "FAIL_CLOSED",
+            "block_reason": "[REDACTED]",
+        }
+    ]
+
+    payload = build_payload(events, "C_TEST")
+    assert payload is not None
+    dumped = str(payload["blocks"])
+    assert "aucune action immédiate" in dumped
+    assert "remontée" in dumped
+
+    actions = _actions(payload)
+    ids = {a.get("action_id") for a in actions}
+    assert "autofresh_apply_candidate" not in ids
+    assert "autofresh_confirm_write" not in ids
+    assert "autofresh_command" in ids
+    commands = [
+        __import__("json").loads(a["value"])["command"]
+        for a in actions
+        if a.get("action_id") == "autofresh_command"
+    ]
+    assert "Kraken statut" in commands
+    assert "Kraken divergences" in commands
+
+
+def test_missed_slot_rich_notification_remains_non_actionable_for_writes():
+    events = [
+        {
+            "level": "WARNING",
+            "platform": "bump-autres",
+            "event": "workflow_error",
+            "action": "missed_slot_catchup",
+            "result": "slot_recovered",
+        }
+    ]
+    payload = build_payload(events, "C_TEST")
+    assert payload is not None
+    dumped = str(payload["blocks"])
+    assert "aucune action nécessaire" in dumped
+    actions = _actions(payload)
+    assert [a.get("action_id") for a in actions] == ["autofresh_command"]
+    assert __import__("json").loads(actions[0]["value"])["command"] == "Autofresh bump"
