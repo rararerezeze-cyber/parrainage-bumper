@@ -60,12 +60,38 @@ test("Worker signed request path: read/preview stays unarmed; confirmation dispa
     await request("/slack/commands", { ...slash, trigger_id: "preview-1", text: "Kraken code TESTCODE" });
     assert.equal(calls[1].inputs.run_writers, "false");
     const payload = JSON.stringify({ user: { id: "U_TEST" }, channel: { id: "C_TEST" },
-      actions: [{ value: JSON.stringify({ command: "Kraken code TESTCODE", correlation_id: "confirm-1" }) }] });
+      actions: [{ action_id: "autofresh_confirm_write",
+        value: JSON.stringify({ command: "Kraken code TESTCODE", correlation_id: "confirm-1" }) }] });
     await request("/slack/interactivity", { payload });
     await request("/slack/interactivity", { payload });
     assert.equal(calls.length, 3);
     assert.equal(calls[2].inputs.run_writers, "true");
     assert.equal(calls[2].inputs.correlation_id, "confirm-1");
+
+    // Rich scheduled notifications use the same signed interaction endpoint,
+    // but read/detail and "Accepter" actions MUST remain unarmed.
+    const details = JSON.stringify({ user: { id: "U_TEST" }, channel: { id: "C_TEST" },
+      actions: [{ action_id: "autofresh_command",
+        value: JSON.stringify({ command: "Kraken divergences", correlation_id: "details-1" }) }] });
+    await request("/slack/interactivity", { payload: details });
+    assert.equal(calls.length, 4);
+    assert.equal(calls[3].inputs.run_writers, "false");
+    assert.equal(calls[3].inputs.command, "Kraken divergences");
+
+    const accept = JSON.stringify({ user: { id: "U_TEST" }, channel: { id: "C_TEST" },
+      actions: [{ action_id: "autofresh_apply_candidate",
+        value: JSON.stringify({ command: "Kraken gain filleul 50 €", correlation_id: "accept-1" }) }] });
+    await request("/slack/interactivity", { payload: accept });
+    assert.equal(calls.length, 5);
+    assert.equal(calls[4].inputs.run_writers, "false");
+    assert.equal(calls[4].inputs.command, "Kraken gain filleul 50 €");
+
+    // "Plus tard" is an acknowledgement only; it must not dispatch GitHub.
+    const later = JSON.stringify({ user: { id: "U_TEST" }, channel: { id: "C_TEST" },
+      actions: [{ action_id: "autofresh_later",
+        value: JSON.stringify({ correlation_id: "later-1" }) }] });
+    await request("/slack/interactivity", { payload: later });
+    assert.equal(calls.length, 5);
   } finally {
     globalThis.fetch = originalFetch;
   }

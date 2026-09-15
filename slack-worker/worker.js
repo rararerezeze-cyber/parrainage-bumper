@@ -192,49 +192,99 @@ async function handleInteractivity(request, env, ctx) {
   const allowed = parseAllowedUsers(env.SLACK_ALLOWED_USERS);
   if (!isUserAllowed(userId, allowed)) {
     if (responseUrl) {
-      ctx.waitUntil(postResponseUrl(responseUrl, { text: "Non autorisé.", replace_original: false }));
+      ctx.waitUntil(postResponseUrl(responseUrl, {
+        response_type: "ephemeral",
+        text: "Non autorisé.",
+        replace_original: false,
+      }));
     }
     return new Response(null, { status: 200 });
   }
 
   const action = (payload?.actions || [])[0];
-  const confirm = action ? parseConfirmValue(action.value) : null;
-  if (!confirm) {
+  const actionId = action?.action_id || "";
+
+  // "Plus tard" is intentionally UI-only. It never changes an override,
+  // never dispatches a writer, and never creates a hidden ignore rule.
+  if (actionId === "autofresh_later") {
     if (responseUrl) {
-      ctx.waitUntil(
-        postResponseUrl(responseUrl, { text: "Bouton invalide ou expiré.", replace_original: false })
-      );
+      ctx.waitUntil(postResponseUrl(responseUrl, {
+        response_type: "ephemeral",
+        text: "⏸ Mis de côté. Aucune modification n’a été faite.",
+        replace_original: false,
+      }));
     }
     return new Response(null, { status: 200 });
   }
 
-  const dedupeKey = `confirm:${confirm.correlation_id || confirm.command}`;
+  const commandActions = new Set([
+    "autofresh_command",
+    "autofresh_apply_candidate",
+    "autofresh_confirm_write",
+  ]);
+  if (!commandActions.has(actionId)) {
+    if (responseUrl) {
+      ctx.waitUntil(postResponseUrl(responseUrl, {
+        response_type: "ephemeral",
+        text: "Action AutoFresh non reconnue ou expirée.",
+        replace_original: false,
+      }));
+    }
+    return new Response(null, { status: 200 });
+  }
+
+  const confirm = action ? parseConfirmValue(action.value) : null;
+  if (!confirm || !isSafeCommandText(confirm.command)) {
+    if (responseUrl) {
+      ctx.waitUntil(postResponseUrl(responseUrl, {
+        response_type: "ephemeral",
+        text: "Bouton invalide ou expiré.",
+        replace_original: false,
+      }));
+    }
+    return new Response(null, { status: 200 });
+  }
+
+  const dedupeKey = `interactive:${actionId}:${confirm.correlation_id || confirm.command}`;
   if (await seenRecently(env, dedupeKey)) {
     if (responseUrl) {
-      ctx.waitUntil(
-        postResponseUrl(responseUrl, { text: "Déjà confirmé — écriture en cours.", replace_original: false })
-      );
+      ctx.waitUntil(postResponseUrl(responseUrl, {
+        response_type: "ephemeral",
+        text: "Déjà reçu — traitement en cours.",
+        replace_original: false,
+      }));
     }
     return new Response(null, { status: 200 });
   }
 
+  // Only the existing explicit "Confirmer l'écriture" action may arm writers.
+  // Notification "Accepter" buttons merely persist/preview the selected value;
+  // the resulting Slack reply still requires a second explicit confirmation.
+  const runWriters = actionId === "autofresh_confirm_write";
   const dispatched = await dispatchWorkflow(env, {
     command: confirm.command,
-    requester: `slack-confirm:${userId}`,
+    requester: runWriters
+      ? `slack-confirm:${userId}`
+      : `slack-action:${userId}`,
     correlationId: confirm.correlation_id || crypto.randomUUID(),
-    runWriters: true,
+    runWriters,
     replyChannel: channelId,
   });
 
   if (responseUrl) {
-    ctx.waitUntil(
-      postResponseUrl(responseUrl, {
-        text: dispatched.ok
-          ? "⏳ Mise à jour confirmée — exécution en cours. Le résultat sera publié dans ce salon."
-          : "Impossible de lancer la mise à jour pour le moment.",
-        replace_original: false,
-      })
-    );
+    let successText = "🔎 Consultation lancée — résultat dans ce salon dans quelques instants.";
+    if (actionId === "autofresh_apply_candidate") {
+      successText = "✅ Valeur acceptée — AutoFresh prépare l’impact. Si une écriture immédiate est possible, une confirmation séparée sera proposée.";
+    } else if (runWriters) {
+      successText = "⏳ Mise à jour confirmée — exécution en cours. Le résultat sera publié dans ce salon.";
+    }
+    ctx.waitUntil(postResponseUrl(responseUrl, {
+      response_type: "ephemeral",
+      text: dispatched.ok
+        ? successText
+        : "Impossible de lancer cette action pour le moment.",
+      replace_original: false,
+    }));
   }
 
   return new Response(null, { status: 200 });

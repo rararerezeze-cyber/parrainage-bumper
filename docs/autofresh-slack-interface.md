@@ -106,3 +106,27 @@ This is only a reliable poll/wake-up layer. It does not replace or alter
 the persisted five random daily slots and cannot turn actual site access
 into a fixed schedule. The duplicate native GitHub cron was removed on
 2026-09-11; Cloudflare is the sole routine wake-up source.
+
+
+## Interactive scheduled notifications (2026-09-15)
+
+Routine operation is now click-first. Scheduled runtime alerts sent to
+`#autofresh` use Block Kit controls instead of asking the operator to remember
+slash commands:
+
+- a verified public-offer difference shows the field, old value, new value,
+  evidence streak/impact when available, and buttons **Accepter**, **Voir le
+  détail**, **Plus tard**;
+- **Accepter** is intentionally unarmed: it runs the normal operator `set`
+  preview with `run_writers=false`. Compatible immediate site writes still
+  require the separate **Confirmer l'écriture** button in the resulting message;
+- contradictory Super-Parrain content checks and failed post-verification never
+  expose a write/accept button. They only expose read-only **Voir le statut** /
+  **Voir les divergences** controls plus **Plus tard**;
+- recovered bump delays are labelled **Aucune action nécessaire** and can expose
+  a read-only **Voir les remontées** control;
+- **Plus tard** is presentation-only. It does not create a hidden ignore rule,
+  change an offer value, or touch a platform.
+
+Slash commands remain available as a fallback/admin surface, but are no longer
+required for the common notification-response path.
