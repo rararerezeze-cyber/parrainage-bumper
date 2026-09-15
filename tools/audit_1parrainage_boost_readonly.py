@@ -18,6 +18,54 @@ from platforms.oneparrainage.writer import BASE, _bumper, _cfg, _detect_challeng
 
 OUT = ROOT / "diagnostic-artifacts/1parrainage-boost-readonly.json"
 BOOST_URL = f"{BASE}/espace_parrain/parrainages/boost"
+LIST_URL = f"{BASE}/espace_parrain/parrainages/"
+
+
+async def _capture_page(page, url: str) -> dict:
+    await page.goto(url, wait_until="domcontentloaded", timeout=60000)
+    await _detect_challenge(page)
+    if "/login" in page.url:
+        raise RuntimeError("session_lost")
+    return await page.evaluate(
+        """() => {
+          const text = document.body ? document.body.innerText : '';
+          const forms = Array.from(document.forms).map((f, i) => ({
+            index: i,
+            action: f.action || '',
+            method: (f.method || 'get').toLowerCase(),
+            text: (f.innerText || '').trim().slice(0, 5000),
+            inputs: Array.from(f.querySelectorAll('input,button,select,textarea')).map(el => ({
+              tag: el.tagName.toLowerCase(),
+              type: el.getAttribute('type') || '',
+              name: el.getAttribute('name') || '',
+              value: el.getAttribute('value') || '',
+              text: (el.innerText || '').trim(),
+              disabled: !!el.disabled,
+            })),
+          }));
+          const controls = Array.from(document.querySelectorAll('button,input[type=submit],a'))
+            .map(el => ({
+              tag: el.tagName.toLowerCase(),
+              text: (el.innerText || el.value || '').trim(),
+              href: el.href || '',
+              type: el.getAttribute('type') || '',
+              name: el.getAttribute('name') || '',
+              value: el.getAttribute('value') || '',
+              onclick: el.getAttribute('onclick') || '',
+              disabled: !!el.disabled,
+            }))
+            .filter(x => /boost|remont|premium|actualis|haut|refresh/i.test(
+              [x.text,x.href,x.name,x.value,x.onclick].join(' ')
+            ));
+          return {
+            url: location.href,
+            title: document.title,
+            body_text: text.slice(0, 20000),
+            forms,
+            controls,
+          };
+        }"""
+    )
 
 
 async def run() -> dict:
@@ -35,55 +83,16 @@ async def run() -> dict:
         page = await ctx.new_page()
         try:
             await _login(page, _cfg())
-            await page.goto(BOOST_URL, wait_until="domcontentloaded", timeout=60000)
-            await _detect_challenge(page)
-            if "/login" in page.url:
-                raise RuntimeError("session_lost")
-
-            payload = await page.evaluate(
-                """() => {
-                  const text = document.body ? document.body.innerText : '';
-                  const forms = Array.from(document.forms).map((f, i) => ({
-                    index: i,
-                    action: f.action || '',
-                    method: (f.method || 'get').toLowerCase(),
-                    text: (f.innerText || '').trim().slice(0, 3000),
-                    inputs: Array.from(f.querySelectorAll('input,button,select,textarea')).map(el => ({
-                      tag: el.tagName.toLowerCase(),
-                      type: el.getAttribute('type') || '',
-                      name: el.getAttribute('name') || '',
-                      value: el.getAttribute('value') || '',
-                      text: (el.innerText || '').trim(),
-                      disabled: !!el.disabled,
-                    })),
-                  }));
-                  const buttons = Array.from(document.querySelectorAll('button,input[type=submit],a'))
-                    .map(el => ({
-                      tag: el.tagName.toLowerCase(),
-                      text: (el.innerText || el.value || '').trim(),
-                      href: el.href || '',
-                      type: el.getAttribute('type') || '',
-                      name: el.getAttribute('name') || '',
-                      value: el.getAttribute('value') || '',
-                      disabled: !!el.disabled,
-                    }))
-                    .filter(x => /boost|remont|premium|actualis/i.test(
-                      [x.text,x.href,x.name,x.value].join(' ')
-                    ));
-                  return {
-                    url: location.href,
-                    title: document.title,
-                    body_text: text.slice(0, 16000),
-                    forms,
-                    controls: buttons,
-                  };
-                }"""
-            )
-            payload["platform"] = "1parrainage"
-            payload["mode"] = "authenticated_read_only"
-            payload["platform_writes"] = 0
-            payload["boost_clicks"] = 0
-            return payload
+            boost = await _capture_page(page, BOOST_URL)
+            listing = await _capture_page(page, LIST_URL)
+            return {
+                "platform": "1parrainage",
+                "mode": "authenticated_read_only",
+                "platform_writes": 0,
+                "boost_clicks": 0,
+                "boost_page": boost,
+                "list_page": listing,
+            }
         finally:
             await page.close()
             await ctx.close()
@@ -108,9 +117,11 @@ def main() -> int:
 
     OUT.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({
-        "url": report.get("url"),
-        "forms": len(report.get("forms") or []),
-        "controls": report.get("controls"),
+        "boost_url": (report.get("boost_page") or {}).get("url"),
+        "boost_forms": len((report.get("boost_page") or {}).get("forms") or []),
+        "boost_controls": (report.get("boost_page") or {}).get("controls"),
+        "list_url": (report.get("list_page") or {}).get("url"),
+        "list_controls": (report.get("list_page") or {}).get("controls"),
         "platform_writes": 0,
         "boost_clicks": 0,
     }, ensure_ascii=False, indent=2))
