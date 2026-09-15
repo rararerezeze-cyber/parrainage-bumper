@@ -53,4 +53,6 @@ jobs:
           name: 1parrainage-edit-inventory
           retention-days: 7
           if-no-files-found: error
-          path: diagnostic-artifacts/1parrainage-edit-inventory.json
+          path: |
+            diagnostic-artifacts/1parrainage-edit-inventory.json
+            diagnostic-artifacts/1parrainage-edit-index.json
