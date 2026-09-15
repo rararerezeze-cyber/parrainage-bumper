@@ -15,6 +15,7 @@ import re
 import sys
 from dataclasses import dataclass
 from html import unescape
+from html.entities import codepoint2name
 from pathlib import Path
 from typing import Any
 from urllib.parse import urljoin, urlsplit
@@ -38,6 +39,7 @@ log = logging.getLogger("oneparrainage.writer")
 BASE = "https://www.1parrainage.com"
 LOGIN_URL = f"{BASE}/login"
 PUBLIC_LIST = "https://www.1parrainage.com/listeannonces_98906_Adrien89.php"
+EDIT_INDEX_PATH = _ROOT / "data" / "oneparrainage-edit-index.json"
 # Proven on headed WRITE_VERIFIED + GH 31695046367 headless login/edit.
 CK_ID = "edit_parrainage_presentation"
 EDIT_FORM = 'form[action*="parrainages/edit"]'
@@ -97,6 +99,10 @@ class WritePlan:
     structure_preserved: bool
     mutable_fields: list[str]
     platform_offer_id: str | None = None
+    public_offer_ids: list[str] | None = None
+    edit_urls: list[str] | None = None
+    marker_counts: dict[str, int] | None = None
+    live_validation_required: bool = False
     style_policy: str = "native_platform_style_only"
 
 
@@ -111,6 +117,117 @@ class WriteResult:
     error: str | None = None
     steps: list[str] | None = None
     evidence_checks: dict[str, bool] | None = None
+    occurrence_results: list[dict[str, Any]] | None = None
+
+
+def _load_edit_index() -> dict[str, Any]:
+    try:
+        raw = json.loads(EDIT_INDEX_PATH.read_text(encoding="utf-8"))
+        return raw if isinstance(raw, dict) else {}
+    except Exception:
+        return {}
+
+
+def _indexed_program(program: str) -> dict[str, Any]:
+    return dict((_load_edit_index().get("programs") or {}).get(program) or {})
+
+
+def _named_entity_encode(value: str) -> str:
+    out: list[str] = []
+    for ch in str(value):
+        if ch == "&":
+            out.append("&amp;")
+        elif ch == "<":
+            out.append("&lt;")
+        elif ch == ">":
+            out.append("&gt;")
+        elif ord(ch) > 127 and (name := codepoint2name.get(ord(ch))):
+            out.append(f"&{name};")
+        else:
+            out.append(ch)
+    return "".join(out)
+
+
+def _replacement_variants(value: str) -> list[tuple[str, str]]:
+    raw = str(value)
+    named = _named_entity_encode(raw)
+    nbsp = named.replace(" ", "&nbsp;")
+    variants: list[tuple[str, str]] = []
+    for token, mode in ((raw, "literal"), (named, "named"), (nbsp, "named_nbsp")):
+        if token and token not in {v[0] for v in variants}:
+            variants.append((token, mode))
+    return variants
+
+
+def _encode_new_for_mode(value: str, mode: str) -> str:
+    if mode == "literal":
+        return str(value)
+    encoded = _named_entity_encode(str(value))
+    return encoded.replace(" ", "&nbsp;") if mode == "named_nbsp" else encoded
+
+
+def _replace_live_field(source: str, old: str, new: str, count: int) -> tuple[str, int]:
+    """Replace exactly the first N historically-authorized spans.
+
+    The marker count comes from the curated template. The live CKEditor body
+    is the structure authority; this function never does a global replacement.
+    """
+    if count <= 0 or old is None or new is None:
+        return source, 0
+    current = source
+    replaced = 0
+    variants = _replacement_variants(str(old))
+    while replaced < count:
+        candidates: list[tuple[int, str, str]] = []
+        for token, mode in variants:
+            pos = current.find(token)
+            if pos >= 0:
+                candidates.append((pos, token, mode))
+        if not candidates:
+            break
+        pos, token, mode = min(candidates, key=lambda x: x[0])
+        replacement = _encode_new_for_mode(str(new), mode)
+        current = current[:pos] + replacement + current[pos + len(token):]
+        replaced += 1
+    return current, replaced
+
+
+def _build_live_rendered(current_html: str, plan: WritePlan) -> tuple[str, dict[str, Any]]:
+    rendered = current_html
+    details: dict[str, Any] = {}
+    counts = plan.marker_counts or {}
+    for field, diff in (plan.changed_fields or {}).items():
+        old = plan.platform_values.get(field)
+        new = plan.variables.get(field)
+        expected = int(counts.get(field) or 0)
+        if old is None or new is None or expected <= 0:
+            raise RuntimeError(f"live_replace_policy_missing:{field}")
+        rendered, actual = _replace_live_field(rendered, str(old), str(new), expected)
+        details[field] = {
+            "expected_spans": expected,
+            "replaced_spans": actual,
+            "old": old,
+            "new": new,
+        }
+        if actual != expected:
+            raise RuntimeError(
+                f"live_replace_span_mismatch:{field}:expected={expected}:actual={actual}"
+            )
+    if rendered == current_html and plan.changed_fields:
+        raise RuntimeError("live_replace_no_change")
+    return rendered, details
+
+
+def _visible_contains(value: str, expected: str | None) -> bool:
+    if not expected:
+        return True
+    return str(expected).lower() in unescape(value or "").lower()
+
+
+def _public_detail_for_offer_id(offer_id: str) -> str:
+    url = f"{BASE}/detail_parrain.php?par=98906&offre={offer_id}"
+    html = fetch_text(url)
+    return _extract_public_detail_block(html)
 
 
 def build_write_plan(
@@ -141,15 +258,29 @@ def build_write_plan(
         if old != new:
             changed[field] = {"old": old, "new": new}
 
-    structure_preserved = structure_preserved_via_markers(
-        template,
-        historical,
-        rendered,
-        mapping.mutable_fields,
-        mapping.markers,
-        hist_vals,
-        variables,
-    )
+    indexed = _indexed_program(program)
+    policy = indexed.get("policy") or {}
+    marker_counts = {
+        str(k): int(v)
+        for k, v in (policy.get("marker_counts") or {}).items()
+        if isinstance(v, (int, float))
+    }
+    if indexed and policy.get("live_replace_ready"):
+        # Exact editor structure is revalidated immediately before each real
+        # save. Static list-card goldens are not trusted as the live body.
+        structure_preserved = True
+        live_validation_required = True
+    else:
+        structure_preserved = structure_preserved_via_markers(
+            template,
+            historical,
+            rendered,
+            mapping.mutable_fields,
+            mapping.markers,
+            hist_vals,
+            variables,
+        )
+        live_validation_required = False
 
     offer_id = getattr(mapping, "platform_offer_id", None)
     if not offer_id:
@@ -164,12 +295,16 @@ def build_write_plan(
             except Exception:
                 offer_id = None
 
+    indexed_edit_urls = [str(x) for x in (indexed.get("edit_urls") or []) if x]
+    indexed_public_ids = [str(x) for x in (indexed.get("public_offer_ids") or []) if x]
+    primary_edit = indexed_edit_urls[0] if indexed_edit_urls else getattr(mapping, "edit_url", None)
+
     return WritePlan(
         platform=platform,
         program=program,
         language=language,
         announcement_url=mapping.announcement_url or PUBLIC_LIST,
-        edit_url=getattr(mapping, "edit_url", None),
+        edit_url=primary_edit,
         historical=historical,
         rendered=rendered,
         variables=variables,
@@ -178,6 +313,10 @@ def build_write_plan(
         structure_preserved=structure_preserved,
         mutable_fields=list(mapping.mutable_fields),
         platform_offer_id=str(offer_id) if offer_id else None,
+        public_offer_ids=indexed_public_ids or ([str(offer_id)] if offer_id else []),
+        edit_urls=indexed_edit_urls or ([str(primary_edit)] if primary_edit else []),
+        marker_counts=marker_counts,
+        live_validation_required=live_validation_required,
     )
 
 
