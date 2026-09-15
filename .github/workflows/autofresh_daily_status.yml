@@ -1,0 +1,43 @@
+name: AutoFresh daily Slack status
+
+on:
+  schedule:
+    # 18:45 UTC = 20:45 in France during summer time, 19:45 in winter.
+    # Keeps the daily heartbeat inside the operator's 08:00-midnight window.
+    - cron: "45 18 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: autofresh-daily-slack-status
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Build and send read-only Slack dashboard
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          AUTOFRESH_SLACK_CHANNEL: ${{ vars.AUTOFRESH_SLACK_CHANNEL }}
+        run: python tools/slack_daily_status.py
+
+      - name: Archive daily status
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: autofresh-daily-status
+          retention-days: 14
+          if-no-files-found: ignore
+          path: |
+            data/captures/slack-daily-status.json
+            data/notifications/
