@@ -5,7 +5,9 @@
   "sync_mode": "REVIEW",
   "template_status": "ready",
   "golden_file": "fdj-francaise-des-jeux.fr.golden.txt",
-  "mutable_fields": [],
+  "mutable_fields": [
+    "personal_link"
+  ],
   "markers": {
     "personal_code": "{{PERSONAL_CODE}}",
     "personal_link": "{{PERSONAL_LINK}}",
@@ -20,10 +22,14 @@
     "conditions": "cond"
   },
   "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=68",
-  "edit_url": null,
-  "platform_values": {},
-  "confidences": {},
-  "notes": "lien offers.json non trouve dans le texte; bonus non marque (ambigu / non trouve) — texte laisse fixe; native style only — no emoji reinjection; list_brand=coupon promotionnel francaise des jeux FDJ",
+  "edit_url": "https://www.1parrainage.com/espace_parrain/parrainages/edit/2548346/",
+  "platform_values": {
+    "personal_link": "https://www.fdj.fr/inscription/fdj?campaign=codeparrain&parrain=D169E-65BB3-4BEED"
+  },
+  "confidences": {
+    "personal_link": "high"
+  },
+  "notes": "lien offers.json non trouve dans le texte; bonus non marque (ambigu / non trouve) — texte laisse fixe; native style only — no emoji reinjection; list_brand=coupon promotionnel francaise des jeux FDJ; Authenticated read-only inventory 2026-09-15 proves the current referral link occurs once in CKEditor. Reward text remains intentionally unmanaged until current official offer data is verified.",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",
@@ -40,5 +46,10 @@
       "chars": 412
     }
   ],
-  "occurrence_count": 1
+  "occurrence_count": 1,
+  "edit_url_source": "authenticated_read_only_inventory",
+  "edit_url_learned_at": "2026-09-15T14:12:12+00:00",
+  "live_marker_counts": {
+    "personal_link": 1
+  }
 }

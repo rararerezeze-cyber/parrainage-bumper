@@ -24,10 +24,10 @@
     "conditions": "cond"
   },
   "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=910",
-  "edit_url": null,
+  "edit_url": "https://www.1parrainage.com/espace_parrain/parrainages/edit/2548259/",
   "platform_values": {
-    "personal_code": "weeew89",
-    "personal_link": "https://www.vinted.fr/invite/weeew89",
+    "personal_code": "adrien_89_fr",
+    "personal_link": "https://www.vinted.fr/invite/adrien_89_fr",
     "referee_reward": "inscription via mon lien de parrainage"
   },
   "confidences": {
@@ -35,7 +35,7 @@
     "personal_link": "high",
     "referee_reward": "medium"
   },
-  "notes": "bonus extrait du texte plateforme (confiance moyenne); native style only — no emoji reinjection; list_brand=coupon promotionnel Vinted",
+  "notes": "bonus extrait du texte plateforme (confiance moyenne); native style only — no emoji reinjection; list_brand=coupon promotionnel Vinted; Authenticated read-only inventory 2026-09-15 proves the currently published 1Parrainage Vinted identity is adrien_89_fr; published identity is preserved unless explicitly overridden.",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",
@@ -52,5 +52,12 @@
       "chars": 441
     }
   ],
-  "occurrence_count": 1
+  "occurrence_count": 1,
+  "edit_url_source": "authenticated_read_only_inventory",
+  "edit_url_learned_at": "2026-09-15T14:12:12+00:00",
+  "live_marker_counts": {
+    "personal_code": 1,
+    "personal_link": 1,
+    "referee_reward": 1
+  }
 }

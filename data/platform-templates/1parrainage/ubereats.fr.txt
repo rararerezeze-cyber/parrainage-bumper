@@ -1,0 +1,2 @@
+Code promo : {{PERSONAL_CODE}}
+Ajoutez le code promo {{PERSONAL_CODE}} avant la commande.

@@ -1,0 +1,2251 @@
+{
+  "schema_version": 1,
+  "platform": "1parrainage",
+  "source": "authenticated_read_only_inventory",
+  "platform_writes": 0,
+  "program_count": 39,
+  "public_occurrences_total": 40,
+  "edit_urls_found": 42,
+  "unresolved_public_programs": [],
+  "ambiguous_editors": [],
+  "programs": {
+    "igraal": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/1432923/"
+      ],
+      "internal_ids": [
+        "1432923"
+      ],
+      "matched_public_offer_ids": [
+        "84"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "84"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "personal_link",
+          "referee_reward"
+        ],
+        "platform_values": {
+          "personal_link": "https://fr.igraal.com/parrainage?parrain=AG_608d8f9aded43",
+          "referee_reward": "15 € offerts sur votre compte iGraal via mon lien"
+        },
+        "marker_counts": {
+          "personal_link": 1,
+          "referee_reward": 1
+        },
+        "field_checks": {
+          "personal_link": {
+            "old_value": "https://fr.igraal.com/parrainage?parrain=AG_608d8f9aded43",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          },
+          "referee_reward": {
+            "old_value": "15 € offerts sur votre compte iGraal via mon lien",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "84"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "joko": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/1772289/"
+      ],
+      "internal_ids": [
+        "1772289"
+      ],
+      "matched_public_offer_ids": [
+        "1703"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "1703"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "personal_code",
+          "referee_reward"
+        ],
+        "platform_values": {
+          "personal_code": "stxzzb",
+          "referee_reward": "5 € crédités à l’inscription via le lien ou le code de parrainage"
+        },
+        "marker_counts": {
+          "personal_code": 1,
+          "referee_reward": 1
+        },
+        "field_checks": {
+          "personal_code": {
+            "old_value": "stxzzb",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          },
+          "referee_reward": {
+            "old_value": "5 € crédités à l’inscription via le lien ou le code de parrainage",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "1703"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "ebuyclub": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/1772292/"
+      ],
+      "internal_ids": [
+        "1772292"
+      ],
+      "matched_public_offer_ids": [
+        "85"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "85"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "personal_link",
+          "referee_reward"
+        ],
+        "platform_values": {
+          "personal_link": "https://www.ebuyclub.com/?parrain=adrien891000",
+          "referee_reward": "5 € de bienvenue crédités dès votre inscription via le lien de parrainage"
+        },
+        "marker_counts": {
+          "personal_link": 1,
+          "referee_reward": 1
+        },
+        "field_checks": {
+          "personal_link": {
+            "old_value": "https://www.ebuyclub.com/?parrain=adrien891000",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          },
+          "referee_reward": {
+            "old_value": "5 € de bienvenue crédités dès votre inscription via le lien de parrainage",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "85"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "poulpeo": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/1772293/"
+      ],
+      "internal_ids": [
+        "1772293"
+      ],
+      "matched_public_offer_ids": [
+        "501"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "501"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "personal_code",
+          "referee_reward"
+        ],
+        "platform_values": {
+          "personal_code": "4KD2ab",
+          "referee_reward": "5 € de bienvenue crédités dès votre inscription via le code de parrain"
+        },
+        "marker_counts": {
+          "personal_code": 1,
+          "referee_reward": 1
+        },
+        "field_checks": {
+          "personal_code": {
+            "old_value": "4KD2ab",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          },
+          "referee_reward": {
+            "old_value": "5 € de bienvenue crédités dès votre inscription via le code de parrain",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "501"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "unibet": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/1861964/"
+      ],
+      "internal_ids": [
+        "1861964"
+      ],
+      "matched_public_offer_ids": [
+        "217"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "217"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "referee_reward"
+        ],
+        "platform_values": {
+          "referee_reward": "jusqu’à 100 € en premier pari remboursé + 50€ prime de"
+        },
+        "marker_counts": {
+          "referee_reward": 1
+        },
+        "field_checks": {
+          "referee_reward": {
+            "old_value": "jusqu’à 100 € en premier pari remboursé + 50€ prime de",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "217"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "winamax": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/1861968/"
+      ],
+      "internal_ids": [
+        "1861968"
+      ],
+      "matched_public_offer_ids": [
+        "400"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "400"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "referee_reward"
+        ],
+        "platform_values": {
+          "referee_reward": "50 € à l’inscription avec le parrainage + premier pari remboursé jusqu’à 100 € en CASH"
+        },
+        "marker_counts": {
+          "referee_reward": 1
+        },
+        "field_checks": {
+          "referee_reward": {
+            "old_value": "50 € à l’inscription avec le parrainage + premier pari remboursé jusqu’à 100 € en CASH",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "400"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "acheel": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/1870668/"
+      ],
+      "internal_ids": [
+        "1870668"
+      ],
+      "matched_public_offer_ids": [
+        "101006"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "101006"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "personal_code",
+          "referee_reward"
+        ],
+        "platform_values": {
+          "personal_code": "ADBE5645",
+          "referee_reward": "1 mois offert"
+        },
+        "marker_counts": {
+          "personal_code": 1,
+          "referee_reward": 1
+        },
+        "field_checks": {
+          "personal_code": {
+            "old_value": "ADBE5645",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 2
+              }
+            ],
+            "ready": true
+          },
+          "referee_reward": {
+            "old_value": "1 mois offert",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "101006"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "paypal": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/1924902/"
+      ],
+      "internal_ids": [
+        "1924902"
+      ],
+      "matched_public_offer_ids": [
+        "100019"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "100019"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "referee_reward"
+        ],
+        "platform_values": {
+          "referee_reward": "10 € offerts"
+        },
+        "marker_counts": {
+          "referee_reward": 2
+        },
+        "field_checks": {
+          "referee_reward": {
+            "old_value": "10 € offerts",
+            "marker_count": 2,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 2
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "100019"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "coinbase": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/1924905/"
+      ],
+      "internal_ids": [
+        "1924905"
+      ],
+      "matched_public_offer_ids": [
+        "862"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "862"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "personal_code",
+          "referee_reward"
+        ],
+        "platform_values": {
+          "personal_code": "8T83ZPS",
+          "referee_reward": "20 € en BTC"
+        },
+        "marker_counts": {
+          "personal_code": 1,
+          "referee_reward": 1
+        },
+        "field_checks": {
+          "personal_code": {
+            "old_value": "8T83ZPS",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 2
+              }
+            ],
+            "ready": true
+          },
+          "referee_reward": {
+            "old_value": "20 € en BTC",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "862"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "revolut": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/1924906/"
+      ],
+      "internal_ids": [
+        "1924906"
+      ],
+      "matched_public_offer_ids": [
+        "1021"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "1021"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "referee_reward"
+        ],
+        "platform_values": {
+          "referee_reward": "200 € offerts"
+        },
+        "marker_counts": {
+          "referee_reward": 2
+        },
+        "field_checks": {
+          "referee_reward": {
+            "old_value": "200 € offerts",
+            "marker_count": 2,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 2
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "1021"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "binance": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/1924908/"
+      ],
+      "internal_ids": [
+        "1924908"
+      ],
+      "matched_public_offer_ids": [
+        "1082"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "1082"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "personal_link"
+        ],
+        "platform_values": {
+          "personal_link": "https://www.binance.com/activity/referral-entry/CPA?ref=CPA_005OB3BF01"
+        },
+        "marker_counts": {
+          "personal_link": 1
+        },
+        "field_checks": {
+          "personal_link": {
+            "old_value": "https://www.binance.com/activity/referral-entry/CPA?ref=CPA_005OB3BF01",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "1082"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "traderepublic": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/1924909/"
+      ],
+      "internal_ids": [
+        "1924909"
+      ],
+      "matched_public_offer_ids": [
+        "100428"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "100428"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "personal_code",
+          "personal_link"
+        ],
+        "platform_values": {
+          "personal_code": "s931znqx",
+          "personal_link": "https://refnocode.trade.re/s931znqx"
+        },
+        "marker_counts": {
+          "personal_code": 1,
+          "personal_link": 1
+        },
+        "field_checks": {
+          "personal_code": {
+            "old_value": "s931znqx",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 2
+              }
+            ],
+            "ready": true
+          },
+          "personal_link": {
+            "old_value": "https://refnocode.trade.re/s931znqx",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "100428"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "bitget": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/2032445/"
+      ],
+      "internal_ids": [
+        "2032445"
+      ],
+      "matched_public_offer_ids": [],
+      "scores": [],
+      "account_only": true,
+      "editor_body": "<p>Offre Parrainage Bitget &ndash; Jusqu&rsquo;&agrave; 25 $ en USDT + bo&icirc;tes myst&egrave;res</p>\n\n<p>Lien de parrainage :<br />\nhttps://share.bitget.com/u/TKJ2PZER</p>\n\n<p>Code parrain :<br />\nTR7CPNDM</p>\n\n<p>Ce que vous obtenez :<br />\n&bull; Jusqu&rsquo;&agrave; 25 $ en USDT offerts via diff&eacute;rentes actions (d&eacute;p&ocirc;t, trading, t&acirc;ches promotionnelles)<br />\n&bull; Bo&icirc;tes myst&egrave;res contenant des r&eacute;compenses pouvant atteindre jusqu&rsquo;&agrave; 1 000 $ en crypto<br />\n&bull; R&eacute;ductions sur les frais de trading pouvant aller jusqu&rsquo;&agrave; 25 % selon le programme de parrainage activ&eacute;</p>\n\n<p>&Eacute;tapes pour b&eacute;n&eacute;ficier de l&rsquo;offre :</p>\n\n<p>Inscription via le lien de parrainage ci-dessus</p>\n\n<p>V&eacute;rification d&rsquo;identit&eacute; (KYC)</p>\n\n<p>D&eacute;p&ocirc;t minimum de 200 $ en crypto</p>\n\n<p>R&eacute;alisation de t&acirc;ches promotionnelles, telles que :<br />\n&bull; D&eacute;p&ocirc;t et maintien des fonds pendant 3 jours<br />\n&bull; Trading d&rsquo;un volume sp&eacute;cifique en spot ou futures<br />\n&bull; Participation &agrave; des &eacute;v&eacute;nements promotionnels (ex. CandyBomb, survey events)</p>\n\n<p>R&eacute;ception des r&eacute;compenses sous forme de coupons USDT ou de bo&icirc;tes myst&egrave;res contenant des actifs num&eacute;riques</p>\n\n<p>&Agrave; savoir :<br />\n&bull; Les r&eacute;compenses sont attribu&eacute;es sous forme de bons de trading ou de bo&icirc;tes myst&egrave;res, et non en esp&egrave;ces<br />\n&bull; Les bo&icirc;tes myst&egrave;res peuvent contenir des r&eacute;compenses allant jusqu&rsquo;&agrave; 1 000 $ en crypto, selon les conditions de chaque promotion<br />\n&bull; Les r&eacute;ductions sur les frais de trading sont activ&eacute;es via le programme Premier Inviter, offrant jusqu&rsquo;&agrave; 25 % de r&eacute;duction sur les frais pendant 365 jours apr&egrave;s l&rsquo;inscription du filleul<br />\n&bull; Offres r&eacute;serv&eacute;es aux nouveaux utilisateurs et soumises &agrave; des conditions sp&eacute;cifiques (volumes de trading minimum, dur&eacute;e de maintien des fonds, etc.)</p>\n\n<p>Besoin d&rsquo;aide ou d&rsquo;un suivi personnalis&eacute;<br />\nN&rsquo;h&eacute;site pas &agrave; m&rsquo;envoyer un message priv&eacute; &mdash; je t&rsquo;accompagne &eacute;tape par &eacute;tape</p>\n\n<p>https://discord.gg/dDEMb6jEbn</p>\n",
+      "public_offer_ids": [],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "personal_code",
+          "personal_link"
+        ],
+        "platform_values": {
+          "personal_code": "TR7CPNDM",
+          "personal_link": "https://share.bitget.com/u/TKJ2PZER"
+        },
+        "marker_counts": {
+          "personal_code": 1,
+          "personal_link": 1
+        },
+        "field_checks": {
+          "personal_code": {
+            "old_value": "TR7CPNDM",
+            "marker_count": 1,
+            "editors": [],
+            "ready": true
+          },
+          "personal_link": {
+            "old_value": "https://share.bitget.com/u/TKJ2PZER",
+            "marker_count": 1,
+            "editors": [],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "swissborg": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/2541206/"
+      ],
+      "internal_ids": [
+        "2541206"
+      ],
+      "matched_public_offer_ids": [
+        "100172"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "100172"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "referee_reward"
+        ],
+        "platform_values": {
+          "referee_reward": "50 € offerts en Bitcoin"
+        },
+        "marker_counts": {
+          "referee_reward": 1
+        },
+        "field_checks": {
+          "referee_reward": {
+            "old_value": "50 € offerts en Bitcoin",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "100172"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "kraken": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/2541207/"
+      ],
+      "internal_ids": [
+        "2541207"
+      ],
+      "matched_public_offer_ids": [
+        "100408"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "100408"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "personal_code",
+          "personal_link",
+          "referee_reward"
+        ],
+        "platform_values": {
+          "personal_code": "fc9djsk9",
+          "personal_link": "https://invite.kraken.com/JDNW/s5qudqe4",
+          "referee_reward": "200 € en cryptomonnaies"
+        },
+        "marker_counts": {
+          "personal_code": 1,
+          "personal_link": 1,
+          "referee_reward": 1
+        },
+        "field_checks": {
+          "personal_code": {
+            "old_value": "fc9djsk9",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          },
+          "personal_link": {
+            "old_value": "https://invite.kraken.com/JDNW/s5qudqe4",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          },
+          "referee_reward": {
+            "old_value": "200 € en cryptomonnaies",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "100408"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "boursobank": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/2548247/",
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/2548249/"
+      ],
+      "internal_ids": [
+        "2548247",
+        "2548249"
+      ],
+      "matched_public_offer_ids": [
+        "79",
+        "79"
+      ],
+      "scores": [
+        1.0,
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "79",
+        "95"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "referee_reward"
+        ],
+        "platform_values": {
+          "referee_reward": "200 €"
+        },
+        "marker_counts": {
+          "referee_reward": 2
+        },
+        "field_checks": {
+          "referee_reward": {
+            "old_value": "200 €",
+            "marker_count": 2,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 3
+              },
+              {
+                "old_value_present": true,
+                "visible_occurrences": 3
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "79",
+          "95"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "totalenergies": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/2548253/"
+      ],
+      "internal_ids": [
+        "2548253"
+      ],
+      "matched_public_offer_ids": [
+        "31"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "31"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "personal_code",
+          "personal_link",
+          "referee_reward"
+        ],
+        "platform_values": {
+          "personal_code": "114052844",
+          "personal_link": "https://redir-totalenergies.web.app/je-parraine?_bp=114052844",
+          "referee_reward": "20€ OFFERTS"
+        },
+        "marker_counts": {
+          "personal_code": 2,
+          "personal_link": 1,
+          "referee_reward": 1
+        },
+        "field_checks": {
+          "personal_code": {
+            "old_value": "114052844",
+            "marker_count": 2,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 3
+              }
+            ],
+            "ready": true
+          },
+          "personal_link": {
+            "old_value": "https://redir-totalenergies.web.app/je-parraine?_bp=114052844",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          },
+          "referee_reward": {
+            "old_value": "20€ OFFERTS",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "31"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "ubereats": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/2548254/"
+      ],
+      "internal_ids": [
+        "2548254"
+      ],
+      "matched_public_offer_ids": [
+        "775"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "775"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "personal_code"
+        ],
+        "platform_values": {
+          "personal_code": "eats-8pskrlq4zx"
+        },
+        "marker_counts": {
+          "personal_code": 2
+        },
+        "field_checks": {
+          "personal_code": {
+            "old_value": "eats-8pskrlq4zx",
+            "marker_count": 2,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 2
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "775"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "vinted": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/2548259/"
+      ],
+      "internal_ids": [
+        "2548259"
+      ],
+      "matched_public_offer_ids": [
+        "910"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "910"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "personal_code",
+          "personal_link",
+          "referee_reward"
+        ],
+        "platform_values": {
+          "personal_code": "adrien_89_fr",
+          "personal_link": "https://www.vinted.fr/invite/adrien_89_fr",
+          "referee_reward": "inscription via mon lien de parrainage"
+        },
+        "marker_counts": {
+          "personal_code": 1,
+          "personal_link": 1,
+          "referee_reward": 1
+        },
+        "field_checks": {
+          "personal_code": {
+            "old_value": "adrien_89_fr",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 2
+              }
+            ],
+            "ready": true
+          },
+          "personal_link": {
+            "old_value": "https://www.vinted.fr/invite/adrien_89_fr",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          },
+          "referee_reward": {
+            "old_value": "inscription via mon lien de parrainage",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "910"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "betclic": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/2548266/"
+      ],
+      "internal_ids": [
+        "2548266"
+      ],
+      "matched_public_offer_ids": [
+        "205"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "205"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "referee_reward"
+        ],
+        "platform_values": {
+          "referee_reward": "100 € remboursés + 30 € de bonus"
+        },
+        "marker_counts": {
+          "referee_reward": 1
+        },
+        "field_checks": {
+          "referee_reward": {
+            "old_value": "100 € remboursés + 30 € de bonus",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "205"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "lolivier": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/2548278/",
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/2548280/"
+      ],
+      "internal_ids": [
+        "2548278",
+        "2548280"
+      ],
+      "matched_public_offer_ids": [
+        "988",
+        "988"
+      ],
+      "scores": [
+        1.0,
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "988",
+        "100960"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "referee_reward"
+        ],
+        "platform_values": {
+          "referee_reward": "50 € offerts"
+        },
+        "marker_counts": {
+          "referee_reward": 1
+        },
+        "field_checks": {
+          "referee_reward": {
+            "old_value": "50 € offerts",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 2
+              },
+              {
+                "old_value_present": true,
+                "visible_occurrences": 2
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "988",
+          "100960"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "widilo": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/2548307/"
+      ],
+      "internal_ids": [
+        "2548307"
+      ],
+      "matched_public_offer_ids": [
+        "100051"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "100051"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "personal_link",
+          "referee_reward"
+        ],
+        "platform_values": {
+          "personal_link": "https://www.widilo.fr/i/NGA684",
+          "referee_reward": "6 € offerts à l’inscription"
+        },
+        "marker_counts": {
+          "personal_link": 1,
+          "referee_reward": 1
+        },
+        "field_checks": {
+          "personal_link": {
+            "old_value": "https://www.widilo.fr/i/NGA684",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          },
+          "referee_reward": {
+            "old_value": "6 € offerts à l’inscription",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "100051"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "airbnb": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/2548326/",
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/2548329/"
+      ],
+      "internal_ids": [
+        "2548326",
+        "2548329"
+      ],
+      "matched_public_offer_ids": [
+        "1487",
+        "1487"
+      ],
+      "scores": [
+        1.0,
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "1487",
+        "256"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "personal_link",
+          "referee_reward"
+        ],
+        "platform_values": {
+          "personal_link": "https://www.airbnb.fr/rp/adrienb12398?p=stay",
+          "referee_reward": "Jusqu’à 40 € de réduction sur votre première réservation logement + 10 € sur votre première expérience"
+        },
+        "marker_counts": {
+          "personal_link": 1,
+          "referee_reward": 1
+        },
+        "field_checks": {
+          "personal_link": {
+            "old_value": "https://www.airbnb.fr/rp/adrienb12398?p=stay",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              },
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          },
+          "referee_reward": {
+            "old_value": "Jusqu’à 40 € de réduction sur votre première réservation logement + 10 € sur votre première expérience",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              },
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "1487",
+          "256"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "finary": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/2548333/"
+      ],
+      "internal_ids": [
+        "2548333"
+      ],
+      "matched_public_offer_ids": [
+        "100577"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "100577"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "referee_reward"
+        ],
+        "platform_values": {
+          "referee_reward": "1 mois Premium offert"
+        },
+        "marker_counts": {
+          "referee_reward": 1
+        },
+        "field_checks": {
+          "referee_reward": {
+            "old_value": "1 mois Premium offert",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "100577"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "parionssport": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/2548334/"
+      ],
+      "internal_ids": [
+        "2548334"
+      ],
+      "matched_public_offer_ids": [
+        "750"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "750"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "personal_link",
+          "referee_reward"
+        ],
+        "platform_values": {
+          "personal_link": "https://www.enligne.parionssport.fdj.fr/inscription/?campaign=290725&parrain=03356181D410779A",
+          "referee_reward": "30 € offerts dès inscription et validation du compte"
+        },
+        "marker_counts": {
+          "personal_link": 1,
+          "referee_reward": 1
+        },
+        "field_checks": {
+          "personal_link": {
+            "old_value": "https://www.enligne.parionssport.fdj.fr/inscription/?campaign=290725&parrain=03356181D410779A",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          },
+          "referee_reward": {
+            "old_value": "30 € offerts dès inscription et validation du compte",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "750"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "bitstack": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/2548336/"
+      ],
+      "internal_ids": [
+        "2548336"
+      ],
+      "matched_public_offer_ids": [
+        "100956"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "100956"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "personal_link",
+          "referee_reward"
+        ],
+        "platform_values": {
+          "personal_link": "https://bitstack-app.com/referral/2",
+          "referee_reward": "5 € en BTC"
+        },
+        "marker_counts": {
+          "personal_link": 1,
+          "referee_reward": 1
+        },
+        "field_checks": {
+          "personal_link": {
+            "old_value": "https://bitstack-app.com/referral/2",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          },
+          "referee_reward": {
+            "old_value": "5 € en BTC",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "100956"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "heetch": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/2548337/"
+      ],
+      "internal_ids": [
+        "2548337"
+      ],
+      "matched_public_offer_ids": [
+        "765"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "765"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "personal_code",
+          "referee_reward"
+        ],
+        "platform_values": {
+          "personal_code": "ADRIEN21987265",
+          "referee_reward": "5 €"
+        },
+        "marker_counts": {
+          "personal_code": 1,
+          "referee_reward": 3
+        },
+        "field_checks": {
+          "personal_code": {
+            "old_value": "ADRIEN21987265",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          },
+          "referee_reward": {
+            "old_value": "5 €",
+            "marker_count": 3,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 4
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "765"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "ledger": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/2548339/"
+      ],
+      "internal_ids": [
+        "2548339"
+      ],
+      "matched_public_offer_ids": [
+        "1337"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "1337"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "referee_reward"
+        ],
+        "platform_values": {
+          "referee_reward": "20 € offerts"
+        },
+        "marker_counts": {
+          "referee_reward": 1
+        },
+        "field_checks": {
+          "referee_reward": {
+            "old_value": "20 € offerts",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "1337"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "bybit": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/2548343/"
+      ],
+      "internal_ids": [
+        "2548343"
+      ],
+      "matched_public_offer_ids": [
+        "100415"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "100415"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "personal_code",
+          "personal_link"
+        ],
+        "platform_values": {
+          "personal_code": "YQ6B3O2",
+          "personal_link": "https://www.bybit.eu/invite?ref=YQ6B3O2"
+        },
+        "marker_counts": {
+          "personal_code": 1,
+          "personal_link": 1
+        },
+        "field_checks": {
+          "personal_code": {
+            "old_value": "YQ6B3O2",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 2
+              }
+            ],
+            "ready": true
+          },
+          "personal_link": {
+            "old_value": "https://www.bybit.eu/invite?ref=YQ6B3O2",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "100415"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "fdj-francaise-des-jeux": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/2548346/"
+      ],
+      "internal_ids": [
+        "2548346"
+      ],
+      "matched_public_offer_ids": [
+        "68"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "68"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "personal_link"
+        ],
+        "platform_values": {
+          "personal_link": "https://www.fdj.fr/inscription/fdj?campaign=codeparrain&parrain=D169E-65BB3-4BEED"
+        },
+        "marker_counts": {
+          "personal_link": 1
+        },
+        "field_checks": {
+          "personal_link": {
+            "old_value": "https://www.fdj.fr/inscription/fdj?campaign=codeparrain&parrain=D169E-65BB3-4BEED",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "68"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "deblock": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/2548347/"
+      ],
+      "internal_ids": [
+        "2548347"
+      ],
+      "matched_public_offer_ids": [
+        "101211"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "101211"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "referee_reward"
+        ],
+        "platform_values": {
+          "referee_reward": "prime aléatoire jusqu’à 500 €"
+        },
+        "marker_counts": {
+          "referee_reward": 1
+        },
+        "field_checks": {
+          "referee_reward": {
+            "old_value": "prime aléatoire jusqu’à 500 €",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "101211"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "omio": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/2548350/"
+      ],
+      "internal_ids": [
+        "2548350"
+      ],
+      "matched_public_offer_ids": [
+        "1948"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "1948"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "personal_code",
+          "referee_reward"
+        ],
+        "platform_values": {
+          "personal_code": "adrieb6d4e1f",
+          "referee_reward": "10 € de réduction"
+        },
+        "marker_counts": {
+          "personal_code": 1,
+          "referee_reward": 1
+        },
+        "field_checks": {
+          "personal_code": {
+            "old_value": "adrieb6d4e1f",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          },
+          "referee_reward": {
+            "old_value": "10 € de réduction",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "1948"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "gemini": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/2548351/"
+      ],
+      "internal_ids": [
+        "2548351"
+      ],
+      "matched_public_offer_ids": [
+        "100548"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "100548"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "referee_reward"
+        ],
+        "platform_values": {
+          "referee_reward": "50 $ dans la cryptomonnaie de votre choix"
+        },
+        "marker_counts": {
+          "referee_reward": 2
+        },
+        "field_checks": {
+          "referee_reward": {
+            "old_value": "50 $ dans la cryptomonnaie de votre choix",
+            "marker_count": 2,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 2
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "100548"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "robinhood": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/2548357/"
+      ],
+      "internal_ids": [
+        "2548357"
+      ],
+      "matched_public_offer_ids": [
+        "100066"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "100066"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "referee_reward"
+        ],
+        "platform_values": {
+          "referee_reward": "50 € de crypto offerts au filleul"
+        },
+        "marker_counts": {
+          "referee_reward": 1
+        },
+        "field_checks": {
+          "referee_reward": {
+            "old_value": "50 € de crypto offerts au filleul",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "100066"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "plum": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/2708878/"
+      ],
+      "internal_ids": [
+        "2708878"
+      ],
+      "matched_public_offer_ids": [
+        "101381"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "101381"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "personal_link",
+          "referee_reward"
+        ],
+        "platform_values": {
+          "personal_link": "https://withplum.com",
+          "referee_reward": "10 € offerts après inscription et premier dépôt"
+        },
+        "marker_counts": {
+          "personal_link": 1,
+          "referee_reward": 1
+        },
+        "field_checks": {
+          "personal_link": {
+            "old_value": "https://withplum.com",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          },
+          "referee_reward": {
+            "old_value": "10 € offerts après inscription et premier dépôt",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "101381"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "okx": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/2751330/"
+      ],
+      "internal_ids": [
+        "2751330"
+      ],
+      "matched_public_offer_ids": [
+        "100373"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "100373"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "personal_code",
+          "personal_link"
+        ],
+        "platform_values": {
+          "personal_code": "28947271",
+          "personal_link": "https://my.okx.com/fr-fr/join/28947271"
+        },
+        "marker_counts": {
+          "personal_code": 1,
+          "personal_link": 1
+        },
+        "field_checks": {
+          "personal_code": {
+            "old_value": "28947271",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 2
+              }
+            ],
+            "ready": true
+          },
+          "personal_link": {
+            "old_value": "https://my.okx.com/fr-fr/join/28947271",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "100373"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "nrj-mobile": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/2800667/"
+      ],
+      "internal_ids": [
+        "2800667"
+      ],
+      "matched_public_offer_ids": [
+        "9"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "9"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "referee_reward"
+        ],
+        "platform_values": {
+          "referee_reward": "10 € pour vous + 10 € pour votre filleul après 2 mois d’abonnement validés"
+        },
+        "marker_counts": {
+          "referee_reward": 1
+        },
+        "field_checks": {
+          "referee_reward": {
+            "old_value": "10 € pour vous + 10 € pour votre filleul après 2 mois d’abonnement validés",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "9"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "whatnot": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/2833420/"
+      ],
+      "internal_ids": [
+        "2833420"
+      ],
+      "matched_public_offer_ids": [
+        "101206"
+      ],
+      "scores": [
+        1.0
+      ],
+      "account_only": false,
+      "public_offer_ids": [
+        "101206"
+      ],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "referee_reward"
+        ],
+        "platform_values": {
+          "referee_reward": "200 € offerts"
+        },
+        "marker_counts": {
+          "referee_reward": 1
+        },
+        "field_checks": {
+          "referee_reward": {
+            "old_value": "200 € offerts",
+            "marker_count": 1,
+            "editors": [
+              {
+                "old_value_present": true,
+                "visible_occurrences": 1
+              }
+            ],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [
+          "101206"
+        ],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    },
+    "freeprints": {
+      "edit_urls": [
+        "https://www.1parrainage.com/espace_parrain/parrainages/edit/2885708/"
+      ],
+      "internal_ids": [
+        "2885708"
+      ],
+      "matched_public_offer_ids": [],
+      "scores": [],
+      "account_only": true,
+      "editor_body": "<p>Offre Parrainage FreePrints - 5 tirages suppl&eacute;mentaires offerts</p>\n\n<p>Bonus filleul : 5 tirages photo suppl&eacute;mentaires offerts gr&acirc;ce au code de parrainage.</p>\n\n<p>FreePrints vous permet d&rsquo;imprimer facilement vos photos directement depuis votre t&eacute;l&eacute;phone et de les recevoir chez vous.</p>\n\n<p>Code parrainage :<br />\nabesnard9455</p>\n\n<p>Comment profiter de l&rsquo;offre :</p>\n\n<p>T&eacute;l&eacute;chargez l&rsquo;application FreePrints</p>\n\n<p>Cr&eacute;ez votre compte</p>\n\n<p>Renseignez le code parrainage abesnard9455</p>\n\n<p>Profitez de 5 tirages suppl&eacute;mentaires offerts</p>\n\n<p>S&eacute;lectionnez vos photos et passez votre commande</p>\n\n<p>&Agrave; savoir :<br />\nAvantage filleul : 5 tirages suppl&eacute;mentaires offerts<br />\nOffre r&eacute;serv&eacute;e aux nouveaux utilisateurs &eacute;ligibles<br />\nLes frais de livraison et &eacute;ventuels suppl&eacute;ments restent &agrave; votre charge<br />\nPensez &agrave; renseigner le code de parrainage lors de votre inscription</p>\n\n<p>Besoin d&rsquo;aide ou d&rsquo;un suivi personnalis&eacute; ?<br />\nDM-moi - je vous accompagne &eacute;tape par &eacute;tape</p>\n\n<p>https://discord.gg/dDEMb6jEbn</p>\n",
+      "public_offer_ids": [],
+      "policy": {
+        "mapping_exists": true,
+        "template_exists": true,
+        "mutable_fields": [
+          "personal_code"
+        ],
+        "platform_values": {
+          "personal_code": "abesnard9455"
+        },
+        "marker_counts": {
+          "personal_code": 2
+        },
+        "field_checks": {
+          "personal_code": {
+            "old_value": "abesnard9455",
+            "marker_count": 2,
+            "editors": [],
+            "ready": true
+          }
+        },
+        "public_offer_ids": [],
+        "live_replace_ready": true,
+        "reason": null
+      }
+    }
+  }
+}

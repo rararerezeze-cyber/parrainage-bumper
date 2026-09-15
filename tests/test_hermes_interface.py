@@ -65,7 +65,7 @@ def test_command_to_json_status():
     assert any(h.get("platform") == "referralcode-tv" for h in r["routing"]["human_routed_targets"])
     assert "super-parrain" in r["routing"]["deferred_cycle_targets"]
     assert "super-parrain" not in r["routing"]["blocked_targets"]
-    assert "referraldrop" in r["routing"]["blocked_targets"]
+    assert "referraldrop" not in r["routing"]["blocked_targets"]  # Kraken has no ReferralDrop mapping
     assert "parrainage-co" in r["routing"]["automatic_safe_diff_targets"]
     assert "referralcodes" in r["routing"]["blocked_targets"]
 

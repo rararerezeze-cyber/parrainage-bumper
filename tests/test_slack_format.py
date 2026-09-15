@@ -429,7 +429,7 @@ def test_referralcode_manual_pending_gets_direct_listings_button():
     assert "autofresh_confirm_write" not in {a.get("action_id") for a in actions}
 
 
-def test_referralcode_human_route_gets_manual_button_even_without_platform_rows():
+def test_referralcode_button_is_not_invented_without_a_mapped_platform_row():
     result = _status_result(platforms=[])
     payload = render_result(result)
     actions = [
@@ -438,4 +438,4 @@ def test_referralcode_human_route_gets_manual_button_even_without_platform_rows(
         if block.get("type") == "actions"
         for element in block.get("elements", [])
     ]
-    assert any(a.get("action_id") == "autofresh_open_rctv" for a in actions)
+    assert not any(a.get("action_id") == "autofresh_open_rctv" for a in actions)

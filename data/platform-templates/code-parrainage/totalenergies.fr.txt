@@ -1,4 +1,4 @@
-⚡️20€ OFFERTS⚡
+⚡️{{REFEREE_REWARD}}⚡
 
 ⸻
 

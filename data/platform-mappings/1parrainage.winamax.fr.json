@@ -22,14 +22,14 @@
     "conditions": "cond"
   },
   "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=400",
-  "edit_url": null,
+  "edit_url": "https://www.1parrainage.com/espace_parrain/parrainages/edit/1861968/",
   "platform_values": {
-    "referee_reward": "50 € à l’inscription avec le parrainage + premier pari rembours&eacut"
+    "referee_reward": "50 € à l’inscription avec le parrainage + premier pari remboursé jusqu’à 100 € en CASH"
   },
   "confidences": {
     "referee_reward": "medium"
   },
-  "notes": "bonus extrait du texte plateforme (confiance moyenne); native style only — no emoji reinjection; list_brand=coupon promotionnel Winamax",
+  "notes": "bonus extrait du texte plateforme (confiance moyenne); native style only — no emoji reinjection; list_brand=coupon promotionnel Winamax; Authenticated read-only inventory 2026-09-15 proved exact full native reward span and edit URL; live span is revalidated before Save.",
   "source_of_truth": {
     "personal_code": "offers_json_then_operator",
     "personal_link": "offers_json_then_operator",
@@ -46,5 +46,10 @@
       "chars": 400
     }
   ],
-  "occurrence_count": 1
+  "occurrence_count": 1,
+  "edit_url_source": "authenticated_read_only_inventory",
+  "edit_url_learned_at": "2026-09-15T14:12:12+00:00",
+  "live_marker_counts": {
+    "referee_reward": 1
+  }
 }

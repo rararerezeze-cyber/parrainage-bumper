@@ -8,18 +8,21 @@
   "announcement_url": "https://www.super-parrain.com/offres/totalenergies/parrainage-totalenergies/annonces/adrien-b-8",
   "mutable_fields": [
     "personal_code",
-    "personal_link"
+    "personal_link",
+    "referee_reward"
   ],
   "platform_values": {
     "personal_code": "114052844",
-    "personal_link": "https://redir-totalenergies.web.app/je-parraine?_bp=114052844"
+    "personal_link": "https://redir-totalenergies.web.app/je-parraine?_bp=114052844",
+    "referee_reward": "20€ OFFERTS"
   },
   "confidences": {
     "personal_code": "high",
-    "personal_link": "medium"
+    "personal_link": "medium",
+    "referee_reward": "high"
   },
   "notes": [
     "lien plateforme != offers.json",
-    "bonus non marque (ambigu / non trouve) — texte laisse fixe"
+    "gain natif 20€ OFFERTS marqué comme champ mutable vérifiable"
   ]
 }
