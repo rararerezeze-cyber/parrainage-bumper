@@ -258,7 +258,6 @@ UNTOUCHED_PATHS = (
     "lib/rctv_bump.py",
     "platforms/code_parrainage",
     "platforms/parrainage_co",
-    "platforms/oneparrainage",
     "platforms/referralcodes",
     "tools/controlled_write_code_parrainage.py",
     "tools/controlled_write_parrainage_co.py",
@@ -266,10 +265,11 @@ UNTOUCHED_PATHS = (
 )
 
 
-def test_other_platforms_are_byte_identical_to_main():
-    """Writer code stays unchanged; closure fixes workflow persistence/alerts.
+def test_unrelated_platforms_are_byte_identical_to_main():
+    """The Super-Parrain incident guard still protects unrelated writers.
 
-    Workflow safety is covered by the dedicated bump workflow tests.
+    1Parrainage is intentionally excluded: its writer now has dedicated tests
+    and is being expanded from a single canary to full indexed coverage.
     """
     import subprocess
 
