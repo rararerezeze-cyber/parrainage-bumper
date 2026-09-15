@@ -206,7 +206,11 @@ def notification_text(result: dict[str, Any]) -> str:
     return _truncate(f"AutoFresh — {_result_title(result)}", _MAX_TEXT_CHARS)
 
 
-def _platform_status_line(row: dict[str, Any]) -> str:
+def _platform_status_line(
+    row: dict[str, Any],
+    *,
+    current_field: str | None = None,
+) -> str:
     platform = _platform_label(row.get("platform"))
     status = str(row.get("status") or row.get("write_mode") or "")
     route = str(row.get("route") or "")
@@ -217,6 +221,14 @@ def _platform_status_line(row: dict[str, Any]) -> str:
         return f"✅ `{platform}` — à jour"
 
     if status == "pending_update":
+        # For a set/confirm flow, unrelated outstanding differences must not
+        # look like they are covered by the current confirmation.
+        if current_field and current_field not in changed:
+            detail = "autre différence à traiter séparément"
+            if fields:
+                detail += f" ({fields})"
+            return f"ℹ️ `{platform}` — {detail}"
+
         if row.get("can_auto_write"):
             detail = "à synchroniser — écriture disponible après confirmation"
             marker = "🟠"
@@ -239,11 +251,15 @@ def _platform_status_line(row: dict[str, Any]) -> str:
     return f"• `{platform}` — {label}"
 
 
-def _platforms_block(platforms: list[dict[str, Any]]) -> dict[str, Any] | None:
+def _platforms_block(
+    platforms: list[dict[str, Any]],
+    *,
+    current_field: str | None = None,
+) -> dict[str, Any] | None:
     if not platforms:
         return None
     rows = platforms[:_MAX_PLATFORM_ROWS]
-    lines = [_platform_status_line(r) for r in rows]
+    lines = [_platform_status_line(r, current_field=current_field) for r in rows]
     if len(platforms) > _MAX_PLATFORM_ROWS:
         lines.append(f"… +{len(platforms) - _MAX_PLATFORM_ROWS} autre(s)")
     return {
@@ -398,12 +414,72 @@ def _concise_summary(result: dict[str, Any]) -> str | None:
     return _concise_set_remove_summary(result)
 
 
-def _writer_eligible_rows(platforms: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    return [
+def _writer_eligible_rows(
+    platforms: list[dict[str, Any]],
+    *,
+    confirmed_field: str | None = None,
+) -> list[dict[str, Any]]:
+    rows = [
         p
         for p in (platforms or [])
         if p.get("can_auto_write") and p.get("status") == "pending_update"
     ]
+    if confirmed_field:
+        rows = [
+            p for p in rows
+            if confirmed_field in (p.get("changed_fields") or {})
+        ]
+    return rows
+
+
+def _writers_result_block(result: dict[str, Any]) -> dict[str, Any] | None:
+    """Human summary of the live-write attempt after explicit confirmation."""
+    writers = result.get("writers")
+    if not isinstance(writers, dict):
+        return None
+
+    reports = writers.get("reports") or []
+    lines: list[str] = []
+    for report in reports:
+        if not isinstance(report, dict):
+            continue
+        platform = _platform_label(report.get("platform"))
+        if report.get("skipped"):
+            # Deferred/human/blocked routes are already represented by the
+            # platform rows and are not part of this immediate confirmation.
+            continue
+
+        note = str(report.get("note") or "")
+        action = str(report.get("action") or "")
+        error = str(report.get("error") or "")
+
+        if report.get("ok") is True and action == "UPDATED_VERIFIED" and report.get("baseline_persisted"):
+            lines.append(f"✅ `{platform}` — écriture vérifiée et état clôturé")
+        elif report.get("ok") is True and note in {"NO_CONFIRMED_SAFE_DIFF", "NO_SAFE_DIFF"}:
+            lines.append(f"ℹ️ `{platform}` — aucune écriture nécessaire pour ce champ")
+        elif report.get("ok") is False:
+            if error == "structure_not_preserved":
+                reason = "structure de l’annonce non validée"
+            elif error.startswith("baseline_persist_failed:"):
+                reason = "écriture effectuée mais clôture locale non confirmée"
+            elif error.startswith(("unscopable_unconfirmed_field:", "missing_scoped_value:", "missing_marker:", "scoped_structure_not_preserved")):
+                reason = "contrôle de sécurité du champ non validé"
+            else:
+                reason = "écriture non vérifiée"
+            lines.append(f"❌ `{platform}` — {reason}")
+
+    if not lines and writers.get("error"):
+        lines.append("❌ Écriture non lancée — le moteur d’écriture n’a pas produit de résultat frais.")
+
+    if not lines:
+        return None
+    return {
+        "type": "section",
+        "text": {
+            "type": "mrkdwn",
+            "text": ("*Résultat de la confirmation*\n" + "\n".join(lines))[:_MAX_SECTION_CHARS],
+        },
+    }
 
 
 def _rctv_manual_needed(result: dict[str, Any]) -> bool:
@@ -528,11 +604,18 @@ def render_result(
         blocks.append(err_block)
 
     platforms = result.get("platforms") or []
-    plat_block = _platforms_block(platforms)
+    current_field = str(parsed.get("field") or "") if action == "set" else None
+
+    if run_writers_requested:
+        writers_block = _writers_result_block(result)
+        if writers_block:
+            blocks.append(writers_block)
+
+    plat_block = _platforms_block(platforms, current_field=current_field)
     if plat_block:
         blocks.append(plat_block)
 
-    eligible = _writer_eligible_rows(platforms)
+    eligible = _writer_eligible_rows(platforms, confirmed_field=current_field)
     # The backend only dispatches writers for a set command. A status/remove
     # confirmation would promise an operation that its safety gate never runs.
     if ok and action == "set" and allow_confirm_button and eligible and not run_writers_requested:
