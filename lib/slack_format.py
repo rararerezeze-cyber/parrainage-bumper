@@ -233,6 +233,12 @@ def _platform_status_line(row: dict[str, Any]) -> str:
             detail += f" ({fields})"
         return f"{marker} `{platform}` — {detail}"
 
+    if status == "manual":
+        detail = "différence détectée — écriture automatique non sûre, intervention manuelle requise"
+        if fields:
+            detail += f" ({fields})"
+        return f"⚠️ `{platform}` — {detail}"
+
     label = _STATUS_LABELS.get(status, status.replace("_", " ") or "état inconnu")
     if fields:
         label += f" ({fields})"
@@ -407,24 +413,69 @@ def _writer_eligible_rows(platforms: list[dict[str, Any]]) -> list[dict[str, Any
 
 
 def _rctv_manual_needed(result: dict[str, Any]) -> bool:
-    """Whether the current operator result needs a human ReferralCode.tv visit."""
-    for row in result.get("platforms") or []:
+    """Whether THIS PROGRAM actually has a ReferralCode.tv mapping to handle."""
+    rows = result.get("post_platforms") or result.get("platforms") or []
+    for row in rows:
         if str(row.get("platform") or "") != "referralcode-tv":
             continue
         status = str(row.get("status") or row.get("write_mode") or "")
         route = str(row.get("route") or "")
-        if status in {"pending_update", "blocked"} or route in {
-            "HUMAN_SAVE_REQUIRED",
-            "NEVER_AUTO_COMMIT",
-            "AUTH_BLOCKED_MANUAL",
-        }:
-            return True
+        return status in {"pending_update", "manual", "blocked", "auth_blocked"} or route == "HUMAN_SAVE_REQUIRED"
+    return False
 
-    routing = result.get("routing") or {}
-    for item in routing.get("human_routed_targets") or []:
-        if str((item or {}).get("platform") or "") == "referralcode-tv":
-            return True
-    return "referralcode-tv" in (routing.get("blocked_targets") or [])
+
+def _writer_results_block(result: dict[str, Any]) -> dict[str, Any] | None:
+    writers = result.get("writers") or {}
+    reports = writers.get("reports") or []
+    mapped = {
+        str(row.get("platform") or "")
+        for row in (result.get("platforms") or [])
+        if row.get("platform")
+    }
+    reports = [r for r in reports if str(r.get("platform") or "") in mapped]
+    if not reports:
+        return None
+
+    lines = ["*Résultat réel des écritures*"]
+    for item in reports:
+        platform = _platform_label(item.get("platform"))
+        if item.get("ok") is True and item.get("action") == "UPDATED_VERIFIED":
+            lines.append(f"✅ `{platform}` — mise à jour effectuée et vérifiée")
+            continue
+        if item.get("note") == "NO_SAFE_DIFF":
+            lines.append(f"➖ `{platform}` — aucune différence sûre à écrire")
+            continue
+        if item.get("skipped"):
+            reason = str(item.get("reason") or "")
+            if reason == "FUSED_UPDATE_BUMP":
+                lines.append(f"🕒 `{platform}` — mise à jour différée au prochain cycle automatique")
+            elif reason == "HUMAN_SAVE_REQUIRED":
+                lines.append(f"🖐️ `{platform}` — sauvegarde manuelle requise")
+            elif reason in {"NEVER_AUTO_COMMIT", "AUTH_BLOCKED_MANUAL"}:
+                lines.append(f"⚠️ `{platform}` — mise à jour automatique non autorisée")
+            elif reason == "program_not_mapped":
+                lines.append(f"➖ `{platform}` — aucune annonce gérée pour cette enseigne")
+            else:
+                lines.append(f"➖ `{platform}` — non exécuté ({reason or 'route non automatique'})")
+            continue
+        if item.get("ok") is False:
+            error = str(item.get("error") or "échec inconnu")
+            if error == "structure_not_preserved":
+                detail = "écriture bloquée par sécurité : structure du contenu non garantie"
+            elif error.startswith("plan_build_failed:"):
+                detail = "préparation de l’écriture impossible ; aucune modification effectuée"
+            elif error == "post_verify_failed":
+                detail = "écriture non confirmée par la vérification finale"
+            else:
+                detail = f"échec : {error}"
+            lines.append(f"❌ `{platform}` — {detail}")
+            continue
+        lines.append(f"➖ `{platform}` — aucun changement exécuté")
+
+    return {
+        "type": "section",
+        "text": {"type": "mrkdwn", "text": "\n".join(lines)[:_MAX_SECTION_CHARS]},
+    }
 
 
 def _rctv_manual_button_block() -> dict[str, Any]:
@@ -502,14 +553,32 @@ def render_result(
     correlation_id = result.get("correlation_id")
     requester = ((result.get("auth") or {}).get("identity")) or "slack"
 
-    header_icon = "✅" if ok else "❌"
+    writer_outcome = result.get("writer_outcome_ok") if run_writers_requested else None
+    if not ok:
+        header_icon = "❌"
+    elif writer_outcome is False:
+        header_icon = "⚠️"
+    else:
+        header_icon = "✅"
     header_title = f"{header_icon} AutoFresh — {_result_title(result)}".strip()
 
     blocks: list[dict[str, Any]] = [
         {"type": "header", "text": {"type": "plain_text", "text": header_title[:150]}},
     ]
 
-    concise = _concise_summary(result) if ok else None
+    if run_writers_requested and action == "set":
+        label = _program_label(parsed) or "AutoFresh"
+        if writer_outcome is False:
+            concise = (
+                f"*{label}* — la confirmation a été exécutée, mais au moins une "
+                "plateforme n’a pas pu être mise à jour. Détail réel ci-dessous."
+            )
+        else:
+            concise = (
+                f"*{label}* — confirmation exécutée. Voici le résultat réel par plateforme."
+            )
+    else:
+        concise = _concise_summary(result) if ok else None
     if concise:
         blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": concise[:_MAX_SECTION_CHARS]}})
     else:
@@ -527,9 +596,24 @@ def render_result(
     if err_block:
         blocks.append(err_block)
 
-    platforms = result.get("platforms") or []
+    pre_platforms = result.get("platforms") or []
+    platforms = (
+        result.get("post_platforms") or pre_platforms
+        if run_writers_requested
+        else pre_platforms
+    )
+
+    writer_block = _writer_results_block(result) if run_writers_requested else None
+    if writer_block:
+        blocks.append(writer_block)
+
     plat_block = _platforms_block(platforms)
     if plat_block:
+        if run_writers_requested:
+            blocks.append({
+                "type": "section",
+                "text": {"type": "mrkdwn", "text": "*État restant après la tentative*"},
+            })
         blocks.append(plat_block)
 
     eligible = _writer_eligible_rows(platforms)
