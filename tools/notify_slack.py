@@ -355,16 +355,20 @@ def _later_button(event: dict) -> dict[str, Any]:
 
 
 def _rctv_manual_button() -> dict[str, Any]:
-    """Open the legitimate human-only ReferralCode.tv listings page.
-
-    This is a URL navigation control only: no GitHub dispatch, no writer,
-    no challenge solving and no automatic click on the site.
-    """
+    """Open the legitimate human-only ReferralCode.tv listings page."""
     return _button(
         "Remonter manuellement",
         "autofresh_open_rctv",
         url=_RCTV_LISTINGS_URL,
         style="primary",
+    )
+
+
+def _rctv_done_button(event: dict) -> dict[str, Any]:
+    return _button(
+        "Marquer fait",
+        "autofresh_mark_done",
+        value=_later_value(event),
     )
 
 
@@ -417,6 +421,7 @@ def _inspection_blocks(event: dict, text: str) -> list[dict[str, Any]]:
     elements: list[dict[str, Any]] = []
     if str(event.get("platform") or "") == "referralcode-tv":
         elements.append(_rctv_manual_button())
+        elements.append(_rctv_done_button(event))
     program = _program_label(event.get("program"))
     if program:
         for label, command, suffix in (
@@ -503,6 +508,7 @@ def _event_blocks(event: dict) -> list[dict[str, Any]]:
             "AutoFresh ne peut pas effectuer la remontée depuis GitHub car le site "
             "présente un challenge Cloudflare Turnstile. Utilise le bouton ci-dessous "
             "pour ouvrir directement tes annonces et effectuer la remontée toi-même. "
+            "Une fois fait, utilise « Marquer fait » pour fermer visuellement l'alerte. "
             "Aucun contournement du challenge n'est tenté."
         )
         return _inspection_blocks(event, text)

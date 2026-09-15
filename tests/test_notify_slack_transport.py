@@ -251,3 +251,24 @@ def test_referralcode_turnstile_alert_has_direct_manual_bump_button():
     assert "value" not in manual
     assert "autofresh_apply_candidate" not in {a.get("action_id") for a in actions}
     assert "autofresh_confirm_write" not in {a.get("action_id") for a in actions}
+
+
+
+def test_referralcode_manual_alert_can_be_visually_closed_after_human_action():
+    events = [
+        {
+            "level": "HUMAN_REQUIRED",
+            "platform": "referralcode-tv",
+            "event": "external_blocker",
+            "action": "scheduled_bump",
+            "result": "EXPECTED_EXTERNAL_BLOCKER",
+            "block_reason": "cloudflare_turnstile_challenge",
+        }
+    ]
+    payload = build_payload(events, "C_TEST")
+    actions = _actions(payload)
+    ids = {a.get("action_id") for a in actions}
+    assert "autofresh_open_rctv" in ids
+    assert "autofresh_mark_done" in ids
+    assert "autofresh_later" in ids
+    assert "autofresh_confirm_write" not in ids

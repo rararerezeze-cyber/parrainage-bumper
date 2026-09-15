@@ -211,15 +211,25 @@ async function handleInteractivity(request, env, ctx) {
     return new Response(null, { status: 200 });
   }
 
-  // "Plus tard" is intentionally UI-only. It never changes an override,
-  // never dispatches a writer, and never creates a hidden ignore rule.
+  // UI-only closure actions. They never change an override, never dispatch a
+  // writer, and never create a hidden ignore rule. They only make the Slack
+  // message state obvious instead of leaving a stale-looking active alert.
   if (actionId === "autofresh_later") {
     if (responseUrl) {
-      ctx.waitUntil(postResponseUrl(responseUrl, {
-        response_type: "ephemeral",
-        text: "⏸ Mis de côté. Aucune modification n’a été faite.",
-        replace_original: false,
-      }));
+      ctx.waitUntil(postResponseUrl(responseUrl, statusReplacement(
+        "⏸ AutoFresh — reporté",
+        "Aucune modification n’a été faite. Cette alerte pourra revenir si la situation persiste."
+      )));
+    }
+    return new Response(null, { status: 200 });
+  }
+
+  if (actionId === "autofresh_mark_done") {
+    if (responseUrl) {
+      ctx.waitUntil(postResponseUrl(responseUrl, statusReplacement(
+        "✅ ReferralCode.tv — terminé manuellement",
+        "Tu as marqué la remontée comme faite. AutoFresh ne prétend pas la vérifier derrière Turnstile."
+      )));
     }
     return new Response(null, { status: 200 });
   }
@@ -279,19 +289,29 @@ async function handleInteractivity(request, env, ctx) {
   });
 
   if (responseUrl) {
-    let successText = "🔎 Consultation lancée — résultat dans ce salon dans quelques instants.";
-    if (actionId === "autofresh_apply_candidate") {
-      successText = "✅ Valeur acceptée — AutoFresh prépare l’impact. Si une écriture immédiate est possible, une confirmation séparée sera proposée.";
+    if (!dispatched.ok) {
+      ctx.waitUntil(postResponseUrl(responseUrl, {
+        response_type: "ephemeral",
+        text: "Impossible de lancer cette action pour le moment.",
+        replace_original: false,
+      }));
+    } else if (actionId === "autofresh_apply_candidate") {
+      ctx.waitUntil(postResponseUrl(responseUrl, statusReplacement(
+        "✅ AutoFresh — changement accepté",
+        "La nouvelle valeur est en cours de préparation. Si une écriture immédiate est possible, un nouveau message demandera une confirmation séparée."
+      )));
     } else if (runWriters) {
-      successText = "⏳ Mise à jour confirmée — exécution en cours. Le résultat sera publié dans ce salon.";
+      ctx.waitUntil(postResponseUrl(responseUrl, statusReplacement(
+        "⏳ AutoFresh — écriture confirmée",
+        "Exécution en cours. Le résultat vérifié sera publié dans ce salon."
+      )));
+    } else {
+      ctx.waitUntil(postResponseUrl(responseUrl, {
+        response_type: "ephemeral",
+        text: "🔎 Consultation lancée — résultat dans ce salon dans quelques instants.",
+        replace_original: false,
+      }));
     }
-    ctx.waitUntil(postResponseUrl(responseUrl, {
-      response_type: "ephemeral",
-      text: dispatched.ok
-        ? successText
-        : "Impossible de lancer cette action pour le moment.",
-      replace_original: false,
-    }));
   }
 
   return new Response(null, { status: 200 });
@@ -362,6 +382,19 @@ async function seenRecently(env, key, expirationTtl = IDEMPOTENCY_TTL_SECONDS) {
   if (existing) return true;
   await env.IDEMPOTENCY.put(key, "1", { expirationTtl });
   return false;
+}
+
+function statusReplacement(title, detail) {
+  return {
+    replace_original: true,
+    text: title,
+    blocks: [
+      {
+        type: "section",
+        text: { type: "mrkdwn", text: `*${title}*\n${detail}` },
+      },
+    ],
+  };
 }
 
 async function postResponseUrl(responseUrl, body) {

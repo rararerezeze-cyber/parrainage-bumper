@@ -143,3 +143,32 @@ manuellement**. This is a plain URL button to
 The button never dispatches a GitHub workflow, never starts a writer, never
 clicks the site's boost control and never attempts to solve/bypass Turnstile.
 The operator completes the boost on ReferralCode.tv in their own browser.
+
+
+## Daily operator dashboard and visual closure (2026-09-15)
+
+AutoFresh posts one read-only daily status card at 18:45 UTC
+(20:45 in France during summer time, 19:45 in winter). It summarizes only
+operator-useful state:
+
+- Code-Parrainage and Parrainage.co success against the randomized slots that
+  are already due; future slots are never shown as failures;
+- Super-Parrain's last cycle and next eligibility;
+- public-offer candidates that are still actionable; a value already accepted
+  by the operator is filtered out;
+- ReferralCode.tv's human-only shortcut.
+
+The card exposes buttons for the bump status, actionable offer programs and
+ReferralCode.tv. It is read-only and holds no platform credentials.
+
+Interactive alerts also close visually:
+
+- **Accepter** replaces the old alert with **Changement accepté** while the
+  unarmed impact preview is prepared;
+- **Confirmer l'écriture** replaces the confirmation card with **Écriture
+  confirmée** while post-verification runs;
+- **Plus tard** replaces the alert with **Reporté** without changing backend
+  state;
+- ReferralCode.tv blocker alerts expose **Marquer fait** after the operator has
+  completed the manual bump. This only closes the Slack alert; it does not
+  claim automated verification behind Turnstile.

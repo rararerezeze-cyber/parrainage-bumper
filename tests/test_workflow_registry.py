@@ -17,6 +17,7 @@ WORKFLOW_DIR = ROOT / ".github" / "workflows"
 REGISTRY = json.loads((ROOT / "data" / "workflow-registry.json").read_text(encoding="utf-8"))
 
 SCHEDULED = {
+    "autofresh_daily_status.yml",
     "autofresh_scheduler_watchdog.yml",
     "bump_super_parrain.yml",
     "monitor_offers.yml",
@@ -238,5 +239,23 @@ def test_scheduler_watchdog_is_fallback_only():
         "playwright",
         "bumper.py",
         "--execute",
+    ):
+        assert forbidden not in raw, forbidden
+
+
+
+def test_daily_slack_status_is_read_only_and_has_no_platform_credentials():
+    raw = (WORKFLOW_DIR / "autofresh_daily_status.yml").read_text(encoding="utf-8")
+    assert 'cron: "45 18 * * *"' in raw
+    assert "tools/slack_daily_status.py" in raw
+    for forbidden in (
+        "SUPER_PARRAIN_PASSWORD",
+        "PARRAINAGE_CO_PASSWORD",
+        "CODE_PARRAINAGE_PASSWORD",
+        "REFERRALCODE_PASSWORD",
+        "playwright",
+        "bumper.py",
+        "--execute",
+        "git push",
     ):
         assert forbidden not in raw, forbidden

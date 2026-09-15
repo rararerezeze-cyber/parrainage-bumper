@@ -72,7 +72,8 @@ export function helpText() {
   return (
     "*AutoFresh — aide*\n" +
     "AutoFresh fonctionne avec toutes les enseignes connues. " +
-    "Tape `/autofresh enseignes` pour afficher la liste.\n" +
+    "Les alertes courantes se gèrent directement avec les boutons Slack et un point de situation est envoyé chaque jour. " +
+    "Tape `/autofresh enseignes` pour afficher la liste si tu veux utiliser les commandes de secours.\n" +
     "\n*Les commandes principales*\n" +
     "• `/autofresh [Enseigne] statut` — voir si l'annonce est à jour\n" +
     "• `/autofresh [Enseigne] valeurs` — voir les valeurs utilisées\n" +
