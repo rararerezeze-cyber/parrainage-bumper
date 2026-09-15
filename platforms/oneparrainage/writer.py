@@ -914,6 +914,26 @@ def fetch_public_full_view(plan: WritePlan) -> dict[str, str]:
     }
 
 
+def _plain_body(value: str) -> str:
+    text = unescape(value or "")
+    text = re.sub(r"(?i)<br\s*/?>|</p>|</div>|</li>|</tr>", "\n", text)
+    text = re.sub(r"<[^>]+>", " ", text)
+    return " ".join(text.split()).strip().lower()
+
+
+def _changed_values_present(value: str, plan: WritePlan) -> bool:
+    visible = _plain_body(value)
+    for field in (plan.changed_fields or {}):
+        expected = plan.variables.get(field)
+        if expected and str(expected).lower() not in visible:
+            return False
+    return True
+
+
+def _live_body_matches(expected_html: str, actual_html: str) -> bool:
+    return _plain_body(expected_html) == _plain_body(actual_html)
+
+
 async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult:
     steps: list[str] = []
     blocked = write_blocked_reason(plan.platform, plan.program, plan.language)
@@ -926,9 +946,19 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
         )
     circ = live_write_blocked_reason("1parrainage")
     if circ and not dry_run:
-        return WriteResult(ok=False, plan=plan, error=f"CIRCUIT_OPEN: {circ}", steps=["circuit"])
+        return WriteResult(
+            ok=False,
+            plan=plan,
+            error=f"CIRCUIT_OPEN: {circ}",
+            steps=["circuit"],
+        )
     if not plan.structure_preserved:
-        return WriteResult(ok=False, plan=plan, error="structure_not_preserved", steps=steps)
+        return WriteResult(
+            ok=False,
+            plan=plan,
+            error="structure_not_preserved",
+            steps=steps,
+        )
     if not plan.changed_fields:
         return WriteResult(
             ok=True,
@@ -946,22 +976,40 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
                 "immutable_preserved": True,
             },
         )
-    forbidden = abort_forbidden_publish(
-        plan.rendered,
-        *(str((d or {}).get("new") or "") for d in (plan.changed_fields or {}).values()),
-    )
+
+    changed_new_values = [
+        str(plan.variables.get(field) or "")
+        for field in (plan.changed_fields or {})
+        if plan.variables.get(field)
+    ]
+    forbidden = abort_forbidden_publish(*changed_new_values)
     if forbidden:
         return WriteResult(
-            ok=False, plan=plan, error=forbidden, steps=["forbidden_publish"]
+            ok=False,
+            plan=plan,
+            error=forbidden,
+            steps=["forbidden_publish"],
         )
+
+    target_edit_urls = [u for u in (plan.edit_urls or []) if u]
+    if plan.live_validation_required and not target_edit_urls:
+        return WriteResult(
+            ok=False,
+            plan=plan,
+            error="live_edit_index_missing",
+            steps=["index_missing"],
+        )
+
     if dry_run or not content_write_allowed("1parrainage"):
         return WriteResult(
             ok=True,
             plan=plan,
             steps=[
-                "dry-run only"
-                if dry_run
-                else f"LIVE_DISABLED ({phase_name()}) — need CANARY_READY/WRITE_VERIFIED"
+                (
+                    f"dry-run/live-validation target_count={len(target_edit_urls)}"
+                    if dry_run
+                    else f"LIVE_DISABLED ({phase_name()}) — need CANARY_READY/WRITE_VERIFIED"
+                )
             ],
             post_match=None,
         )
@@ -970,8 +1018,11 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
     cfg = _cfg()
     from playwright.async_api import async_playwright
 
-    edit_url = None
-    account_text = None
+    occurrence_results: list[dict[str, Any]] = []
+    account_bodies: list[str] = []
+    desired_bodies: list[str] = []
+    resolved_urls: list[str] = []
+
     async with async_playwright() as pw:
         browser = await pw.chromium.launch(
             headless=True,
@@ -988,97 +1039,213 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
         try:
             steps.append("login")
             await _login(page, cfg)
-            steps.append("find_edit")
-            edit_url = await _resolve_edit_url(page, plan)
-            steps.append(f"edit_url={edit_url}")
-            await page.goto(edit_url, wait_until="domcontentloaded", timeout=60000)
-            await bumper.human_sleep(1.2, 2.0)
-            try:
-                await page.screenshot(path="debug_1parrainage_write_before.png", full_page=True)
-            except Exception:
-                pass
-            steps.append("fill_save")
-            fill_steps = await _fill_and_save(
-                page,
-                plan.rendered,
-                plan.variables.get("personal_code"),
-                plan.variables.get("personal_link"),
-            )
-            steps.extend(fill_steps)
-            steps.append("reread_account")
-            await page.goto(edit_url, wait_until="domcontentloaded", timeout=60000)
-            await bumper.human_sleep(1.0, 1.8)
-            account_text = await _reread_account_fields(page)
-            steps.append(f"account_reread_len={len(account_text or '')}")
-        except Exception as exc:
-            maybe_trip_from_error(str(exc), platform="1parrainage")
-            return WriteResult(
-                ok=False, plan=plan, edit_url=edit_url, error=str(exc), steps=steps
-            )
+
+            if not target_edit_urls:
+                steps.append("find_edit")
+                target_edit_urls = [await _resolve_edit_url(page, plan)]
+
+            for pos, edit_url in enumerate(target_edit_urls, start=1):
+                item_steps: list[str] = []
+                try:
+                    resolved_urls.append(edit_url)
+                    steps.append(f"edit[{pos}]={edit_url}")
+                    await page.goto(
+                        edit_url,
+                        wait_until="domcontentloaded",
+                        timeout=60000,
+                    )
+                    await _detect_challenge(page)
+                    await bumper.human_sleep(0.8, 1.4)
+                    if not await _ck_ready(page):
+                        raise RuntimeError("ckeditor_not_ready")
+
+                    current_html = await _ck_get(page)
+                    if not current_html:
+                        raise RuntimeError("empty_current_editor_body")
+
+                    if plan.live_validation_required:
+                        desired_html, replace_details = _build_live_rendered(
+                            current_html, plan
+                        )
+                        item_steps.append(
+                            "live_replace="
+                            + json.dumps(
+                                replace_details,
+                                ensure_ascii=False,
+                                separators=(",", ":"),
+                            )
+                        )
+                    else:
+                        desired_html = plan.rendered
+
+                    forbidden_live = abort_forbidden_publish(
+                        desired_html, *changed_new_values
+                    )
+                    if forbidden_live:
+                        raise RuntimeError(forbidden_live)
+
+                    if pos == 1:
+                        try:
+                            await page.screenshot(
+                                path="debug_1parrainage_write_before.png",
+                                full_page=True,
+                            )
+                        except Exception:
+                            pass
+
+                    fill_steps = await _fill_and_save(
+                        page,
+                        desired_html,
+                        plan.variables.get("personal_code"),
+                        plan.variables.get("personal_link"),
+                    )
+                    item_steps.extend(fill_steps)
+                    if "saved" not in fill_steps:
+                        raise RuntimeError("save_not_confirmed")
+
+                    await page.goto(
+                        edit_url,
+                        wait_until="domcontentloaded",
+                        timeout=60000,
+                    )
+                    await _detect_challenge(page)
+                    await bumper.human_sleep(0.8, 1.4)
+                    if not await _ck_ready(page):
+                        raise RuntimeError("ckeditor_not_ready_after_save")
+                    reread_html = await _ck_get(page)
+                    account_ok = bool(reread_html) and _changed_values_present(
+                        reread_html, plan
+                    )
+                    body_match = bool(reread_html) and _live_body_matches(
+                        desired_html, reread_html
+                    )
+                    item = {
+                        "edit_url": edit_url,
+                        "saved": True,
+                        "account_values_present": account_ok,
+                        "account_body_match": body_match,
+                        "ok": bool(account_ok and body_match),
+                        "steps": item_steps,
+                    }
+                    occurrence_results.append(item)
+                    account_bodies.append(reread_html or "")
+                    desired_bodies.append(desired_html)
+                    if not item["ok"]:
+                        raise RuntimeError(
+                            "account_post_verify_failed:"
+                            f"values={account_ok}:body={body_match}"
+                        )
+                except Exception as exc:
+                    maybe_trip_from_error(str(exc), platform="1parrainage")
+                    occurrence_results.append(
+                        {
+                            "edit_url": edit_url,
+                            "saved": "saved" in item_steps,
+                            "ok": False,
+                            "error": str(exc),
+                            "steps": item_steps,
+                        }
+                    )
+                    return WriteResult(
+                        ok=False,
+                        plan=plan,
+                        edit_url=edit_url,
+                        error=str(exc),
+                        steps=steps + item_steps,
+                        evidence_checks={
+                            "authenticated": True,
+                            "targeted_edit": True,
+                            "submit_ok": False,
+                            "reread_account": False,
+                            "expected_values_present": False,
+                            "immutable_preserved": False,
+                        },
+                        occurrence_results=occurrence_results,
+                    )
         finally:
             await page.close()
             await ctx.close()
             await browser.close()
 
-    account_ok = bool(account_text) and (
-        _norm(plan.rendered) in _norm(account_text) or _values_present(account_text, plan)
-    )
-    published = None
-    public_match = None
-    if plan.announcement_url:
-        steps.append("reread_public")
-        await asyncio.sleep(2)
-        try:
-            html = fetch_text(
-                plan.announcement_url.split("#")[0] if plan.announcement_url else PUBLIC_LIST
-            )
-            published = _extract_public_block(html, plan)
-            public_match = _norm(published) == _norm(plan.rendered) or _norm(
-                plan.rendered
-            ) in _norm(published)
-            steps.append(f"post_match_public={public_match}")
-        except Exception as exc:
-            steps.append(f"public_reread_error={exc}")
-            public_match = None
+    # Public verification is performed against each known full-detail occurrence,
+    # never against the truncated list card.
+    public_results: list[dict[str, Any]] = []
+    public_ids = [str(x) for x in (plan.public_offer_ids or []) if x]
+    if not public_ids and plan.platform_offer_id:
+        public_ids = [str(plan.platform_offer_id)]
 
-    if public_match is True:
-        match = True
-    elif public_match is False and not account_ok:
-        match = False
-    else:
-        match = account_ok or public_match is True
+    if public_ids:
+        steps.append("reread_public_full_detail")
+        await asyncio.sleep(2)
+        for offer_id in public_ids:
+            try:
+                block = _public_detail_for_offer_id(offer_id)
+                values_ok = _changed_values_present(block, plan)
+                public_results.append(
+                    {
+                        "offer_id": offer_id,
+                        "values_present": values_ok,
+                        "ok": values_ok,
+                    }
+                )
+            except Exception as exc:
+                public_results.append(
+                    {
+                        "offer_id": offer_id,
+                        "ok": False,
+                        "error": str(exc),
+                    }
+                )
+
+    account_ok = bool(occurrence_results) and all(
+        bool(item.get("ok")) for item in occurrence_results
+    )
+    public_ok = (
+        all(bool(item.get("ok")) for item in public_results)
+        if public_results
+        else True
+    )
+    match = bool(account_ok and public_ok)
 
     checks = {
         "authenticated": True,
-        "targeted_edit": bool(plan.changed_fields),
-        "submit_ok": "saved" in steps,
+        "targeted_edit": bool(plan.changed_fields and resolved_urls),
+        "submit_ok": bool(occurrence_results)
+        and all(bool(item.get("saved")) for item in occurrence_results),
         "reread_account": account_ok,
-        "expected_values_present": _values_present(account_text or "", plan)
-        or (bool(published) and _values_present(published, plan)),
-        "immutable_preserved": plan.structure_preserved,
+        "expected_values_present": bool(account_ok and public_ok),
+        "immutable_preserved": bool(account_ok),
+        "reread_public": public_ok,
     }
-    if public_match is not None:
-        checks["reread_public"] = public_match
     steps.append(f"post_match={match}")
+    post_text = account_bodies[0] if account_bodies else None
+
     if not match:
         return WriteResult(
             ok=False,
             plan=plan,
-            edit_url=edit_url,
-            post_publish_text=published,
-            account_reread_text=account_text,
+            edit_url=resolved_urls[0] if resolved_urls else None,
+            post_publish_text=post_text,
+            account_reread_text=post_text,
             post_match=False,
             error="POST-UPDATE MISMATCH — STOP",
             steps=steps,
             evidence_checks=checks,
+            occurrence_results=occurrence_results + [
+                {"public": item} for item in public_results
+            ],
         )
+
     return WriteResult(
         ok=True,
         plan=plan,
-        edit_url=edit_url,
-        post_publish_text=published or account_text,
-        account_reread_text=account_text,
+        edit_url=resolved_urls[0] if resolved_urls else None,
+        post_publish_text=post_text,
+        account_reread_text=post_text,
         post_match=True,
         steps=steps,
         evidence_checks=checks,
+        occurrence_results=occurrence_results + [
+            {"public": item} for item in public_results
+        ],
     )
