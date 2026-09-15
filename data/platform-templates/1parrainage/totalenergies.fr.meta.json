@@ -2,11 +2,15 @@
   "platform": "1parrainage",
   "program": "totalenergies",
   "language": "fr",
-  "status": "manual_review_required",
-  "role": "public_preview_only_not_write_source",
+  "status": "ready",
+  "role": "authenticated_full_editor_target",
   "not_business_source_of_truth": true,
   "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=31",
-  "mutable_fields": [],
+  "mutable_fields": [
+    "personal_code",
+    "personal_link",
+    "referee_reward"
+  ],
   "platform_values": {
     "personal_code": "114052844",
     "personal_link": "https://redir-totalenergies.web.app/je-parraine?_bp=114052844",
@@ -14,13 +18,12 @@
   },
   "confidences": {
     "personal_code": "high",
-    "personal_link": "medium",
+    "personal_link": "high",
     "referee_reward": "high"
   },
   "notes": [
-    "public list preview is truncated",
-    "current stored template even contains unrelated Kraken image markup and is not a safe write source",
-    "reward 20€ OFFERTS is visible in the public preview",
-    "full editor capture required before any automatic TotalEnergies write on 1Parrainage"
+    "full CKEditor body captured read-only",
+    "internal edit id 2548253 matched public offer 31 at similarity 1.0",
+    "zero platform writes during discovery"
   ]
 }
