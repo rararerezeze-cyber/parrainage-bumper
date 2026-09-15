@@ -1,0 +1,56 @@
+{
+  "platform": "1parrainage",
+  "program": "ubereats",
+  "language": "fr",
+  "sync_mode": "REVIEW",
+  "template_status": "ready",
+  "golden_file": "ubereats.fr.golden.txt",
+  "mutable_fields": [
+    "personal_code"
+  ],
+  "markers": {
+    "personal_code": "{{PERSONAL_CODE}}",
+    "personal_link": "{{PERSONAL_LINK}}",
+    "referee_reward": "{{REFEREE_REWARD}}",
+    "referrer_reward": "{{REFERRER_REWARD}}",
+    "conditions": "{{CONDITIONS}}"
+  },
+  "offer_fields": {
+    "personal_code": "code",
+    "personal_link": "link",
+    "referee_reward": "reward",
+    "conditions": "cond"
+  },
+  "announcement_url": "https://www.1parrainage.com/listeannonces_98906_Adrien89.php#id=775",
+  "edit_url": "https://www.1parrainage.com/espace_parrain/parrainages/edit/2548254/",
+  "platform_values": {
+    "personal_code": "eats-8pskrlq4zx"
+  },
+  "confidences": {
+    "personal_code": "high"
+  },
+  "notes": "Authenticated full CKEditor body and exact edit target captured read-only on 2026-09-15. Campaign-dependent reward prose is intentionally immutable; only stable referral identity is synchronized.",
+  "source_of_truth": {
+    "personal_code": "offers_json_then_operator",
+    "personal_link": "offers_json_then_operator",
+    "referee_reward": "platform_literal_until_officially_confirmed",
+    "announcement_text": "platform_target_only"
+  },
+  "quality": "authenticated_full_editor_inventory",
+  "style_policy": "native_platform_style_only",
+  "platform_offer_id": "775",
+  "occurrences": [
+    {
+      "offer_id": "775",
+      "brand": "ubereats",
+      "chars": 1673
+    }
+  ],
+  "occurrence_count": 1,
+  "edit_url_source": "authenticated_read_only_inventory",
+  "edit_url_learned_at": "2026-09-15T14:12:12+00:00",
+  "live_marker_counts": {
+    "personal_code": 2
+  },
+  "account_only": false
+}
