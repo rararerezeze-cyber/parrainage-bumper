@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-09-17T13:31:08.766328+00:00",
+  "updated_at": "2026-08-31T10:46:09.636575+00:00",
   "entries": {
     "super-parrain:kraken:fr": {
       "platform": "super-parrain",
@@ -17,14 +17,6 @@
       "edit_url": null,
       "next_eligible_at": "2026-09-01T13:08:30.657271+00:00",
       "pending_reason": "hermes_personal_code"
-    },
-    "super-parrain:totalenergies:fr": {
-      "platform": "super-parrain",
-      "program": "totalenergies",
-      "language": "fr",
-      "status": "pending_content_at_next_slot",
-      "next_eligible_at": "2026-09-18T04:04:43.229226+00:00",
-      "pending_reason": "hermes_reward_type"
     }
   }
 }
