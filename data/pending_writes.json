@@ -10,7 +10,7 @@
       "reason": "content_update",
       "created_at": "2026-08-12T16:55:45.155034+00:00",
       "next_eligible_at": "2026-08-18T12:03:40.871232+00:00",
-      "hours_remaining": 0.0,
+      "hours_remaining": 0,
       "priority": 100,
       "updated_at": "2026-08-20T06:04:25.492950+00:00",
       "done_at": "2026-08-20T15:33:52.614796+00:00"
@@ -37,14 +37,17 @@
       "platform": "super-parrain",
       "program": "totalenergies",
       "language": "fr",
-      "status": "pending",
+      "status": "cancelled",
       "reason": "hermes_reward_type",
       "created_at": "2026-09-17T13:31:08.762854+00:00",
       "next_eligible_at": "2026-09-18T04:04:43.229226+00:00",
       "hours_remaining": 14.56,
       "priority": 100,
-      "blocks_bump": false
+      "blocks_bump": false,
+      "updated_at": "2026-09-21T08:53:00+00:00",
+      "cancelled_at": "2026-09-21T08:53:00+00:00",
+      "cancellation_reason": "reward_type is not a mutable field for the Super-Parrain TotalEnergies mapping; stale pending created from an unrelated referee_reward diff"
     }
   ],
-  "updated_at": "2026-09-17T13:31:08.766484+00:00"
+  "updated_at": "2026-09-21T08:53:00+00:00"
 }
