@@ -433,8 +433,9 @@ def test_production_report_shape():
     assert "public_mutable_mapping_coverage" in prod
 
 
-def test_compare_business_uses_effective_operator_override(tmp_path, monkeypatch):
+def test_monitor_engine_uses_effective_operator_override(tmp_path, monkeypatch):
     from lib import operator_overrides as overrides
+    from lib.monitor.engine import _effective_business
 
     path = tmp_path / "operator-overrides.json"
     path.write_text('{"version":1,"overrides":[]}\n', encoding="utf-8")
@@ -443,9 +444,16 @@ def test_compare_business_uses_effective_operator_override(tmp_path, monkeypatch
     store.upsert("totalenergies", "referee_reward", "50 €")
     store.upsert("totalenergies", "reward_type", "cash")
 
-    status, changes, _ = compare_business(
+    baseline = _effective_business(
         "totalenergies",
         {"referee_reward": "20 €"},
+    )
+    assert baseline["referee_reward"] == "50 €"
+    assert baseline["reward_type"] == "cash"
+
+    status, changes, _ = compare_business(
+        "totalenergies",
+        baseline,
         {"referee_reward": "50 €", "reward_type": "cash"},
         Confidence.HIGH,
     )
@@ -454,7 +462,7 @@ def test_compare_business_uses_effective_operator_override(tmp_path, monkeypatch
 
     status2, changes2, _ = compare_business(
         "totalenergies",
-        {"referee_reward": "20 €"},
+        baseline,
         {"referee_reward": "60 €", "reward_type": "cash"},
         Confidence.HIGH,
     )
