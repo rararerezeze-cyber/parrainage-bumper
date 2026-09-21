@@ -57,11 +57,10 @@
       "reason": "hermes_referee_reward",
       "created_at": "2026-09-21T15:07:46.053448+00:00",
       "next_eligible_at": "2026-09-21T19:07:59.892740+00:00",
-      "hours_remaining": 3.97,
+      "hours_remaining": 4.0,
       "priority": 100,
-      "blocks_bump": false,
-      "updated_at": "2026-09-21T15:09:57.778878+00:00"
+      "blocks_bump": false
     }
   ],
-  "updated_at": "2026-09-21T15:09:57.778914+00:00"
+  "updated_at": "2026-09-21T15:07:46.193283+00:00"
 }
