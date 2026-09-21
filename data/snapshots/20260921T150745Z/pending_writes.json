@@ -47,20 +47,7 @@
       "updated_at": "2026-09-21T08:53:00+00:00",
       "cancelled_at": "2026-09-21T08:53:00+00:00",
       "cancellation_reason": "reward_type is not a mutable field for the Super-Parrain TotalEnergies mapping; stale pending created from an unrelated referee_reward diff"
-    },
-    {
-      "key": "super-parrain:igraal:fr",
-      "platform": "super-parrain",
-      "program": "igraal",
-      "language": "fr",
-      "status": "pending",
-      "reason": "hermes_referee_reward",
-      "created_at": "2026-09-21T15:07:46.053448+00:00",
-      "next_eligible_at": "2026-09-21T19:07:59.892740+00:00",
-      "hours_remaining": 4.0,
-      "priority": 100,
-      "blocks_bump": false
     }
   ],
-  "updated_at": "2026-09-21T15:07:46.193283+00:00"
+  "updated_at": "2026-09-21T08:53:00+00:00"
 }
