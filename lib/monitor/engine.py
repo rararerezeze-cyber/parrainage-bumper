@@ -48,6 +48,26 @@ def _canonical_business(offer: dict) -> dict[str, str | None]:
     }
 
 
+def _effective_business(program: str, canonical: dict[str, str | None]) -> dict[str, str | None]:
+    """Overlay accepted/operator values on the catalog baseline for monitoring.
+
+    compare_business stays a pure comparison helper. Only the production
+    monitor resolves operator precedence, so unrelated callers/tests are not
+    affected by durable repository overrides.
+    """
+    effective = dict(canonical)
+    for field in BUSINESS_FIELDS:
+        raw = canonical.get(field)
+        try:
+            value = resolve_effective_value(program, field, canonical=raw).value
+        except Exception:
+            value = raw
+        normalized = normalize_field(field, value)
+        if normalized is not None or field in canonical:
+            effective[field] = normalized
+    return effective
+
+
 def classify_fetch_failure(status: int, error: str | None, body: str = "") -> FailureCode:
     msg = (error or "").lower()
     low = (body or "")[:2000].lower()
@@ -89,18 +109,7 @@ def compare_business(
     for field in BUSINESS_FIELDS:
         if field not in observed and field not in canonical:
             continue
-        raw_old = canonical.get(field)
-        try:
-            old = resolve_effective_value(
-                program,
-                field,
-                canonical=raw_old,
-            ).value
-        except Exception:
-            # Monitoring must remain observation-only and resilient if the
-            # override store is temporarily unreadable. Falling back to the
-            # catalog value preserves the previous fail-safe behavior.
-            old = raw_old
+        old = canonical.get(field)
         new = observed.get(field)
         if old is None and new is None:
             continue
@@ -436,7 +445,7 @@ class MonitorEngine:
                 failure = FailureCode.WRONG_LOCALE if failure == FailureCode.NONE else failure
                 notes.append("source_locale_not_fr_authority")
 
-        canonical = _canonical_business(offer)
+        canonical = _effective_business(program, _canonical_business(offer))
         status, changes, extra_notes = compare_business(
             program, canonical, observed, normalized.confidence
         )
