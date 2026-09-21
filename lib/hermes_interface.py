@@ -525,10 +525,11 @@ def _run_autofresh_command_locked(
         if parsed.get("program") and parsed.get("action") == "set":
             # An identical/restored override is not proof of a content diff.
             # Only the matching native plan may enqueue deferred work.
+            confirmed_field = str(parsed.get("field") or "")
             has_super_diff = any(
                 row.get("platform") == "super-parrain"
                 and row.get("status") == "pending_update"
-                and bool(row.get("changed_fields"))
+                and confirmed_field in (row.get("changed_fields") or {})
                 for row in base["platforms"]
             )
             if parsed.get("platform") in (None, "super-parrain") and has_super_diff:
@@ -536,7 +537,7 @@ def _run_autofresh_command_locked(
                     "super-parrain",
                     parsed["program"],
                     "fr",
-                    reason=f"hermes_{parsed.get('field')}",
+                    reason=f"hermes_{confirmed_field}",
                 )
     except Exception:
         pass
