@@ -26,6 +26,7 @@ from lib.monitor.normalize import normalize_field
 from lib.monitor.parsers import get_parser
 from lib.monitor.registry import coverage_stats, load_registry, mapping_impact_counts
 from lib.offers import OffersRepository
+from lib.operator_overrides import resolve_effective_value
 from lib.paths import DATA_DIR
 
 HISTORY_DIR = DATA_DIR / "monitor"
@@ -88,7 +89,18 @@ def compare_business(
     for field in BUSINESS_FIELDS:
         if field not in observed and field not in canonical:
             continue
-        old = canonical.get(field)
+        raw_old = canonical.get(field)
+        try:
+            old = resolve_effective_value(
+                program,
+                field,
+                canonical=raw_old,
+            ).value
+        except Exception:
+            # Monitoring must remain observation-only and resilient if the
+            # override store is temporarily unreadable. Falling back to the
+            # catalog value preserves the previous fail-safe behavior.
+            old = raw_old
         new = observed.get(field)
         if old is None and new is None:
             continue
