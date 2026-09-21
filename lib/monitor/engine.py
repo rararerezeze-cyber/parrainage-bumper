@@ -26,6 +26,7 @@ from lib.monitor.normalize import normalize_field
 from lib.monitor.parsers import get_parser
 from lib.monitor.registry import coverage_stats, load_registry, mapping_impact_counts
 from lib.offers import OffersRepository
+from lib.operator_overrides import resolve_effective_value
 from lib.paths import DATA_DIR
 
 HISTORY_DIR = DATA_DIR / "monitor"
@@ -45,6 +46,26 @@ def _canonical_business(offer: dict) -> dict[str, str | None]:
         "referee_reward": normalize_field("referee_reward", offer.get("reward")),
         "conditions": normalize_field("conditions", offer.get("cond")),
     }
+
+
+def _effective_business(program: str, canonical: dict[str, str | None]) -> dict[str, str | None]:
+    """Overlay accepted/operator values on the catalog baseline for monitoring.
+
+    compare_business stays a pure comparison helper. Only the production
+    monitor resolves operator precedence, so unrelated callers/tests are not
+    affected by durable repository overrides.
+    """
+    effective = dict(canonical)
+    for field in BUSINESS_FIELDS:
+        raw = canonical.get(field)
+        try:
+            value = resolve_effective_value(program, field, canonical=raw).value
+        except Exception:
+            value = raw
+        normalized = normalize_field(field, value)
+        if normalized is not None or field in canonical:
+            effective[field] = normalized
+    return effective
 
 
 def classify_fetch_failure(status: int, error: str | None, body: str = "") -> FailureCode:
@@ -424,7 +445,7 @@ class MonitorEngine:
                 failure = FailureCode.WRONG_LOCALE if failure == FailureCode.NONE else failure
                 notes.append("source_locale_not_fr_authority")
 
-        canonical = _canonical_business(offer)
+        canonical = _effective_business(program, _canonical_business(offer))
         status, changes, extra_notes = compare_business(
             program, canonical, observed, normalized.confidence
         )

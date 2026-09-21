@@ -114,6 +114,12 @@ def test_daily_payload_is_click_first_and_has_referralcode_shortcut():
     assert "iGraal divergences" in commands
     assert "TotalEnergies divergences" in commands
 
+    for block in payload["blocks"]:
+        if block.get("type") != "actions":
+            continue
+        block_ids = [e.get("action_id") for e in block.get("elements", [])]
+        assert len(block_ids) == len(set(block_ids))
+
 
 def test_super_parrain_long_overdue_becomes_actionable():
     now = datetime(2026, 9, 15, 18, 45, tzinfo=timezone.utc)

@@ -431,3 +431,42 @@ def test_production_report_shape():
     assert "MONITORING_PRODUCTION_READY" in prod
     assert prod["MONITORING_BASE_READY"] == "YES"
     assert "public_mutable_mapping_coverage" in prod
+
+
+def test_monitor_engine_uses_effective_operator_override(tmp_path, monkeypatch):
+    from lib import operator_overrides as overrides
+    from lib.monitor.engine import _effective_business
+
+    path = tmp_path / "operator-overrides.json"
+    path.write_text('{"version":1,"overrides":[]}\n', encoding="utf-8")
+    monkeypatch.setattr(overrides, "OPERATOR_OVERRIDES_PATH", path)
+    store = overrides.OperatorOverrideStore()
+    store.upsert("totalenergies", "referee_reward", "50 €")
+    store.upsert("totalenergies", "reward_type", "cash")
+
+    baseline = _effective_business(
+        "totalenergies",
+        {"referee_reward": "20 €"},
+    )
+    assert baseline["referee_reward"] == "50 €"
+    assert baseline["reward_type"] == "cash"
+
+    status, changes, _ = compare_business(
+        "totalenergies",
+        baseline,
+        {"referee_reward": "50 €", "reward_type": "cash"},
+        Confidence.HIGH,
+    )
+    assert status == ObservationStatus.NO_CHANGE
+    assert changes == []
+
+    status2, changes2, _ = compare_business(
+        "totalenergies",
+        baseline,
+        {"referee_reward": "60 €", "reward_type": "cash"},
+        Confidence.HIGH,
+    )
+    assert status2 == ObservationStatus.CANDIDATE
+    assert [(c.field, c.old, c.new) for c in changes2] == [
+        ("referee_reward", "50 €", "60 €")
+    ]

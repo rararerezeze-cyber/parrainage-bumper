@@ -232,3 +232,37 @@ def test_idempotence_same_value():
     assert r2["ok"] is True
     assert r2.get("idempotent") is True or r2.get("replayed") is True or r2["result"].get("new_effective") == "IDEMP123"
     assert r2.get("persist_confirmed") is True
+
+
+def test_unrelated_super_parrain_diff_does_not_enqueue_confirmed_field(monkeypatch):
+    calls = []
+
+    monkeypatch.setattr(
+        "lib.hermes_interface.plan_program_impact",
+        lambda *_a, **_k: {
+            "platforms": [
+                {
+                    "platform": "super-parrain",
+                    "status": "pending_update",
+                    "write_mode": "DEFERRED_CYCLE",
+                    "changed_fields": {
+                        "referee_reward": {"old": "20 €", "new": "50 €"}
+                    },
+                }
+            ]
+        },
+    )
+    monkeypatch.setattr(
+        "lib.super_parrain_schedule.enqueue_pending",
+        lambda *a, **k: calls.append((a, k)),
+    )
+
+    result = run_autofresh_command(
+        "TotalEnergies type de récompense cash",
+        requester={"source": "slack"},
+        run_writers=False,
+    )
+
+    assert result["ok"] is True
+    assert result["parsed"]["field"] == "reward_type"
+    assert calls == []

@@ -6,6 +6,7 @@ import argparse
 import json
 import os
 import sys
+import urllib.error
 import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -267,10 +268,20 @@ def build_payload(data: dict[str, Any], channel: str) -> dict[str, Any]:
         {"type": "context", "elements": [{"type": "mrkdwn", "text": f"{state} · mis à jour {_paris_time(now)} (Paris) · lecture seule"}]},
     ]
 
-    actions = [
-        _command_button("Voir les remontées", "Autofresh bump", "bump"),
-        _rctv_button(),
-    ]
+    # Slack requires action_id values to be unique within a single actions
+    # block. Keep the two global actions together, then give each program
+    # shortcut its own block so every button can continue using the stable
+    # autofresh_command handler without requiring a Worker redeploy.
+    blocks.append(
+        {
+            "type": "actions",
+            "block_id": "autofresh_daily_main",
+            "elements": [
+                _command_button("Voir les remontées", "Autofresh bump", "bump"),
+                _rctv_button(),
+            ],
+        }
+    )
     seen: set[str] = set()
     for item in candidates:
         program = str(item.get("program") or "").strip()
@@ -278,10 +289,21 @@ def build_payload(data: dict[str, Any], channel: str) -> dict[str, Any]:
             continue
         seen.add(program)
         label = _program_label(program)
-        actions.append(_command_button(f"Voir {label}", f"{label} divergences", f"divergences:{program}"))
-        if len(actions) >= 5:
+        blocks.append(
+            {
+                "type": "actions",
+                "block_id": f"autofresh_daily_{program}"[:255],
+                "elements": [
+                    _command_button(
+                        f"Voir {label}",
+                        f"{label} divergences",
+                        f"divergences:{program}",
+                    )
+                ],
+            }
+        )
+        if len(seen) >= 3:
             break
-    blocks.append({"type": "actions", "elements": actions[:5]})
 
     return {
         "channel": channel,
@@ -322,8 +344,28 @@ def deliver(payload: dict[str, Any], token: str) -> bool:
     )
     try:
         with urllib.request.urlopen(req, timeout=15) as response:
-            return json.loads(response.read().decode("utf-8")).get("ok") is True
-    except Exception:
+            raw = response.read().decode("utf-8", errors="replace")
+            try:
+                body = json.loads(raw)
+            except json.JSONDecodeError:
+                print("::error::Slack chat.postMessage returned invalid JSON")
+                return False
+            if body.get("ok") is True:
+                return True
+            error = str(body.get("error") or "unknown_error")
+            details = (body.get("response_metadata") or {}).get("messages") or []
+            suffix = f" details={details}" if details else ""
+            print(f"::error::Slack chat.postMessage failed: {error}{suffix}")
+            return False
+    except urllib.error.HTTPError as exc:
+        try:
+            body = exc.read().decode("utf-8", errors="replace")[:1200]
+        except Exception:
+            body = ""
+        print(f"::error::Slack chat.postMessage HTTP {exc.code}: {body}")
+        return False
+    except Exception as exc:
+        print(f"::error::Slack chat.postMessage transport error: {type(exc).__name__}: {exc}")
         return False
 
 
