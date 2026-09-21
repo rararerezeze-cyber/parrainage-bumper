@@ -244,6 +244,7 @@ def test_unrelated_super_parrain_diff_does_not_enqueue_confirmed_field(monkeypat
                 {
                     "platform": "super-parrain",
                     "status": "pending_update",
+                    "write_mode": "DEFERRED_CYCLE",
                     "changed_fields": {
                         "referee_reward": {"old": "20 €", "new": "50 €"}
                     },
