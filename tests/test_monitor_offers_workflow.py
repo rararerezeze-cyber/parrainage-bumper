@@ -63,8 +63,7 @@ def test_git_add_no_longer_masks_a_missing_pathspec():
         "the masked unconditional git add must be gone from the executable "
         "code, not merely absent from comments"
     )
-    assert 'if [ -f "$f" ]; then' in COMMIT_STEP
-    assert "git add \"$f\"" in COMMIT_STEP
+    assert '[ -f "$f" ] && git add "$f"' in COMMIT_STEP
 
 
 def test_optional_batch_state_paths_are_conditionally_staged():
