@@ -31,7 +31,7 @@ See `docs/CLOSURE-2026-09-11.md` for the final production closure.
   replayed, and only a failure proven to occur before any site action is eligible
   for one bounded recovery.
 - Super-Parrain remains on its independent ~24 h minimum + persistent random delay.
-- The monitor stays observation-only; `monitor_auto_accept=false`.
+- The monitor remains source-observation-only, but verified public changes are now batch-accepted and reconciled automatically when they pass the strict official-FR / HIGH-confidence / stable-streak / non-personal gates; `monitor_auto_accept=true`.
 
 ## Platform table
 
@@ -86,10 +86,12 @@ Slack /autofresh
   → Slack reply
 ```
 
-Every slash command starts unarmed. A real writer can only be armed by the
-separate signed, allowlisted **Confirmer l'écriture** interaction, and the backend
-still applies platform readiness, SAFE_DIFF, backup, post-write reread,
-post-verification and circuit-breaker rules.
+Manual Slack commands still start unarmed and keep the separate signed,
+allowlisted **Confirmer l'écriture** interaction. Independently, the scheduled
+monitor now has an operator-authorized batch route for already verified public
+offer fields only. That route still applies platform readiness, exact SAFE_DIFF
+field scope, backup, post-write reread, post-verification and circuit-breaker
+rules; personal code/link fields and blocked/manual platforms are excluded.
 
 A future naturally occurring real SAFE_DIFF will provide one more end-to-end
 operational sample through the final Slack UX. It is deliberately not manufactured
@@ -126,6 +128,9 @@ These do not block the finished supported scope:
 - no CAPTCHA/Turnstile bypass;
 - no speculative ReferralCodes Commit;
 - no replay of a site after an ambiguous post-action failure;
-- monitor remains observation-only unless explicitly redesigned;
-- real writes still require explicit confirmation where the operator path calls
-  for it and full post-write verification.
+- public-source extraction itself remains observation-only; automatic acceptance
+  is limited to the explicitly redesigned verified batch gate and can be disabled
+  immediately with `AUTOFRESH_MONITOR_AUTO_ACCEPT=0`;
+- manual operator writes still require explicit confirmation where that path calls
+  for it; verified batch writes are limited to PC-off SAFE_DIFF routes and always
+  require full post-write verification.

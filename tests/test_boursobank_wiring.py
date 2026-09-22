@@ -91,7 +91,7 @@ def test_boursobank_simulate_only_real_native_diffs(tmp_path, monkeypatch):
     )
     report = simulate([observation], persist_report=False)
     assert report["live_writes_performed"] == 0
-    assert report["switch_enabled"] is False
+    assert report["switch_enabled"] is True
     bourso = [
         d
         for d in report["simulated_safe_diffs"]

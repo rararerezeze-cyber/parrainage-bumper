@@ -51,6 +51,11 @@ jobs:
       - name: Dependencies
         run: |
           pip install -r requirements.txt
+          if python -c "import json; raise SystemExit(0 if json.load(open('data/autofresh-phase.json', encoding='utf-8')).get('monitor_auto_accept') else 1)"; then
+            playwright install --with-deps chromium
+          else
+            echo "batch_writer_browser_install_skipped=true"
+          fi
       - name: Rebuild registry + coverage
         env:
           AUTOFRESH_PHASE: "PRODUCTION"
@@ -71,16 +76,59 @@ jobs:
           echo "monitor_exit=$RC"
           python monitor.py --production-report || true
           python monitor.py --simulate-auto-accept || true
-          python - <<'PY'
-          from lib.monitor.auto_accept import auto_accept_enabled, observations_from_last_report, evaluate_all, apply_accepts
-          if auto_accept_enabled():
-              ev = evaluate_all(observations_from_last_report())
-              print(apply_accepts(ev['accepts']))
-          else:
-              print('monitor_auto_accept=false — simulation only, no accepted-fields write')
-          PY
           # never fail hard on single source 403 — report is enough
           exit 0
+
+      - name: Apply verified batch and reconcile safe writers
+        env:
+          AUTOFRESH_PHASE: "PRODUCTION"
+          AUTOFRESH_LIVE_WRITES: "1"
+          ONEPARRAINAGE_EMAIL: ${{ secrets.ONEPARRAINAGE_EMAIL }}
+          ONEPARRAINAGE_PASSWORD: ${{ secrets.ONEPARRAINAGE_PASSWORD }}
+          CODE_PARRAINAGE_EMAIL: ${{ secrets.CODE_PARRAINAGE_EMAIL }}
+          CODE_PARRAINAGE_PASSWORD: ${{ secrets.CODE_PARRAINAGE_PASSWORD }}
+          PARRAINAGE_CO_EMAIL: ${{ secrets.PARRAINAGE_CO_EMAIL }}
+          PARRAINAGE_CO_PASSWORD: ${{ secrets.PARRAINAGE_CO_PASSWORD }}
+          PARRAINAGE_CO_RM_COOKIE: ${{ secrets.PARRAINAGE_CO_RM_COOKIE }}
+          TWOCAPTCHA_KEY: ${{ secrets.TWOCAPTCHA_KEY }}
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from lib.monitor.auto_accept import (
+              apply_verified_batch,
+              auto_accept_enabled,
+              observations_from_last_report,
+          )
+
+          out = Path("data/captures/monitor-auto-accept-batch.json")
+          if auto_accept_enabled():
+              report = apply_verified_batch(
+                  observations_from_last_report(),
+                  run_writers=True,
+              )
+          else:
+              report = {
+                  "ok": True,
+                  "applied": False,
+                  "reason": "monitor_auto_accept_off",
+                  "accepted_count": 0,
+                  "verified_writes": 0,
+                  "failed_writes": 0,
+              }
+          out.write_text(
+              json.dumps(report, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          print(
+              "batch_accept "
+              f"accepted={report.get('accepted_count', 0)} "
+              f"verified_writes={report.get('verified_writes', 0)} "
+              f"failed_writes={report.get('failed_writes', 0)}"
+          )
+          if not report.get("ok", False):
+              raise SystemExit("verified batch reconciliation failed")
+          PY
       - name: Upload report (always — history can live in artifacts)
         if: always()
         uses: actions/upload-artifact@v4
@@ -90,58 +138,55 @@ jobs:
           path: |
             data/captures/monitor-last-report.json
             data/captures/monitor-auto-accept-simulation.json
+            data/captures/monitor-auto-accept-batch.json
             data/captures/offer-sources-verify.json
             data/monitor/
             data/offer-sources.json
           if-no-files-found: ignore
-      - name: Commit only on business/status change
+      - name: Commit monitor state and verified batch baselines
         if: success()
         run: |
           git config user.name "autofresh-bot"
           git config user.email "autofresh-bot@users.noreply.github.com"
-          # should_commit is computed by save_run_report (compares to previous report)
+
+          # Observation snapshots are staged only on a business/status change,
+          # preserving the no-noise monitor contract.
           if python monitor.py --should-commit; then
-            echo "Business/status change detected — committing light state"
-            # Same class of bug fixed in capture_readonly.yml: `git add`
-            # aborts the ENTIRE invocation (stages nothing at all) the
-            # instant any one pathspec matches nothing. accepted-fields.json
-            # / accepted-history.jsonl do not exist yet in this repo, so the
-            # old single `git add ... 2>/dev/null || true` line silently
-            # staged NOTHING on every run, including the paths that did
-            # exist and did change. Add only what is actually present.
+            echo "Business/status change detected — staging monitor state"
             for f in data/monitor/last-observations.json \
                      data/monitor/history.jsonl \
-                     data/monitor/accepted-fields.json \
-                     data/monitor/accepted-history.jsonl \
                      data/offer-sources.json \
                      data/captures/monitor-last-report.json \
                      data/captures/monitor-auto-accept-simulation.json; do
-              if [ -f "$f" ]; then
-                git add "$f"
-              fi
+              [ -f "$f" ] && git add "$f"
             done
-            if git diff --staged --quiet; then
-              echo "no staged file changes"
-            else
-              git commit -m "chore(monitor): business/status observation update"
-              # A failed pull/push must never be swallowed: the report this
-              # run produced would otherwise claim a business/status change
-              # was persisted when it was only ever committed locally on
-              # this ephemeral runner. No retry loop -- one attempt, fail
-              # loudly (visible red run) on error, same as
-              # hermes_operator.yml / controlled_write.yml.
-              if ! git pull --rebase origin "${{ github.ref_name }}"; then
-                echo "::error::git pull --rebase failed -- monitor business/status commit was NOT pushed. The report this run produced does not reflect a durably persisted change."
-                exit 1
-              fi
-              if ! git push; then
-                echo "::error::git push failed -- monitor business/status commit was NOT pushed. The report this run produced does not reflect a durably persisted change."
-                exit 1
-              fi
-            fi
           else
-            echo "No business/status change — skip git commit (report stays in artifacts)"
-            # still refresh last-observations locally in workspace but do not push noise
+            echo "No business/status observation change"
+          fi
+
+          # Batch acceptance/writer state is durable independently of whether
+          # the observation signature changed on this exact run.
+          for f in data/monitor/accepted-fields.json \
+                   data/monitor/accepted-history.jsonl \
+                   data/pending_writes.json; do
+            [ -f "$f" ] && git add "$f"
+          done
+          [ -d data/platform-mappings ] && git add data/platform-mappings/
+          [ -d data/platform-golden ] && git add data/platform-golden/
+          [ -d data/platform-templates ] && git add data/platform-templates/
+
+          if git diff --staged --quiet; then
+            echo "no staged file changes"
+          else
+            git commit -m "chore(autofresh): persist verified batch reconciliation"
+            if ! git pull --rebase origin "${{ github.ref_name }}"; then
+              echo "::error::git pull --rebase failed -- batch reconciliation state was NOT pushed."
+              exit 1
+            fi
+            if ! git push; then
+              echo "::error::git push failed -- batch reconciliation state was NOT pushed."
+              exit 1
+            fi
           fi
 
       - name: Save notification dedup state

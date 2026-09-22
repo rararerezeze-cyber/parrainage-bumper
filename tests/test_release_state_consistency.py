@@ -19,7 +19,7 @@ def test_release_is_production_with_known_limitations():
     phase = json.loads((ROOT / "data" / "autofresh-phase.json").read_text(encoding="utf-8"))
     assert "AUTOFRESH_RELEASE_STATUS = FINISHED_WITH_KNOWN_LIMITATIONS" in release
     assert phase["phase"] == "PRODUCTION"
-    assert phase["monitor_auto_accept"] is False
+    assert phase["monitor_auto_accept"] is True
 
 
 def test_production_workflows_use_production_phase():

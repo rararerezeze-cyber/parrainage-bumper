@@ -139,16 +139,34 @@ def cmd_program(program: str, *, impact: bool = False) -> int:
     return 0
 
 
-def _notify_candidates(candidates: list) -> None:
-    """Report observed business divergences. OBSERVATION_ONLY, never a write.
+def _notify_candidates(candidates: list, observations: list | None = None) -> None:
+    """Report only candidates that still require operator attention.
 
-    BEST_EFFORT: a broken notification path never affects the monitor run.
-    NO_CHANGE programs are not events and are never reported.
+    When verified global batch acceptance is enabled, candidates that already
+    pass the same strict auto-accept gates are intentionally not emitted as
+    individual Slack actions. This avoids asking the operator to approve the
+    same trusted change brand by brand after the batch is going to accept it.
     """
     try:
+        from lib.monitor.auto_accept import auto_accept_enabled, evaluate_field
         from lib.notify import EVENT_MONITOR_REAL_SAFE_DIFF, emit
+        from lib.operator_overrides import OperatorOverrideStore
+
+        by_program = {
+            o.program: o for o in (observations or []) if getattr(o, "program", None)
+        }
+        store = OperatorOverrideStore()
+        batch_enabled = auto_accept_enabled()
 
         for c in candidates or []:
+            if batch_enabled:
+                verdict = evaluate_field(
+                    c,
+                    by_program.get(c.get("program") or ""),
+                    store=store,
+                )
+                if verdict.get("decision") == "ACCEPT":
+                    continue
             emit(
                 "WARNING",
                 EVENT_MONITOR_REAL_SAFE_DIFF,
@@ -208,7 +226,7 @@ def cmd_all(*, changes_only: bool = False) -> int:
     ):
         print(f"  {k}: {prod.get(k)}")
     cands = candidates_report(results)
-    _notify_candidates(cands)
+    _notify_candidates(cands, results)
     if cands:
         print("--- CANDIDATES (observation only, not accepted) ---")
         for c in cands[:20]:

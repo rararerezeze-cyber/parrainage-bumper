@@ -140,9 +140,11 @@ def test_referralcodes_can_never_auto_commit():
     assert "committed" not in (result.get("steps") or [])
 
 
-def test_monitor_auto_accept_stays_disabled():
+def test_monitor_verified_batch_accept_is_enabled_with_emergency_off(monkeypatch):
     from lib.monitor.auto_accept import auto_accept_enabled
 
+    assert auto_accept_enabled() is True
+    monkeypatch.setenv("AUTOFRESH_MONITOR_AUTO_ACCEPT", "0")
     assert auto_accept_enabled() is False
 
 

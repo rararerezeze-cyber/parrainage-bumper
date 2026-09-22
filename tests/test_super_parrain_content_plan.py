@@ -296,3 +296,34 @@ def test_referralcode_tv_boost_contract_is_unchanged():
     )
     assert unverified["outcome"] == RCTV_BOOST_NOT_VERIFIED
     assert unverified["blocking"] is True
+
+
+
+def test_normal_bump_scopes_content_to_all_pending_programs():
+    from tools.super_parrain_cycle import _scope_env_to_pending
+
+    env = {
+        "AUTOFRESH_MODE": "canary",
+        "AUTOFRESH_CANARY_PROGRAMS": "kraken",
+    }
+    decision = {
+        "runtime_mode": "NORMAL_BUMP",
+        "pending_programs": ["totalenergies", "igraal", "igraal"],
+    }
+    scoped = _scope_env_to_pending(dict(env), decision)
+    assert scoped["AUTOFRESH_MODE"] == "canary"
+    assert scoped["AUTOFRESH_CANARY_PROGRAMS"] == "igraal,totalenergies"
+
+
+def test_non_normal_super_runtime_keeps_fail_closed_canary_scope():
+    from tools.super_parrain_cycle import _scope_env_to_pending
+
+    env = {
+        "AUTOFRESH_MODE": "canary",
+        "AUTOFRESH_CANARY_PROGRAMS": "kraken",
+    }
+    decision = {
+        "runtime_mode": "CANARY_PENDING",
+        "pending_programs": ["igraal"],
+    }
+    assert _scope_env_to_pending(dict(env), decision) == env
