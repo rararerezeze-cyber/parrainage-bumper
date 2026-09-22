@@ -1,8 +1,11 @@
 """Deterministic public-monitor auto-accept.
 
 Observation → strict gates → ACCEPTED_PUBLIC_MONITOR_VALUE (not offers.json).
-Default is simulation. Live apply only when phase.monitor_auto_accept is true.
-Never writes platform ads from this module.
+Default evaluation is deterministic and gated. Persistence/batch reconciliation
+only runs when phase.monitor_auto_accept is true (or an explicit test force is
+used). Platform writes are restricted to existing PC-off WRITE_VERIFIED
+SAFE_DIFF routes; human/blocked/Super-Parrain routes are never directly written
+by the batch executor.
 """
 from __future__ import annotations
 
