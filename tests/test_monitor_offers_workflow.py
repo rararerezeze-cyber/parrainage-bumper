@@ -30,7 +30,7 @@ ROOT = Path(__file__).resolve().parent.parent
 WORKFLOW = ROOT / ".github" / "workflows" / "monitor_offers.yml"
 TEXT = WORKFLOW.read_text(encoding="utf-8")
 
-COMMIT_STEP = TEXT[TEXT.index("- name: Commit only on business/status change") :]
+COMMIT_STEP = TEXT[TEXT.index("- name: Commit monitor state and verified batch baselines") :]
 
 
 def test_commit_step_never_silently_swallows_a_failed_push():
@@ -67,14 +67,21 @@ def test_git_add_no_longer_masks_a_missing_pathspec():
     assert "git add \"$f\"" in COMMIT_STEP
 
 
-def test_currently_absent_paths_are_covered_by_the_conditional_add():
-    """Empirical, not assumed: these two paths do not exist in the repo
-    right now, which is exactly the condition that broke the old
-    unconditional git add."""
-    for missing in ("data/monitor/accepted-fields.json", "data/monitor/accepted-history.jsonl"):
-        assert not (ROOT / missing).exists(), (
-            f"{missing} now exists -- if this is expected, the regression "
-            "this test guards against may no longer be reproducible as "
-            "written, double check the fix is still exercised"
-        )
-        assert missing in COMMIT_STEP
+def test_optional_batch_state_paths_are_conditionally_staged():
+    for path in (
+        "data/monitor/accepted-fields.json",
+        "data/monitor/accepted-history.jsonl",
+        "data/pending_writes.json",
+    ):
+        assert path in COMMIT_STEP
+    assert '[ -f "$f" ] && git add "$f"' in COMMIT_STEP
+
+
+def test_monitor_workflow_runs_one_global_verified_batch():
+    assert "Apply verified batch and reconcile safe writers" in TEXT
+    assert "apply_verified_batch(" in TEXT
+    assert "run_writers=True" in TEXT
+    assert "ONEPARRAINAGE_EMAIL" in TEXT
+    assert "CODE_PARRAINAGE_EMAIL" in TEXT
+    assert "PARRAINAGE_CO_EMAIL" in TEXT
+    assert "TWOCAPTCHA_KEY" in TEXT
