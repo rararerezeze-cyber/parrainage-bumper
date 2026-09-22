@@ -4,10 +4,10 @@
 Une sauvegarde par code promo = update eventuel + remontee.
 N'execute PAS une passe writer separee + bumper.
 
-Premier live (defaut): canary Kraken seulement.
-  AUTOFRESH_MODE=canary
-  AUTOFRESH_CANARY_PROGRAMS=kraken
-  → les ~22 autres diffs restent en BUMP_ONLY.
+Le mode canary reste fail-closed, mais en runtime NORMAL_BUMP les programmes
+explicitement présents dans la file pending deviennent le scope contenu du
+cycle. Les autres différences restent BUMP_ONLY. Cela permet de traiter en lot
+les changements déjà acceptés sans ouvrir le rollout à toutes les divergences.
 """
 from __future__ import annotations
 
@@ -117,6 +117,23 @@ def _ensure_canary_env(env: dict) -> dict:
     return env
 
 
+def _scope_env_to_pending(env: dict, decision: dict) -> dict:
+    """In NORMAL_BUMP, only accepted/deferred pending programs may mutate content."""
+    if decision.get("runtime_mode") != "NORMAL_BUMP":
+        return env
+    pending = sorted(
+        {
+            str(p).strip()
+            for p in (decision.get("pending_programs") or [])
+            if str(p).strip()
+        }
+    )
+    if pending:
+        env["AUTOFRESH_MODE"] = "canary"
+        env["AUTOFRESH_CANARY_PROGRAMS"] = ",".join(pending)
+    return env
+
+
 def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--execute", action="store_true", help="Lance bumper.py fuse (1 save/code)")
@@ -133,11 +150,13 @@ def main() -> int:
     args = p.parse_args()
 
     env_preview = _ensure_canary_env(os.environ.copy())
+    decision = decide_super_parrain_action()
     if args.full:
         env_preview["AUTOFRESH_MODE"] = "full"
         env_preview.pop("AUTOFRESH_CANARY_PROGRAMS", None)
+    else:
+        env_preview = _scope_env_to_pending(env_preview, decision)
 
-    decision = decide_super_parrain_action()
     eligible, nxt, hours = is_eligible()
     pre = dry_precheck_report(env_preview)
     policy = pre["policy"]
@@ -238,6 +257,8 @@ def main() -> int:
     if args.full:
         env["AUTOFRESH_MODE"] = "full"
         env.pop("AUTOFRESH_CANARY_PROGRAMS", None)
+    else:
+        env = _scope_env_to_pending(env, decision)
     env["TARGET_SITES"] = "super"
     env["AUTOFRESH_SUPER"] = "1"
 
