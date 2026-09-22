@@ -40,7 +40,10 @@ from lib.write_status import (
     runtime_route,
 )
 
+# Legacy pilot list kept for explicit scoped tests/debug. Production defaults to
+# every candidate that passes the strict source/authority/confidence gates.
 INITIAL_SCOPE = frozenset({"boursobank", "winamax", "igraal", "poulpeo", "kraken"})
+DEFAULT_SCOPE: frozenset[str] | None = None
 NEVER_AUTO_FIELDS = frozenset({"personal_code", "personal_link"})
 BLOCKED_OFFER_KINDS = frozenset({"APP_PERSONALIZED", "OPERATOR_ONLY"})
 BLOCKED_MONITOR_STATUSES = frozenset(
@@ -107,7 +110,7 @@ def evaluate_field(
     *,
     store: OperatorOverrideStore | None = None,
     accepted: dict[str, dict[str, str]] | None = None,
-    scope: frozenset[str] = INITIAL_SCOPE,
+    scope: frozenset[str] | None = DEFAULT_SCOPE,
 ) -> dict[str, Any]:
     """Decide ACCEPT / REJECT for one field candidate. Never writes."""
     program = (cand.get("program") or "").strip().lower()
@@ -116,10 +119,10 @@ def evaluate_field(
     reasons: list[str] = []
     decision = "ACCEPT"
 
-    if program not in scope:
+    if scope is not None and program not in scope:
         return {
             "decision": "REJECT",
-            "reasons": [f"outside_initial_scope:{program}"],
+            "reasons": [f"outside_explicit_scope:{program}"],
             "program": program,
             "field": field,
             "observed": observed,
@@ -233,17 +236,21 @@ def _obs_index(observations: list[Observation]) -> dict[str, Observation]:
 def evaluate_all(
     observations: list[Observation],
     *,
-    scope: frozenset[str] = INITIAL_SCOPE,
+    scope: frozenset[str] | None = DEFAULT_SCOPE,
     store: OperatorOverrideStore | None = None,
 ) -> dict[str, Any]:
     store = store or OperatorOverrideStore()
     accepted_now = load_accepted_monitor_fields()
     by_prog = _obs_index(observations)
-    cands = [c for c in candidates_report(observations) if c.get("program") in scope]
+    cands = [
+        c
+        for c in candidates_report(observations)
+        if scope is None or c.get("program") in scope
+    ]
     # Always score Kraken referee_reward so the operator lock is visible
     # even when offers.json still holds the stale 20 € BTC canonical.
     kr = by_prog.get("kraken")
-    if kr and "kraken" in scope:
+    if kr and (scope is None or "kraken" in scope):
         if not any(c.get("program") == "kraken" and c.get("field") == "referee_reward" for c in cands):
             cands.append(
                 {
@@ -279,7 +286,7 @@ def evaluate_all(
     rejects = [r for r in rows if r["decision"] == "REJECT"]
     return {
         "at": _now(),
-        "scope": sorted(scope),
+        "scope": "ALL_VERIFIED" if scope is None else sorted(scope),
         "candidates": len(cands),
         "rows": rows,
         "accepts": accepts,
@@ -398,6 +405,183 @@ def simulate_routes(
     }
 
 
+def effective_sync_routes(
+    *,
+    store: OperatorOverrideStore | None = None,
+) -> dict[str, Any]:
+    """Plan every currently accepted non-personal field across all mappings.
+
+    Only values whose effective source is an explicit operator override or an
+    accepted public-monitor value are eligible. Plain catalog defaults never
+    become batch writes. Personal code/link fields remain excluded.
+    """
+    from lib.inventory import list_mapping_refs
+    from lib.native_field_format import adapt_monitor_value_to_native
+    from lib.renderer import MappingRepository
+
+    store = store or OperatorOverrideStore()
+    accepted = load_accepted_monitor_fields()
+    maps = MappingRepository()
+    diffs: list[dict[str, Any]] = []
+    routes: dict[str, dict[str, Any]] = {}
+
+    for ref in list_mapping_refs():
+        try:
+            mapping = maps.load(ref.platform, ref.program, ref.language)
+        except Exception:
+            continue
+        changed: dict[str, dict[str, str | None]] = {}
+        published = mapping.platform_values or {}
+
+        for field in mapping.mutable_fields:
+            if field in NEVER_AUTO_FIELDS:
+                continue
+            native = published.get(field)
+            eff = resolve_effective_value(
+                ref.program,
+                field,
+                platform=ref.platform,
+                canonical=native,
+                store=store,
+                accepted=accepted,
+            )
+            if eff.source not in {
+                SOURCE_PLATFORM_OPERATOR,
+                SOURCE_GLOBAL_OPERATOR,
+                SOURCE_ACCEPTED_MONITOR,
+            }:
+                continue
+            desired = eff.value
+            if native is not None:
+                desired = adapt_monitor_value_to_native(field, desired, native)
+            if str(native or "") != str(desired or ""):
+                changed[field] = {
+                    "old": native,
+                    "new": desired,
+                    "source": eff.source,
+                }
+
+        route = runtime_route(ref.platform)
+        if ref.platform == "super-parrain":
+            route_label = "FUSED_UPDATE_BUMP" if changed else ROUTE_CANARY_PENDING_SKIP
+        elif ref.platform == "referraldrop":
+            route_label = "MANUAL"
+        else:
+            route_label = route
+
+        routes.setdefault(
+            ref.platform,
+            {"route": route_label, "runtime_route": route, "programs": []},
+        )
+        if not changed:
+            continue
+
+        routes[ref.platform]["route"] = route_label
+        routes[ref.platform]["programs"].append(ref.program)
+        diffs.append(
+            {
+                "platform": ref.platform,
+                "program": ref.program,
+                "language": ref.language,
+                "changed_fields": changed,
+                "route": route_label,
+                "runtime_route": route,
+                "human_command": human_local_command(ref.platform)
+                if route == ROUTE_HUMAN_SAVE_REQUIRED
+                else None,
+            }
+        )
+
+    return {
+        "safe_diffs": diffs,
+        "platform_routes": routes,
+        "auto_writers": [
+            p
+            for p, meta in routes.items()
+            if meta["route"] == ROUTE_AUTO_ON_SAFE_DIFF and meta["programs"]
+        ],
+        "super_fused": any(d["platform"] == "super-parrain" for d in diffs),
+        "rctv_human": any(d["route"] == ROUTE_HUMAN_SAVE_REQUIRED for d in diffs),
+    }
+
+
+def execute_safe_sync_routes(routes: dict[str, Any]) -> list[dict[str, Any]]:
+    """Execute every PC-off WRITE_VERIFIED SAFE_DIFF in a prepared batch.
+
+    HUMAN_SAVE_REQUIRED / NEVER_AUTO_COMMIT / Super-Parrain / blocked routes are
+    never executed here. Each field remains scoped through the existing writer
+    guard; the operator no longer has to confirm brand by brand.
+    """
+    from tools.run_verified_writers import _try_platform_if_verified
+
+    results: list[dict[str, Any]] = []
+    for diff in routes.get("safe_diffs") or []:
+        if diff.get("route") != ROUTE_AUTO_ON_SAFE_DIFF:
+            continue
+        platform = str(diff.get("platform") or "")
+        program = str(diff.get("program") or "")
+        for field in (diff.get("changed_fields") or {}):
+            if field in NEVER_AUTO_FIELDS:
+                continue
+            result = _try_platform_if_verified(
+                platform,
+                program,
+                str(diff.get("language") or "fr"),
+                confirmed_field=field,
+            )
+            results.append(
+                {
+                    "platform": platform,
+                    "program": program,
+                    "field": field,
+                    **result,
+                }
+            )
+    return results
+
+
+def apply_verified_batch(
+    observations: list[Observation],
+    *,
+    run_writers: bool = False,
+    force: bool = False,
+) -> dict[str, Any]:
+    """Accept all verified monitor candidates, then reconcile all accepted values."""
+    if not force and not auto_accept_enabled():
+        return {
+            "ok": False,
+            "applied": False,
+            "error": f"switch_off:{SWITCH_KEY}",
+            "accepted_count": 0,
+            "live_writes_performed": 0,
+        }
+
+    evaluation = evaluate_all(observations)
+    accepted = apply_accepts(evaluation["accepts"], force=True)
+    routes = effective_sync_routes()
+    writer_results = execute_safe_sync_routes(routes) if run_writers else []
+    failed = [r for r in writer_results if r.get("ok") is False]
+    verified = [
+        r
+        for r in writer_results
+        if r.get("ok") is True and r.get("action") == "UPDATED_VERIFIED"
+    ]
+    return {
+        "ok": not failed,
+        "applied": True,
+        "accepted_count": int(accepted.get("count") or 0),
+        "accepted_rows": accepted.get("applied_rows") or [],
+        "eligible_candidates": len(evaluation.get("accepts") or []),
+        "rejected_candidates": len(evaluation.get("rejects") or []),
+        "scope": evaluation.get("scope"),
+        "routes": routes,
+        "writer_results": writer_results,
+        "verified_writes": len(verified),
+        "failed_writes": len(failed),
+        "live_writes_performed": len(verified),
+    }
+
+
 def simulate(
     observations: list[Observation],
     *,
@@ -439,7 +623,7 @@ def simulate(
             f'data/autofresh-phase.json → "{SWITCH_KEY}": true'
         ),
         "remaining_monitor_work": [
-            "Do not flip monitor_auto_accept without operator OK",
+            "Global auto-accept is restricted to verified official FR candidates with stable HIGH evidence",
             "BoursoBank native spans are wired; campaign_variant stays rejected; reward_type has no native phrase",
             "Super content canary still CANARY_PENDING_SKIP until one fused live save is validated",
             "APP_PERSONALIZED stays Hermes/Telegram",
@@ -472,7 +656,7 @@ def save_accepted_fields(programs: dict[str, dict[str, str]]) -> Path:
 
 
 def apply_accepts(accepts: list[dict[str, Any]], *, force: bool = False) -> dict[str, Any]:
-    """Persist accepted monitor values. Requires the production switch. No platform write."""
+    """Persist accepted monitor values. No platform write is performed here."""
     if not force and not auto_accept_enabled():
         return {
             "ok": False,
@@ -480,38 +664,71 @@ def apply_accepts(accepts: list[dict[str, Any]], *, force: bool = False) -> dict
             "error": f"switch_off:{SWITCH_KEY}",
             "live_writes_performed": 0,
         }
-    from lib.safety import snapshot_state
 
-    snap = snapshot_state("monitor-auto-accept")
-    current = {p: dict(f) for p, f in load_accepted_monitor_fields().items()}
     applied: list[dict[str, str]] = []
-    for r in accepts:
-        prog, field, val = r["program"], r["field"], str(r["observed"])
-        if current.get(prog, {}).get(field) == val:
-            continue
-        current.setdefault(prog, {})[field] = val
-        applied.append({"program": prog, "field": field, "value": val})
-    save_accepted_fields(current)
-    HISTORY_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with HISTORY_PATH.open("a", encoding="utf-8") as fh:
-        for row in applied:
-            fh.write(json.dumps({"at": _now(), **row, "snapshot": snap.get("id")}, ensure_ascii=False) + "\n")
-    # Super fused cycle: enqueue only — existing bumper does one Enregistrer.
-    if any(True for r in accepts):
-        try:
-            from lib.super_parrain_schedule import enqueue_pending
+    snap_id: str | None = None
+    if accepts:
+        from lib.safety import snapshot_state
 
-            for prog in {r["program"] for r in accepts}:
-                enqueue_pending("super-parrain", prog, "fr", reason="monitor_auto_accept")
-        except Exception:
-            pass
+        snap = snapshot_state("monitor-auto-accept")
+        snap_id = snap.get("id")
+        current = {p: dict(f) for p, f in load_accepted_monitor_fields().items()}
+        for r in accepts:
+            prog, field, val = r["program"], r["field"], str(r["observed"])
+            if current.get(prog, {}).get(field) == val:
+                continue
+            current.setdefault(prog, {})[field] = val
+            applied.append({"program": prog, "field": field, "value": val})
+        if applied:
+            save_accepted_fields(current)
+            HISTORY_PATH.parent.mkdir(parents=True, exist_ok=True)
+            with HISTORY_PATH.open("a", encoding="utf-8") as fh:
+                for row in applied:
+                    fh.write(
+                        json.dumps(
+                            {"at": _now(), **row, "snapshot": snap_id},
+                            ensure_ascii=False,
+                        )
+                        + "\n"
+                    )
+
+    # Queue Super-Parrain only where the accepted/effective field is actually
+    # mutable and differs from the known platform baseline.
+    routes = effective_sync_routes()
+    try:
+        from lib.super_parrain_schedule import enqueue_pending
+
+        by_program: dict[str, set[str]] = {}
+        for diff in routes.get("safe_diffs") or []:
+            if diff.get("platform") != "super-parrain":
+                continue
+            fields = {
+                f
+                for f in (diff.get("changed_fields") or {})
+                if f not in NEVER_AUTO_FIELDS
+            }
+            if fields:
+                by_program.setdefault(str(diff.get("program") or ""), set()).update(fields)
+        for program, fields in by_program.items():
+            if program:
+                enqueue_pending(
+                    "super-parrain",
+                    program,
+                    "fr",
+                    reason="accepted_batch:" + ",".join(sorted(fields)),
+                )
+    except Exception:
+        pass
+
     return {
         "ok": True,
         "applied": True,
         "count": len(applied),
-        "snapshot_id": snap.get("id"),
+        "applied_rows": applied,
+        "snapshot_id": snap_id,
         "live_writes_performed": 0,
         "path": str(ACCEPTED_MONITOR_FIELDS_PATH),
+        "sync_routes": routes,
     }
 
 
