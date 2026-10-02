@@ -6,8 +6,8 @@
     {
       "index": 0,
       "planned_at": "2026-10-02T01:44:25.909892+00:00",
-      "status": "planned",
-      "dispatched_at": null,
+      "status": "dispatched",
+      "dispatched_at": "2026-10-02T01:49:03.699321+00:00",
       "catchup": false
     },
     {
