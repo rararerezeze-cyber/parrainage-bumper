@@ -514,6 +514,9 @@
     "2026-10-02:4": [
       "code",
       "parrainage"
+    ],
+    "2026-10-03:0": [
+      "parrainage"
     ]
   },
   "retryable_sites": {}
