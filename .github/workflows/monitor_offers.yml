@@ -4,9 +4,14 @@ name: Monitor public offers (observation only)
 # Every completed observation retains its streak and freshness across runners.
 on:
   schedule:
-    # 1×/jour (08:17 UTC) — observation-only; workflow_dispatch pour runs manuels
+    # 1×/jour (08:17 UTC); workflow_dispatch can disable the safe writers.
     - cron: "17 8 * * *"
   workflow_dispatch:
+    inputs:
+      run_writers:
+        description: "Reconcile normal safe writers (false performs observation only)"
+        type: boolean
+        default: true
 permissions:
   # Commit step needs to push its own observation-report commits (see
   # "Commit results" below). Missing entirely before 2026-08-18 -- every
@@ -14,7 +19,7 @@ permissions:
   # "Permission ... denied to github-actions[bot] (403)" (3 consecutive
   # failures, 2026-08-16..18), silently losing that observation from git
   # even though it was captured correctly. No write to offers.json or any
-  # platform ever happens here regardless of this permission.
+  # platform happens in the observation phase; writers are separately gated.
   contents: write
 concurrency:
   group: autofresh-monitor-offers
@@ -51,7 +56,7 @@ jobs:
       - name: Dependencies
         run: |
           pip install -r requirements.txt
-          if python -c "import json; raise SystemExit(0 if json.load(open('data/autofresh-phase.json', encoding='utf-8')).get('monitor_auto_accept') else 1)"; then
+          if [ "${{ inputs.run_writers }}" != "false" ] && python -c "import json; raise SystemExit(0 if json.load(open('data/autofresh-phase.json', encoding='utf-8')).get('monitor_auto_accept') else 1)"; then
             playwright install --with-deps chromium
           else
             echo "batch_writer_browser_install_skipped=true"
@@ -98,6 +103,7 @@ jobs:
         env:
           AUTOFRESH_PHASE: "PRODUCTION"
           AUTOFRESH_LIVE_WRITES: "1"
+          RUN_WRITERS: ${{ github.event_name != 'workflow_dispatch' || inputs.run_writers }}
           ONEPARRAINAGE_EMAIL: ${{ secrets.ONEPARRAINAGE_EMAIL }}
           ONEPARRAINAGE_PASSWORD: ${{ secrets.ONEPARRAINAGE_PASSWORD }}
           CODE_PARRAINAGE_EMAIL: ${{ secrets.CODE_PARRAINAGE_EMAIL }}
@@ -119,16 +125,26 @@ jobs:
           )
 
           out = Path("data/captures/monitor-auto-accept-batch.json")
-          if auto_accept_enabled():
-              report = apply_verified_batch(
-                  observations_from_last_report(),
-                  run_writers=True,
-              )
+          if auto_accept_enabled() and os.environ.get("RUN_WRITERS") == "true":
+              try:
+                  report = apply_verified_batch(
+                      observations_from_last_report(),
+                      run_writers=True,
+                  )
+              except Exception as exc:
+                  # Partial accepted/baseline state is still persisted below.
+                  # Exception text may contain auth details: record only its type.
+                  report = {
+                      "ok": False, "reason": "writer_exception",
+                      "error_type": type(exc).__name__,
+                      "accepted_count": None, "verified_writes": None,
+                      "failed_writes": None,
+                  }
           else:
               report = {
                   "ok": True,
                   "applied": False,
-                  "reason": "monitor_auto_accept_off",
+                  "reason": "observation_only" if os.environ.get("RUN_WRITERS") != "true" else "monitor_auto_accept_off",
                   "accepted_count": 0,
                   "verified_writes": 0,
                   "failed_writes": 0,

@@ -240,6 +240,7 @@ jobs:
                    data/captures/super-parrain-last-cycle.json \
                    data/captures/write-super-parrain-kraken.json \
                    data/platform-write-status.json \
+                   data/pending_writes.json \
                    data/autofresh-phase.json \
                    data/super_parrain_jitter.json; do
             if [ -f "$p" ]; then
@@ -248,6 +249,11 @@ jobs:
           done
           if [ -d data/platform-templates/super-parrain ]; then
             git add data/platform-templates/super-parrain/
+          fi
+          # The verified iGraal announcement baseline must survive the next
+          # runner alongside its mapping; never replay the platform save.
+          if [ -d data/platform-golden/super-parrain ]; then
+            git add data/platform-golden/super-parrain/
           fi
           for f in data/platform-mappings/super-parrain.*.json; do
             [ -e "$f" ] && git add "$f"

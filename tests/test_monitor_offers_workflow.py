@@ -115,3 +115,61 @@ def test_fatal_observer_failure_cannot_reuse_an_old_report_for_writes():
     executable = "\n".join(line for line in observe["run"].splitlines() if not line.strip().startswith("#"))
     assert "exit 0" not in executable
     assert observe.get("continue-on-error") is not True
+
+
+def test_explicit_observation_only_dispatch_never_calls_acceptance_or_writers(tmp_path, monkeypatch):
+    import json
+    import yaml
+    import lib.monitor.auto_accept as batch
+
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "data/captures").mkdir(parents=True)
+    monkeypatch.setenv("RUN_WRITERS", "false")
+    monkeypatch.setenv("GITHUB_RUN_ID", "readonly-test")
+    monkeypatch.setattr(batch, "auto_accept_enabled", lambda: True)
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("observation-only dispatch called a writer/acceptance")
+
+    monkeypatch.setattr(batch, "apply_verified_batch", forbidden)
+    steps = yaml.safe_load(TEXT)["jobs"]["monitor"]["steps"]
+    writer = next(s for s in steps if s.get("id") == "writers")
+    assert "github.event_name != 'workflow_dispatch' || inputs.run_writers" in writer["env"]["RUN_WRITERS"]
+    code = writer["run"].split("python - <<'PY'\n", 1)[1].rsplit("\nPY", 1)[0]
+    exec(code, {})
+    report = json.loads((tmp_path / "data/captures/monitor-auto-accept-batch.json").read_text())
+    assert report["reason"] == "observation_only"
+    assert report["applied"] is False
+    assert report["failed_writes"] == 0
+    assert report["run_id"] == "readonly-test"
+
+
+def test_writer_crash_records_current_unknown_result_before_failing(tmp_path, monkeypatch):
+    import json
+    import pytest
+    import yaml
+    import lib.monitor.auto_accept as batch
+
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "data/captures").mkdir(parents=True)
+    monkeypatch.setenv("RUN_WRITERS", "true")
+    monkeypatch.setenv("GITHUB_RUN_ID", "crash-test")
+    monkeypatch.setattr(batch, "auto_accept_enabled", lambda: True)
+    monkeypatch.setattr(batch, "observations_from_last_report", lambda: [])
+
+    def crash(*args, **kwargs):
+        raise RuntimeError("private-auth-detail-must-not-be-persisted")
+
+    monkeypatch.setattr(batch, "apply_verified_batch", crash)
+    steps = yaml.safe_load(TEXT)["jobs"]["monitor"]["steps"]
+    writer = next(s for s in steps if s.get("id") == "writers")
+    code = writer["run"].split("python - <<'PY'\n", 1)[1].rsplit("\nPY", 1)[0]
+    with pytest.raises(SystemExit):
+        exec(code, {})
+    raw = (tmp_path / "data/captures/monitor-auto-accept-batch.json").read_text()
+    report = json.loads(raw)
+    assert report["ok"] is False
+    assert report["reason"] == "writer_exception"
+    assert report["failed_writes"] is None
+    assert report["run_id"] == "crash-test"
+    assert "private-auth-detail" not in raw

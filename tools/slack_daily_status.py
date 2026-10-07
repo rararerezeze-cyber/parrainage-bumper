@@ -373,9 +373,12 @@ def monitor_health(now: datetime, report: dict[str, Any], batch: dict[str, Any],
         if str(report.get("run_id") or "") != str(run.get("id") or ""):
             reasons.append("observations non persistées pour la dernière exécution")
     same_batch = bool(report.get("run_id")) and str(batch.get("run_id")) == str(report.get("run_id"))
-    failed = int(batch.get("failed_writes") or 0) if same_batch else None
+    failed = int(batch["failed_writes"]) if same_batch and batch.get("failed_writes") is not None else None
     if same_batch and (failed or batch.get("ok") is not True):
-        reasons.append(f"{failed or 0} écriture(s) de contenu en échec")
+        reasons.append(f"{failed} écriture(s) de contenu en échec" if failed is not None
+                       else "réconciliation des writers en échec (nombre indisponible)")
+    elif same_batch and batch.get("reason") == "observation_only":
+        reasons.append("writers non exécutés lors du dernier passage (observation seule)")
     elif not same_batch:
         reasons.append("résultat des writers absent pour cette observation")
     return {

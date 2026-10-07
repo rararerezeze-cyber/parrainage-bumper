@@ -273,6 +273,15 @@ async def prepare_before_save(page, edit_url: str) -> dict[str, Any]:
         return result
 
     filled = []
+    # Announcement bodies never belong in the historical codes-promo form.
+    # The separately proven iGraal announcement route is handled by igraal_cycle.
+    from lib.super_parrain_resource import classify_edit_url, HARD_STOP_WRONG_RESOURCE
+
+    if classify_edit_url(getattr(page, "url", edit_url)) == "CODES_PROMO":
+        result.update(skipped=True, reason=HARD_STOP_WRONG_RESOURCE, fields_filled=[])
+        result["content_post_verify"] = {"program": program, "post_match": False,
+                                         "error": HARD_STOP_WRONG_RESOURCE}
+        return result
     # Apply only mapped/changed fields
     if "personal_code" in diff.changed_fields and desired.code:
         if await _set_input(

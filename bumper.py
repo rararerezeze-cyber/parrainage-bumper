@@ -568,9 +568,21 @@ async def run_super(browser):
                     if autofresh_on and not canary_content_failed:
                         try:
                             from platforms.super_parrain.prefill import prepare_before_save
-                            info = await prepare_before_save(page, url)
+                            from lib.super_parrain_content import program_from_edit_url
+
+                            if program_from_edit_url(url) == "igraal":
+                                from platforms.super_parrain.igraal_cycle import update_announcement
+                                info = await update_announcement(page, url)
+                            else:
+                                info = await prepare_before_save(page, url)
                             autofresh_stats["details"].append(info)
-                            if info.get("fields_filled"):
+                            content_verify = info.get("content_post_verify")
+                            if content_verify:
+                                autofresh_stats["canary_post_verify"].append(content_verify)
+                                if not content_verify.get("post_match"):
+                                    canary_content_failed = True
+                                    os.environ["AUTOFRESH_STOP"] = "1"
+                            if info.get("writes_performed") or info.get("fields_filled"):
                                 autofresh_stats["updated"] += 1
                             else:
                                 autofresh_stats["bump_only"] += 1
@@ -589,7 +601,8 @@ async def run_super(browser):
                             }
                         )
 
-                    # --- UN SEUL Enregistrer = update eventuel + remontee ---
+                    # Historical codes-promo save remains the bump action.
+                    # iGraal announcement content uses its distinct verified resource.
                     # One bounded, same-page retry on a transient click
                     # timeout before giving up on this listing. Regression
                     # observed 2026-08-18: ~38/39 listings timed out waiting
@@ -617,7 +630,7 @@ async def run_super(browser):
                     log.info(f"  Code {i+1}/{len(edit_urls)} enregistre{tag}")
 
                     # --- Post-verify canary: re-fetch public apres save avec contenu ---
-                    if filled and info and info.get("program"):
+                    if filled and info and info.get("program") and not info.get("content_post_verify"):
                         try:
                             await asyncio.sleep(2)
                             from lib.super_parrain_post_verify import verify_public_program
@@ -692,6 +705,14 @@ async def run_super(browser):
                                 else "fused_bumper",
                                 "total_edit_urls": len(edit_urls),
                                 "saves": bumped,
+                                "announcement_saves": sum(
+                                    int(d.get("writes_performed") or 0)
+                                    for d in autofresh_stats["details"]
+                                ),
+                                "announcement_actions_unknown": sum(
+                                    bool(d.get("save_attempted")) and d.get("writes_performed") is None
+                                    for d in autofresh_stats["details"]
+                                ),
                                 "autofresh": autofresh_stats,
                                 "canary_verdict": canary_verdict,
                                 "canary_content_failed": canary_content_failed,
