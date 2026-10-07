@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "applied": false,
+  "reason": "observation_only",
+  "accepted_count": 0,
+  "verified_writes": 0,
+  "failed_writes": 0,
+  "generated_at": "2026-10-07T13:29:41.780907+00:00",
+  "run_id": "37628844756"
+}
