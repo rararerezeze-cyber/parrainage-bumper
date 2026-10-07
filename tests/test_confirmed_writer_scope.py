@@ -117,6 +117,20 @@ def test_persist_verified_baseline_closes_the_written_state(monkeypatch, tmp_pat
     assert out["golden"] == "golden.txt"
 
 
+def test_no_save_reconciliation_preserves_the_last_actual_write_timestamp(monkeypatch, tmp_path):
+    plan = _fake_plan()
+    plan.platform = "1parrainage"
+    mapping = tmp_path / "mapping.json"
+    mapping.write_text(json.dumps({"platform_values": {}, "last_write_at": "previous-real-save"}), encoding="utf-8")
+    monkeypatch.setattr(writers, "mapping_path", lambda *_a: mapping)
+    monkeypatch.setattr(writers, "golden_path", lambda *_a: tmp_path / "golden.txt")
+    monkeypatch.setattr(writers, "ROOT", tmp_path)
+    writers._persist_verified_baseline(plan, SimpleNamespace(writes_performed=0))
+    saved = json.loads(mapping.read_text(encoding="utf-8"))
+    assert saved["last_write_at"] == "previous-real-save"
+    assert saved["last_sync_verified_at"]
+
+
 def _slack_result(changed_fields):
     return {
         "ok": True,

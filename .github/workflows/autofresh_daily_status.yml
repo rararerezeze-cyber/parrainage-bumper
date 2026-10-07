@@ -13,6 +13,7 @@ concurrency:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   status:
@@ -38,6 +39,7 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           AUTOFRESH_SLACK_CHANNEL: ${{ vars.AUTOFRESH_SLACK_CHANNEL }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: python tools/slack_daily_status.py
 
       - name: Save notification dedup state

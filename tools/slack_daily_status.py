@@ -20,6 +20,8 @@ DATA_DIR = ROOT / "data"
 SCHEDULE_PATH = DATA_DIR / "bump-autres-schedule.json"
 LEDGER_PATH = DATA_DIR / "bump-autres-dispatch-ledger.json"
 MONITOR_PATH = DATA_DIR / "captures" / "monitor-last-report.json"
+MONITOR_BATCH_PATH = DATA_DIR / "captures" / "monitor-auto-accept-batch.json"
+MONITOR_MAX_AGE = timedelta(hours=36)
 CAPTURE_PATH = DATA_DIR / "captures" / "slack-daily-status.json"
 RCTV_LISTINGS_URL = "https://www.referralcode.tv/my-account/?tab=listings"
 PARIS = ZoneInfo("Europe/Paris")
@@ -134,7 +136,8 @@ def filter_actionable_candidates(candidates: list[dict[str, Any]]) -> list[dict[
 
 
 def build_dashboard_data(*, now: datetime, schedule: dict[str, Any], ledger: dict[str, Any],
-                         candidates: list[dict[str, Any]], super_info: dict[str, Any]) -> dict[str, Any]:
+                         candidates: list[dict[str, Any]], super_info: dict[str, Any],
+                         monitor_info: dict[str, Any] | None = None) -> dict[str, Any]:
     if now.tzinfo is None:
         now = now.replace(tzinfo=timezone.utc)
     now = now.astimezone(timezone.utc)
@@ -171,6 +174,9 @@ def build_dashboard_data(*, now: datetime, schedule: dict[str, Any], ledger: dic
     next_slot = min((_dt(s.get("planned_at")) for s in future_slots), default=None) if future_slots else None
     actionable = list(candidates or [])
     action_required = bool(actionable) or any(r["overdue_missing"] > 0 for r in site_rows.values())
+    monitor_info = monitor_info or {"health": "unknown", "reasons": ["état du monitor indisponible"]}
+    if monitor_info.get("health") != "healthy":
+        action_required = True
 
     super_next = _dt(super_info.get("next_at"))
     super_last = _dt(super_info.get("last_at"))
@@ -196,6 +202,7 @@ def build_dashboard_data(*, now: datetime, schedule: dict[str, Any], ledger: dic
         "next_slot": next_slot.isoformat() if next_slot else None,
         "sites": site_rows,
         "candidates": actionable,
+        "monitor": monitor_info,
         "super": {
             **super_info,
             "last_at": super_last.isoformat() if super_last else None,
@@ -246,6 +253,13 @@ def build_payload(data: dict[str, Any], channel: str) -> dict[str, Any]:
         lines.append("⚠️ *Super-Parrain* — aucun cycle réussi enregistré")
 
     lines.append("🖐️ *ReferralCode.tv* — remontée manuelle disponible (Turnstile)")
+    monitor_info = data.get("monitor") or {"health": "unknown", "reasons": ["état du monitor indisponible"]}
+    monitor_healthy = monitor_info.get("health") == "healthy"
+    if not monitor_healthy:
+        reasons = "; ".join(monitor_info.get("reasons") or ["état indisponible"])
+        lines.append(f"⚠️ *Monitor des offres* — {reasons}")
+        if monitor_info.get("run_url"):
+            lines.append(f"<{monitor_info['run_url']}|Voir la dernière exécution du monitor>")
     if candidates:
         lines.append(f"🔎 *Offres publiques* — {len(candidates)} changement" + ("s" if len(candidates) != 1 else "") + " encore à traiter")
         for item in candidates[:4]:
@@ -254,10 +268,13 @@ def build_payload(data: dict[str, Any], channel: str) -> dict[str, Any]:
             old = "non défini" if item.get("canonical") is None else str(item.get("canonical"))
             new = "non défini" if item.get("observed") is None else str(item.get("observed"))
             lines.append(f"• {program} — {field} : {old} → {new}")
-    else:
+    elif monitor_healthy:
         lines.append("✅ *Offres publiques* — aucun changement confirmé en attente")
+    else:
+        lines.append("⚠️ *Offres publiques* — absence de changement non confirmée ; dernière observation à vérifier")
 
-    if data.get("action_required"):
+    needs_check = bool(data.get("action_required")) or not monitor_healthy
+    if needs_check:
         state, header = "⚠️ Une vérification est utile — utilise les boutons ci-dessous.", "⚠️ AutoFresh — point du jour"
     else:
         state, header = "✅ Rien d'urgent. AutoFresh continue automatiquement.", "✅ AutoFresh — point du jour"
@@ -307,10 +324,67 @@ def build_payload(data: dict[str, Any], channel: str) -> dict[str, Any]:
 
     return {
         "channel": channel,
-        "text": "AutoFresh — point du jour : " + ("vérification utile" if data.get("action_required") else "rien d'urgent"),
+        "text": "AutoFresh — point du jour : " + ("vérification utile" if needs_check else "rien d'urgent"),
         "blocks": blocks,
         "unfurl_links": False,
         "unfurl_media": False,
+    }
+
+
+def fetch_monitor_run() -> dict[str, Any] | None:
+    """Read the latest main run; absence/auth/API failure is never healthy."""
+    token = os.environ.get("GITHUB_TOKEN", "").strip()
+    repo = os.environ.get("GITHUB_REPOSITORY", "rararerezeze-cyber/parrainage-bumper")
+    if not token:
+        return None
+    req = urllib.request.Request(
+        f"https://api.github.com/repos/{repo}/actions/workflows/monitor_offers.yml/runs?branch=main&per_page=1",
+        headers={"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=15) as response:
+            runs = json.load(response).get("workflow_runs") or []
+        return runs[0] if runs else None
+    except Exception:
+        return None
+
+
+def monitor_health(now: datetime, report: dict[str, Any], batch: dict[str, Any],
+                   run: dict[str, Any] | None) -> dict[str, Any]:
+    reasons = []
+    observed_at = _dt(report.get("generated_at"))
+    if observed_at is None:
+        reasons.append("aucune observation datée disponible")
+    elif observed_at > now or now - observed_at > MONITOR_MAX_AGE:
+        reasons.append("observations périmées (plus de 36 h) ou date invalide")
+    errors = int((report.get("by_status") or {}).get("ERROR") or 0)
+    if errors:
+        reasons.append(f"{errors} source(s) en échec d'observation")
+    if run is None:
+        reasons.append("santé GitHub du monitor indisponible")
+    else:
+        started = _dt(run.get("created_at"))
+        if started is None or now - started > MONITOR_MAX_AGE:
+            reasons.append("dernière exécution absente ou périmée")
+        if run.get("status") != "completed":
+            reasons.append("dernière exécution encore en cours")
+        elif run.get("conclusion") != "success":
+            reasons.append(f"dernière exécution : {run.get('conclusion') or 'résultat inconnu'}")
+        if str(report.get("run_id") or "") != str(run.get("id") or ""):
+            reasons.append("observations non persistées pour la dernière exécution")
+    same_batch = bool(report.get("run_id")) and str(batch.get("run_id")) == str(report.get("run_id"))
+    failed = int(batch["failed_writes"]) if same_batch and batch.get("failed_writes") is not None else None
+    if same_batch and (failed or batch.get("ok") is not True):
+        reasons.append(f"{failed} écriture(s) de contenu en échec" if failed is not None
+                       else "réconciliation des writers en échec (nombre indisponible)")
+    elif same_batch and batch.get("reason") == "observation_only":
+        reasons.append("writers non exécutés lors du dernier passage (observation seule)")
+    elif not same_batch:
+        reasons.append("résultat des writers absent pour cette observation")
+    return {
+        "health": "degraded" if reasons else "healthy", "reasons": reasons,
+        "observed_at": observed_at.isoformat() if observed_at else None,
+        "failed_writes": failed, "run_url": (run or {}).get("html_url"),
     }
 
 
@@ -332,7 +406,9 @@ def runtime_data(now: datetime | None = None) -> dict[str, Any]:
         }
     except Exception:
         super_info = {"eligible": False, "next_at": None, "last_at": None, "jitter_minutes": None}
-    return build_dashboard_data(now=now, schedule=schedule, ledger=ledger, candidates=candidates, super_info=super_info)
+    health = monitor_health(now, monitor, _load_json(MONITOR_BATCH_PATH, {}), fetch_monitor_run())
+    return build_dashboard_data(now=now, schedule=schedule, ledger=ledger, candidates=candidates,
+                                super_info=super_info, monitor_info=health)
 
 
 def deliver(payload: dict[str, Any], token: str) -> bool:

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -822,6 +823,7 @@ def save_run_report(
 
     payload = {
         "generated_at": _now(),
+        "run_id": os.environ.get("GITHUB_RUN_ID"),
         "mode": "OBSERVATION_ONLY",
         "count": len(results),
         "business_change": biz_change,

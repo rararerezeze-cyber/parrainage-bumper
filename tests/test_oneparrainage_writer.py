@@ -70,3 +70,30 @@ def test_live_render_fails_closed_when_expected_span_is_missing():
     )
     with pytest.raises(RuntimeError, match="live_replace_span_mismatch"):
         w._build_live_rendered("<p>20 &euro;</p>", plan)
+
+
+def test_already_published_reward_reconciles_exactly_without_body_changes():
+    from types import SimpleNamespace
+
+    plan = SimpleNamespace(
+        changed_fields={"referee_reward": {"old": "20€ OFFERTS", "new": "50€ OFFERTS"}},
+        platform_values={"referee_reward": "20€ OFFERTS"},
+        variables={"referee_reward": "50€ OFFERTS"}, marker_counts={"referee_reward": 1},
+    )
+    body = "<p>50&euro; OFFERTS</p><p>personal-code-preserved</p>"
+    rendered, details = w._build_live_rendered(body, plan)
+    assert rendered == body
+    assert details["referee_reward"]["already_present"] is True
+    assert details["referee_reward"]["replaced_spans"] == 0
+
+
+def test_already_published_reward_with_ambiguous_extra_spans_fails_closed():
+    from types import SimpleNamespace
+    import pytest
+
+    plan = SimpleNamespace(
+        changed_fields={"referee_reward": {}}, platform_values={"referee_reward": "20€ OFFERTS"},
+        variables={"referee_reward": "50€ OFFERTS"}, marker_counts={"referee_reward": 1},
+    )
+    with pytest.raises(RuntimeError, match="live_replace_span_mismatch"):
+        w._build_live_rendered("<p>50&euro; OFFERTS</p>" * 2, plan)

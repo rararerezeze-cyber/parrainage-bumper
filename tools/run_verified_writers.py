@@ -148,7 +148,10 @@ def _persist_verified_baseline(plan, result=None) -> dict:
             platform_values[field] = value
     data["platform_values"] = platform_values
     data["write_status"] = "WRITE_VERIFIED"
-    data["last_write_at"] = now
+    if getattr(result, "writes_performed", None) == 0:
+        data["last_sync_verified_at"] = now
+    else:
+        data["last_write_at"] = now
 
     if result is not None:
         edit_url = getattr(result, "edit_url", None)
@@ -336,13 +339,15 @@ def _try_platform_if_verified(
 
     result = asyncio.run(execute(plan, dry_run=False))
     verified = bool(getattr(result, "ok", False) and getattr(result, "post_match", None) is True)
+    no_save = getattr(result, "writes_performed", None) == 0
     out = {
         "platform": platform,
         "ok": verified,
         "post_match": getattr(result, "post_match", None),
         "error": getattr(result, "error", None),
         "route": runtime_route(platform),
-        "action": "UPDATED_VERIFIED" if verified else "FAILED",
+        "action": ("SYNC_VERIFIED_NO_SAVE" if no_save else "UPDATED_VERIFIED") if verified else "FAILED",
+        "writes_performed": getattr(result, "writes_performed", None),
         "confirmed_field": confirmed_field,
         "changed_fields": dict(getattr(plan, "changed_fields", {}) or {}),
         "occurrence_results": getattr(result, "occurrence_results", None),

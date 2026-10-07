@@ -107,6 +107,7 @@ def verify_public_program(
     filled_fields: list[str] | None = None,
     fetch: bool = True,
     published_override: str | None = None,
+    expected_body: str | None = None,
 ) -> PostVerifyResult:
     """Re-fetch public + compare.
 
@@ -168,7 +169,7 @@ def verify_public_program(
             error="no_published_text",
         )
 
-    rendered = desired.rendered_body or ""
+    rendered = expected_body if expected_body is not None else (desired.rendered_body or "")
     exact = bool(rendered) and published == rendered
 
     want = {

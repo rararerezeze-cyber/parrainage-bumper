@@ -310,7 +310,12 @@ def main() -> int:
         "CANARY_POST_MATCH": post_match,
         "WRITE_STATUS": write_status,
         "BUMP_CYCLE_24H": "OK" if proc.returncode == 0 else "FAIL",
-        "server_actions": saves if saves is not None else "unknown",
+        "server_actions": (
+            "unknown" if saves is None or bumper_stats.get("announcement_actions_unknown")
+            else saves + int(bumper_stats.get("announcement_saves") or 0)
+        ),
+        "historical_bump_saves": saves,
+        "announcement_saves": bumper_stats.get("announcement_saves", 0),
         "programs_needing_update": pre["need_update_count"],
         "canary_need_update": pre["canary_need_update_count"],
         "autofresh_updated": (bumper_stats.get("autofresh") or {}).get("updated"),

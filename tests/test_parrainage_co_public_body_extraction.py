@@ -15,6 +15,24 @@ from __future__ import annotations
 
 from platforms.parrainage_co.writer import _extract_public_body, _norm
 
+
+def test_current_offer_quote_excludes_chrome_and_handles_igraal_heading():
+    body = "⚡️ Offre Parrainage iGraal – 15 € offerts ⚡<br>Bonus : 3 € via mon lien<br>Discord preserved"
+    html = ('<meta name="description" content="Bonus : 15 €">'
+            '<nav>wrong 5 € offer chrome</nav><blockquote class="offer-quote">'
+            + body + '</blockquote><footer>other listings</footer>')
+    extracted = _extract_public_body(html)
+    assert "Bonus : 3 €" in extracted
+    assert "Discord preserved" in extracted
+    assert "wrong" not in extracted
+    assert "other listings" not in extracted
+    assert "Bonus : 15 €" not in extracted
+
+
+def test_multiple_offer_quotes_are_ambiguous_and_fail_closed():
+    html = '<blockquote class="offer-quote">one</blockquote>' * 2
+    assert _extract_public_body(html) == ""
+
 KRAKEN_ORIGINAL = (
     "⭐️ Offre Parrainage Kraken – Jusqu’à 200 € offerts\n\n"
     "⚡ Bonus : 200 € en cryptomonnaies ⭐️\n"

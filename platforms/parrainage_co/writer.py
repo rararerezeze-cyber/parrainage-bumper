@@ -12,6 +12,7 @@ import re
 import sys
 from dataclasses import dataclass
 from html import unescape
+from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
 
@@ -63,6 +64,7 @@ class WriteResult:
     error: str | None = None
     steps: list[str] | None = None
     evidence_checks: dict[str, bool] | None = None
+    writes_performed: int | None = None
 
 
 def build_write_plan(
@@ -362,6 +364,36 @@ async def _reread_account_fields(page) -> str:
     return (body + "\n" + extras).strip()
 
 
+class _OfferQuote(HTMLParser):
+    """Read the platform's offer-quote container, excluding page chrome/meta."""
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.depth = 0
+        self.blocks = []
+        self.parts = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "blockquote":
+            if self.depth:
+                self.depth += 1
+            elif "offer-quote" in dict(attrs).get("class", "").split():
+                self.depth = 1
+                self.parts = []
+        elif self.depth and tag in {"br", "p", "div", "li"}:
+            self.parts.append("\n")
+
+    def handle_endtag(self, tag):
+        if tag == "blockquote" and self.depth:
+            self.depth -= 1
+            if not self.depth:
+                self.blocks.append("".join(self.parts).strip())
+
+    def handle_data(self, data):
+        if self.depth:
+            self.parts.append(data)
+
+
 def _extract_public_body(html: str) -> str:
     """Locate the real offer block in a fetched public page.
 
@@ -377,7 +409,15 @@ def _extract_public_body(html: str) -> str:
     text. Attribute values never survive tag-stripping, so cleaning first
     structurally removes that decoy before any block-matching is attempted.
     """
-    text = re.sub(r"(?is)<(script|style|noscript)\b[^>]*>.*?</\1>", " ", html)
+    clean_html = re.sub(r"(?is)<(script|style|noscript)\b[^>]*>.*?</\1>", " ", html)
+    quote = _OfferQuote()
+    quote.feed(clean_html)
+    if len(quote.blocks) > 1:
+        return ""  # ambiguous listing: never select an arbitrary user's block
+    if quote.blocks:
+        text = quote.blocks[0]
+    else:
+        text = clean_html
     text = re.sub(r"(?i)<br\s*/?>", "\n", text)
     text = re.sub(r"<[^>]+>", "\n", text)
     text = unescape(text)
@@ -544,14 +584,18 @@ async def execute_write(
                         "form_dump": dump,
                     },
                 )
-            steps.append("fill_save")
-            fill_steps = await _fill_and_save(
-                page,
-                plan.rendered,
-                plan.variables.get("personal_code"),
-                plan.variables.get("personal_link"),
-            )
-            steps.extend(fill_steps)
+            current = await _reread_account_fields(page)
+            if _canonical_contains(current, plan.rendered):
+                steps.append("already_current_no_save")
+            else:
+                steps.append("fill_save")
+                fill_steps = await _fill_and_save(
+                    page,
+                    plan.rendered,
+                    plan.variables.get("personal_code"),
+                    plan.variables.get("personal_link"),
+                )
+                steps.extend(fill_steps)
             # Account reread: reopen edit page
             steps.append("reread_account")
             await page.goto(edit_url, wait_until="domcontentloaded", timeout=60000)
@@ -611,7 +655,7 @@ async def execute_write(
     }
     steps.append(f"post_match={public_match}")
     steps.append(f"account_match={account_ok}")
-    if not public_match:
+    if not (public_match and account_ok and expected_ok):
         return WriteResult(
             ok=False,
             plan=plan,
@@ -632,4 +676,5 @@ async def execute_write(
         post_match=True,
         steps=steps,
         evidence_checks=checks,
+        writes_performed=int("saved" in steps),
     )

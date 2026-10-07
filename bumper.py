@@ -568,9 +568,21 @@ async def run_super(browser):
                     if autofresh_on and not canary_content_failed:
                         try:
                             from platforms.super_parrain.prefill import prepare_before_save
-                            info = await prepare_before_save(page, url)
+                            from lib.super_parrain_content import program_from_edit_url
+
+                            if program_from_edit_url(url) == "igraal":
+                                from platforms.super_parrain.igraal_cycle import update_announcement
+                                info = await update_announcement(page, url)
+                            else:
+                                info = await prepare_before_save(page, url)
                             autofresh_stats["details"].append(info)
-                            if info.get("fields_filled"):
+                            content_verify = info.get("content_post_verify")
+                            if content_verify:
+                                autofresh_stats["canary_post_verify"].append(content_verify)
+                                if not content_verify.get("post_match"):
+                                    canary_content_failed = True
+                                    os.environ["AUTOFRESH_STOP"] = "1"
+                            if info.get("writes_performed") or info.get("fields_filled"):
                                 autofresh_stats["updated"] += 1
                             else:
                                 autofresh_stats["bump_only"] += 1
@@ -589,7 +601,8 @@ async def run_super(browser):
                             }
                         )
 
-                    # --- UN SEUL Enregistrer = update eventuel + remontee ---
+                    # Historical codes-promo save remains the bump action.
+                    # iGraal announcement content uses its distinct verified resource.
                     # One bounded, same-page retry on a transient click
                     # timeout before giving up on this listing. Regression
                     # observed 2026-08-18: ~38/39 listings timed out waiting
@@ -617,7 +630,7 @@ async def run_super(browser):
                     log.info(f"  Code {i+1}/{len(edit_urls)} enregistre{tag}")
 
                     # --- Post-verify canary: re-fetch public apres save avec contenu ---
-                    if filled and info and info.get("program"):
+                    if filled and info and info.get("program") and not info.get("content_post_verify"):
                         try:
                             await asyncio.sleep(2)
                             from lib.super_parrain_post_verify import verify_public_program
@@ -692,6 +705,14 @@ async def run_super(browser):
                                 else "fused_bumper",
                                 "total_edit_urls": len(edit_urls),
                                 "saves": bumped,
+                                "announcement_saves": sum(
+                                    int(d.get("writes_performed") or 0)
+                                    for d in autofresh_stats["details"]
+                                ),
+                                "announcement_actions_unknown": sum(
+                                    bool(d.get("save_attempted")) and d.get("writes_performed") is None
+                                    for d in autofresh_stats["details"]
+                                ),
                                 "autofresh": autofresh_stats,
                                 "canary_verdict": canary_verdict,
                                 "canary_content_failed": canary_content_failed,
@@ -798,34 +819,23 @@ async def run_code(browser):
 
             await page.goto(f"{cfg['url']}/moncompte", wait_until="networkidle")
             await human_sleep(3, 5)
-            buttons = page.locator('button:has-text("Actualiser"), a:has-text("Actualiser")')
-            count = await buttons.count()
-            log.info(f"  {count} boutons Actualiser")
-            if count == 0:
-                log.info("  Aucune annonce disponible a actualiser pour le moment")
-                return
-            bumped = 0
-            # Le DOM peut retirer un bouton apres son clic. Parcourir depuis la
-            # fin empeche les suppressions de decaler les indices restants.
-            for progress, i in enumerate(range(count - 1, -1, -1), start=1):
-                btn = buttons.nth(i)
-                try:
-                    if not await btn.is_visible(): continue
-                    await btn.scroll_into_view_if_needed()
-                    SITE_ACTION_STARTED["code"] = True
-                    await human_click(page, btn)
-                    bumped += 1
-                    log.info(f"  Actualiser {progress}/{count}")
-                    await human_sleep(2, 5)
-                except Exception as e:
-                    log.warning(f"  Erreur bouton index={i}: {e}")
-            log.info(f"  {bumped} annonces remontees")
-            if bumped != count:
+            from lib.code_bump import bump_listings
+
+            def mark_code_action_started():
+                SITE_ACTION_STARTED["code"] = True
+
+            try:
+                await bump_listings(
+                    page, f"{cfg['url']}/moncompte",
+                    click=human_click, pause=human_sleep,
+                    mark_started=mark_code_action_started,
+                )
+            except Exception as exc:
                 if SITE_ACTION_STARTED.get("code"):
                     raise NonRetryableError(
-                        f"Remontee incomplete apres action: {bumped}/{count}"
-                    )
-                raise RuntimeError(f"Remontee incomplete: {bumped}/{count}")
+                        f"Remontee incomplete apres action: {exc}"
+                    ) from exc
+                raise
         finally:
             await page.close()
 

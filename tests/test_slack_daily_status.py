@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from datetime import datetime, timezone
 
-from tools.slack_daily_status import build_dashboard_data, build_payload
+from tools.slack_daily_status import build_dashboard_data, build_payload, monitor_health
 
 
 def _state(now: datetime):
@@ -32,6 +32,7 @@ def test_dashboard_counts_due_successes_without_treating_future_slots_as_failure
         schedule=schedule,
         ledger=ledger,
         candidates=[],
+        monitor_info={"health": "healthy"},
         super_info={
             "eligible": False,
             "last_at": "2026-09-14T16:00:00+00:00",
@@ -137,3 +138,48 @@ def test_super_parrain_long_overdue_becomes_actionable():
     )
     assert data["super"]["health"] == "late"
     assert data["action_required"] is True
+
+
+def _monitor_fixture():
+    now = datetime(2026, 10, 7, 18, 45, tzinfo=timezone.utc)
+    report = {"generated_at": "2026-10-07T08:20:00Z", "run_id": "42", "by_status": {"ERROR": 0}}
+    batch = {"run_id": "42", "ok": True, "failed_writes": 0}
+    run = {"id": 42, "created_at": "2026-10-07T08:17:00Z", "status": "completed", "conclusion": "success"}
+    return now, report, batch, run
+
+
+def test_fresh_successful_monitor_can_report_no_pending_changes():
+    now, report, batch, run = _monitor_fixture()
+    health = monitor_health(now, report, batch, run)
+    assert health["health"] == "healthy"
+    payload = build_payload({"generated_at": now.isoformat(), "monitor": health}, "C_TEST")
+    assert "aucun changement confirmé en attente" in json.dumps(payload, ensure_ascii=False)
+
+
+def test_failed_writers_and_failed_workflow_never_show_stale_no_changes():
+    now, report, batch, run = _monitor_fixture()
+    batch.update(ok=False, failed_writes=6)
+    run["conclusion"] = "failure"
+    health = monitor_health(now, report, batch, run)
+    text = json.dumps(build_payload({"monitor": health}, "C_TEST"), ensure_ascii=False)
+    assert "failure" in text
+    assert "6 écriture(s)" in text
+    assert "aucun changement confirmé en attente" not in text
+    assert "Rien d'urgent" not in text
+
+
+def test_fresh_workflow_does_not_make_old_observations_healthy():
+    now, report, batch, run = _monitor_fixture()
+    report["generated_at"] = "2026-09-21T08:20:00Z"
+    report["run_id"] = "old"
+    health = monitor_health(now, report, batch, run)
+    assert health["health"] == "degraded"
+    assert any("périmées" in reason for reason in health["reasons"])
+    assert any("non persistées" in reason for reason in health["reasons"])
+
+
+def test_missing_health_api_or_batch_fails_closed():
+    now, report, batch, run = _monitor_fixture()
+    for missing in [monitor_health(now, report, batch, None), monitor_health(now, report, {}, run)]:
+        assert missing["health"] == "degraded"
+    assert monitor_health(now, {}, {}, None)["health"] == "degraded"
