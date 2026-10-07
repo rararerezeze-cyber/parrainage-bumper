@@ -105,7 +105,7 @@ def _rctv_button(label: str = "Remonter ReferralCode.tv") -> dict[str, Any]:
 
 
 def filter_actionable_candidates(candidates: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Hide a candidate once the effective accepted/operator value already matches it."""
+    """Hide reconciled candidates and observations locked by an operator."""
     try:
         from lib.operator_overrides import OperatorOverrideStore, resolve_effective_value
         store = OperatorOverrideStore()
@@ -121,6 +121,11 @@ def filter_actionable_candidates(candidates: list[dict[str, Any]]) -> list[dict[
             out.append(item)
             continue
         try:
+            # The monitor keeps the public observation, but auto-accept rejects
+            # any override for this field. Do not present it as an actionable
+            # replacement for the operator's value in the daily dashboard.
+            if any(o.field == field for o in store.list_for_program(program)):
+                continue
             effective = resolve_effective_value(
                 program,
                 field,
