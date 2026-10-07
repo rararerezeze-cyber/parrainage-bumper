@@ -118,6 +118,7 @@ class WriteResult:
     steps: list[str] | None = None
     evidence_checks: dict[str, bool] | None = None
     occurrence_results: list[dict[str, Any]] | None = None
+    writes_performed: int | None = None
 
 
 def _load_edit_index() -> dict[str, Any]:
@@ -202,6 +203,15 @@ def _build_live_rendered(current_html: str, plan: WritePlan) -> tuple[str, dict[
         expected = int(counts.get(field) or 0)
         if old is None or new is None or expected <= 0:
             raise RuntimeError(f"live_replace_policy_missing:{field}")
+        # A previous save can succeed while its verification/persistence fails.
+        # Reconcile an already-published confirmed reward without another save.
+        # Accept only the exact audited count, never fuzzy/numeric matching.
+        old_count = sum(rendered.count(token) for token, _ in _replacement_variants(str(old)))
+        new_count = sum(rendered.count(token) for token, _ in _replacement_variants(str(new)))
+        if field == "referee_reward" and old_count == 0 and new_count == expected:
+            details[field] = {"expected_spans": expected, "replaced_spans": 0,
+                              "already_present": True, "old": old, "new": new}
+            continue
         rendered, actual = _replace_live_field(rendered, str(old), str(new), expected)
         details[field] = {
             "expected_spans": expected,
@@ -213,7 +223,9 @@ def _build_live_rendered(current_html: str, plan: WritePlan) -> tuple[str, dict[
             raise RuntimeError(
                 f"live_replace_span_mismatch:{field}:expected={expected}:actual={actual}"
             )
-    if rendered == current_html and plan.changed_fields:
+    if rendered == current_html and plan.changed_fields and not all(
+        item.get("already_present") for item in details.values()
+    ):
         raise RuntimeError("live_replace_no_change")
     return rendered, details
 
@@ -1093,15 +1105,19 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
                         except Exception:
                             pass
 
-                    fill_steps = await _fill_and_save(
-                        page,
-                        desired_html,
-                        plan.variables.get("personal_code"),
-                        plan.variables.get("personal_link"),
-                    )
-                    item_steps.extend(fill_steps)
-                    if "saved" not in fill_steps:
-                        raise RuntimeError("save_not_confirmed")
+                    already_current = desired_html == current_html
+                    if already_current:
+                        item_steps.append("already_current_no_save")
+                    else:
+                        fill_steps = await _fill_and_save(
+                            page,
+                            desired_html,
+                            plan.variables.get("personal_code"),
+                            plan.variables.get("personal_link"),
+                        )
+                        item_steps.extend(fill_steps)
+                        if "saved" not in fill_steps:
+                            raise RuntimeError("save_not_confirmed")
 
                     await page.goto(
                         edit_url,
@@ -1121,7 +1137,7 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
                     )
                     item = {
                         "edit_url": edit_url,
-                        "saved": True,
+                        "saved": not already_current,
                         "account_values_present": account_ok,
                         "account_body_match": body_match,
                         "ok": bool(account_ok and body_match),
@@ -1248,4 +1264,5 @@ async def execute_write(plan: WritePlan, *, dry_run: bool = True) -> WriteResult
         occurrence_results=occurrence_results + [
             {"public": item} for item in public_results
         ],
+        writes_performed=sum(bool(item.get("saved")) for item in occurrence_results),
     )

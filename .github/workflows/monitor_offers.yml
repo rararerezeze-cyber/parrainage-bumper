@@ -1,7 +1,7 @@
 name: Monitor public offers (observation only)
 # PC éteint: scrape sources officielles, compare métier vs offers.json.
-# Ne modifie JAMAIS offers.json ni les annonces plateforme.
-# Commit uniquement si business/status/failure change (pas detected_at seul).
+# Observations are persisted before the separately authorized safe writers.
+# Every completed observation retains its streak and freshness across runners.
 on:
   schedule:
     # 1×/jour (08:17 UTC) — observation-only; workflow_dispatch pour runs manuels
@@ -65,21 +65,36 @@ jobs:
           python monitor.py --coverage
           python monitor.py --priority
       - name: Run monitor (observation only)
+        id: observe
         env:
           AUTOFRESH_PHASE: "PRODUCTION"
           AUTOFRESH_LIVE_WRITES: "0"
         run: |
-          set +e
           python monitor.py --all
-          RC=$?
-          set -e
-          echo "monitor_exit=$RC"
           python monitor.py --production-report || true
           python monitor.py --simulate-auto-accept || true
-          # never fail hard on single source 403 — report is enough
-          exit 0
+          # Individual source failures are recorded by --all (exit 0).
+          # A fatal observer failure must stop writers from using an old report.
+
+      - name: Persist observations before writers
+        run: |
+          git config user.name "autofresh-bot"
+          git config user.email "autofresh-bot@users.noreply.github.com"
+          for f in data/monitor/last-observations.json \
+                   data/monitor/history.jsonl \
+                   data/offer-sources.json \
+                   data/captures/monitor-last-report.json \
+                   data/captures/monitor-auto-accept-simulation.json; do
+            [ -f "$f" ] && git add "$f"
+          done
+          if ! git diff --staged --quiet; then
+            git commit -m "chore(monitor): persist observations before writers"
+            git pull --rebase origin "${{ github.ref_name }}"
+            git push
+          fi
 
       - name: Apply verified batch and reconcile safe writers
+        id: writers
         env:
           AUTOFRESH_PHASE: "PRODUCTION"
           AUTOFRESH_LIVE_WRITES: "1"
@@ -94,6 +109,8 @@ jobs:
         run: |
           python - <<'PY'
           import json
+          import os
+          from datetime import datetime, timezone
           from pathlib import Path
           from lib.monitor.auto_accept import (
               apply_verified_batch,
@@ -116,6 +133,8 @@ jobs:
                   "verified_writes": 0,
                   "failed_writes": 0,
               }
+          report["generated_at"] = datetime.now(timezone.utc).isoformat()
+          report["run_id"] = os.environ.get("GITHUB_RUN_ID")
           out.write_text(
               json.dumps(report, ensure_ascii=False, indent=2) + "\n",
               encoding="utf-8",
@@ -144,31 +163,17 @@ jobs:
             data/offer-sources.json
           if-no-files-found: ignore
       - name: Commit monitor state and verified batch baselines
-        if: success()
+        if: ${{ always() && steps.observe.outcome == 'success' && steps.writers.outcome != 'skipped' }}
         run: |
           git config user.name "autofresh-bot"
           git config user.email "autofresh-bot@users.noreply.github.com"
-
-          # Observation snapshots are staged only on a business/status change,
-          # preserving the no-noise monitor contract.
-          if python monitor.py --should-commit; then
-            echo "Business/status change detected — staging monitor state"
-            for f in data/monitor/last-observations.json \
-                     data/monitor/history.jsonl \
-                     data/offer-sources.json \
-                     data/captures/monitor-last-report.json \
-                     data/captures/monitor-auto-accept-simulation.json; do
-              [ -f "$f" ] && git add "$f"
-            done
-          else
-            echo "No business/status observation change"
-          fi
 
           # Batch acceptance/writer state is durable independently of whether
           # the observation signature changed on this exact run.
           for f in data/monitor/accepted-fields.json \
                    data/monitor/accepted-history.jsonl \
-                   data/pending_writes.json; do
+                   data/pending_writes.json \
+                   data/captures/monitor-auto-accept-batch.json; do
             [ -f "$f" ] && git add "$f"
           done
           [ -d data/platform-mappings ] && git add data/platform-mappings/

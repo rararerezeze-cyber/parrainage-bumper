@@ -580,6 +580,10 @@ def apply_verified_batch(
         "routes": routes,
         "writer_results": writer_results,
         "verified_writes": len(verified),
+        "reconciled_without_save": sum(
+            r.get("ok") is True and r.get("action") == "SYNC_VERIFIED_NO_SAVE"
+            for r in writer_results
+        ),
         "failed_writes": len(failed),
         "live_writes_performed": len(verified),
     }

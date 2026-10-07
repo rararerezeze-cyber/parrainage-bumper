@@ -1,6 +1,11 @@
 name: Probe Super Mes annonces (READ-ONLY)
 on:
   workflow_dispatch:
+    inputs:
+      program:
+        type: choice
+        options: [poulpeo, igraal]
+        default: poulpeo
 permissions:
   contents: read
 concurrency:
@@ -24,7 +29,13 @@ jobs:
           SUPER_PARRAIN_EMAIL: ${{ secrets.SUPER_PARRAIN_EMAIL }}
           SUPER_PARRAIN_PASSWORD: ${{ secrets.SUPER_PARRAIN_PASSWORD }}
           AUTOFRESH_LIVE_WRITES: "0"
-        run: python -u tools/probe_super_parrain_mes_annonces.py
+          INSPECT_PROGRAM: ${{ inputs.program || 'poulpeo' }}
+        run: |
+          if [ "$INSPECT_PROGRAM" = "igraal" ]; then
+            python -u tools/inspect_super_igraal_readonly.py
+          else
+            python -u tools/probe_super_parrain_mes_annonces.py
+          fi
       - name: Upload discovery
         if: always()
         uses: actions/upload-artifact@v4
@@ -34,4 +45,5 @@ jobs:
           path: |
             data/captures/super-poulpeo-mes-annonces-discovery.json
             data/captures/debug-super-poulpeo-mes-annonces.png
+            data/captures/super-igraal-readonly.json
           if-no-files-found: warn

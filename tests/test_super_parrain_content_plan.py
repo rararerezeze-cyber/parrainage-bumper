@@ -257,7 +257,9 @@ def test_cycle_publishes_the_plan_to_the_bumper_subprocess():
 UNTOUCHED_PATHS = (
     "lib/rctv_bump.py",
     "platforms/code_parrainage",
-    "platforms/parrainage_co",
+    # The writer has dedicated tests for the proven offer-quote extraction
+    # failure. Keep the remaining platform module protected.
+    "platforms/parrainage_co/__init__.py",
     "platforms/referralcodes",
     "tools/controlled_write_code_parrainage.py",
     "tools/controlled_write_parrainage_co.py",

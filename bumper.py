@@ -798,34 +798,23 @@ async def run_code(browser):
 
             await page.goto(f"{cfg['url']}/moncompte", wait_until="networkidle")
             await human_sleep(3, 5)
-            buttons = page.locator('button:has-text("Actualiser"), a:has-text("Actualiser")')
-            count = await buttons.count()
-            log.info(f"  {count} boutons Actualiser")
-            if count == 0:
-                log.info("  Aucune annonce disponible a actualiser pour le moment")
-                return
-            bumped = 0
-            # Le DOM peut retirer un bouton apres son clic. Parcourir depuis la
-            # fin empeche les suppressions de decaler les indices restants.
-            for progress, i in enumerate(range(count - 1, -1, -1), start=1):
-                btn = buttons.nth(i)
-                try:
-                    if not await btn.is_visible(): continue
-                    await btn.scroll_into_view_if_needed()
-                    SITE_ACTION_STARTED["code"] = True
-                    await human_click(page, btn)
-                    bumped += 1
-                    log.info(f"  Actualiser {progress}/{count}")
-                    await human_sleep(2, 5)
-                except Exception as e:
-                    log.warning(f"  Erreur bouton index={i}: {e}")
-            log.info(f"  {bumped} annonces remontees")
-            if bumped != count:
+            from lib.code_bump import bump_listings
+
+            def mark_code_action_started():
+                SITE_ACTION_STARTED["code"] = True
+
+            try:
+                await bump_listings(
+                    page, f"{cfg['url']}/moncompte",
+                    click=human_click, pause=human_sleep,
+                    mark_started=mark_code_action_started,
+                )
+            except Exception as exc:
                 if SITE_ACTION_STARTED.get("code"):
                     raise NonRetryableError(
-                        f"Remontee incomplete apres action: {bumped}/{count}"
-                    )
-                raise RuntimeError(f"Remontee incomplete: {bumped}/{count}")
+                        f"Remontee incomplete apres action: {exc}"
+                    ) from exc
+                raise
         finally:
             await page.close()
 

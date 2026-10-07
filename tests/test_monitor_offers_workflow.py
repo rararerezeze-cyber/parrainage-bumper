@@ -84,3 +84,34 @@ def test_monitor_workflow_runs_one_global_verified_batch():
     assert "CODE_PARRAINAGE_EMAIL" in TEXT
     assert "PARRAINAGE_CO_EMAIL" in TEXT
     assert "TWOCAPTCHA_KEY" in TEXT
+
+
+def test_observations_are_persisted_before_the_writer_can_fail():
+    import yaml
+
+    steps = yaml.safe_load(TEXT)["jobs"]["monitor"]["steps"]
+    names = [step.get("name") for step in steps]
+    before = names.index("Persist observations before writers")
+    writers = names.index("Apply verified batch and reconcile safe writers")
+    after = names.index("Commit monitor state and verified batch baselines")
+    assert before < writers < after
+    observation_commit = steps[before]["run"]
+    assert "--should-commit" not in observation_commit
+    for path in ["data/monitor/last-observations.json", "data/monitor/history.jsonl",
+                 "data/captures/monitor-last-report.json"]:
+        assert path in observation_commit
+        assert path not in steps[after]["run"]
+    assert "always()" in steps[after]["if"]
+    assert "steps.writers.outcome != 'skipped'" in steps[after]["if"]
+    assert "data/captures/monitor-auto-accept-batch.json" in steps[after]["run"]
+
+
+def test_fatal_observer_failure_cannot_reuse_an_old_report_for_writes():
+    import yaml
+
+    steps = yaml.safe_load(TEXT)["jobs"]["monitor"]["steps"]
+    observe = next(step for step in steps if step.get("id") == "observe")
+    assert "set +e" not in observe["run"]
+    executable = "\n".join(line for line in observe["run"].splitlines() if not line.strip().startswith("#"))
+    assert "exit 0" not in executable
+    assert observe.get("continue-on-error") is not True
