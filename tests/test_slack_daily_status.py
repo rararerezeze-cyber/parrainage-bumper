@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import json
+import pytest
 from datetime import datetime, timezone
 
 from tools.slack_daily_status import build_dashboard_data, build_payload, monitor_health
+from tools.slack_daily_status import filter_actionable_candidates
 
 
 def _state(now: datetime):
@@ -183,3 +185,22 @@ def test_missing_health_api_or_batch_fails_closed():
     for missing in [monitor_health(now, report, batch, None), monitor_health(now, report, {}, run)]:
         assert missing["health"] == "degraded"
     assert monitor_health(now, {}, {}, None)["health"] == "degraded"
+@pytest.mark.parametrize("platform", [None, "super-parrain"])
+def test_operator_locked_public_observation_is_not_an_actionable_replacement(tmp_path, monkeypatch, platform):
+    from lib import operator_overrides
+    store = operator_overrides.OperatorOverrideStore(tmp_path / "overrides.json")
+    store.upsert("igraal", "referee_reward", "3 €", platform=platform)
+    monkeypatch.setattr(operator_overrides, "OperatorOverrideStore", lambda: store)
+    candidate = {"program": "igraal", "field": "referee_reward", "canonical": "3 €", "observed": "15 €"}
+    assert filter_actionable_candidates([candidate]) == []
+    assert store.load()[0].value == "3 €"
+    assert candidate["observed"] == "15 €"
+
+
+def test_unlocked_unreconciled_observation_stays_actionable(tmp_path, monkeypatch):
+    from lib import operator_overrides
+    store = operator_overrides.OperatorOverrideStore(tmp_path / "overrides.json")
+    monkeypatch.setattr(operator_overrides, "OperatorOverrideStore", lambda: store)
+    monkeypatch.setattr(operator_overrides, "load_accepted_monitor_fields", lambda: {})
+    candidate = {"program": "igraal", "field": "referee_reward", "canonical": "3 €", "observed": "15 €"}
+    assert filter_actionable_candidates([candidate]) == [candidate]
