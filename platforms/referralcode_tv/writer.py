@@ -16,6 +16,7 @@ from lib.offers import OffersRepository
 from lib.operator_overrides import apply_effective_to_offer
 from lib.phase import content_write_allowed, phase_name
 from lib.renderer import MappingRepository, Renderer, TemplateRepository
+from platforms.referralcode_tv.encoding import needs_repair
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -102,6 +103,16 @@ def build_write_plan(program: str | None = None) -> ReferralCodeTvPlan:
                 continue
             template = templates.load_text(ref.platform, ref.program, ref.language)
             rendered = renderer.render(template, mapping, offer=offer)
+            if needs_repair(rendered):
+                plan.programs.append({
+                    "program": ref.program,
+                    "language": ref.language,
+                    "status": "encoding_corrupt",
+                    "action": "BLOCKED",
+                    "structure_ok": False,
+                    "error": "Repair live title/description before preparing content; human save required",
+                })
+                continue
             variables = renderer.build_variables(mapping, offer=offer)
             pv = mapping.platform_values or {}
             changed = {}
