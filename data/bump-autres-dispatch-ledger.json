@@ -607,7 +607,14 @@
     "2026-10-08:3": [
       "code",
       "parrainage"
+    ],
+    "2026-10-08:4": [
+      "parrainage"
     ]
   },
-  "retryable_sites": {}
+  "retryable_sites": {
+    "2026-10-08:4": [
+      "code"
+    ]
+  }
 }
