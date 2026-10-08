@@ -3,8 +3,8 @@
 The live Unibet announcement (eid 23040) and authenticated edit form contain
 UTF-8 bytes interpreted as Windows-1252, including undefined bytes retained as
 C1 controls. The UTF-8 page footer renders correctly. Historical read-only
-captures `data/captures/rctv-headed-eid.json` already show this corruption on
-2026-08-13. This evidence does not identify the original publishing mechanism.
+captures `data/captures/rctv-headed-eid.json` contain correct Unicode on
+2026-08-13. They do not identify when or how the later corruption occurred.
 
 Repair must use the current owned edit form, not a historical template or a
 whole-page capture. `platforms.referralcode_tv.encoding.TextRepair.prepare`
@@ -26,7 +26,7 @@ missing text from guessed offers, prices or referral codes.
    If the site corrupts a correctly saved value again, stop and record the site
    blocker instead of repeatedly saving or changing business terms.
 
-The normal writer remains `HUMAN_SAVE_REQUIRED`. Corrupted rendered templates
+The normal writer remains `HUMAN_SAVE_REQUIRED`. Any corrupted rendered templates
 are now reported as `encoding_corrupt` / `BLOCKED` rather than prepared as safe
 content. This guard does not change scheduler, boost or other platform routes.
 Historical templates and captures are left intact as evidence.
