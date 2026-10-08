@@ -819,7 +819,7 @@ async def run_code(browser):
 
             await page.goto(f"{cfg['url']}/moncompte", wait_until="networkidle")
             await human_sleep(3, 5)
-            from lib.code_bump import bump_listings
+            from lib.code_bump import bump_listings, BatchRefreshBlocked
 
             def mark_code_action_started():
                 SITE_ACTION_STARTED["code"] = True
@@ -830,6 +830,8 @@ async def run_code(browser):
                     click=human_click, pause=human_sleep,
                     mark_started=mark_code_action_started,
                 )
+            except BatchRefreshBlocked as exc:
+                raise NonRetryableError(str(exc)) from exc
             except Exception as exc:
                 if SITE_ACTION_STARTED.get("code"):
                     raise NonRetryableError(

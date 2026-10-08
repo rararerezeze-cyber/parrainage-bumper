@@ -1,5 +1,6 @@
 """Exercise the corrected resource with repository-only browser doubles."""
 import asyncio
+from dataclasses import replace
 from types import SimpleNamespace
 
 import pytest
@@ -54,6 +55,16 @@ class Announcement:
 
 def setup(monkeypatch, *, already_current=False):
     plan = cycle.build_write_plan("super-parrain", "igraal", "fr", only_fields=["referee_reward"])
+    # A normal verified cycle updates the production baseline to 3 EUR. The
+    # regression fixture must retain the old 5 EUR case independently of that
+    # mutable repository state, without rewriting any production data.
+    new_reward = plan.variables["referee_reward"]
+    old_reward = new_reward.replace("3 €", "5 €", 1)
+    assert old_reward != new_reward
+    plan = replace(plan, historical=plan.rendered.replace(new_reward, old_reward),
+                   platform_values={**plan.platform_values, "referee_reward": old_reward},
+                   changed_fields={"referee_reward": {"old": old_reward, "new": new_reward}})
+    monkeypatch.setattr(cycle, "build_write_plan", lambda *a, **k: plan)
     assert set(plan.changed_fields) == {"referee_reward"}
     content = Announcement(plan.rendered if already_current else plan.historical)
     opened = []
