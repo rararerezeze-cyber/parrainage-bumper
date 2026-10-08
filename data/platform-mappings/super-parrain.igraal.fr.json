@@ -23,10 +23,10 @@
     "conditions": "cond"
   },
   "announcement_url": "https://www.super-parrain.com/offres/igraal/parrainage-igraal/annonces/adrien-b-8",
-  "edit_url": null,
+  "edit_url": "https://www.super-parrain.com/offres/igraal/parrainage-igraal/annonces/adrien-b-8/edit",
   "platform_values": {
     "personal_link": "https://fr.igraal.com/parrainage?parrain=AG_608d8f9aded43",
-    "referee_reward": "5 € offers sur votre compte iGraal m via mon lien ✅"
+    "referee_reward": "3 € offers sur votre compte iGraal m via mon lien ✅"
   },
   "confidences": {
     "personal_link": "medium",
@@ -38,5 +38,7 @@
     "personal_link": "offers_json_then_operator",
     "referee_reward": "offers_json_then_official",
     "announcement_text": "platform_target_only"
-  }
+  },
+  "write_status": "WRITE_VERIFIED",
+  "last_write_at": "2026-10-08T00:00:35.742874+00:00"
 }

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-10-06T23:36:29.283611+00:00",
+  "updated_at": "2026-10-08T00:04:48.795119+00:00",
   "note": "Strict write readiness. WRITE_VERIFIED requires full post-verify evidence. Slack is the primary operator path; the legacy telegram_live_capable field remains the machine-readable unattended-writer allow-list.",
   "write_verified_count": 5,
   "write_verified_ratio": "5/7",
@@ -23,14 +23,13 @@
       "last_compare_note": "GH run 32369146793 fused cycle: Kraken body changed, saved once in the normal bump pass, then public post_match/exact_body_match/immutable_ok all true.",
       "last_write_verified_at": "2026-08-15T08:28:55.596484+00:00",
       "last_operational_cycle": {
-        "at": "2026-10-06T23:36:29.282672+00:00",
-        "result": "CANARY_FAILED",
-        "post_verify": "FAIL",
-        "post_match": false,
+        "at": "2026-10-08T00:04:48.795090+00:00",
+        "result": "CONTENT_VERIFIED",
+        "post_verify": "PASS",
+        "post_match": true,
         "program": "igraal",
-        "gh_run_id": "37546710424",
-        "saves": "40",
-        "error": "post_match_false",
+        "gh_run_id": "37705076357",
+        "saves": "39",
         "note": "Latest actual cycle. Independent from evidence/last_write_verified_at, which remain the historical capability proof and are not retracted here."
       },
       "evidence": {

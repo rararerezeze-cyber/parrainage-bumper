@@ -3,7 +3,7 @@
   "decision": {
     "runtime_mode": "NORMAL_BUMP",
     "canary_pending": false,
-    "next_eligible_at": "2026-10-06T19:37:42.673236+00:00",
+    "next_eligible_at": "2026-10-07T23:53:24.517014+00:00",
     "hours_remaining": 0.0,
     "pending_count": 1,
     "pending_programs": [
@@ -11,7 +11,7 @@
     ],
     "activation_canary_owns_save": false,
     "historical_bumper_authorized": true,
-    "jitter_minutes": 154,
+    "jitter_minutes": 17,
     "action": "cycle",
     "reason": "slot_reached_write_verified_precheck_then_bump",
     "skip_bump": false,
@@ -21,7 +21,7 @@
     "eligible_now": true
   },
   "eligible": true,
-  "next_eligible_at": "2026-10-06T19:37:42.673236+00:00",
+  "next_eligible_at": "2026-10-07T23:53:24.517014+00:00",
   "hours_remaining": 0.0,
   "pre_check": {
     "programs_scanned": 35,
@@ -178,13 +178,15 @@
   "bumper_returncode": 0,
   "bumper_stats": {
     "mode": "fused_bumper_canary",
-    "total_edit_urls": 40,
-    "saves": 40,
+    "total_edit_urls": 39,
+    "saves": 39,
+    "announcement_saves": 1,
+    "announcement_actions_unknown": 0,
     "autofresh": {
       "updated": 1,
-      "bump_only": 39,
+      "bump_only": 38,
       "failed_prefill": 0,
-      "canary_skipped": 9,
+      "canary_skipped": 24,
       "details": [
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-freeprints-5-tirages-supplementaires-offerts/edit",
@@ -287,16 +289,6 @@
           "policy": "bump_only_not_canary"
         },
         {
-          "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/50eur-offert-sur-votre-assurance-avec-le-code-loagvsn35/edit",
-          "program": null,
-          "needs_update": false,
-          "fields_filled": [],
-          "changed_fields": {},
-          "skipped": true,
-          "reason": "program_unknown_from_url",
-          "policy": ""
-        },
-        {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/5000-grass-points/edit",
           "program": null,
           "needs_update": false,
@@ -347,140 +339,280 @@
           "policy": "bump_only_not_canary"
         },
         {
-          "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-igraal-5eur-offerts-a-inscription/edit",
           "program": "igraal",
-          "needs_update": true,
+          "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-igraal-5eur-offerts-a-inscription/edit",
           "fields_filled": [
             "body"
           ],
           "changed_fields": {
-            "body": {
-              "old": "Conditions pour obtenir le bonus \n1. Créez votre compte iGraal via mon code cidessus\n2. Les 5€ seront crédités automatiquement sur votre compte iGraal à linscription\n3. Cumulez 20€ de cashback minimum pour pouvoir retirer vos gains Paypal virement bancaire ou carte cadeau",
-              "new": "⚡️ Offre Parrainage iGraal – 5 € offerts  ⚡\n\n⚡ Bonus : 3 € offers sur votre compte iGraal m via mon lien ✅\n\n⸻\n\n⭐️ Lien de parrainage :\n\n➡️ https://fr.igraal.com/parrainage?parrain=AG_608d8f9aded43\n\n⸻\n\n✅ Conditions pour obtenir le bonus :\n\n    1.    Créez votre compte iGraal via le lien ci-dessus\n\n    2.    Les 5 € seront crédités automatiquement sur votre compte iGraal après avoir cumulé 1€ minimum de cashback validé \n\n    3.    Cumulez 20€ de cashback minimum pour pouvoir retirer vos gains (Paypal, virement bancaire ou carte cadeau)\n\n⸻\n\nℹ️ À savoir :\n• Offre réservée aux nouveaux inscrits\n• Le cashback s’accumule sur vos achats dans les boutiques partenaires\n• Le retrait du cashback est possible dès 20€ de gains cumulés\n\n⸻\n\n⭐️ Besoin d’aide ou d’un suivi personnalisé ?\nDM-moi — je te guide étape par étape\n\n↪️ https://discord.gg/dDEMb6jEbn ↩️"
+            "referee_reward": {
+              "old": "5 € offers sur votre compte iGraal m via mon lien ✅",
+              "new": "3 € offers sur votre compte iGraal m via mon lien ✅"
             }
           },
+          "needs_update": true,
           "skipped": false,
-          "reason": "prefilled",
-          "policy": "canary",
-          "content_plan": {
-            "precheck_allowed": true,
-            "disagreement": false
-          }
+          "reason": "announcement_verified",
+          "writes_performed": 1,
+          "save_attempted": true,
+          "content_post_verify": {
+            "program": "igraal",
+            "announcement_url": "https://www.super-parrain.com/offres/igraal/parrainage-igraal/annonces/adrien-b-8",
+            "ok": true,
+            "post_match": true,
+            "exact_body_match": true,
+            "field_checks": {
+              "personal_code": {
+                "desired": "AG_608d8f9aded43",
+                "present": true
+              },
+              "personal_link": {
+                "desired": "https://fr.igraal.com/parrainage?parrain=AG_608d8f9aded43",
+                "present": true
+              },
+              "referee_reward": {
+                "desired": "3 € offers sur votre compte iGraal m via mon lien ✅",
+                "present": true,
+                "old": "5 € offers sur votre compte iGraal m via mon lien ✅",
+                "old_still_present": false
+              }
+            },
+            "published_preview": "⚡️ Offre Parrainage iGraal – 5 € offerts  ⚡\n\n⚡ Bonus : 3 € offers sur votre compte iGraal m via mon lien ✅\n\n⸻\n\n⭐️ Lien de parrainage :\n\n➡️ https://fr.igraal.com/parrainage?parrain=AG_608d8f9aded43\n\n⸻\n\n✅ Conditions pour obtenir le bonus :\n\n    1.    Créez votre compte iGraal via le lien ci-dessus\n\n    2.    Les 5 € seront crédités automatiquement sur votre compte iGraal après avoir cumulé 1€ minimu",
+            "desired_preview": "⚡️ Offre Parrainage iGraal – 5 € offerts  ⚡\n\n⚡ Bonus : 3 € offers sur votre compte iGraal m via mon lien ✅\n\n⸻\n\n⭐️ Lien de parrainage :\n\n➡️ https://fr.igraal.com/parrainage?parrain=AG_608d8f9aded43\n\n⸻\n\n✅ Conditions pour obtenir le bonus :\n\n    1.    Créez votre compte iGraal via le lien ci-dessus\n\n    2.    Les 5 € seront crédités automatiquement sur votre compte iGraal après avoir cumulé 1€ minimu",
+            "error": null,
+            "immutable_ok": true
+          },
+          "content_resource": "https://www.super-parrain.com/offres/igraal/parrainage-igraal/annonces/adrien-b-8/edit"
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/rakuten-10-eur-offerts/edit",
+          "program": null,
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "program_unknown_from_url",
+          "policy": ""
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/hm-10-de-reduction/edit",
+          "program": null,
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "program_unknown_from_url",
+          "policy": ""
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/asos-20-de-reduction/edit",
+          "program": null,
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "program_unknown_from_url",
+          "policy": ""
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/bitget-jusqua-25-eur-offerts/edit",
+          "program": null,
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "program_unknown_from_url",
+          "policy": ""
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-coinbase-20eur-en-bitcoin-offert/edit",
+          "program": "coinbase",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-kraken-200-eur-offerts/edit",
+          "program": "kraken",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/binance-20-de-reduction-sur-les-frais/edit",
+          "program": "binance",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-omio-10eur-offerts-sur-votre-prochaine-reservation/edit",
+          "program": "omio",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/back-market-10-eur-de-reduction/edit",
+          "program": null,
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "program_unknown_from_url",
+          "policy": ""
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/deblock-5-eur-en-crypto-offerts/edit",
+          "program": "deblock",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-widilo-jusqua-6eur-offerts-a-linscription/edit",
+          "program": "widilo",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-heetch-5eur-offerts-a-linscription/edit",
+          "program": "heetch",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/wise-reduction-sur-les-frais-de-transfert/edit",
+          "program": "wise",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/uber-eats-reduction-premiere-commande/edit",
+          "program": null,
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "program_unknown_from_url",
+          "policy": ""
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-airbnb/edit",
+          "program": "airbnb",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/ynstant-10-eur-offerts/edit",
+          "program": null,
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "program_unknown_from_url",
+          "policy": ""
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-trade-republic-10-eur-en-action-offerts/edit",
+          "program": "traderepublic",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-joko-5eur-offerts-des-votre-premiere-utilisation/edit",
+          "program": "joko",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-poulpeo-5eur-offerts-a-linscription/edit",
+          "program": "poulpeo",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-special-parrainage-betclic-100eur-rembourses-en-cash-et-40eur-offerts-en-freebet/edit",
+          "program": "betclic",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/totalenergies-offre-special-50eur-offerts/edit",
+          "program": "totalenergies",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/acheel-1-mois-sur-le-contrat-assurance-offert/edit",
+          "program": "acheel",
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "bump_only_not_canary",
+          "policy": "bump_only_not_canary"
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-coupe-du-monde-50-eur-offerts-et-bonus-jusqua-100-rembourses-eur/edit",
+          "program": null,
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
           "skipped": true,
-          "reason": "autofresh_stopped_after_canary_fail"
+          "reason": "program_unknown_from_url",
+          "policy": ""
         }
       ],
       "policy": {
@@ -495,9 +627,9 @@
         {
           "program": "igraal",
           "announcement_url": "https://www.super-parrain.com/offres/igraal/parrainage-igraal/annonces/adrien-b-8",
-          "ok": false,
-          "post_match": false,
-          "exact_body_match": false,
+          "ok": true,
+          "post_match": true,
+          "exact_body_match": true,
           "field_checks": {
             "personal_code": {
               "desired": "AG_608d8f9aded43",
@@ -509,28 +641,28 @@
             },
             "referee_reward": {
               "desired": "3 € offers sur votre compte iGraal m via mon lien ✅",
-              "present": false,
+              "present": true,
               "old": "5 € offers sur votre compte iGraal m via mon lien ✅",
-              "old_still_present": true
+              "old_still_present": false
             }
           },
-          "published_preview": "⚡️ Offre Parrainage iGraal – 5 € offerts  ⚡\n\n⚡ Bonus : 5 € offers sur votre compte iGraal m via mon lien ✅\n\n⸻\n\n⭐️ Lien de parrainage :\n\n➡️ https://fr.igraal.com/parrainage?parrain=AG_608d8f9aded43\n\n⸻\n\n✅ Conditions pour obtenir le bonus :\n\n    1.    Créez votre compte iGraal via le lien ci-dessus\n\n    2.    Les 5 € seront crédités automatiquement sur votre compte iGraal après avoir cumulé 1€ minimu",
+          "published_preview": "⚡️ Offre Parrainage iGraal – 5 € offerts  ⚡\n\n⚡ Bonus : 3 € offers sur votre compte iGraal m via mon lien ✅\n\n⸻\n\n⭐️ Lien de parrainage :\n\n➡️ https://fr.igraal.com/parrainage?parrain=AG_608d8f9aded43\n\n⸻\n\n✅ Conditions pour obtenir le bonus :\n\n    1.    Créez votre compte iGraal via le lien ci-dessus\n\n    2.    Les 5 € seront crédités automatiquement sur votre compte iGraal après avoir cumulé 1€ minimu",
           "desired_preview": "⚡️ Offre Parrainage iGraal – 5 € offerts  ⚡\n\n⚡ Bonus : 3 € offers sur votre compte iGraal m via mon lien ✅\n\n⸻\n\n⭐️ Lien de parrainage :\n\n➡️ https://fr.igraal.com/parrainage?parrain=AG_608d8f9aded43\n\n⸻\n\n✅ Conditions pour obtenir le bonus :\n\n    1.    Créez votre compte iGraal via le lien ci-dessus\n\n    2.    Les 5 € seront crédités automatiquement sur votre compte iGraal après avoir cumulé 1€ minimu",
-          "error": "post_match_false",
+          "error": null,
           "immutable_ok": true
         }
       ]
     },
     "canary_verdict": {
       "program": "igraal",
-      "post_match": false,
-      "exact_body_match": false,
-      "ok": false,
-      "error": "post_match_false"
+      "post_match": true,
+      "exact_body_match": true,
+      "ok": true,
+      "error": null
     },
-    "canary_content_failed": true,
-    "max_saves_target": 40,
-    "write_status": "CANARY_FAILED"
+    "canary_content_failed": false,
+    "max_saves_target": 39,
+    "write_status": "WRITE_VERIFIED"
   },
   "summary": {
     "PRE_CHECK": "OK",
@@ -538,19 +670,23 @@
       "igraal"
     ],
     "UPDATE_IF_NEEDED": "FUSED_CANARY",
-    "POST_VERIFY": "FAIL",
-    "CANARY_POST_MATCH": false,
-    "WRITE_STATUS": "CANARY_FAILED",
+    "POST_VERIFY": "PASS",
+    "CANARY_POST_MATCH": true,
+    "WRITE_STATUS": "WRITE_VERIFIED",
     "BUMP_CYCLE_24H": "OK",
     "server_actions": 40,
+    "historical_bump_saves": 39,
+    "announcement_saves": 1,
     "programs_needing_update": 16,
     "canary_need_update": 1,
     "autofresh_updated": 1,
-    "autofresh_bump_only": 39,
-    "canary_skipped": 9,
+    "autofresh_bump_only": 38,
+    "canary_skipped": 24,
     "BUMP_RESULT": "SUCCESS",
-    "CONTENT_RESULT": "FAILED"
+    "CONTENT_RESULT": "SUCCESS"
   },
-  "pending_closed": [],
-  "at": "2026-10-06T23:36:29.290213+00:00"
+  "pending_closed": [
+    "super-parrain:igraal:fr"
+  ],
+  "at": "2026-10-08T00:04:48.801307+00:00"
 }
