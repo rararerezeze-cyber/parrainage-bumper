@@ -12,7 +12,6 @@
       "field": "referee_reward",
       "observed": "15 €",
       "reasons": [
-        "streak_below_3:2",
         "operator_override_lock"
       ]
     },
@@ -45,5 +44,5 @@
     "APP_PERSONALIZED stays Hermes/Telegram",
     "ReferralCodes still NEVER_AUTO_COMMIT pending support"
   ],
-  "at": "2026-10-07T15:33:43.513268+00:00"
+  "at": "2026-10-08T15:43:19.334896+00:00"
 }
