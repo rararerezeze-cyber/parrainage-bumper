@@ -8,14 +8,6 @@
   "eligible_fields": [],
   "rejected_fields_and_reasons": [
     {
-      "program": "igraal",
-      "field": "referee_reward",
-      "observed": "15 €",
-      "reasons": [
-        "operator_override_lock"
-      ]
-    },
-    {
       "program": "kraken",
       "field": "referee_reward",
       "observed": null,
@@ -44,5 +36,5 @@
     "APP_PERSONALIZED stays Hermes/Telegram",
     "ReferralCodes still NEVER_AUTO_COMMIT pending support"
   ],
-  "at": "2026-10-08T15:43:19.334896+00:00"
+  "at": "2026-10-09T15:18:45.586414+00:00"
 }

@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-08T15:43:19.142886+00:00",
-  "run_id": "37802031229",
+  "generated_at": "2026-10-09T15:18:45.441517+00:00",
+  "run_id": "37950645146",
   "mode": "OBSERVATION_ONLY",
   "count": 41,
   "business_change": true,
@@ -9,14 +9,13 @@
     "REJECTED": 19,
     "REVIEW": 2,
     "NO_CHANGE": 9,
-    "ERROR": 4,
-    "CANDIDATE": 1,
+    "ERROR": 5,
     "SKIPPED": 6
   },
   "by_confidence": {
-    "REJECT": 29,
+    "REJECT": 30,
     "REVIEW": 10,
-    "HIGH": 2
+    "HIGH": 1
   },
   "by_failure_code": {
     "NO_PUBLIC_OFFER": 18,
@@ -24,68 +23,49 @@
     "DYNAMIC_JS": 1,
     "403_ANTIBOT": 4,
     "EMPTY_PAGE": 1,
-    "NONE": 2,
+    "NONE": 1,
     "CHALLENGE": 1,
+    "TEMPORARY_ERROR": 1,
     "APP_ONLY": 6
   },
   "by_monitor_status": {
-    "PUBLIC_MONITORABLE_PENDING": 3,
-    "NO_PUBLIC_REFERRAL_SOURCE": 6,
+    "PUBLIC_MONITORABLE_PENDING": 4,
+    "NO_PUBLIC_REFERRAL_SOURCE": 7,
     "APP_PERSONALIZED": 20,
     "ANTI_BOT_BLOCKED": 4,
-    "MONITOR_VERIFIED": 2,
     "OPERATOR_ONLY": 6
   },
   "production": {
     "mode": "OBSERVATION_ONLY",
     "programs": 41,
-    "MONITOR_VERIFIED": 2,
-    "PUBLIC_MONITORABLE_PENDING": 3,
+    "MONITOR_VERIFIED": 0,
+    "PUBLIC_MONITORABLE_PENDING": 4,
     "APP_PERSONALIZED": 20,
     "OPERATOR_ONLY": 6,
-    "NO_PUBLIC_REFERRAL_SOURCE": 6,
+    "NO_PUBLIC_REFERRAL_SOURCE": 7,
     "ANTI_BOT_BLOCKED": 4,
     "BROKEN": 0,
-    "fetch_success": "31/41",
-    "fetch_ok_count": 31,
-    "live_stable_high": 2,
-    "stable_high": 2,
+    "fetch_success": "30/41",
+    "fetch_ok_count": 30,
+    "live_stable_high": 1,
+    "stable_high": 1,
     "verified_official_fr_compatible": 30,
     "program_specific_parsers": 29,
-    "verified_programs_coverage": "2/41",
-    "mappings_impacted_by_verified": "10/167",
-    "mappings_verified_count": 10,
+    "verified_programs_coverage": "0/41",
+    "mappings_impacted_by_verified": "0/167",
+    "mappings_verified_count": 0,
     "mappings_total": 167,
-    "public_mutable_mapping_coverage": "10/53",
-    "public_mutable_covered": 10,
+    "public_mutable_mapping_coverage": "0/53",
+    "public_mutable_covered": 0,
     "public_mutable_total": 53,
-    "candidates_observed": 1,
-    "candidates_with_valid_authority": 1,
-    "candidates": [
-      {
-        "program": "igraal",
-        "field": "referee_reward",
-        "canonical": "3 €",
-        "observed": "15 €",
-        "source_url": "https://fr.igraal.com/parrainage",
-        "source_locale": "fr",
-        "source_country": "FR",
-        "campaign_scope": "FR",
-        "authority": "OFFICIAL_PUBLIC_MONITOR",
-        "high_streak": 3,
-        "live_high_streak": 3,
-        "announcement_impact": 6,
-        "parser": "igraal_referral_fr",
-        "valid_authority": true,
-        "observation_only": true
-      }
-    ],
+    "candidates_observed": 0,
+    "candidates_with_valid_authority": 0,
+    "candidates": [],
     "by_monitor_status": {
-      "PUBLIC_MONITORABLE_PENDING": 3,
-      "NO_PUBLIC_REFERRAL_SOURCE": 6,
+      "PUBLIC_MONITORABLE_PENDING": 4,
+      "NO_PUBLIC_REFERRAL_SOURCE": 7,
       "APP_PERSONALIZED": 20,
       "ANTI_BOT_BLOCKED": 4,
-      "MONITOR_VERIFIED": 2,
       "OPERATOR_ONLY": 6
     },
     "by_failure_code": {
@@ -94,8 +74,9 @@
       "DYNAMIC_JS": 1,
       "403_ANTIBOT": 4,
       "EMPTY_PAGE": 1,
-      "NONE": 2,
+      "NONE": 1,
       "CHALLENGE": 1,
+      "TEMPORARY_ERROR": 1,
       "APP_ONLY": 6
     },
     "by_source_class": {
@@ -107,7 +88,8 @@
     },
     "high_impact_pending": [
       "kraken",
-      "boursobank"
+      "boursobank",
+      "igraal"
     ],
     "MONITORING_BASE_READY": "YES",
     "MONITORING_PRODUCTION_READY": "NO",
@@ -153,25 +135,7 @@
       ]
     }
   },
-  "candidates": [
-    {
-      "program": "igraal",
-      "field": "referee_reward",
-      "canonical": "3 €",
-      "observed": "15 €",
-      "source_url": "https://fr.igraal.com/parrainage",
-      "source_locale": "fr",
-      "source_country": "FR",
-      "campaign_scope": "FR",
-      "authority": "OFFICIAL_PUBLIC_MONITOR",
-      "high_streak": 3,
-      "live_high_streak": 3,
-      "announcement_impact": 6,
-      "parser": "igraal_referral_fr",
-      "valid_authority": true,
-      "observation_only": true
-    }
-  ],
+  "candidates": [],
   "observations": [
     {
       "program": "kraken",
@@ -179,7 +143,7 @@
       "confidence": "REJECT",
       "source_url": "https://www.kraken.com/referrals",
       "parser": "kraken_referral_fr",
-      "detected_at": "2026-10-08T15:42:49.953193+00:00",
+      "detected_at": "2026-10-09T15:18:15.884146+00:00",
       "canonical_fields": {
         "referee_reward": "200 € en cryptomonnaies",
         "conditions": "Kraken indique généralement un bonus équivalent à 20 € en Bitcoin pour la France, après dépôt et volume de trading réalisés sous 30 jours. Les seuils exacts restent affichés dans l'application et le versement peut prendre jusqu'à 21 jours."
@@ -194,7 +158,7 @@
         "structured_data_present",
         "no_reward_phrase_found",
         "rejected_extraction",
-        "page_fp=4c1d3bfab7632dd7",
+        "page_fp=d54162b5df509373",
         "http_status=200",
         "is_live=True",
         "source_country=GLOBAL"
@@ -228,7 +192,7 @@
         "personal_link": "TELEGRAM_OPERATOR"
       },
       "consecutive_fetch_failures": 0,
-      "last_success_at": "2026-10-08T15:42:49.916995+00:00",
+      "last_success_at": "2026-10-09T15:18:15.860833+00:00",
       "is_live": true
     },
     {
@@ -237,7 +201,7 @@
       "confidence": "REVIEW",
       "source_url": "https://www.boursobank.com/bon-plan/parrainage-boursobank",
       "parser": "boursobank_parrainage_fr",
-      "detected_at": "2026-10-08T15:42:51.125968+00:00",
+      "detected_at": "2026-10-09T15:18:17.138710+00:00",
       "canonical_fields": {
         "referee_reward": "Programme à confirmer",
         "conditions": "La disponibilité et le montant du parrainage BoursoBank changent selon les campagnes. Aucun bonus ne doit être considéré comme garanti avant sa confirmation sur le parcours officiel."
@@ -314,7 +278,7 @@
         "personal_link": "TELEGRAM_OPERATOR"
       },
       "consecutive_fetch_failures": 0,
-      "last_success_at": "2026-10-08T15:42:51.121709+00:00",
+      "last_success_at": "2026-10-09T15:18:17.135839+00:00",
       "is_live": true
     },
     {
@@ -323,7 +287,7 @@
       "confidence": "REJECT",
       "source_url": "https://www.paypal.com/uk/webapps/mpp/invite/terms",
       "parser": "paypal_referral_fr",
-      "detected_at": "2026-10-08T15:42:51.911133+00:00",
+      "detected_at": "2026-10-09T15:18:17.936925+00:00",
       "canonical_fields": {
         "referee_reward": "10 €",
         "conditions": "Un achat minimum de 5 € doit être effectué dans les 30 jours suivant l'inscription pour déclencher le crédit."
@@ -336,7 +300,7 @@
         "field_authority_dropped=['conditions']",
         "no_fr_authority=['conditions']",
         "rejected_extraction",
-        "page_fp=4641b82b543e49f7",
+        "page_fp=f1ebaa58345c74ee",
         "http_status=200",
         "is_live=True",
         "source_country=UK"
@@ -370,7 +334,7 @@
         "personal_link": "TELEGRAM_OPERATOR"
       },
       "consecutive_fetch_failures": 0,
-      "last_success_at": "2026-10-08T15:42:51.896646+00:00",
+      "last_success_at": "2026-10-09T15:18:17.927994+00:00",
       "is_live": true
     },
     {
@@ -379,7 +343,7 @@
       "confidence": "REJECT",
       "source_url": "https://www.airbnb.fr/help/article/2856",
       "parser": "airbnb_referral_fr",
-      "detected_at": "2026-10-08T15:42:53.483418+00:00",
+      "detected_at": "2026-10-09T15:18:19.692818+00:00",
       "canonical_fields": {
         "referee_reward": "Réduction sur la 1ère réservation",
         "conditions": "La réduction s'applique sur la première réservation effectuée via le lien de parrainage. Le montant exact peut varier selon les offres promotionnelles Airbnb en cours."
@@ -393,7 +357,7 @@
         "structured_data_present",
         "no_reward_phrase_found",
         "rejected_extraction",
-        "page_fp=36e9cf0280498698",
+        "page_fp=dc199ab5963acd43",
         "http_status=200",
         "is_live=True",
         "source_country=FR"
@@ -427,7 +391,7 @@
         "personal_link": "TELEGRAM_OPERATOR"
       },
       "consecutive_fetch_failures": 0,
-      "last_success_at": "2026-10-08T15:42:53.307944+00:00",
+      "last_success_at": "2026-10-09T15:18:19.584971+00:00",
       "is_live": true
     },
     {
@@ -436,7 +400,7 @@
       "confidence": "REVIEW",
       "source_url": "https://www.bybit.com/en/help-center/article/Referral-Program",
       "parser": "bybit_referral_fr",
-      "detected_at": "2026-10-08T15:42:53.977101+00:00",
+      "detected_at": "2026-10-09T15:18:21.021856+00:00",
       "canonical_fields": {
         "referee_reward": "10% de réduction sur les frais",
         "conditions": "La réduction de 10% est permanente et s'applique dès lors que le code a été renseigné lors de l'inscription."
@@ -481,7 +445,7 @@
         "personal_link": "TELEGRAM_OPERATOR"
       },
       "consecutive_fetch_failures": 0,
-      "last_success_at": "2026-10-08T15:42:53.962367+00:00",
+      "last_success_at": "2026-10-09T15:18:21.012723+00:00",
       "is_live": true
     },
     {
@@ -490,7 +454,7 @@
       "confidence": "REJECT",
       "source_url": "https://www.vinted.fr/help/96",
       "parser": "vinted_referral_fr",
-      "detected_at": "2026-10-08T15:42:55.626913+00:00",
+      "detected_at": "2026-10-09T15:18:22.268047+00:00",
       "canonical_fields": {
         "referee_reward": "inscription via mon lien de parrainage ✅",
         "conditions": "Conditions selon l'offre officielle en vigueur."
@@ -502,7 +466,7 @@
       "notes": [
         "no_reward_phrase_found",
         "rejected_extraction",
-        "page_fp=ee9b45ab1f4edb69",
+        "page_fp=2a317a5dbdbf372e",
         "http_status=200",
         "is_live=True",
         "source_country=FR"
@@ -536,7 +500,7 @@
         "personal_link": "TELEGRAM_OPERATOR"
       },
       "consecutive_fetch_failures": 0,
-      "last_success_at": "2026-10-08T15:42:55.546393+00:00",
+      "last_success_at": "2026-10-09T15:18:22.218591+00:00",
       "is_live": true
     },
     {
@@ -545,7 +509,7 @@
       "confidence": "REJECT",
       "source_url": "https://www.winamax.fr/parrainage",
       "parser": "winamax_parrainage_fr",
-      "detected_at": "2026-10-08T15:42:55.754699+00:00",
+      "detected_at": "2026-10-09T15:18:24.358099+00:00",
       "canonical_fields": {
         "referee_reward": "100 €",
         "conditions": "Le code AD8RAY doit être saisi directement sur winamax.fr. Offre réservée aux nouveaux clients de 18 ans et plus. Conditions de mise applicables."
@@ -585,7 +549,7 @@
         "personal_code": "TELEGRAM_OPERATOR",
         "personal_link": "TELEGRAM_OPERATOR"
       },
-      "consecutive_fetch_failures": 38,
+      "consecutive_fetch_failures": 39,
       "last_success_at": "2026-08-12T20:14:00.232242+00:00",
       "is_live": true
     },
@@ -595,7 +559,7 @@
       "confidence": "REJECT",
       "source_url": "https://www.coinbase.com/invite",
       "parser": "coinbase_referral_fr",
-      "detected_at": "2026-10-08T15:42:55.942267+00:00",
+      "detected_at": "2026-10-09T15:18:24.563751+00:00",
       "canonical_fields": {
         "referee_reward": "Bonus variable",
         "conditions": "Le montant, le volume de transactions requis et la période de qualification dépendent de la campagne Coinbase présentée au nouvel utilisateur. La récompense peut varier et le programme peut être modifié ou retiré."
@@ -605,7 +569,7 @@
       "notes": [
         "empty_or_short_page",
         "rejected_extraction",
-        "page_fp=bbf40f91d0c7547f",
+        "page_fp=a20dec60ca4ab350",
         "http_status=200",
         "is_live=True",
         "source_country=US"
@@ -639,7 +603,7 @@
         "personal_link": "TELEGRAM_OPERATOR"
       },
       "consecutive_fetch_failures": 0,
-      "last_success_at": "2026-10-08T15:42:55.940820+00:00",
+      "last_success_at": "2026-10-09T15:18:24.562586+00:00",
       "is_live": true
     },
     {
@@ -648,7 +612,7 @@
       "confidence": "REJECT",
       "source_url": "https://shop.ledger.com/pages/referral-program",
       "parser": "ledger_referral_fr",
-      "detected_at": "2026-10-08T15:42:56.581712+00:00",
+      "detected_at": "2026-10-09T15:18:25.214912+00:00",
       "canonical_fields": {
         "referee_reward": "20 € en Bitcoin",
         "conditions": "L'achat d'un appareil Ledger sur le site officiel via le code de parrainage est requis pour bénéficier du bonus."
@@ -662,7 +626,7 @@
         "field_authority_dropped=['conditions']",
         "no_fr_authority=['conditions']",
         "rejected_extraction",
-        "page_fp=ccdfc59deba5df95",
+        "page_fp=10369865917be532",
         "http_status=200",
         "is_live=True",
         "source_country=GLOBAL"
@@ -696,7 +660,7 @@
         "personal_link": "TELEGRAM_OPERATOR"
       },
       "consecutive_fetch_failures": 0,
-      "last_success_at": "2026-10-08T15:42:56.545947+00:00",
+      "last_success_at": "2026-10-09T15:18:25.192908+00:00",
       "is_live": true
     },
     {
@@ -705,7 +669,7 @@
       "confidence": "REVIEW",
       "source_url": "https://swissborg.com/fr",
       "parser": "swissborg_referral_fr",
-      "detected_at": "2026-10-08T15:42:56.957006+00:00",
+      "detected_at": "2026-10-09T15:18:25.669205+00:00",
       "canonical_fields": {
         "referee_reward": "Jusqu'à 50 € en Bitcoin",
         "conditions": "Le filleul doit être nouveau, compléter le KYC et réussir le défi affiché dans l'application. La campagne actuelle peut demander un dépôt puis au moins 100 € d'échanges. La récompense prend la forme d'un coupon fixe ou d'un ticket allant jusqu'à 50 € en Bitcoin."
@@ -717,7 +681,7 @@
         "field_missing_in_observation:referee_reward",
         "field_missing_in_observation:conditions",
         "html_changed_but_business_unchanged",
-        "page_fp=ae935812d43a4c21",
+        "page_fp=444515242abad50f",
         "http_status=200",
         "is_live=True",
         "source_country=FR"
@@ -751,48 +715,42 @@
         "personal_link": "TELEGRAM_OPERATOR"
       },
       "consecutive_fetch_failures": 0,
-      "last_success_at": "2026-10-08T15:42:56.951924+00:00",
+      "last_success_at": "2026-10-09T15:18:25.665938+00:00",
       "is_live": true
     },
     {
       "program": "igraal",
-      "status": "CANDIDATE",
+      "status": "NO_CHANGE",
       "confidence": "HIGH",
       "source_url": "https://fr.igraal.com/parrainage",
       "parser": "igraal_referral_fr",
-      "detected_at": "2026-10-08T15:42:57.298028+00:00",
+      "detected_at": "2026-10-09T15:18:26.005664+00:00",
       "canonical_fields": {
         "referee_reward": "3 €",
         "conditions": "Le bonus de 5 € est crédité après réalisation du premier achat qualifié via iGraal."
       },
       "observed_fields": {
-        "referee_reward": "15 €"
+        "referee_reward": "3 €"
       },
-      "changes": [
-        {
-          "field": "referee_reward",
-          "old": "3 €",
-          "new": "15 €"
-        }
-      ],
+      "changes": [],
       "notes": [
         "igraal_invitation_amount",
         "field_missing_in_observation:conditions",
-        "high_confidence_candidate",
-        "page_fp=223cbbca4176ee06",
+        "html_changed_but_business_unchanged",
+        "page_fp=d45b182711cb2eae",
         "http_status=200",
         "is_live=True",
         "source_country=FR"
       ],
       "error": null,
-      "business_fingerprint": "referee_reward=15 €",
-      "html_changed_hint": false,
+      "business_fingerprint": "referee_reward=3 €",
+      "html_changed_hint": true,
       "failure_code": "NONE",
       "source_class": "VERIFIED_OFFICIAL",
       "offer_kind": "PUBLIC_STABLE",
-      "monitor_status": "MONITOR_VERIFIED",
-      "high_streak": 3,
-      "live_high_streak": 3,
+      "monitor_status": "PUBLIC_MONITORABLE_PENDING",
+      "high_streak": 1,
+      "live_high_streak": 1,
       "fixture_high_streak": 0,
       "parser_tests_passed": true,
       "impact_count": 6,
@@ -813,7 +771,7 @@
         "personal_link": "TELEGRAM_OPERATOR"
       },
       "consecutive_fetch_failures": 0,
-      "last_success_at": "2026-10-08T15:42:57.279234+00:00",
+      "last_success_at": "2026-10-09T15:18:25.993799+00:00",
       "is_live": true
     },
     {
@@ -822,7 +780,7 @@
       "confidence": "REVIEW",
       "source_url": "https://www.hellojoko.com/",
       "parser": "cashback_portal_fr",
-      "detected_at": "2026-10-08T15:42:58.235084+00:00",
+      "detected_at": "2026-10-09T15:18:26.943000+00:00",
       "canonical_fields": {
         "referee_reward": "5 €",
         "conditions": "Le bonus de 5 € est crédité après connexion de la carte bancaire et réalisation du premier achat qualifié."
@@ -867,7 +825,7 @@
         "personal_link": "TELEGRAM_OPERATOR"
       },
       "consecutive_fetch_failures": 0,
-      "last_success_at": "2026-10-08T15:42:58.232160+00:00",
+      "last_success_at": "2026-10-09T15:18:26.941070+00:00",
       "is_live": true
     },
     {
@@ -876,7 +834,7 @@
       "confidence": "REJECT",
       "source_url": "https://www.okx.com/join",
       "parser": "structured_first",
-      "detected_at": "2026-10-08T15:42:58.940303+00:00",
+      "detected_at": "2026-10-09T15:18:27.640367+00:00",
       "canonical_fields": {
         "referee_reward": "250 € en Bitcoin",
         "conditions": "Conditions selon l'offre officielle en vigueur."
@@ -887,7 +845,7 @@
         "structured_data_present",
         "no_reward_phrase_found",
         "rejected_extraction",
-        "page_fp=c3be66aadf6e63ac",
+        "page_fp=7fac25526f937e29",
         "http_status=200",
         "is_live=True",
         "source_country=GLOBAL"
@@ -921,7 +879,7 @@
         "personal_link": "TELEGRAM_OPERATOR"
       },
       "consecutive_fetch_failures": 0,
-      "last_success_at": "2026-10-08T15:42:58.936659+00:00",
+      "last_success_at": "2026-10-09T15:18:27.637972+00:00",
       "is_live": true
     },
     {
@@ -930,7 +888,7 @@
       "confidence": "REVIEW",
       "source_url": "https://www.totalenergies.fr/",
       "parser": "totalenergies_referral_fr",
-      "detected_at": "2026-10-08T15:43:00.097555+00:00",
+      "detected_at": "2026-10-09T15:18:29.244079+00:00",
       "canonical_fields": {
         "referee_reward": "50 €",
         "conditions": "Le crédit de 20 € est appliqué sur la première facture émise après activation du contrat, généralement dans les 2 à 3 mois suivant la souscription.",
@@ -944,7 +902,7 @@
         "field_missing_in_observation:conditions",
         "field_missing_in_observation:reward_type",
         "html_changed_but_business_unchanged",
-        "page_fp=0d858cbb4ca07931",
+        "page_fp=86e8a1cbc7135b10",
         "http_status=200",
         "is_live=True",
         "source_country=FR"
@@ -978,7 +936,7 @@
         "personal_link": "TELEGRAM_OPERATOR"
       },
       "consecutive_fetch_failures": 0,
-      "last_success_at": "2026-10-08T15:43:00.094621+00:00",
+      "last_success_at": "2026-10-09T15:18:29.241955+00:00",
       "is_live": true
     },
     {
@@ -987,7 +945,7 @@
       "confidence": "REJECT",
       "source_url": "https://www.unibet.fr/promotions",
       "parser": "unibet_promos_fr",
-      "detected_at": "2026-10-08T15:43:01.248275+00:00",
+      "detected_at": "2026-10-09T15:18:30.570544+00:00",
       "canonical_fields": {
         "referee_reward": "100 €",
         "conditions": "Offre réservée aux nouveaux clients de 18 ans et plus. Un dépôt et une mise minimale de 10 € sont requis. Les conditions de mise s'appliquent avant tout retrait."
@@ -1000,7 +958,7 @@
         "structured_data_present",
         "no_reward_phrase_found",
         "rejected_extraction",
-        "page_fp=91c272f66a1be6b9",
+        "page_fp=149a7e276ffcdbdb",
         "http_status=200",
         "is_live=True",
         "source_country=FR"
@@ -1034,7 +992,7 @@
         "personal_link": "TELEGRAM_OPERATOR"
       },
       "consecutive_fetch_failures": 0,
-      "last_success_at": "2026-10-08T15:43:01.239453+00:00",
+      "last_success_at": "2026-10-09T15:18:30.564711+00:00",
       "is_live": true
     },
     {
@@ -1043,7 +1001,7 @@
       "confidence": "REJECT",
       "source_url": "https://www.gemini.com/referrals",
       "parser": "structured_first",
-      "detected_at": "2026-10-08T15:43:01.781407+00:00",
+      "detected_at": "2026-10-09T15:18:31.087653+00:00",
       "canonical_fields": {
         "referee_reward": "20 € en Bitcoin",
         "conditions": "Le montant du bonus dépend de l'offre Gemini en vigueur. Vérifiez les conditions dans l'application lors de votre inscription."
@@ -1053,7 +1011,7 @@
       "notes": [
         "challenge_or_error_page",
         "rejected_extraction",
-        "page_fp=a995bcfe1360eceb",
+        "page_fp=9788665763b2ca7a",
         "http_status=200",
         "is_live=True",
         "source_country=US"
@@ -1087,7 +1045,7 @@
         "personal_link": "TELEGRAM_OPERATOR"
       },
       "consecutive_fetch_failures": 0,
-      "last_success_at": "2026-10-08T15:43:01.767778+00:00",
+      "last_success_at": "2026-10-09T15:18:31.079221+00:00",
       "is_live": true
     },
     {
@@ -1096,7 +1054,7 @@
       "confidence": "REJECT",
       "source_url": "https://robinhood.com/us/en/support/",
       "parser": "structured_first",
-      "detected_at": "2026-10-08T15:43:01.781868+00:00",
+      "detected_at": "2026-10-09T15:18:31.087944+00:00",
       "canonical_fields": {
         "referee_reward": "10 €",
         "conditions": "Robinhood annonce 10 € ou plus en crypto. Le dépôt minimum et le montant exact de la récompense sont ceux indiqués dans l'application au moment de l'inscription."
@@ -1144,7 +1102,7 @@
       "confidence": "REVIEW",
       "source_url": "https://www.acheel.com/",
       "parser": "acheel_referral_fr",
-      "detected_at": "2026-10-08T15:43:03.923817+00:00",
+      "detected_at": "2026-10-09T15:18:33.217876+00:00",
       "canonical_fields": {
         "referee_reward": "1 mois",
         "conditions": "Le premier mois est offert sur toute nouvelle souscription via le lien avec le code ADBE5645."
@@ -1189,7 +1147,7 @@
         "personal_link": "TELEGRAM_OPERATOR"
       },
       "consecutive_fetch_failures": 0,
-      "last_success_at": "2026-10-08T15:43:03.920913+00:00",
+      "last_success_at": "2026-10-09T15:18:33.215765+00:00",
       "is_live": true
     },
     {
@@ -1198,7 +1156,7 @@
       "confidence": "REJECT",
       "source_url": "https://www.betclic.fr/aide/parrainage",
       "parser": "structured_first",
-      "detected_at": "2026-10-08T15:43:04.233462+00:00",
+      "detected_at": "2026-10-09T15:18:33.387446+00:00",
       "canonical_fields": {
         "referee_reward": "100 €",
         "conditions": "Offre réservée aux nouveaux clients de 18 ans et plus. Un dépôt et une mise minimale de 10 € sont requis. Le bonus est soumis à des conditions de mise avant tout retrait."
@@ -1238,7 +1196,7 @@
         "personal_code": "TELEGRAM_OPERATOR",
         "personal_link": "TELEGRAM_OPERATOR"
       },
-      "consecutive_fetch_failures": 38,
+      "consecutive_fetch_failures": 39,
       "last_success_at": "2026-08-12T20:14:17.258228+00:00",
       "is_live": true
     },
@@ -1248,7 +1206,7 @@
       "confidence": "REJECT",
       "source_url": "https://www.heetch.com/fr",
       "parser": "structured_first",
-      "detected_at": "2026-10-08T15:43:04.734589+00:00",
+      "detected_at": "2026-10-09T15:18:33.820395+00:00",
       "canonical_fields": {
         "referee_reward": "5 €",
         "conditions": "La réduction de 5 € s'applique sur la première course uniquement, après saisie du code dans l'application."
@@ -1292,40 +1250,34 @@
         "personal_link": "TELEGRAM_OPERATOR"
       },
       "consecutive_fetch_failures": 0,
-      "last_success_at": "2026-10-08T15:43:04.732487+00:00",
+      "last_success_at": "2026-10-09T15:18:33.818937+00:00",
       "is_live": true
     },
     {
       "program": "nrj-mobile",
-      "status": "NO_CHANGE",
-      "confidence": "HIGH",
+      "status": "ERROR",
+      "confidence": "REJECT",
       "source_url": "https://www.nrjmobile.fr/",
       "parser": "nrj_mobile_referral_fr",
-      "detected_at": "2026-10-08T15:43:05.401891+00:00",
+      "detected_at": "2026-10-09T15:18:34.109967+00:00",
       "canonical_fields": {
         "referee_reward": "10 €",
         "conditions": "Conditions selon l'offre officielle en vigueur."
       },
-      "observed_fields": {
-        "referee_reward": "10 €"
-      },
+      "observed_fields": {},
       "changes": [],
       "notes": [
-        "nrj_parrainage_context",
-        "field_missing_in_observation:conditions",
-        "html_changed_but_business_unchanged",
-        "page_fp=f8ca86767cfac57a",
-        "http_status=200",
-        "is_live=True",
-        "source_country=FR"
+        "fetch_failed",
+        "http_status=503",
+        "TEMPORARY_ERROR"
       ],
-      "error": null,
-      "business_fingerprint": "referee_reward=10 €",
-      "html_changed_hint": true,
-      "failure_code": "NONE",
+      "error": "HTTP 503 for https://www.nrjmobile.fr/",
+      "business_fingerprint": "",
+      "html_changed_hint": false,
+      "failure_code": "TEMPORARY_ERROR",
       "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
       "offer_kind": "PUBLIC_CAMPAIGN",
-      "monitor_status": "MONITOR_VERIFIED",
+      "monitor_status": "NO_PUBLIC_REFERRAL_SOURCE",
       "high_streak": 37,
       "live_high_streak": 37,
       "fixture_high_streak": 0,
@@ -1347,7 +1299,7 @@
         "personal_code": "TELEGRAM_OPERATOR",
         "personal_link": "TELEGRAM_OPERATOR"
       },
-      "consecutive_fetch_failures": 0,
+      "consecutive_fetch_failures": 1,
       "last_success_at": "2026-10-08T15:43:05.399877+00:00",
       "is_live": true
     },
@@ -1357,7 +1309,7 @@
       "confidence": "REJECT",
       "source_url": "https://www.whatnot.com/",
       "parser": "structured_first",
-      "detected_at": "2026-10-08T15:43:06.314269+00:00",
+      "detected_at": "2026-10-09T15:18:34.976108+00:00",
       "canonical_fields": {
         "referee_reward": "tu reçois le même montant en crédit quand ton ami passe sa première commande",
         "conditions": "Conditions selon l'offre officielle en vigueur."
@@ -1369,7 +1321,7 @@
         "field_authority_dropped=['conditions']",
         "no_fr_authority=['conditions']",
         "rejected_extraction",
-        "page_fp=898f4cc2f3e2ab63",
+        "page_fp=95bce9ec5e60fe05",
         "http_status=200",
         "is_live=True",
         "source_country=US"
@@ -1403,7 +1355,7 @@
         "personal_link": "TELEGRAM_OPERATOR"
       },
       "consecutive_fetch_failures": 0,
-      "last_success_at": "2026-10-08T15:43:06.198086+00:00",
+      "last_success_at": "2026-10-09T15:18:34.899257+00:00",
       "is_live": true
     },
     {
@@ -1412,7 +1364,7 @@
       "confidence": "REJECT",
       "source_url": "https://www.binance.com/en/activity/referral",
       "parser": "structured_first",
-      "detected_at": "2026-10-08T15:43:06.549491+00:00",
+      "detected_at": "2026-10-09T15:18:35.183698+00:00",
       "canonical_fields": {
         "referee_reward": "10% de réduction sur les frais",
         "conditions": "La réduction de 10% est permanente et s'applique sur l'ensemble des transactions dès lors que le code a été saisi lors de l'inscription."
@@ -1422,7 +1374,7 @@
       "notes": [
         "no_reward_phrase_found",
         "rejected_extraction",
-        "page_fp=56ecfeeba55b2214",
+        "page_fp=97abf7ebcf7cd892",
         "http_status=202",
         "is_live=True",
         "source_country=GLOBAL"
@@ -1456,7 +1408,7 @@
         "personal_link": "TELEGRAM_OPERATOR"
       },
       "consecutive_fetch_failures": 0,
-      "last_success_at": "2026-10-08T15:43:06.548517+00:00",
+      "last_success_at": "2026-10-09T15:18:35.182894+00:00",
       "is_live": true
     },
     {
@@ -1465,7 +1417,7 @@
       "confidence": "REJECT",
       "source_url": "https://www.fdj.fr/",
       "parser": "operator_only_stub",
-      "detected_at": "2026-10-08T15:43:06.549948+00:00",
+      "detected_at": "2026-10-09T15:18:35.184022+00:00",
       "canonical_fields": {
         "referee_reward": "1. Crée un compte FDJ via le lien ci-dessus",
         "conditions": "Conditions selon l'offre officielle en vigueur."
@@ -1513,7 +1465,7 @@
       "confidence": "REJECT",
       "source_url": "https://www.omio.com/",
       "parser": "structured_first",
-      "detected_at": "2026-10-08T15:43:06.550331+00:00",
+      "detected_at": "2026-10-09T15:18:35.184261+00:00",
       "canonical_fields": {
         "referee_reward": "10 €",
         "conditions": "La réduction de 10 € s'applique uniquement sur la première réservation effectuée via Omio."
@@ -1561,7 +1513,7 @@
       "confidence": "REVIEW",
       "source_url": "https://www.widilo.fr/",
       "parser": "cashback_portal_fr",
-      "detected_at": "2026-10-08T15:43:07.317321+00:00",
+      "detected_at": "2026-10-09T15:18:37.198933+00:00",
       "canonical_fields": {
         "referee_reward": "5 €",
         "conditions": "Le bonus de bienvenue est variable selon l'offre promotionnelle Widilo en cours au moment de l'inscription."
@@ -1573,7 +1525,7 @@
         "field_missing_in_observation:referee_reward",
         "field_missing_in_observation:conditions",
         "html_changed_but_business_unchanged",
-        "page_fp=936da3f61d7b40cf",
+        "page_fp=07094ce5962aadd8",
         "http_status=200",
         "is_live=True",
         "source_country=FR"
@@ -1607,7 +1559,7 @@
         "personal_link": "TELEGRAM_OPERATOR"
       },
       "consecutive_fetch_failures": 0,
-      "last_success_at": "2026-10-08T15:43:07.316424+00:00",
+      "last_success_at": "2026-10-09T15:18:37.194034+00:00",
       "is_live": true
     },
     {
@@ -1616,7 +1568,7 @@
       "confidence": "REVIEW",
       "source_url": "https://www.ebuyclub.com/",
       "parser": "cashback_portal_fr",
-      "detected_at": "2026-10-08T15:43:07.530703+00:00",
+      "detected_at": "2026-10-09T15:18:37.964621+00:00",
       "canonical_fields": {
         "referee_reward": "5 €",
         "conditions": "Le bonus de 5 € est crédité après réalisation du premier achat éligible via eBuyClub."
@@ -1628,7 +1580,7 @@
         "field_missing_in_observation:referee_reward",
         "field_missing_in_observation:conditions",
         "html_changed_but_business_unchanged",
-        "page_fp=c16ecc778a469e8c",
+        "page_fp=bc1669c263631ba8",
         "http_status=200",
         "is_live=True",
         "source_country=FR"
@@ -1662,7 +1614,7 @@
         "personal_link": "TELEGRAM_OPERATOR"
       },
       "consecutive_fetch_failures": 0,
-      "last_success_at": "2026-10-08T15:43:07.526129+00:00",
+      "last_success_at": "2026-10-09T15:18:37.961616+00:00",
       "is_live": true
     },
     {
@@ -1671,7 +1623,7 @@
       "confidence": "REJECT",
       "source_url": "https://www.poulpeo.com/",
       "parser": "cashback_portal_fr",
-      "detected_at": "2026-10-08T15:43:07.685771+00:00",
+      "detected_at": "2026-10-09T15:18:38.159190+00:00",
       "canonical_fields": {
         "referee_reward": "5 €",
         "conditions": "Le bonus de 5 € est crédité après réalisation du premier achat éligible via Poulpeo."
@@ -1711,7 +1663,7 @@
         "personal_code": "TELEGRAM_OPERATOR",
         "personal_link": "TELEGRAM_OPERATOR"
       },
-      "consecutive_fetch_failures": 37,
+      "consecutive_fetch_failures": 38,
       "last_success_at": "2026-08-19T08:54:22.745615+00:00",
       "is_live": true
     },
@@ -1721,7 +1673,7 @@
       "confidence": "REJECT",
       "source_url": "https://www.revolut.com/referral/",
       "parser": "app_personalized_stub",
-      "detected_at": "2026-10-08T15:43:07.997664+00:00",
+      "detected_at": "2026-10-09T15:18:38.456568+00:00",
       "canonical_fields": {
         "referee_reward": "Avantage",
         "conditions": "Le nombre d’achats, leur montant minimum, la date limite et l’existence d’un avantage pour le filleul varient selon la campagne affichée dans l’application Revolut. Aucun montant fixe n’est garanti."
@@ -1732,7 +1684,7 @@
         "app_personalized_no_public_fixed_reward",
         "offer_kind=APP_PERSONALIZED",
         "rejected_extraction",
-        "page_fp=a194572cfbd9d135",
+        "page_fp=ed1fcfee393cfeb2",
         "http_status=200",
         "is_live=True",
         "source_country=GLOBAL"
@@ -1766,7 +1718,7 @@
         "personal_link": "TELEGRAM_OPERATOR"
       },
       "consecutive_fetch_failures": 0,
-      "last_success_at": "2026-10-08T15:43:07.996769+00:00",
+      "last_success_at": "2026-10-09T15:18:38.455810+00:00",
       "is_live": true
     },
     {
@@ -1775,7 +1727,7 @@
       "confidence": "REJECT",
       "source_url": "https://traderepublic.com/fr-fr/support",
       "parser": "app_personalized_stub",
-      "detected_at": "2026-10-08T15:43:08.714291+00:00",
+      "detected_at": "2026-10-09T15:18:39.149309+00:00",
       "canonical_fields": {
         "referee_reward": "Action ou ETF",
         "conditions": "La récompense et les critères sont personnalisés et visibles dans l’application. Le filleul reçoit une action ou un ETF uniquement après avoir rempli toutes les conditions de sa campagne."
@@ -1786,7 +1738,7 @@
         "app_personalized_no_public_fixed_reward",
         "offer_kind=APP_PERSONALIZED",
         "rejected_extraction",
-        "page_fp=0e718db69a35cf5a",
+        "page_fp=8e607f60b48eba6f",
         "http_status=200",
         "is_live=True",
         "source_country=FR"
@@ -1820,7 +1772,7 @@
         "personal_link": "TELEGRAM_OPERATOR"
       },
       "consecutive_fetch_failures": 0,
-      "last_success_at": "2026-10-08T15:43:08.712837+00:00",
+      "last_success_at": "2026-10-09T15:18:39.148580+00:00",
       "is_live": true
     },
     {
@@ -1829,7 +1781,7 @@
       "confidence": "REJECT",
       "source_url": "https://bitstack-app.com/",
       "parser": "app_personalized_stub",
-      "detected_at": "2026-10-08T15:43:09.051371+00:00",
+      "detected_at": "2026-10-09T15:18:39.374978+00:00",
       "canonical_fields": {
         "referee_reward": "5 € en Bitcoin",
         "conditions": "Les conditions publiées en avril 2026 exigent une identité vérifiée, 100 € cumulés d'achats de Bitcoin et un plan d'épargne actif dans les 30 jours. Le filleul reçoit alors 5 € en Bitcoin, généralement crédités sous sept jours."
@@ -1874,7 +1826,7 @@
         "personal_link": "TELEGRAM_OPERATOR"
       },
       "consecutive_fetch_failures": 0,
-      "last_success_at": "2026-10-08T15:43:09.050470+00:00",
+      "last_success_at": "2026-10-09T15:18:39.374140+00:00",
       "is_live": true
     },
     {
@@ -1883,7 +1835,7 @@
       "confidence": "REVIEW",
       "source_url": "https://finary.com/fr",
       "parser": "structured_first",
-      "detected_at": "2026-10-08T15:43:09.364748+00:00",
+      "detected_at": "2026-10-09T15:18:39.675710+00:00",
       "canonical_fields": {
         "referee_reward": "1 mois Premium",
         "conditions": "Un mois d'accès Premium est offert après inscription via le code KEDEA4."
@@ -1896,7 +1848,7 @@
         "field_missing_in_observation:referee_reward",
         "field_missing_in_observation:conditions",
         "html_changed_but_business_unchanged",
-        "page_fp=aee983500dcc37ed",
+        "page_fp=2893274a0363a721",
         "http_status=200",
         "is_live=True",
         "source_country=FR"
@@ -1930,7 +1882,7 @@
         "personal_link": "TELEGRAM_OPERATOR"
       },
       "consecutive_fetch_failures": 0,
-      "last_success_at": "2026-10-08T15:43:09.345135+00:00",
+      "last_success_at": "2026-10-09T15:18:39.662112+00:00",
       "is_live": true
     },
     {
@@ -1939,7 +1891,7 @@
       "confidence": "REVIEW",
       "source_url": "https://www.lolivier.fr/assurance-auto/offre-parrainage",
       "parser": "structured_first",
-      "detected_at": "2026-10-08T15:43:10.943593+00:00",
+      "detected_at": "2026-10-09T15:18:41.072809+00:00",
       "canonical_fields": {
         "referee_reward": "50 €",
         "conditions": "Le crédit de 50 € est déduit sur le premier paiement du contrat souscrit via le code LOA-GVSN35. Numéro de parrain : 5950467715."
@@ -1967,7 +1919,7 @@
         "reward_candidates=['jusqu’à 250 €', \"jusqu'à 250 €\", '50 € en auto', \"ainsi jusqu'à 250 € / an\", '10% de réduction pour tout contrat auto supplémentaire']",
         "field_missing_in_observation:referee_reward",
         "needs_human_review",
-        "page_fp=58cf4309c0325161",
+        "page_fp=4148cc7e20093c0f",
         "http_status=200",
         "is_live=True",
         "source_country=FR"
@@ -2001,7 +1953,7 @@
         "personal_link": "TELEGRAM_OPERATOR"
       },
       "consecutive_fetch_failures": 0,
-      "last_success_at": "2026-10-08T15:43:10.936183+00:00",
+      "last_success_at": "2026-10-09T15:18:41.067960+00:00",
       "is_live": true
     },
     {
@@ -2010,7 +1962,7 @@
       "confidence": "REJECT",
       "source_url": "https://withplum.com/",
       "parser": "app_personalized_stub",
-      "detected_at": "2026-10-08T15:43:11.497605+00:00",
+      "detected_at": "2026-10-09T15:18:41.602281+00:00",
       "canonical_fields": {
         "referee_reward": "10 €",
         "conditions": "Conditions selon l'offre officielle en vigueur."
@@ -2021,7 +1973,7 @@
         "app_personalized_no_public_fixed_reward",
         "offer_kind=APP_PERSONALIZED",
         "rejected_extraction",
-        "page_fp=80eb08c93aedaffc",
+        "page_fp=8f9d001d630a2268",
         "http_status=200",
         "is_live=True",
         "source_country=FR"
@@ -2055,7 +2007,7 @@
         "personal_link": "TELEGRAM_OPERATOR"
       },
       "consecutive_fetch_failures": 0,
-      "last_success_at": "2026-10-08T15:43:11.496683+00:00",
+      "last_success_at": "2026-10-09T15:18:41.601517+00:00",
       "is_live": true
     },
     {
@@ -2064,7 +2016,7 @@
       "confidence": "REJECT",
       "source_url": "https://deblock.com/",
       "parser": "app_personalized_stub",
-      "detected_at": "2026-10-08T15:43:12.580247+00:00",
+      "detected_at": "2026-10-09T15:18:42.222938+00:00",
       "canonical_fields": {
         "referee_reward": "Récompense",
         "conditions": "Les campagnes Deblock peuvent proposer une récompense fixe ou variable. Le montant et les actions requises doivent être confirmés dans les conditions de la campagne active au moment de l’inscription."
@@ -2109,7 +2061,7 @@
         "personal_link": "TELEGRAM_OPERATOR"
       },
       "consecutive_fetch_failures": 0,
-      "last_success_at": "2026-10-08T15:43:12.579386+00:00",
+      "last_success_at": "2026-10-09T15:18:42.222219+00:00",
       "is_live": true
     },
     {
@@ -2118,7 +2070,7 @@
       "confidence": "REJECT",
       "source_url": "https://wise.com/invite",
       "parser": "app_personalized_stub",
-      "detected_at": "2026-10-08T15:43:13.536694+00:00",
+      "detected_at": "2026-10-09T15:18:43.242386+00:00",
       "canonical_fields": {
         "referee_reward": "Frais sur le 1er transfert",
         "conditions": "La réduction porte uniquement sur les frais du premier transfert. Elle ne s'applique pas aux transferts suivants."
@@ -2129,7 +2081,7 @@
         "app_personalized_no_public_fixed_reward",
         "offer_kind=APP_PERSONALIZED",
         "rejected_extraction",
-        "page_fp=d5612054488d4e27",
+        "page_fp=630fed0bfe418b97",
         "http_status=200",
         "is_live=True",
         "source_country=GLOBAL"
@@ -2163,7 +2115,7 @@
         "personal_link": "TELEGRAM_OPERATOR"
       },
       "consecutive_fetch_failures": 0,
-      "last_success_at": "2026-10-08T15:43:13.535839+00:00",
+      "last_success_at": "2026-10-09T15:18:43.241651+00:00",
       "is_live": true
     },
     {
@@ -2172,7 +2124,7 @@
       "confidence": "REJECT",
       "source_url": "https://www.enligne.parionssport.fdj.fr/",
       "parser": "structured_first",
-      "detected_at": "2026-10-08T15:43:14.934544+00:00",
+      "detected_at": "2026-10-09T15:18:44.790544+00:00",
       "canonical_fields": {
         "referee_reward": "100 €",
         "conditions": "Offre réservée aux nouveaux clients de 18 ans et plus. Un dépôt et une mise minimale de 10 € sont requis. Les crédits bonus sont soumis à conditions de mise."
@@ -2212,7 +2164,7 @@
         "personal_code": "TELEGRAM_OPERATOR",
         "personal_link": "TELEGRAM_OPERATOR"
       },
-      "consecutive_fetch_failures": 40,
+      "consecutive_fetch_failures": 41,
       "last_success_at": null,
       "is_live": true
     },
@@ -2222,7 +2174,7 @@
       "confidence": "REJECT",
       "source_url": null,
       "parser": "operator_only_stub",
-      "detected_at": "2026-10-08T15:43:14.935331+00:00",
+      "detected_at": "2026-10-09T15:18:44.791148+00:00",
       "canonical_fields": {
         "referee_reward": "Récompenses variables Bitget",
         "conditions": "Les récompenses, seuils de dépôt/trading, délais et Mystery Boxes dépendent de la campagne active affichée par Bitget. AutoFresh ne doit pas inventer un montant fixe."
@@ -2270,7 +2222,7 @@
       "confidence": "REJECT",
       "source_url": null,
       "parser": "operator_only_stub",
-      "detected_at": "2026-10-08T15:43:14.935732+00:00",
+      "detected_at": "2026-10-09T15:18:44.791408+00:00",
       "canonical_fields": {
         "referee_reward": "Avantage de parrainage à confirmer dans l’application",
         "conditions": "L’offre publique FreePrints confirme les tirages gratuits du service, mais pas un barème public stable de parrainage. AutoFresh conserve donc le bonus publié sans le réécrire automatiquement."
@@ -2318,7 +2270,7 @@
       "confidence": "REJECT",
       "source_url": null,
       "parser": "operator_only_stub",
-      "detected_at": "2026-10-08T15:43:14.936123+00:00",
+      "detected_at": "2026-10-09T15:18:44.791649+00:00",
       "canonical_fields": {
         "referee_reward": "Avantage de parrainage affichée par Uber Eats",
         "conditions": "Uber précise que les bonus de parrainage peuvent varier selon le programme et l’offre reçue. Le montant actuellement publié sur 1Parrainage reste historique tant qu’il n’est pas confirmé par l’offre active."
@@ -2366,7 +2318,7 @@
       "confidence": "REJECT",
       "source_url": "https://www.grass.io/",
       "parser": "structured_first",
-      "detected_at": "2026-10-08T15:43:19.140062+00:00",
+      "detected_at": "2026-10-09T15:18:45.439477+00:00",
       "canonical_fields": {
         "referee_reward": "5 000 points",
         "conditions": "Les 5000 points de bienvenue sont crédités après inscription et installation de l'extension. La valeur des tokens GRASS est déterminée par le marché et peut varier significativement."
@@ -2413,7 +2365,7 @@
         "personal_link": "TELEGRAM_OPERATOR"
       },
       "consecutive_fetch_failures": 0,
-      "last_success_at": "2026-10-08T15:43:19.129634+00:00",
+      "last_success_at": "2026-10-09T15:18:45.432683+00:00",
       "is_live": true
     }
   ],
@@ -2433,8 +2385,8 @@
     {
       "program": "igraal",
       "impact_count": 6,
-      "monitor_status": "MONITOR_VERIFIED",
-      "live_high_streak": 3
+      "monitor_status": "PUBLIC_MONITORABLE_PENDING",
+      "live_high_streak": 1
     },
     {
       "program": "joko",
@@ -2559,7 +2511,7 @@
     {
       "program": "nrj-mobile",
       "impact_count": 4,
-      "monitor_status": "MONITOR_VERIFIED",
+      "monitor_status": "NO_PUBLIC_REFERRAL_SOURCE",
       "live_high_streak": 37
     },
     {
