@@ -3,13 +3,13 @@
   "decision": {
     "runtime_mode": "NORMAL_BUMP",
     "canary_pending": false,
-    "next_eligible_at": "2026-10-09T01:54:44.487992+00:00",
+    "next_eligible_at": "2026-10-10T08:43:06.397922+00:00",
     "hours_remaining": 0.0,
     "pending_count": 0,
     "pending_programs": [],
     "activation_canary_owns_save": false,
     "historical_bumper_authorized": true,
-    "jitter_minutes": 110,
+    "jitter_minutes": 22,
     "action": "cycle",
     "reason": "slot_reached_write_verified_precheck_then_bump",
     "skip_bump": false,
@@ -19,7 +19,7 @@
     "eligible_now": true
   },
   "eligible": true,
-  "next_eligible_at": "2026-10-09T01:54:44.487992+00:00",
+  "next_eligible_at": "2026-10-10T08:43:06.397922+00:00",
   "hours_remaining": 0.0,
   "pre_check": {
     "programs_scanned": 35,
@@ -160,12 +160,12 @@
   "bumper_stats": {
     "mode": "fused_bumper_canary",
     "total_edit_urls": 39,
-    "saves": 38,
+    "saves": 39,
     "announcement_saves": 0,
     "announcement_actions_unknown": 0,
     "autofresh": {
       "updated": 0,
-      "bump_only": 38,
+      "bump_only": 39,
       "failed_prefill": 0,
       "canary_skipped": 23,
       "details": [
@@ -191,6 +191,16 @@
         },
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/10-eur-offerts-pour-vous-10-eur-pour-votre-filleul/edit",
+          "program": null,
+          "needs_update": false,
+          "fields_filled": [],
+          "changed_fields": {},
+          "skipped": true,
+          "reason": "program_unknown_from_url",
+          "policy": ""
+        },
+        {
+          "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/250-eur-offerts-en-bitcoin/edit",
           "program": null,
           "needs_update": false,
           "fields_filled": [],
@@ -587,17 +597,17 @@
     "CANARY_POST_MATCH": null,
     "WRITE_STATUS": "CANARY_PENDING",
     "BUMP_CYCLE_24H": "OK",
-    "server_actions": 38,
-    "historical_bump_saves": 38,
+    "server_actions": 39,
+    "historical_bump_saves": 39,
     "announcement_saves": 0,
     "programs_needing_update": 15,
     "canary_need_update": 0,
     "autofresh_updated": 0,
-    "autofresh_bump_only": 38,
+    "autofresh_bump_only": 39,
     "canary_skipped": 23,
     "BUMP_RESULT": "SUCCESS",
     "CONTENT_RESULT": "NO_CONTENT_WRITE"
   },
   "pending_closed": [],
-  "at": "2026-10-09T08:21:11.362454+00:00"
+  "at": "2026-10-10T10:25:19.318901+00:00"
 }
