@@ -36,7 +36,9 @@
       "planned_at": "2026-10-13T19:52:48.505850+00:00",
       "status": "dispatched",
       "dispatched_at": "2026-10-13T20:03:57.610158+00:00",
-      "catchup": false
+      "catchup": false,
+      "recovery_count": 1,
+      "recovery_dispatched_at": "2026-10-13T20:18:53.917093+00:00"
     }
   ]
 }
