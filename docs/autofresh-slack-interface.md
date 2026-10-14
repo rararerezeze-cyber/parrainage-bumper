@@ -161,6 +161,14 @@ operator-useful state:
 The card exposes buttons for the bump status, actionable offer programs and
 ReferralCode.tv. It is read-only and holds no platform credentials.
 
+Five additional **Ouvrir** URL buttons provide direct browser navigation to
+ReferralDrop (login), 1Parrainage (login), Super-Parrain (Mes annonces),
+Parrainage.co (account offers), and ReferralCodes (login). The five new buttons
+appear in a separate actions block (Slack limit: 5 buttons per actions block).
+They do not log in automatically, bypass CAPTCHA, boost listings, persist
+credentials, dispatch GitHub or start writers. Existing browser sessions may
+make navigation seamless; otherwise the operator authenticates on the site.
+
 Interactive alerts also close visually:
 
 - **Accepter** replaces the old alert with **Changement accepté** while the

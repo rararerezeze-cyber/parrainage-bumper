@@ -108,6 +108,22 @@ def test_daily_payload_is_click_first_and_has_referralcode_shortcut():
     assert ids.count("autofresh_command") >= 3
     manual = next(a for a in actions if a.get("action_id") == "autofresh_open_rctv")
     assert manual["url"].endswith("/my-account/?tab=listings")
+    expected_shortcuts = {
+        "autofresh_open_referraldrop": "https://referraldrop.com/fr/login",
+        "autofresh_open_1parrainage": "https://www.1parrainage.com/login",
+        "autofresh_open_super_parrain": "https://www.super-parrain.com/tableau-de-bord/annonces",
+        "autofresh_open_parrainage_co": "https://parrainage.co/account/offers",
+        "autofresh_open_referralcodes": "https://referralcodes.com/login",
+    }
+    for action_id, url in expected_shortcuts.items():
+        shortcut = next(a for a in actions if a.get("action_id") == action_id)
+        assert shortcut["url"] == url
+        assert shortcut["text"]["text"].startswith("Ouvrir ")
+        assert "value" not in shortcut
+    assert len(expected_shortcuts) == 5
+    for block in payload["blocks"]:
+        if block.get("type") == "actions":
+            assert len(block["elements"]) <= 5
     commands = [
         json.loads(a["value"])["command"]
         for a in actions

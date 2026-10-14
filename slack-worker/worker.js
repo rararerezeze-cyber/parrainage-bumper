@@ -204,10 +204,17 @@ async function handleInteractivity(request, env, ctx) {
   const action = (payload?.actions || [])[0];
   const actionId = action?.action_id || "";
 
-  // URL navigation to ReferralCode.tv is human-only. Slack may still send an
-  // interaction payload for a URL button; acknowledge it without dispatching
-  // GitHub or attempting any browser/challenge automation.
-  if (actionId === "autofresh_open_rctv") {
+  // Account shortcuts are navigation-only. Slack may send interactions for
+  // URL buttons; acknowledge known IDs without triggering GitHub or writers.
+  const navigationActions = new Set([
+    "autofresh_open_rctv",
+    "autofresh_open_referraldrop",
+    "autofresh_open_1parrainage",
+    "autofresh_open_super_parrain",
+    "autofresh_open_parrainage_co",
+    "autofresh_open_referralcodes",
+  ]);
+  if (navigationActions.has(actionId)) {
     return new Response(null, { status: 200 });
   }
 

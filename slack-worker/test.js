@@ -93,12 +93,20 @@ test("Worker signed request path: read/preview stays unarmed; confirmation dispa
     await request("/slack/interactivity", { payload: later });
     assert.equal(calls.length, 5);
 
-    // ReferralCode.tv URL button is navigation-only, even though Slack can
-    // still send an interaction payload for URL buttons.
-    const rctv = JSON.stringify({ user: { id: "U_TEST" }, channel: { id: "C_TEST" },
-      actions: [{ action_id: "autofresh_open_rctv" }] });
-    await request("/slack/interactivity", { payload: rctv });
-    assert.equal(calls.length, 5);
+    // All six URL buttons must acknowledge without dispatching GitHub.
+    for (const actionId of [
+      "autofresh_open_rctv",
+      "autofresh_open_referraldrop",
+      "autofresh_open_1parrainage",
+      "autofresh_open_super_parrain",
+      "autofresh_open_parrainage_co",
+      "autofresh_open_referralcodes",
+    ]) {
+      const navigation = JSON.stringify({ user: { id: "U_TEST" }, channel: { id: "C_TEST" },
+        actions: [{ action_id: actionId }] });
+      assert.equal((await request("/slack/interactivity", { payload: navigation })).status, 200);
+      assert.equal(calls.length, 5);
+    }
   } finally {
     globalThis.fetch = originalFetch;
   }

@@ -24,6 +24,13 @@ MONITOR_BATCH_PATH = DATA_DIR / "captures" / "monitor-auto-accept-batch.json"
 MONITOR_MAX_AGE = timedelta(hours=36)
 CAPTURE_PATH = DATA_DIR / "captures" / "slack-daily-status.json"
 RCTV_LISTINGS_URL = "https://www.referralcode.tv/my-account/?tab=listings"
+ACCOUNT_SHORTCUTS = (
+    ("referraldrop", "ReferralDrop", "https://referraldrop.com/fr/login"),
+    ("1parrainage", "1Parrainage", "https://www.1parrainage.com/login"),
+    ("super_parrain", "Super-Parrain", "https://www.super-parrain.com/tableau-de-bord/annonces"),
+    ("parrainage_co", "Parrainage.co", "https://parrainage.co/account/offers"),
+    ("referralcodes", "ReferralCodes", "https://referralcodes.com/login"),
+)
 PARIS = ZoneInfo("Europe/Paris")
 CATCHUP_TOLERANCE = timedelta(minutes=20)
 
@@ -101,6 +108,16 @@ def _rctv_button(label: str = "Remonter ReferralCode.tv") -> dict[str, Any]:
         "action_id": "autofresh_open_rctv",
         "text": {"type": "plain_text", "text": label[:75]},
         "url": RCTV_LISTINGS_URL,
+    }
+
+
+def _account_button(slug: str, name: str, url: str) -> dict[str, Any]:
+    """Open a site in the operator browser; never authenticate or dispatch a write."""
+    return {
+        "type": "button",
+        "action_id": f"autofresh_open_{slug}",
+        "text": {"type": "plain_text", "text": f"Ouvrir {name}"},
+        "url": url,
     }
 
 
@@ -304,6 +321,17 @@ def build_payload(data: dict[str, Any], channel: str) -> dict[str, Any]:
             ],
         }
     )
+    blocks.extend([
+        {
+            "type": "context",
+            "elements": [{"type": "mrkdwn", "text": "Accès rapide aux comptes · connexion manuelle si nécessaire"}],
+        },
+        {
+            "type": "actions",
+            "block_id": "autofresh_daily_accounts",
+            "elements": [_account_button(slug, name, url) for slug, name, url in ACCOUNT_SHORTCUTS],
+        },
+    ])
     seen: set[str] = set()
     for item in candidates:
         program = str(item.get("program") or "").strip()
