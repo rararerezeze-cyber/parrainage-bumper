@@ -12,9 +12,7 @@
       "field": "referee_reward",
       "observed": "4,99 €",
       "reasons": [
-        "blocked_monitor_status:NO_PUBLIC_REFERRAL_SOURCE",
-        "source_not_verified_official:OFFICIAL_BUT_NOT_MACHINE_READABLE",
-        "streak_below_3:2"
+        "source_not_verified_official:OFFICIAL_BUT_NOT_MACHINE_READABLE"
       ]
     },
     {
@@ -46,5 +44,5 @@
     "APP_PERSONALIZED stays Hermes/Telegram",
     "ReferralCodes still NEVER_AUTO_COMMIT pending support"
   ],
-  "at": "2026-10-13T15:58:19.535616+00:00"
+  "at": "2026-10-14T13:43:34.204056+00:00"
 }
