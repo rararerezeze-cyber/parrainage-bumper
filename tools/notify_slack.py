@@ -373,9 +373,17 @@ def _rctv_done_button(event: dict) -> dict[str, Any]:
 
 
 def _monitor_blocks(event: dict) -> list[dict[str, Any]]:
+    """Only actionable, traceable signals; no irrelevant divergences command."""
     elements: list[dict[str, Any]] = []
+    source_url = str(event.get("source_url") or "").strip()
+    source_valid = source_url.startswith("https://")
+    try:
+        independently_seen = int(event.get("evidence_count") or 0) >= 2
+    except (TypeError, ValueError):
+        independently_seen = False
+
     command = _accept_command(event)
-    if command:
+    if command and source_valid and independently_seen:
         new = _compact(event.get("new_value"), 32)
         elements.append(
             _button(
@@ -385,36 +393,41 @@ def _monitor_blocks(event: dict) -> list[dict[str, Any]]:
                 style="primary",
                 confirm={
                     "title": {"type": "plain_text", "text": "Accepter cette valeur ?"},
-                    "text": {
-                        "type": "mrkdwn",
-                        "text": (
-                            "AutoFresh enregistrera cette nouvelle valeur. "
-                            "Toute écriture immédiate sur un site compatible demandera "
-                            "encore une confirmation séparée."
-                        ),
-                    },
+                    "text": {"type": "mrkdwn", "text": (
+                        "La valeur publique observée doit correspondre au bonus de parrainage, "
+                        "pas à un tarif. AutoFresh préparera une proposition ; toute écriture "
+                        "sur un site demandera encore une confirmation distincte."
+                    )},
                     "confirm": {"type": "plain_text", "text": "Accepter"},
                     "deny": {"type": "plain_text", "text": "Annuler"},
                 },
             )
         )
-    program = _program_label(event.get("program"))
-    detail = _read_command_button(
-        "Voir le détail",
-        f"{program} divergences",
-        event,
-        "details",
-    ) if program else None
-    if detail:
-        elements.append(detail)
-    elements.append(_later_button(event))
-    return [
-        {
-            "type": "section",
-            "text": {"type": "mrkdwn", "text": _monitor_event_text(event, rich=True)[:_MAX_BLOCK_TEXT]},
-        },
-        {"type": "actions", "elements": elements[:5]},
-    ]
+
+    program = str(event.get("program") or "").strip().lower()
+    field_command = _FIELD_COMMANDS.get(str(event.get("field") or ""))
+    observed = event.get("new_value")
+    if program and field_command and observed is not None:
+        rejection_command = f"{program} refuser {field_command} {observed}"
+        if _safe_command_text(rejection_command):
+            elements.append(_button(
+                "Refuser", "autofresh_reject_candidate",
+                value=_command_value(rejection_command, event, "reject"),
+            ))
+    if source_valid:
+        elements.append(_button("Vérifier la source", "autofresh_verify_source", url=source_url))
+
+    detail = _monitor_event_text(event, rich=True)
+    detail += (
+        "\n_Source : observation automatique, pas preuve qu'une de tes annonces a changé."
+        " Vérifie les conditions officielles avant d'accepter._"
+    )
+    if not independently_seen or not source_valid:
+        detail += "\n_Information insuffisante pour proposer une acceptation._"
+    blocks = [{"type": "section", "text": {"type": "mrkdwn", "text": detail[:_MAX_BLOCK_TEXT]}}]
+    if elements:
+        blocks.append({"type": "actions", "elements": elements[:5]})
+    return blocks
 
 
 def _inspection_blocks(event: dict, text: str) -> list[dict[str, Any]]:
@@ -440,7 +453,6 @@ def _inspection_blocks(event: dict, text: str) -> list[dict[str, Any]]:
         )
         if btn:
             elements.append(btn)
-    elements.append(_later_button(event))
     blocks = [
         {"type": "section", "text": {"type": "mrkdwn", "text": text[:_MAX_BLOCK_TEXT]}}
     ]
@@ -529,6 +541,10 @@ def build_payload(events: list[dict], channel: str) -> dict | None:
         level, event = raw.get("level", ""), raw.get("event", "")
         if not should_notify(event, level):
             continue
+        if event == "monitor_real_safe_diff":
+            from lib.monitor.rejections import is_rejected_candidate
+            if is_rejected_candidate(raw.get("program") or "", raw.get("field") or "", raw.get("new_value") or ""):
+                continue
         safe = build_event(
             level,
             event,
