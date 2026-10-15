@@ -84,6 +84,7 @@ def test_boursobank_simulate_only_real_native_diffs(tmp_path, monkeypatch):
         parser="boursobank_parrainage_fr", detected_at="2026-08-12T00:00:00+00:00",
         canonical_fields={"referee_reward": "200 €"}, observed_fields={"referee_reward": "160 €"},
         changes=[FieldChange(field="referee_reward", old="200 €", new="160 €")],
+        evidence_excerpts={"referee_reward": "Le filleul reçoit 160 € de bonus de parrainage."},
         source_class="VERIFIED_OFFICIAL", offer_kind="PUBLIC_CAMPAIGN",
         monitor_status="MONITOR_VERIFIED", live_high_streak=6, parser_tests_passed=True,
         source_country="FR", source_locale="fr", campaign_scope="FR",
