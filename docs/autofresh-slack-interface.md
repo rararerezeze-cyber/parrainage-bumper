@@ -162,7 +162,7 @@ The card exposes buttons for the bump status, actionable offer programs and
 ReferralCode.tv. It is read-only and holds no platform credentials.
 
 Five additional **Ouvrir** URL buttons provide direct browser navigation to
-ReferralDrop (login), 1Parrainage (login), Super-Parrain (Mes annonces),
+ReferralDrop (login), 1Parrainage (login), Super-Parrain (/users),
 Parrainage.co (account offers), and ReferralCodes (login). The five new buttons
 appear in a separate actions block (Slack limit: 5 buttons per actions block).
 They do not log in automatically, bypass CAPTCHA, boost listings, persist

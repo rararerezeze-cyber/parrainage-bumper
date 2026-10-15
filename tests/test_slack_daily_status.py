@@ -111,7 +111,7 @@ def test_daily_payload_is_click_first_and_has_referralcode_shortcut():
     expected_shortcuts = {
         "autofresh_open_referraldrop": "https://referraldrop.com/fr/login",
         "autofresh_open_1parrainage": "https://www.1parrainage.com/login",
-        "autofresh_open_super_parrain": "https://www.super-parrain.com/tableau-de-bord/annonces",
+        "autofresh_open_super_parrain": "https://www.super-parrain.com/users",
         "autofresh_open_parrainage_co": "https://parrainage.co/account/offers",
         "autofresh_open_referralcodes": "https://referralcodes.com/login",
     }

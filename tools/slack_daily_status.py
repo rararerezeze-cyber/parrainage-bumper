@@ -27,7 +27,7 @@ RCTV_LISTINGS_URL = "https://www.referralcode.tv/my-account/?tab=listings"
 ACCOUNT_SHORTCUTS = (
     ("referraldrop", "ReferralDrop", "https://referraldrop.com/fr/login"),
     ("1parrainage", "1Parrainage", "https://www.1parrainage.com/login"),
-    ("super_parrain", "Super-Parrain", "https://www.super-parrain.com/tableau-de-bord/annonces"),
+    ("super_parrain", "Super-Parrain", "https://www.super-parrain.com/users"),
     ("parrainage_co", "Parrainage.co", "https://parrainage.co/account/offers"),
     ("referralcodes", "ReferralCodes", "https://referralcodes.com/login"),
 )
