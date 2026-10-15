@@ -400,31 +400,32 @@ def parse_acheel_referral_fr(html: str, cfg: SourceConfig, offer: dict | None = 
 
 
 def parse_nrj_mobile_referral_fr(html: str, cfg: SourceConfig, offer: dict | None = None) -> NormalizedOffer:
-    """NRJ Mobile: plan prices (9/15/17/29 €) vs parrainage bonus."""
-    text = _text(html)
-    fields: dict[str, str | None] = {}
-    m = re.search(
-        r"(?i)(?:parrainage|filleul|parrain)[^\d]{0,50}(\d[\d\s.,]*\s*€)",
-        text,
+    """Only extract an explicit referral *reward*, never a mobile-plan price.
+
+    The official NRJ Mobile terms distinguish the 10 € reward for each side
+    from the minimum eligible subscription price (4,99 €/month). Merely being
+    close to the word "parrainage" does not establish a reward.
+    """
+    text = re.sub(r"\\s+", " ", _text(html))
+    patterns = (
+        # "Le parrainage NRJ Mobile, c'est 10€ pour vous et 10€ pour vos amis"
+        r"(?i)\\bparrainage\\s+(?:nrj\\s+mobile\\s*,?\\s*)?c['’]est\\s+"
+        r"(\\d{1,3}(?:[.,]\\d{1,2})?\\s*€)\\s+pour\\s+vous\\s+et\\s+"
+        r"\\d{1,3}(?:[.,]\\d{1,2})?\\s*€\\s+pour\\s+vos\\s+amis",
+        # "Versement de 10€ au filleul et au parrain"
+        r"(?i)\\bversement\\s+de\\s+(\\d{1,3}(?:[.,]\\d{1,2})?\\s*€)"
+        r"\\s+au\\s+filleul\\s+et\\s+au\\s+parrain",
     )
-    if not m:
-        m = re.search(
-            r"(?i)(\d[\d\s.,]*\s*€)\s*(?:offerts?)[^\n]{0,40}(?:parrainage|filleul)",
-            text,
-        )
-    if m:
-        reward = normalize_reward(m.group(1))
-        if reward and is_plausible_reward(reward):
-            fields["referee_reward"] = reward
-            return _base(cfg, html, fields, Confidence.HIGH, ["nrj_parrainage_context"])
-    return _base(
-        cfg,
-        html,
-        {},
-        Confidence.REVIEW,
-        ["nrj_plan_prices_not_parrainage"],
-        FailureCode.AMBIGUOUS_REWARD,
-    )
+    for pattern in patterns:
+        match = re.search(pattern, text)
+        if match:
+            reward = normalize_reward(match.group(1))
+            if reward and is_plausible_reward(reward):
+                return _base(cfg, html, {"referee_reward": reward}, Confidence.HIGH,
+                             ["nrj_explicit_both_sides_referral_reward"])
+    return _base(cfg, html, {}, Confidence.REVIEW,
+                 ["nrj_no_explicit_referral_reward", "nrj_plan_prices_excluded"],
+                 FailureCode.AMBIGUOUS_REWARD)
 
 
 def parse_unibet_promos_fr(html: str, cfg: SourceConfig, offer: dict | None = None) -> NormalizedOffer:

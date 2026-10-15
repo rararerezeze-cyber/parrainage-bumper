@@ -167,7 +167,7 @@ holds no platform credentials.
 Five additional **Ouvrir** URL buttons provide direct browser navigation to
 ReferralDrop (verified personal profile, not a private dashboard), 1Parrainage
 (authenticated member area; site's "Se rappeler de moi" checkbox governs session
-persistence), Super-Parrain (/users), Parrainage.co (account offers), and
+persistence), Super-Parrain (verified own profile /users/adrien-b-8), Parrainage.co (account offers), and
 ReferralCodes (/profile, redirects to login if unauthenticated). The five buttons
 appear in a separate actions block (Slack limit: 5 buttons per actions block).
 They do not log in automatically, bypass CAPTCHA, boost listings, persist
@@ -185,3 +185,8 @@ Interactive alerts also close visually:
 - ReferralCode.tv blocker alerts expose **Marquer fait** after the operator has
   completed the manual bump. This only closes the Slack alert; it does not
   claim automated verification behind Turnstile.
+
+NRJ Mobile monitor: use the official referral FAQ, not the general tariff home page. The
+10 € reward for each party is distinct from the 4,99 €/month minimum subscription.
+The parser must match explicit referral-reward language; generic proximity to
+“parrainage” cannot establish a bonus.

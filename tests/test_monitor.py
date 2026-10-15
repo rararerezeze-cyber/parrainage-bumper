@@ -470,3 +470,26 @@ def test_monitor_engine_uses_effective_operator_override(tmp_path, monkeypatch):
     assert [(c.field, c.old, c.new) for c in changes2] == [
         ("referee_reward", "50 €", "60 €")
     ]
+
+
+
+def test_nrj_referral_reward_distinguishes_minimum_plan_price():
+    from lib.monitor.parsers.program_specific import parse_nrj_mobile_referral_fr
+    cfg = _cfg("nrj-mobile", parser="nrj_mobile_referral_fr")
+    cfg.source_url = "https://www.nrjmobile.fr/faq/comment-profiter-de-mon-programme-de-parrainage"
+    html = (
+        "<h1>Comment profiter de mon programme de parrainage ?</h1>"
+        "<p>Le parrainage NRJ Mobile, c'est 10€ pour vous et 10€ pour vos amis !</p>"
+        "<p>Souscription d'un forfait d'un montant minimum de 4,99€/mois.</p>"
+        "<p>Versement de 10€ au filleul et au parrain.</p>"
+    )
+    parsed = parse_nrj_mobile_referral_fr(html, cfg)
+    assert parsed.confidence == Confidence.HIGH
+    assert parsed.fields["referee_reward"] == "10 €"
+
+    bad_html = "<h1>Parrainage</h1><p>Forfait éligible de 4,99€/mois.</p>"
+    unproven = parse_nrj_mobile_referral_fr(bad_html, cfg)
+    assert unproven.confidence != Confidence.HIGH
+    assert not unproven.fields.get("referee_reward")
+
+
