@@ -213,6 +213,7 @@ async function handleInteractivity(request, env, ctx) {
     "autofresh_open_super_parrain",
     "autofresh_open_parrainage_co",
     "autofresh_open_referralcodes",
+    "autofresh_verify_source",
   ]);
   if (navigationActions.has(actionId)) {
     return new Response(null, { status: 200 });
@@ -244,6 +245,7 @@ async function handleInteractivity(request, env, ctx) {
   const commandActions = new Set([
     "autofresh_command",
     "autofresh_apply_candidate",
+    "autofresh_reject_candidate",
     "autofresh_confirm_write",
   ]);
   if (!commandActions.has(actionId)) {
@@ -265,6 +267,19 @@ async function handleInteractivity(request, env, ctx) {
         text: "Bouton invalide ou expiré.",
         replace_original: false,
       }));
+    }
+    return new Response(null, { status: 200 });
+  }
+
+  // Prevent stale historic NRJ Mobile alerts from accepting the monthly
+  // subscription price (4,99 €) as a referral bonus (officially 10 €).
+  if (actionId === "autofresh_apply_candidate" &&
+      /^nrj[\s-]*mobile\s+gain\s+filleul\s+4[,.]99\s*€?\s*$/i.test(confirm.command)) {
+    if (responseUrl) {
+      ctx.waitUntil(postResponseUrl(responseUrl, statusReplacement(
+        "AutoFresh — ancienne alerte NRJ Mobile invalidée",
+        "4,99 € était le prix minimum du forfait, pas le gain filleul. La page officielle confirme 10 € pour chaque partie. Aucune valeur modifiée."
+      )));
     }
     return new Response(null, { status: 200 });
   }
@@ -302,6 +317,11 @@ async function handleInteractivity(request, env, ctx) {
         text: "Impossible de lancer cette action pour le moment.",
         replace_original: false,
       }));
+    } else if (actionId === "autofresh_reject_candidate") {
+      ctx.waitUntil(postResponseUrl(responseUrl, statusReplacement(
+        "AutoFresh — refus demandé",
+        "Enregistrement durable demandé. La confirmation du backend sera publiée dans le salon ; aucune annonce ne sera modifiée."
+      )));
     } else if (actionId === "autofresh_apply_candidate") {
       ctx.waitUntil(postResponseUrl(responseUrl, statusReplacement(
         "✅ AutoFresh — changement accepté",
