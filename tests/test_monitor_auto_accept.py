@@ -159,6 +159,8 @@ def test_default_scope_accepts_verified_program_outside_legacy_pilot(tmp_path):
         "campaign_scope": "FR",
         "live_high_streak": 6,
         "parser": "newbrand_referral_fr",
+        "source_excerpt": "Le parrainage offre 10 € au filleul inscrit.",
+        "source_url": "https://www.example.test/parrainage",
     }
     obs = _obs(
         program="newbrand",
@@ -166,6 +168,7 @@ def test_default_scope_accepts_verified_program_outside_legacy_pilot(tmp_path):
         canonical_fields={"referee_reward": "5 €"},
         observed_fields={"referee_reward": "10 €"},
         changes=[FieldChange(field="referee_reward", old="5 €", new="10 €")],
+        evidence_excerpts={"referee_reward": "Le parrainage offre 10 € au filleul inscrit."},
     )
     result = evaluate_field(cand, obs, store=store, accepted={})
     assert result["decision"] == "ACCEPT"
@@ -193,6 +196,7 @@ def test_evaluate_all_default_scope_is_all_verified(tmp_path, monkeypatch):
         canonical_fields={"referee_reward": "5 €"},
         observed_fields={"referee_reward": "10 €"},
         changes=[FieldChange(field="referee_reward", old="5 €", new="10 €")],
+        evidence_excerpts={"referee_reward": "Le parrainage offre 10 € au filleul inscrit."},
     )
     result = evaluate_all([obs], store=store)
     assert result["scope"] == "ALL_VERIFIED"
