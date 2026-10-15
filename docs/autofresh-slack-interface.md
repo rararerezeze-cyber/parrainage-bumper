@@ -201,3 +201,23 @@ NRJ Mobile monitor: use the official referral FAQ, not the general tariff home p
 10 € reward for each party is distinct from the 4,99 €/month minimum subscription.
 The parser must match explicit referral-reward language; generic proximity to
 “parrainage” cannot establish a bonus.
+
+### Politique commune de preuve pour toutes les offres
+
+Cette procédure s'applique à **chaque programme surveillé**, et pas seulement
+à NRJ Mobile. Toute proposition d'un changement de valeur doit distinguer :
+
+- la valeur actuellement enregistrée dans AutoFresh et la nouvelle valeur
+  observée sur le site officiel ;
+- l'URL précise de la source suivie, un extrait littéral pertinent et l'heure
+  d'observation ; un nombre de répétitions seul n'est pas une preuve ;
+- les annonces *potentiellement concernées*, sans prétendre que leurs pages
+  publiées ont effectivement été modifiées.
+
+Le bouton **Accepter** apparaît uniquement avec un extrait vérifiable de la
+valeur, une source officielle HTTPS, un parseur testé, une confiance HIGH et
+au moins trois observations réelles cohérentes. Le même verrou bloque aussi
+l'acceptation automatique en lot. Si une preuve manque, seule une
+information non confirmée est présentée, avec **Refuser** (persistant) et
+**Vérifier la source** (navigation) ; aucune écriture de valeur n'est lancée.
+Les extraits sont issus du texte source, bornés et expurgés des secrets.
