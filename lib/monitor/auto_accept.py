@@ -136,6 +136,25 @@ def evaluate_field(
             "observed": observed,
         }
 
+    # High confidence and repeated identical crawls alone are not proof
+    # that a parser extracted the proposed value from a relevant page.
+    from lib.monitor.evidence import evidence_reviewable
+    excerpt = cand.get("source_excerpt") or (
+        (obs.evidence_excerpts or {}).get(field) if obs else None
+    )
+    if obs is None or not evidence_reviewable(
+        field=field,
+        observed=None if observed is None else str(observed),
+        excerpt=excerpt,
+        source_url=cand.get("source_url") or (obs.source_url if obs else None),
+        observations=int(cand.get("live_high_streak") or (obs.live_high_streak if obs else 0) or 0),
+        source_class=obs.source_class if obs else "",
+        confidence=obs.confidence.value if obs else "",
+        parser_tests_passed=bool(obs.parser_tests_passed) if obs else False,
+    ):
+        decision = "REJECT"
+        reasons.append("missing_verified_source_excerpt")
+
     if obs:
         if obs.monitor_status in BLOCKED_MONITOR_STATUSES:
             decision = "REJECT"
