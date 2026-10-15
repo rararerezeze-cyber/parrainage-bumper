@@ -156,9 +156,12 @@ def _notify_candidates(candidates: list, observations: list | None = None) -> No
             o.program: o for o in (observations or []) if getattr(o, "program", None)
         }
         store = OperatorOverrideStore()
+        from lib.monitor.rejections import is_rejected_candidate
         batch_enabled = auto_accept_enabled()
 
         for c in candidates or []:
+            if is_rejected_candidate(c.get("program") or "", c.get("field") or "", c.get("observed") or ""):
+                continue
             if batch_enabled:
                 verdict = evaluate_field(
                     c,
