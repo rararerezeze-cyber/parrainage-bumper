@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "rejections": [
+    {
+      "key": "nrj-mobile|referee_reward|4,99 €",
+      "rejected_at": "2026-10-15T14:30:00+02:00",
+      "reason": "Proven parser false positive: 4,99 € is monthly subscription minimum, official referral reward remains 10 € for each party",
+      "source_url": "https://www.nrjmobile.fr/faq/comment-profiter-de-mon-programme-de-parrainage"
+    }
+  ]
+}
