@@ -406,15 +406,15 @@ def parse_nrj_mobile_referral_fr(html: str, cfg: SourceConfig, offer: dict | Non
     from the minimum eligible subscription price (4,99 €/month). Merely being
     close to the word "parrainage" does not establish a reward.
     """
-    text = re.sub(r"\\s+", " ", _text(html))
+    text = re.sub(r"\s+", " ", _text(html))
     patterns = (
         # "Le parrainage NRJ Mobile, c'est 10€ pour vous et 10€ pour vos amis"
-        r"(?i)\\bparrainage\\s+(?:nrj\\s+mobile\\s*,?\\s*)?c['’]est\\s+"
-        r"(\\d{1,3}(?:[.,]\\d{1,2})?\\s*€)\\s+pour\\s+vous\\s+et\\s+"
-        r"\\d{1,3}(?:[.,]\\d{1,2})?\\s*€\\s+pour\\s+vos\\s+amis",
+        r"(?i)\bparrainage\s+(?:nrj\s+mobile\s*,?\s*)?c['’]est\s+"
+        r"(\d{1,3}(?:[.,]\d{1,2})?\s*€)\s+pour\s+vous\s+et\s+"
+        r"\d{1,3}(?:[.,]\d{1,2})?\s*€\s+pour\s+vos\s+amis",
         # "Versement de 10€ au filleul et au parrain"
-        r"(?i)\\bversement\\s+de\\s+(\\d{1,3}(?:[.,]\\d{1,2})?\\s*€)"
-        r"\\s+au\\s+filleul\\s+et\\s+au\\s+parrain",
+        r"(?i)\bversement\s+de\s+(\d{1,3}(?:[.,]\d{1,2})?\s*€)"
+        r"\s+au\s+filleul\s+et\s+au\s+parrain",
     )
     for pattern in patterns:
         match = re.search(pattern, text)
