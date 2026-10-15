@@ -154,16 +154,21 @@ operator-useful state:
 - Code-Parrainage and Parrainage.co success against the randomized slots that
   are already due; future slots are never shown as failures;
 - Super-Parrain's last cycle and next eligibility;
-- public-offer candidates that are still actionable; a value already accepted
-  by the operator is filtered out;
+- a neutral count of unconfirmed public-source signals; never imply a member
+  listing changed and never create offer-specific shortcut buttons (separate
+  notification cards carry actual review details);
 - ReferralCode.tv's human-only shortcut.
 
-The card exposes buttons for the bump status, actionable offer programs and
-ReferralCode.tv. It is read-only and holds no platform credentials.
+The card exposes only the bump status and ReferralCode.tv operational buttons.
+Unconfirmed offer discrepancies remain informational and never trigger "Voir
+[programme]" buttons or an urgent status on their own. It is read-only and
+holds no platform credentials.
 
 Five additional **Ouvrir** URL buttons provide direct browser navigation to
-ReferralDrop (login), 1Parrainage (login), Super-Parrain (/users),
-Parrainage.co (account offers), and ReferralCodes (login). The five new buttons
+ReferralDrop (verified personal profile, not a private dashboard), 1Parrainage
+(authenticated member area; site's "Se rappeler de moi" checkbox governs session
+persistence), Super-Parrain (/users), Parrainage.co (account offers), and
+ReferralCodes (/profile, redirects to login if unauthenticated). The five buttons
 appear in a separate actions block (Slack limit: 5 buttons per actions block).
 They do not log in automatically, bypass CAPTCHA, boost listings, persist
 credentials, dispatch GitHub or start writers. Existing browser sessions may

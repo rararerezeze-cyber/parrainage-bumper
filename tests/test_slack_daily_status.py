@@ -105,15 +105,15 @@ def test_daily_payload_is_click_first_and_has_referralcode_shortcut():
     ]
     ids = [a.get("action_id") for a in actions]
     assert "autofresh_open_rctv" in ids
-    assert ids.count("autofresh_command") >= 3
+    assert ids.count("autofresh_command") == 1
     manual = next(a for a in actions if a.get("action_id") == "autofresh_open_rctv")
     assert manual["url"].endswith("/my-account/?tab=listings")
     expected_shortcuts = {
-        "autofresh_open_referraldrop": "https://referraldrop.com/fr/login",
-        "autofresh_open_1parrainage": "https://www.1parrainage.com/login",
+        "autofresh_open_referraldrop": "https://referraldrop.com/en/user/TheSuperPenguins",
+        "autofresh_open_1parrainage": "https://www.1parrainage.com/espace_parrain/",
         "autofresh_open_super_parrain": "https://www.super-parrain.com/users",
         "autofresh_open_parrainage_co": "https://parrainage.co/account/offers",
-        "autofresh_open_referralcodes": "https://referralcodes.com/login",
+        "autofresh_open_referralcodes": "https://referralcodes.com/profile",
     }
     for action_id, url in expected_shortcuts.items():
         shortcut = next(a for a in actions if a.get("action_id") == action_id)
@@ -129,15 +129,39 @@ def test_daily_payload_is_click_first_and_has_referralcode_shortcut():
         for a in actions
         if a.get("action_id") == "autofresh_command"
     ]
-    assert "Autofresh bump" in commands
-    assert "iGraal divergences" in commands
-    assert "TotalEnergies divergences" in commands
+    assert commands == ["Autofresh bump"]
+    assert not any(a["text"]["text"].startswith("Voir iGraal") for a in actions)
+    assert not any(a["text"]["text"].startswith("Voir TotalEnergies") for a in actions)
+    assert "signalements non confirmé" in dumped
+    assert "iGraal — gain filleul" not in dumped
+    assert "TotalEnergies — gain filleul" not in dumped
 
     for block in payload["blocks"]:
         if block.get("type") != "actions":
             continue
         block_ids = [e.get("action_id") for e in block.get("elements", [])]
         assert len(block_ids) == len(set(block_ids))
+
+
+def test_unconfirmed_public_offer_does_not_create_urgent_button():
+    now = datetime(2026, 10, 10, 18, 45, tzinfo=timezone.utc)
+    schedule, ledger = _state(now)
+    data = build_dashboard_data(
+        now=now,
+        schedule=schedule,
+        ledger=ledger,
+        candidates=[{"program": "nrjmobile", "field": "referee_reward", "canonical": "10 €", "observed": "4,99 €"}],
+        super_info={"eligible": False, "last_at": now.isoformat(), "next_at": now.isoformat()},
+        monitor_info={"health": "healthy"},
+    )
+    # Public observation is not proof that the member listing needs editing.
+    assert data["action_required"] is False
+    payload = build_payload(data, "C_TEST")
+    dumped = json.dumps(payload, ensure_ascii=False)
+    assert "NRJ Mobile — gain filleul" not in dumped
+    assert "Voir NRJ Mobile" not in dumped
+    assert "signalement non confirmé" in dumped
+    assert "Rien d'urgent" in dumped
 
 
 def test_super_parrain_long_overdue_becomes_actionable():

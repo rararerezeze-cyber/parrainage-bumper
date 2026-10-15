@@ -25,11 +25,11 @@ MONITOR_MAX_AGE = timedelta(hours=36)
 CAPTURE_PATH = DATA_DIR / "captures" / "slack-daily-status.json"
 RCTV_LISTINGS_URL = "https://www.referralcode.tv/my-account/?tab=listings"
 ACCOUNT_SHORTCUTS = (
-    ("referraldrop", "ReferralDrop", "https://referraldrop.com/fr/login"),
-    ("1parrainage", "1Parrainage", "https://www.1parrainage.com/login"),
+    ("referraldrop", "ReferralDrop", "https://referraldrop.com/en/user/TheSuperPenguins"),
+    ("1parrainage", "1Parrainage", "https://www.1parrainage.com/espace_parrain/"),
     ("super_parrain", "Super-Parrain", "https://www.super-parrain.com/users"),
     ("parrainage_co", "Parrainage.co", "https://parrainage.co/account/offers"),
-    ("referralcodes", "ReferralCodes", "https://referralcodes.com/login"),
+    ("referralcodes", "ReferralCodes", "https://referralcodes.com/profile"),
 )
 PARIS = ZoneInfo("Europe/Paris")
 CATCHUP_TOLERANCE = timedelta(minutes=20)
@@ -195,7 +195,8 @@ def build_dashboard_data(*, now: datetime, schedule: dict[str, Any], ledger: dic
 
     next_slot = min((_dt(s.get("planned_at")) for s in future_slots), default=None) if future_slots else None
     actionable = list(candidates or [])
-    action_required = bool(actionable) or any(r["overdue_missing"] > 0 for r in site_rows.values())
+    # Public-source candidates are unconfirmed signals, not operator actions.
+    action_required = any(r["overdue_missing"] > 0 for r in site_rows.values())
     monitor_info = monitor_info or {"health": "unknown", "reasons": ["état du monitor indisponible"]}
     if monitor_info.get("health") != "healthy":
         action_required = True
@@ -283,13 +284,13 @@ def build_payload(data: dict[str, Any], channel: str) -> dict[str, Any]:
         if monitor_info.get("run_url"):
             lines.append(f"<{monitor_info['run_url']}|Voir la dernière exécution du monitor>")
     if candidates:
-        lines.append(f"🔎 *Offres publiques* — {len(candidates)} changement" + ("s" if len(candidates) != 1 else "") + " encore à traiter")
-        for item in candidates[:4]:
-            program = _program_label(str(item.get("program") or ""))
-            field = FIELD_LABELS.get(str(item.get("field") or ""), str(item.get("field") or "valeur"))
-            old = "non défini" if item.get("canonical") is None else str(item.get("canonical"))
-            new = "non défini" if item.get("observed") is None else str(item.get("observed"))
-            lines.append(f"• {program} — {field} : {old} → {new}")
+        # Keep source-monitor signals apart from account shortcuts: neither
+        # the signal nor an inferred reward difference proves a listing changed.
+        lines.append(
+            f"🔎 *Offres publiques* — {len(candidates)} signalement"
+            + ("s" if len(candidates) != 1 else "")
+            + " non confirmé(s) · détails dans les alertes séparées"
+        )
     elif monitor_healthy:
         lines.append("✅ *Offres publiques* — aucun changement confirmé en attente")
     else:
@@ -297,7 +298,7 @@ def build_payload(data: dict[str, Any], channel: str) -> dict[str, Any]:
 
     needs_check = bool(data.get("action_required")) or not monitor_healthy
     if needs_check:
-        state, header = "⚠️ Une vérification est utile — utilise les boutons ci-dessous.", "⚠️ AutoFresh — point du jour"
+        state, header = "⚠️ Vérifier le suivi AutoFresh si nécessaire.", "⚠️ AutoFresh — point du jour"
     else:
         state, header = "✅ Rien d'urgent. AutoFresh continue automatiquement.", "✅ AutoFresh — point du jour"
 
@@ -307,10 +308,7 @@ def build_payload(data: dict[str, Any], channel: str) -> dict[str, Any]:
         {"type": "context", "elements": [{"type": "mrkdwn", "text": f"{state} · mis à jour {_paris_time(now)} (Paris) · lecture seule"}]},
     ]
 
-    # Slack requires action_id values to be unique within a single actions
-    # block. Keep the two global actions together, then give each program
-    # shortcut its own block so every button can continue using the stable
-    # autofresh_command handler without requiring a Worker redeploy.
+    # Operational actions stay separate from navigation shortcuts.
     blocks.append(
         {
             "type": "actions",
@@ -324,7 +322,7 @@ def build_payload(data: dict[str, Any], channel: str) -> dict[str, Any]:
     blocks.extend([
         {
             "type": "context",
-            "elements": [{"type": "mrkdwn", "text": "Accès rapide aux comptes · connexion manuelle si nécessaire"}],
+            "elements": [{"type": "mrkdwn", "text": "Accès rapide à tes comptes · connexion uniquement si nécessaire"}],
         },
         {
             "type": "actions",
@@ -332,28 +330,8 @@ def build_payload(data: dict[str, Any], channel: str) -> dict[str, Any]:
             "elements": [_account_button(slug, name, url) for slug, name, url in ACCOUNT_SHORTCUTS],
         },
     ])
-    seen: set[str] = set()
-    for item in candidates:
-        program = str(item.get("program") or "").strip()
-        if not program or program in seen:
-            continue
-        seen.add(program)
-        label = _program_label(program)
-        blocks.append(
-            {
-                "type": "actions",
-                "block_id": f"autofresh_daily_{program}"[:255],
-                "elements": [
-                    _command_button(
-                        f"Voir {label}",
-                        f"{label} divergences",
-                        f"divergences:{program}",
-                    )
-                ],
-            }
-        )
-        if len(seen) >= 3:
-            break
+    # Public-offer signals are available through separate notifications only.
+    # Never add a program-specific "Voir ..." button to this daily dashboard.
 
     return {
         "channel": channel,
