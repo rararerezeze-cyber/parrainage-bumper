@@ -54,6 +54,7 @@ _PLAT_NC = (
 STATUS_RE = re.compile(
     rf"(?i)^\s*{_PROG}\s+(status|statut|état|etat|overrides|valeurs|modifications|divergences|plateformes)\s*$"
 )
+REJECT_RE = re.compile(rf"(?i)^\s*{_PROG}\s+refuser\s+(.+?)\s*$")
 REMOVE_RE = re.compile(
     rf"(?i)^\s*{_PROG}"
     rf"(?:\s+({_PLAT_NC}))?"
@@ -195,6 +196,21 @@ def parse_message(message: str, offers: OffersRepository) -> dict:
             "value": None,
         }
 
+    m = REJECT_RE.match(msg)
+    if m:
+        offer = resolve_program(m.group(1), offers)
+        if not offer:
+            raise ValueError(f"unknown_program:{m.group(1)}")
+        fv = _split_field_value(m.group(2))
+        if not fv:
+            raise ValueError("refusal_requires_field_and_value")
+        field = normalize_field_name(fv[0])
+        if not field or not fv[1].strip():
+            raise ValueError("invalid_refusal")
+        return {"action": "reject", "program": offer["lk"],
+                "offer_name": offer.get("name"), "platform": None,
+                "field": field, "value": fv[1].strip()}
+
     m = REMOVE_RE.match(msg)
     if m:
         offer = resolve_program(m.group(1), offers)
@@ -292,6 +308,10 @@ def apply_operator_command(parsed: dict, *, message: str) -> dict:
 
     store = OperatorOverrideStore()
     program = parsed["program"]
+
+    if action == "reject":
+        from lib.monitor.rejections import reject_candidate
+        return {"action": "reject", **reject_candidate(program, parsed["field"], parsed["value"])}
 
     if action == "status":
         return {"action": "status", "status": status_report(program, store)}
