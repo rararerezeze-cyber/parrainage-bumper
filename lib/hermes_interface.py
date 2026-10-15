@@ -274,7 +274,7 @@ def run_autofresh_command(
     base["serialized"] = True
     base["persist_confirmed"] = False
 
-    if not persist and parsed.get("action") in {"set", "remove"}:
+    if not persist and parsed.get("action") in {"set", "remove", "reject"}:
         # dry parse + plan only
         plan_data = (
             plan_program_impact(
@@ -303,7 +303,7 @@ def run_autofresh_command(
         return base
 
     replay_key = _idempotency_key(command, parsed, None)
-    lock_cm = _FileLock(_lock_path()) if persist and parsed.get("action") in {"set", "remove"} else None
+    lock_cm = _FileLock(_lock_path()) if persist and parsed.get("action") in {"set", "remove", "reject"} else None
     if lock_cm:
         try:
             lock_cm.__enter__()
@@ -368,6 +368,27 @@ def _run_autofresh_command_locked(
             base["human_summary"] = result.get("text", "")
         base["platforms"] = []
         base["write_status"] = write_summary()
+        base["idempotency_key"] = replay_key
+        return base
+
+    if action == "reject":
+        from lib.monitor.rejections import is_rejected_candidate
+        try:
+            result = apply_operator_command(parsed, message=command)
+            verified = is_rejected_candidate(parsed["program"], parsed["field"], parsed["value"])
+        except Exception as exc:
+            base["errors"].append({"code": "reject_persist_error", "detail": str(exc)})
+            return base
+        base["result"] = result
+        base["ok"] = verified
+        base["persist_confirmed"] = verified
+        base["platforms"] = []
+        base["write_status"] = write_summary()
+        base["human_summary"] = (
+            f"Refus enregistré : {parsed.get('offer_name') or parsed['program']} — "
+            f"{parsed['field']} = {parsed['value']}. Cette valeur sera ignorée. "
+            "Aucune annonce modifiée." if verified else "Refus non enregistré."
+        )
         base["idempotency_key"] = replay_key
         return base
 
