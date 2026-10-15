@@ -125,6 +125,11 @@ def test_monitor_change_notification_is_click_first_and_shows_business_delta():
             "new_value": "3 €",
             "source": "monitor:OFFICIAL_PUBLIC_MONITOR",
             "source_url": "https://fr.igraal.com/parrainage",
+            "source_excerpt": "Le filleul reçoit 3 € de bonus de parrainage.",
+            "observed_at": "2026-10-15T13:00:00+00:00",
+            "source_class": "VERIFIED_OFFICIAL",
+            "confidence": "HIGH",
+            "parser_tests_passed": True,
             "evidence_count": 5,
             "impact_count": 6,
             "action": "observe",
@@ -141,6 +146,8 @@ def test_monitor_change_notification_is_click_first_and_shows_business_delta():
     assert "détecté 5 fois de suite" in dumped
     assert "6 annonces potentiellement concernées" in dumped
     assert "https://fr.igraal.com/parrainage" in dumped
+    assert "Le filleul reçoit 3 €" in dumped
+    assert "Observation : 2026-10-15 13:00:00 UTC" in dumped
 
     actions = _actions(payload)
     ids = {a.get("action_id") for a in actions}
@@ -296,3 +303,35 @@ def test_rejected_monitor_candidate_is_suppressed(tmp_path, monkeypatch):
         "source_url": "https://www.nrjmobile.fr/",
     }], "C_TEST")
     assert payload is None
+
+
+
+def test_unproven_change_shows_evidence_gap_but_never_accepts():
+    payload = build_payload([{
+        "level": "WARNING", "program": "igraal",
+        "event": "monitor_real_safe_diff",
+        "field": "referee_reward", "old_value": "5 €", "new_value": "3 €",
+        "source_url": "https://fr.igraal.com/parrainage",
+        "evidence_count": 8, "source_class": "VERIFIED_OFFICIAL",
+        "confidence": "HIGH", "parser_tests_passed": True,
+    }], "C_TEST")
+    ids = {b.get("action_id") for b in _actions(payload)}
+    assert "autofresh_apply_candidate" not in ids
+    assert "autofresh_reject_candidate" in ids
+    assert "autofresh_verify_source" in ids
+    text = str(payload["blocks"])
+    assert "Preuve insuffisante" in text
+    assert "Aucun extrait probant" in text
+
+
+def test_unverified_source_never_shows_accept_even_with_an_excerpt():
+    payload = build_payload([{
+        "level": "WARNING", "program": "igraal",
+        "event": "monitor_real_safe_diff",
+        "field": "referee_reward", "old_value": "5 €", "new_value": "3 €",
+        "source_url": "https://example.test/",
+        "source_excerpt": "Le filleul reçoit 3 € de bonus de parrainage.",
+        "evidence_count": 8, "source_class": "UNVERIFIED",
+        "confidence": "HIGH", "parser_tests_passed": True,
+    }], "C_TEST")
+    assert "autofresh_apply_candidate" not in {b.get("action_id") for b in _actions(payload)}
