@@ -115,18 +115,29 @@ Routine operation is now click-first. Scheduled runtime alerts sent to
 slash commands:
 
 - a verified public-offer difference shows the field, old value, new value,
-  evidence streak/impact when available, and buttons **Accepter**, **Voir le
-  détail**, **Plus tard**;
+  evidence streak/impact when available and only shows **Accepter** after
+  repeated observations and an HTTPS source. The buttons are **Accepter**,
+  **Refuser** and **Vérifier la source**; no irrelevant public-vs-stored
+  divergences command.
 - **Accepter** is intentionally unarmed: it runs the normal operator `set`
   preview with `run_writers=false`. Compatible immediate site writes still
   require the separate **Confirmer l'écriture** button in the resulting message;
 - contradictory Super-Parrain content checks and failed post-verification never
   expose a write/accept button. They only expose read-only **Voir le statut** /
-  **Voir les divergences** controls plus **Plus tard**;
+  **Voir les divergences** controls; redundant **Plus tard** is removed;
 - recovered bump delays are labelled **Aucune action nécessaire** and can expose
   a read-only **Voir les remontées** control;
-- **Plus tard** is presentation-only. It does not create a hidden ignore rule,
-  change an offer value, or touch a platform.
+- **Refuser** durably records the precise program / field / observed value in
+  `data/monitor/rejected-candidates.json` through the existing unarmed
+  operator workflow. That value is filtered from scheduled alerts, dashboard
+  candidate counts and automatic batch acceptance. A genuinely different new
+  value can still trigger review.
+- **Vérifier la source** opens the original monitored HTTPS page; it does not
+  claim the corresponding member listings have changed.
+- **Plus tard** is legacy-only for already-posted Slack messages; it never
+  persisted an ignore rule, so it is no longer offered in new cards.
+- Existing NRJ Mobile 'Accepter 4,99 €' buttons are blocked by the Worker:
+  4,99 € is the minimum monthly plan price, not the 10 € referral bonus.
 
 Slash commands remain available as a fallback/admin surface, but are no longer
 required for the common notification-response path.
