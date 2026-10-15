@@ -23,6 +23,7 @@ from lib.monitor.models import (
     SourceClass,
     SourceConfig,
 )
+from lib.monitor.evidence import source_excerpt
 from lib.monitor.normalize import normalize_field
 from lib.monitor.parsers import get_parser
 from lib.monitor.registry import coverage_stats, load_registry, mapping_impact_counts
@@ -506,6 +507,11 @@ class MonitorEngine:
             canonical_fields=canonical,
             observed_fields=observed,
             changes=changes,
+            evidence_excerpts={
+                ch.field: quote
+                for ch in changes
+                if (quote := source_excerpt(html, ch.field, ch.new)) is not None
+            },
             notes=notes,
             business_fingerprint=business_fp,
             html_changed_hint=html_hint,
@@ -624,6 +630,12 @@ def candidates_report(results: list[Observation]) -> list[dict[str, Any]]:
                     "canonical": ch.old,
                     "observed": ch.new,
                     "source_url": r.source_url,
+                    "source_excerpt": (r.evidence_excerpts or {}).get(ch.field),
+                    "observed_at": r.detected_at,
+                    "source_class": r.source_class,
+                    "monitor_status": r.monitor_status,
+                    "confidence": r.confidence.value,
+                    "parser_tests_passed": r.parser_tests_passed,
                     "source_locale": r.source_locale,
                     "source_country": r.source_country,
                     "campaign_scope": r.campaign_scope,
