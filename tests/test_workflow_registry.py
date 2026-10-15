@@ -194,7 +194,9 @@ def test_ci_workflow_is_read_only_and_carries_no_platform_secret():
     data = yaml.safe_load(raw)
     triggers = data.get(True) or data.get("on") or {}
 
-    assert set(triggers) == {"pull_request", "workflow_dispatch"}
+    assert set(triggers) == {"pull_request", "workflow_dispatch", "push"}
+    assert triggers["push"]["branches"] == ["main"]
+    assert ".github/workflows/ci.yml" in triggers["push"]["paths"]
     assert "schedule" not in triggers, "CI must never become a background actor"
     assert data["permissions"] == {"contents": "read"}
     assert "secrets." not in raw, "no platform secret may reach PR CI"
