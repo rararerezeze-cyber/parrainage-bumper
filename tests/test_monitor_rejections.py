@@ -5,6 +5,11 @@ from lib.offers import OffersRepository
 from tools.telegram_update import parse_message
 
 
+def test_false_nrj_subscription_price_is_pre_rejected():
+    assert is_rejected_candidate("nrj-mobile", "referee_reward", "4,99 €")
+    assert not is_rejected_candidate("nrj-mobile", "referee_reward", "10 €")
+
+
 def test_exact_value_rejection_is_durable_and_scoped(tmp_path):
     path = tmp_path / "reject.json"
     assert not is_rejected_candidate("nrj-mobile", "referee_reward", "4,99 €", path=path)
