@@ -8,6 +8,17 @@ name: CI (read-only)
 
 on:
   pull_request:
+  # Read-only regression suite for code paths that can affect Slack alerts,
+  # candidate decisions and account navigation. No site credentials are exposed.
+  push:
+    branches: [main]
+    paths:
+      - "tests/test_monitor_rejections.py"
+      - "lib/monitor/rejections.py"
+      - "tools/notify_slack.py"
+      - "lib/monitor/parsers/program_specific.py"
+      - "slack-worker/**"
+      - ".github/workflows/ci.yml"
   workflow_dispatch:
 
 concurrency:
