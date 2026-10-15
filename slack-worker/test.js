@@ -86,12 +86,28 @@ test("Worker signed request path: read/preview stays unarmed; confirmation dispa
     assert.equal(calls[4].inputs.run_writers, "false");
     assert.equal(calls[4].inputs.command, "Kraken gain filleul 50 €");
 
-    // "Plus tard" is an acknowledgement only; it must not dispatch GitHub.
+    // Rejection of a specific monitored value is unarmed and durable server-side.
+    const reject = JSON.stringify({ user: { id: "U_TEST" }, channel: { id: "C_TEST" },
+      actions: [{ action_id: "autofresh_reject_candidate",
+        value: JSON.stringify({ command: "nrj-mobile refuser gain filleul 4,99 €", correlation_id: "reject-1" }) }] });
+    await request("/slack/interactivity", { payload: reject });
+    assert.equal(calls.length, 6);
+    assert.equal(calls[5].inputs.run_writers, "false");
+    assert.equal(calls[5].inputs.command, "nrj-mobile refuser gain filleul 4,99 €");
+
+    // A stale button on an old NRJ alert must NOT overwrite the 10 € bonus.
+    const stale = JSON.stringify({ user: { id: "U_TEST" }, channel: { id: "C_TEST" },
+      actions: [{ action_id: "autofresh_apply_candidate",
+        value: JSON.stringify({ command: "NRJ Mobile gain filleul 4,99 €", correlation_id: "stale-nrj" }) }] });
+    await request("/slack/interactivity", { payload: stale });
+    assert.equal(calls.length, 6);
+
+    // "Plus tard" is retained only for older Slack notifications.
     const later = JSON.stringify({ user: { id: "U_TEST" }, channel: { id: "C_TEST" },
       actions: [{ action_id: "autofresh_later",
         value: JSON.stringify({ correlation_id: "later-1" }) }] });
     await request("/slack/interactivity", { payload: later });
-    assert.equal(calls.length, 5);
+    assert.equal(calls.length, 6);
 
     // All six URL buttons must acknowledge without dispatching GitHub.
     for (const actionId of [
@@ -101,11 +117,12 @@ test("Worker signed request path: read/preview stays unarmed; confirmation dispa
       "autofresh_open_super_parrain",
       "autofresh_open_parrainage_co",
       "autofresh_open_referralcodes",
+      "autofresh_verify_source",
     ]) {
       const navigation = JSON.stringify({ user: { id: "U_TEST" }, channel: { id: "C_TEST" },
         actions: [{ action_id: actionId }] });
       assert.equal((await request("/slack/interactivity", { payload: navigation })).status, 200);
-      assert.equal(calls.length, 5);
+      assert.equal(calls.length, 6);
     }
   } finally {
     globalThis.fetch = originalFetch;
@@ -408,14 +425,25 @@ test("interactive notification closure visibly replaces the original without arm
     assert.match(responseCalls.at(-1).text, /terminé manuellement/i);
 
     await request({
+      action_id: "autofresh_reject_candidate",
+      value: JSON.stringify({
+        command: "kraken refuser gain filleul 50 €",
+        correlation_id: "reject-ui",
+      }),
+    });
+    assert.equal(githubCalls.length, 1);
+    assert.equal(githubCalls[0].inputs.run_writers, "false");
+    assert.match(responseCalls.at(-1).text, /refus demandé/i);
+
+    await request({
       action_id: "autofresh_apply_candidate",
       value: JSON.stringify({
         command: "Kraken gain filleul 50 €",
         correlation_id: "accept-ui",
       }),
     });
-    assert.equal(githubCalls.length, 1);
-    assert.equal(githubCalls[0].inputs.run_writers, "false");
+    assert.equal(githubCalls.length, 2);
+    assert.equal(githubCalls[1].inputs.run_writers, "false");
     assert.equal(responseCalls.at(-1).replace_original, true);
     assert.match(responseCalls.at(-1).text, /changement accepté/i);
 
@@ -426,8 +454,8 @@ test("interactive notification closure visibly replaces the original without arm
         correlation_id: "write-ui",
       }),
     });
-    assert.equal(githubCalls.length, 2);
-    assert.equal(githubCalls[1].inputs.run_writers, "true");
+    assert.equal(githubCalls.length, 3);
+    assert.equal(githubCalls[2].inputs.run_writers, "true");
     assert.equal(responseCalls.at(-1).replace_original, true);
     assert.match(responseCalls.at(-1).text, /écriture confirmée/i);
   } finally {
