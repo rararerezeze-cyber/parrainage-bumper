@@ -10,7 +10,7 @@ Safety invariants:
 - actual compatible platform writes still require the separate
   "Confirmer l'écriture" step rendered by lib.slack_format;
 - contradictory/failed verification events expose read-only inspection actions;
-- "Plus tard" is a UI acknowledgement only and never mutates AutoFresh state.
+- "Refuser" durably rejects a specific monitored value, without platform writes.
 """
 from __future__ import annotations
 
@@ -249,13 +249,13 @@ def _monitor_event_text(event: dict, *, rich: bool) -> str:
 
     if not rich:
         return (
-            f"🔎 {program} — changement détecté : {field} {old} → {new}. "
+            f"🔎 {program} — signal public à vérifier : {field} {old} → {new}. "
             "Aucune modification n'a été faite. "
-            f"Boutons disponibles dans Slack ; secours : /autofresh {program} divergences"
+            "Vérifier la source officielle dans Slack avant de décider."
         )
 
     lines = [
-        f"🔎 *{program} — changement détecté*",
+        f"🔎 *{program} — signal public à vérifier*",
         f"*{field}* : `{old}` → `{new}`",
     ]
     proof = []
