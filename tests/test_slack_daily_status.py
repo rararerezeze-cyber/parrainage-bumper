@@ -144,7 +144,7 @@ def test_daily_payload_is_click_first_and_has_referralcode_shortcut():
 
 
 def test_unconfirmed_public_offer_does_not_create_urgent_button():
-    now = datetime(2026, 10, 10, 18, 45, tzinfo=timezone.utc)
+    now = datetime(2026, 9, 15, 18, 45, tzinfo=timezone.utc)
     schedule, ledger = _state(now)
     data = build_dashboard_data(
         now=now,
