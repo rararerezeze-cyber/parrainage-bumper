@@ -129,6 +129,7 @@ def filter_actionable_candidates(candidates: list[dict[str, Any]]) -> list[dict[
     except Exception:
         return list(candidates or [])
 
+    from lib.monitor.rejections import is_rejected_candidate
     out = []
     for item in candidates or []:
         program = str(item.get("program") or "").strip().lower()
@@ -136,6 +137,8 @@ def filter_actionable_candidates(candidates: list[dict[str, Any]]) -> list[dict[
         observed = item.get("observed")
         if not program or not field or observed is None:
             out.append(item)
+            continue
+        if is_rejected_candidate(program, field, str(observed)):
             continue
         try:
             # The monitor keeps the public observation, but auto-accept rejects
