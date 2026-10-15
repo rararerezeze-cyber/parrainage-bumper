@@ -98,7 +98,7 @@ def test_monitor_change_notification_explains_no_write_and_gives_command():
     text = payload["text"]
     assert "Kraken" in text
     assert "Aucune modification n'a été faite" in text
-    assert "/autofresh Kraken divergences" in text
+    assert "/autofresh Kraken divergences" not in text
     assert "candidate" not in text
 
 
@@ -144,7 +144,13 @@ def test_monitor_change_notification_is_click_first_and_shows_business_delta():
 
     actions = _actions(payload)
     ids = {a.get("action_id") for a in actions}
-    assert {"autofresh_apply_candidate", "autofresh_command", "autofresh_later"} <= ids
+    assert {"autofresh_apply_candidate", "autofresh_reject_candidate", "autofresh_verify_source"} <= ids
+    assert "autofresh_later" not in ids
+    assert "autofresh_command" not in ids
+    source_btn = next(a for a in actions if a.get("action_id") == "autofresh_verify_source")
+    assert source_btn["url"] == "https://fr.igraal.com/parrainage"
+    reject_btn = next(a for a in actions if a.get("action_id") == "autofresh_reject_candidate")
+    assert __import__("json").loads(reject_btn["value"])["command"] == "igraal refuser gain filleul 3 €"
 
     accept = next(a for a in actions if a.get("action_id") == "autofresh_apply_candidate")
     value = __import__("json").loads(accept["value"])
@@ -170,8 +176,9 @@ def test_monitor_unsafe_value_never_gets_direct_accept_button():
     assert payload is not None
     ids = {a.get("action_id") for a in _actions(payload)}
     assert "autofresh_apply_candidate" not in ids
-    assert "autofresh_command" in ids
-    assert "autofresh_later" in ids
+    assert "autofresh_reject_candidate" not in ids
+    assert "autofresh_later" not in ids
+    assert "autofresh_command" not in ids
 
 
 def test_super_parrain_contradiction_exposes_read_only_actions_only():
@@ -270,5 +277,22 @@ def test_referralcode_manual_alert_can_be_visually_closed_after_human_action():
     ids = {a.get("action_id") for a in actions}
     assert "autofresh_open_rctv" in ids
     assert "autofresh_mark_done" in ids
-    assert "autofresh_later" in ids
+    assert "autofresh_later" not in ids
     assert "autofresh_confirm_write" not in ids
+
+
+
+def test_rejected_monitor_candidate_is_suppressed(tmp_path, monkeypatch):
+    from lib.monitor.rejections import reject_candidate
+    from lib.monitor import rejections
+
+    path = tmp_path / "rejected.json"
+    reject_candidate("nrj-mobile", "referee_reward", "4,99 €", path=path)
+    monkeypatch.setattr(rejections, "REJECTIONS_PATH", path)
+    payload = build_payload([{
+        "level": "WARNING", "program": "nrj-mobile",
+        "event": "monitor_real_safe_diff", "field": "referee_reward",
+        "old_value": "10 €", "new_value": "4,99 €",
+        "source_url": "https://www.nrjmobile.fr/",
+    }], "C_TEST")
+    assert payload is None
