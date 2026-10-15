@@ -287,6 +287,7 @@ class Observation:
     consecutive_fetch_failures: int = 0
     last_success_at: str | None = None
     is_live: bool = True
+    evidence_excerpts: dict[str, str] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -319,6 +320,7 @@ class Observation:
             "consecutive_fetch_failures": self.consecutive_fetch_failures,
             "last_success_at": self.last_success_at,
             "is_live": self.is_live,
+            "evidence_excerpts": self.evidence_excerpts,
         }
 
 
