@@ -246,6 +246,8 @@ def _monitor_event_text(event: dict, *, rich: bool) -> str:
     evidence = event.get("evidence_count")
     impact = event.get("impact_count")
     source_url = str(event.get("source_url") or "").strip()
+    excerpt = str(event.get("source_excerpt") or "").strip()
+    observed_at = str(event.get("observed_at") or "").strip()
 
     if not rich:
         return (
@@ -274,6 +276,14 @@ def _monitor_event_text(event: dict, *, rich: bool) -> str:
         proof.append(f"<{source_url}|ouvrir la source suivie>")
     if proof:
         lines.append(" · ".join(proof))
+    if excerpt and excerpt != "[REDACTED]":
+        lines.append("*Extrait relevé sur la page source :*")
+        lines.append(f"> {excerpt[:190]}")
+    else:
+        lines.append("_Aucun extrait probant enregistré : changement non confirmé._")
+    if observed_at:
+        lines.append(f"_Observation : {observed_at[:19].replace('T', ' ')} UTC._")
+    lines.append("_Comparaison avec la valeur enregistrée dans AutoFresh, pas avec tes annonces en ligne._")
     lines.append("_Aucune annonce n'a été modifiée._")
     return "\n".join(lines)
 
@@ -376,14 +386,24 @@ def _monitor_blocks(event: dict) -> list[dict[str, Any]]:
     """Only actionable, traceable signals; no irrelevant divergences command."""
     elements: list[dict[str, Any]] = []
     source_url = str(event.get("source_url") or "").strip()
-    source_valid = source_url.startswith("https://")
+    from lib.monitor.evidence import evidence_reviewable
     try:
-        independently_seen = int(event.get("evidence_count") or 0) >= 2
+        count = int(event.get("evidence_count") or 0)
     except (TypeError, ValueError):
-        independently_seen = False
+        count = 0
+    proven = evidence_reviewable(
+        field=str(event.get("field") or ""),
+        observed=None if event.get("new_value") is None else str(event.get("new_value")),
+        excerpt=event.get("source_excerpt"),
+        source_url=source_url,
+        observations=count,
+        source_class=str(event.get("source_class") or ""),
+        confidence=str(event.get("confidence") or ""),
+        parser_tests_passed=event.get("parser_tests_passed") is True,
+    )
 
     command = _accept_command(event)
-    if command and source_valid and independently_seen:
+    if command and proven:
         new = _compact(event.get("new_value"), 32)
         elements.append(
             _button(
@@ -414,7 +434,7 @@ def _monitor_blocks(event: dict) -> list[dict[str, Any]]:
                 "Refuser", "autofresh_reject_candidate",
                 value=_command_value(rejection_command, event, "reject"),
             ))
-    if source_valid:
+    if source_url.startswith("https://"):
         elements.append(_button("Vérifier la source", "autofresh_verify_source", url=source_url))
 
     detail = _monitor_event_text(event, rich=True)
@@ -422,8 +442,8 @@ def _monitor_blocks(event: dict) -> list[dict[str, Any]]:
         "\n_Source : observation automatique, pas preuve qu'une de tes annonces a changé."
         " Vérifie les conditions officielles avant d'accepter._"
     )
-    if not independently_seen or not source_valid:
-        detail += "\n_Information insuffisante pour proposer une acceptation._"
+    if not proven:
+        detail += "\n_Preuve insuffisante : aucune acceptation possible sans extrait et source vérifiés._"
     blocks = [{"type": "section", "text": {"type": "mrkdwn", "text": detail[:_MAX_BLOCK_TEXT]}}]
     if elements:
         blocks.append({"type": "actions", "elements": elements[:5]})
