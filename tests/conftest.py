@@ -73,6 +73,7 @@ _PATCH_TARGETS: list[tuple[str, list[str]]] = [
     ("lib.offers", ["OFFERS_PATH"]),
     ("lib.coverage", ["DATA_DIR", "MAPPINGS_DIR"]),
     ("lib.inventory", ["MAPPINGS_DIR"]),
+    ("lib.monitor.rejections", ["REJECTIONS_PATH"]),
     ("lib.monitor.auto_accept", [
         "DATA_DIR", "ACCEPTED_MONITOR_FIELDS_PATH", "HISTORY_PATH", "SIM_REPORT",
     ]),
