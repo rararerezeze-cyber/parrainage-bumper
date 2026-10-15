@@ -122,6 +122,11 @@ def evaluate_field(
     reasons: list[str] = []
     decision = "ACCEPT"
 
+    from lib.monitor.rejections import is_rejected_candidate
+    if is_rejected_candidate(program, field, str(observed or "")):
+        return {"decision": "REJECT", "reasons": ["operator_rejected_observed_value"],
+                "program": program, "field": field, "observed": observed}
+
     if scope is not None and program not in scope:
         return {
             "decision": "REJECT",
