@@ -95,7 +95,7 @@ def test_daily_payload_is_click_first_and_has_referralcode_shortcut():
     assert "Parrainage.co" in dumped
     assert "Super-Parrain" in dumped
     assert "ReferralCode.tv" in dumped
-    assert "iGraal" in dumped and "TotalEnergies" in dumped
+    assert "iGraal" not in dumped and "TotalEnergies" not in dumped
 
     actions = [
         e
