@@ -28,7 +28,7 @@ PROGRAM_COMMANDS = (
 def command_button(label: str, command: str, *, origin: str, suffix: str) -> dict[str, Any]:
     return {
         "type": "button",
-        "action_id": "autofresh_command",
+        "action_id": f"autofresh_command_{suffix[:100]}",
         "text": {"type": "plain_text", "text": label[:75]},
         "value": json.dumps(
             {
