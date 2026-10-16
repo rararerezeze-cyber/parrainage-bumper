@@ -116,8 +116,8 @@ def test_render_result_adds_confirm_button_when_writer_eligible_platform_pending
         platforms=platforms,
     ), run_writers_requested=False)
     action_blocks = [b for b in payload["blocks"] if b.get("type") == "actions"]
-    assert len(action_blocks) == 1
-    button = action_blocks[0]["elements"][0]
+    buttons = [a for block in action_blocks for a in block["elements"]]
+    button = next(a for a in buttons if a["action_id"] == "autofresh_confirm_write")
     assert button["action_id"] == "autofresh_confirm_write"
     value = json.loads(button["value"])
     assert value["command"] == "Kraken gain filleul 20 €"
@@ -131,7 +131,9 @@ def test_read_or_non_writer_action_never_offers_write_confirmation(action):
         platforms=[{"platform": "1parrainage", "status": "pending_update",
                     "can_auto_write": True}],
     )
-    assert not [b for b in render_result(result)["blocks"] if b.get("type") == "actions"]
+    actions = [a for b in render_result(result)["blocks"] if b.get("type") == "actions" for a in b["elements"]]
+    assert actions
+    assert not any(a["action_id"] == "autofresh_confirm_write" for a in actions)
 
 
 def test_render_result_no_confirm_button_when_run_writers_already_requested():
@@ -139,7 +141,8 @@ def test_render_result_no_confirm_button_when_run_writers_already_requested():
         {"platform": "1parrainage", "status": "pending_update", "can_auto_write": True, "route": "AUTO_ON_SAFE_DIFF", "changed_fields": {}},
     ]
     payload = render_result(_base_result(platforms=platforms, parsed={"action": "set"}), run_writers_requested=True)
-    assert not [b for b in payload["blocks"] if b.get("type") == "actions"]
+    buttons = [a for b in payload["blocks"] if b.get("type") == "actions" for a in b["elements"]]
+    assert not any(a["action_id"] == "autofresh_confirm_write" for a in buttons)
 
 
 def test_render_result_no_confirm_button_when_no_platform_eligible():
@@ -147,7 +150,8 @@ def test_render_result_no_confirm_button_when_no_platform_eligible():
         {"platform": "referraldrop", "status": "blocked", "can_auto_write": False, "route": "AUTH_BLOCKED_MANUAL", "changed_fields": {}},
     ]
     payload = render_result(_base_result(platforms=platforms, parsed={"action": "set"}))
-    assert not [b for b in payload["blocks"] if b.get("type") == "actions"]
+    buttons = [a for b in payload["blocks"] if b.get("type") == "actions" for a in b["elements"]]
+    assert not any(a["action_id"] == "autofresh_confirm_write" for a in buttons)
 
 
 def test_render_result_no_confirm_button_when_result_not_ok():
@@ -155,12 +159,14 @@ def test_render_result_no_confirm_button_when_result_not_ok():
         {"platform": "1parrainage", "status": "pending_update", "can_auto_write": True, "route": "AUTO_ON_SAFE_DIFF", "changed_fields": {}},
     ]
     payload = render_result(_base_result(ok=False, errors=[{"code": "x", "detail": "y"}], platforms=platforms, parsed={"action": "set"}))
-    assert not [b for b in payload["blocks"] if b.get("type") == "actions"]
+    buttons = [a for b in payload["blocks"] if b.get("type") == "actions" for a in b["elements"]]
+    assert not any(a["action_id"] == "autofresh_confirm_write" for a in buttons)
 
 
 def test_success_reply_hides_technical_context():
     payload = render_result(_base_result())
-    assert not [b for b in payload["blocks"] if b.get("type") == "context"]
+    assert "Référence technique" not in str(payload["blocks"])
+    assert any(b.get("type") == "context" for b in payload["blocks"])
 
 
 def test_failure_reply_keeps_only_short_technical_reference():
@@ -439,3 +445,20 @@ def test_referralcode_button_is_not_invented_without_a_mapped_platform_row():
         for element in block.get("elements", [])
     ]
     assert not any(a.get("action_id") == "autofresh_open_rctv" for a in actions)
+
+
+
+def test_every_readonly_result_offers_one_click_commands():
+    payload = render_result(_base_result())
+    actions = [a for b in payload["blocks"] if b.get("type") == "actions" for a in b["elements"]]
+    commands = [json.loads(a["value"])["command"] for a in actions if a["action_id"].startswith("autofresh_command_")]
+    assert set(commands) >= {
+        "kraken statut", "kraken valeurs", "kraken divergences", "kraken plateformes",
+        "Autofresh menu", "Autofresh enseignes", "Autofresh plateformes",
+        "Autofresh bump", "Autofresh exemples",
+    }
+    assert "autofresh_confirm_write" not in {a["action_id"] for a in actions}
+    for b in payload["blocks"]:
+        if b.get("type") == "actions":
+            ids = [a["action_id"] for a in b["elements"]]
+            assert len(ids) <= 5 and len(ids) == len(set(ids))
