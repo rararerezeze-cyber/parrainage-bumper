@@ -2,6 +2,10 @@
 from __future__ import annotations
 
 import os
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from lib.slack_controls import command_panel, program_command_buttons
 from tools.notify_slack import deliver
