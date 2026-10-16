@@ -20,6 +20,7 @@ from __future__ import annotations
 import json
 import copy
 from typing import Any
+from lib.slack_controls import command_panel
 
 _MAX_TEXT_CHARS = 160
 _MAX_SECTION_CHARS = 2900  # Slack mrkdwn section text limit is 3000
@@ -625,6 +626,9 @@ def render_result(
     # page instead of a fake "automatic" action.
     if ok and _rctv_manual_needed(result):
         blocks.append(_rctv_manual_button_block())
+
+    # Every operator reply remains actionable without memorizing slash syntax.
+    blocks.extend(command_panel(program=program, origin="reply-controls", global_actions=True))
 
     # Keep successful messages clean. A short technical reference is useful
     # only when the workflow failed and the operator may need to inspect logs.
