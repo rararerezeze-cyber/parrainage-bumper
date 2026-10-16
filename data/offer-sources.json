@@ -947,7 +947,7 @@
     },
     {
       "program": "nrj-mobile",
-      "source_url": "https://www.nrjmobile.fr/faq/comment-profiter-de-mon-programme-de-parrainage",
+      "source_url": "https://www.nrjmobile.fr/",
       "source_type": "official_page",
       "extraction_method": "http_fetch",
       "fields_supported": [
@@ -958,7 +958,7 @@
       "auth_required": false,
       "parser": "nrj_mobile_referral_fr",
       "confidence_default": "REVIEW",
-      "notes": "Official NRJ Mobile referral FAQ explicitly distinguishes the 10€ referral reward paid to each side from the 4,99€/month minimum plan price; do not parse subscription prices as rewards.",
+      "notes": "Plan prices dominate; no stable public parrainage amount after research",
       "enabled": true,
       "source_class": "OFFICIAL_BUT_NOT_MACHINE_READABLE",
       "offer_kind": "PUBLIC_CAMPAIGN",
@@ -987,7 +987,7 @@
       "canonical_country": "FR",
       "campaign_scope": "FR",
       "field_authority_fr": {},
-      "final_status": "PUBLIC_MONITORABLE_PENDING",
+      "final_status": "NO_PUBLIC_REFERRAL_SOURCE",
       "parser_tests_passed": true
     },
     {

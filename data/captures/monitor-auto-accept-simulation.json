@@ -8,18 +8,11 @@
   "eligible_fields": [],
   "rejected_fields_and_reasons": [
     {
-      "program": "nrj-mobile",
-      "field": "referee_reward",
-      "observed": "4,99 €",
-      "reasons": [
-        "source_not_verified_official:OFFICIAL_BUT_NOT_MACHINE_READABLE"
-      ]
-    },
-    {
       "program": "kraken",
       "field": "referee_reward",
       "observed": null,
       "reasons": [
+        "missing_verified_source_excerpt",
         "confidence_not_high:REJECT",
         "value_not_plausible",
         "streak_below_3:0",
@@ -44,5 +37,5 @@
     "APP_PERSONALIZED stays Hermes/Telegram",
     "ReferralCodes still NEVER_AUTO_COMMIT pending support"
   ],
-  "at": "2026-10-15T13:25:43.520682+00:00"
+  "at": "2026-10-16T13:15:32.259802+00:00"
 }
