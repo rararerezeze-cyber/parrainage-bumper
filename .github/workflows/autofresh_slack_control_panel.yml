@@ -1,0 +1,29 @@
+name: Publish AutoFresh Slack controls
+
+# First creation publishes a real interactive command panel immediately.
+# Later updates to arbitrary code do not repost it. Manual dispatch remains
+# available if the operator wants to refresh the panel.
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/autofresh_slack_control_panel.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Publish interactive read-only controls
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          AUTOFRESH_SLACK_CHANNEL: ${{ vars.AUTOFRESH_SLACK_CHANNEL }}
+        run: python tools/post_slack_controls.py
