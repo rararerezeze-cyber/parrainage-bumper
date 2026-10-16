@@ -627,9 +627,6 @@ def render_result(
     if ok and _rctv_manual_needed(result):
         blocks.append(_rctv_manual_button_block())
 
-    # Every operator reply remains actionable without memorizing slash syntax.
-    blocks.extend(command_panel(program=program, origin="reply-controls", global_actions=True))
-
     # Keep successful messages clean. A short technical reference is useful
     # only when the workflow failed and the operator may need to inspect logs.
     if not ok and correlation_id:
@@ -644,6 +641,8 @@ def render_result(
                 ],
             }
         )
+
+    blocks.extend(command_panel(program=program, origin="reply-controls", global_actions=True))
 
     return {
         "text": notification_text(result),
