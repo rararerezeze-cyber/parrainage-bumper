@@ -27,6 +27,7 @@ from typing import Any
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from lib.notify import FIELDS, read_events, build_event, should_notify
 from lib.offers import OffersRepository
+from lib.slack_controls import command_panel, program_command_buttons, global_command_buttons
 
 
 _PLATFORM_LABELS = {
@@ -450,34 +451,59 @@ def _monitor_blocks(event: dict) -> list[dict[str, Any]]:
     return blocks
 
 
+def _pending_is_already_closed(event: dict) -> bool:
+    """Avoid repeating an outdated 'pending' alert already closed in Git."""
+    if str(event.get("event") or "") != "pending_created":
+        return False
+    try:
+        from lib.paths import DATA_DIR
+        path = DATA_DIR / "pending_writes.json"
+        state = json.loads(path.read_text(encoding="utf-8"))
+        matching = [
+            item for item in (state.get("items") or [])
+            if item.get("platform") == event.get("platform")
+            and item.get("program") == event.get("program")
+        ]
+        if matching:
+            return str(matching[-1].get("status") or "") in {
+                "cancelled", "done", "closed", "completed",
+            }
+    except (OSError, ValueError, TypeError, AttributeError):
+        pass
+    return False
+
+
+def _context_buttons(event: dict, *, include_site: bool = False) -> list[dict[str, Any]]:
+    """Buttons are genuine read-only /autofresh commands, not cosmetic links."""
+    program = str(event.get("program") or "").strip().lower()
+    buttons = program_command_buttons(program, origin="alert") if program else []
+    if not buttons:
+        buttons = [
+            _read_command_button("Voir plateformes", "Autofresh plateformes", event, "platforms"),
+            _read_command_button("Voir remontées", "Autofresh bump", event, "bump"),
+        ]
+        buttons = [b for b in buttons if b]
+    if include_site and event.get("platform") == "code-parrainage":
+        buttons.append(_button(
+            "Ouvrir Code-Parrainage",
+            "autofresh_open_code_parrainage",
+            url="https://code-parrainage.net/",
+        ))
+    return buttons
+
+
 def _inspection_blocks(event: dict, text: str) -> list[dict[str, Any]]:
-    elements: list[dict[str, Any]] = []
+    blocks = [{"type": "section", "text": {"type": "mrkdwn", "text": text[:_MAX_BLOCK_TEXT]}}]
+    buttons: list[dict[str, Any]] = []
     if str(event.get("platform") or "") == "referralcode-tv":
-        elements.append(_rctv_manual_button())
-        elements.append(_rctv_done_button(event))
-    program = _program_label(event.get("program"))
-    if program:
-        for label, command, suffix in (
-            ("Voir le statut", f"{program} statut", "status"),
-            ("Voir les divergences", f"{program} divergences", "details"),
-        ):
-            btn = _read_command_button(label, command, event, suffix)
-            if btn:
-                elements.append(btn)
-    else:
-        btn = _read_command_button(
-            "Voir les plateformes",
-            "Autofresh plateformes",
-            event,
-            "platforms",
-        )
-        if btn:
-            elements.append(btn)
-    blocks = [
-        {"type": "section", "text": {"type": "mrkdwn", "text": text[:_MAX_BLOCK_TEXT]}}
-    ]
-    if elements:
-        blocks.append({"type": "actions", "elements": elements[:5]})
+        buttons.extend([_rctv_manual_button(), _rctv_done_button(event)])
+    buttons.extend(_context_buttons(
+        event, include_site=str(event.get("event") or "") in {
+            "circuit_breaker_open", "external_blocker", "human_required",
+        },
+    ))
+    for offset in range(0, len(buttons), 5):
+        blocks.append({"type": "actions", "elements": buttons[offset:offset + 5]})
     return blocks
 
 
@@ -488,6 +514,29 @@ def _event_blocks(event: dict) -> list[dict[str, Any]]:
 
     if ev == "monitor_real_safe_diff":
         return _monitor_blocks(event)
+
+    if ev == "pending_created":
+        platform = _label_platform(event.get("platform"))
+        program = _program_label(event.get("program"))
+        explanation = (
+            f"ℹ️ *{platform} / {program} — mise à jour signalée en attente*\n"
+            "Ceci ne prouve pas qu'une modification est encore à effectuer. "
+            "Les boutons consultent le statut réel, les valeurs enregistrées et "
+            "les sites concernés ; aucune écriture n'est lancée."
+        )
+        return _inspection_blocks(event, explanation)
+
+    if ev == "circuit_breaker_open":
+        platform = _label_platform(event.get("platform"))
+        reason = _label_reason(event.get("block_reason") or event.get("result"))
+        explanation = (
+            f"❌ *{platform} — protection activée*\n"
+            f"Cause signalée : {reason}. "
+            "Aucune écriture automatique n'est relancée pour contourner un CAPTCHA. "
+            "Consulte les plateformes et ouvre le site pour vérifier le blocage "
+            "dans ton navigateur si nécessaire."
+        )
+        return _inspection_blocks(event, explanation)
 
     if (
         ev == "workflow_error"
@@ -561,6 +610,8 @@ def build_payload(events: list[dict], channel: str) -> dict | None:
         level, event = raw.get("level", ""), raw.get("event", "")
         if not should_notify(event, level):
             continue
+        if _pending_is_already_closed(raw):
+            continue
         if event == "monitor_real_safe_diff":
             from lib.monitor.rejections import is_rejected_candidate
             if is_rejected_candidate(raw.get("program") or "", raw.get("field") or "", raw.get("new_value") or ""):
@@ -602,6 +653,8 @@ def build_payload(events: list[dict], channel: str) -> dict | None:
                 "text": f"… +{len(safe_events) - _MAX_RICH_EVENTS} autre(s) événement(s) dans l'archive du workflow.",
             },
         })
+
+    blocks.extend(command_panel(origin="alert-menu", global_actions=True))
 
     return {
         "channel": channel,
