@@ -211,7 +211,7 @@ def test_super_parrain_contradiction_exposes_read_only_actions_only():
     ids = {a.get("action_id") for a in actions}
     assert "autofresh_apply_candidate" not in ids
     assert "autofresh_confirm_write" not in ids
-    assert "autofresh_command_statut" in ids
+    assert "autofresh_command_kraken-statut" in ids
     commands = [
         __import__("json").loads(a["value"])["command"]
         for a in actions
