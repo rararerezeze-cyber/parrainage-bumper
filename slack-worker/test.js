@@ -118,12 +118,23 @@ test("Worker signed request path: read/preview stays unarmed; confirmation dispa
       "autofresh_open_parrainage_co",
       "autofresh_open_referralcodes",
       "autofresh_verify_source",
+      "autofresh_open_code_parrainage",
     ]) {
       const navigation = JSON.stringify({ user: { id: "U_TEST" }, channel: { id: "C_TEST" },
         actions: [{ action_id: actionId }] });
       assert.equal((await request("/slack/interactivity", { payload: navigation })).status, 200);
       assert.equal(calls.length, 6);
     }
+
+    const menuClick = JSON.stringify({
+      user: { id: "U_TEST" }, channel: { id: "C_TEST" },
+      actions: [{ action_id: "autofresh_command_menu",
+        value: JSON.stringify({ command: "Autofresh menu", correlation_id: "menu-1" }) }],
+    });
+    assert.equal((await request("/slack/interactivity", { payload: menuClick })).status, 200);
+    assert.equal(calls.length, 7);
+    assert.equal(calls[6].inputs.command, "Autofresh menu");
+    assert.equal(calls[6].inputs.run_writers, "false");
   } finally {
     globalThis.fetch = originalFetch;
   }
