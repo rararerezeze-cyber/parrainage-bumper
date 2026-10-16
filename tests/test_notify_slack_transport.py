@@ -211,14 +211,15 @@ def test_super_parrain_contradiction_exposes_read_only_actions_only():
     ids = {a.get("action_id") for a in actions}
     assert "autofresh_apply_candidate" not in ids
     assert "autofresh_confirm_write" not in ids
-    assert "autofresh_command" in ids
+    assert "autofresh_command_statut" in ids
     commands = [
         __import__("json").loads(a["value"])["command"]
         for a in actions
-        if a.get("action_id") == "autofresh_command"
+        if a.get("action_id", "").startswith("autofresh_command_")
     ]
-    assert "Kraken statut" in commands
-    assert "Kraken divergences" in commands
+    assert "kraken statut" in commands
+    assert "kraken divergences" in commands
+    assert "Autofresh menu" in commands
 
 
 def test_missed_slot_rich_notification_remains_non_actionable_for_writes():
@@ -236,8 +237,13 @@ def test_missed_slot_rich_notification_remains_non_actionable_for_writes():
     dumped = str(payload["blocks"])
     assert "aucune action nécessaire" in dumped
     actions = _actions(payload)
-    assert [a.get("action_id") for a in actions] == ["autofresh_command"]
-    assert __import__("json").loads(actions[0]["value"])["command"] == "Autofresh bump"
+    commands = [
+        __import__("json").loads(a["value"])["command"]
+        for a in actions if a.get("action_id", "").startswith("autofresh_command")
+    ]
+    assert "Autofresh bump" in commands
+    assert "Autofresh menu" in commands
+    assert not any(a["action_id"] == "autofresh_confirm_write" for a in actions)
 
 
 
@@ -335,3 +341,53 @@ def test_unverified_source_never_shows_accept_even_with_an_excerpt():
         "confidence": "HIGH", "parser_tests_passed": True,
     }], "C_TEST")
     assert "autofresh_apply_candidate" not in {b.get("action_id") for b in _actions(payload)}
+
+
+
+def test_pending_created_offers_context_commands_not_empty_message(monkeypatch, tmp_path):
+    from lib import paths
+    # No active item: a new alert still offers inspection commands.
+    monkeypatch.setattr(paths, "DATA_DIR", tmp_path)
+    payload = build_payload([{
+        "level": "INFO", "event": "pending_created",
+        "platform": "super-parrain", "program": "totalenergies",
+        "result": "accepted batch:referee reward",
+    }], "C_TEST")
+    assert payload
+    buttons = _actions(payload)
+    commands = [__import__("json").loads(x["value"])["command"]
+                for x in buttons if x["action_id"].startswith("autofresh_command_")]
+    assert {"totalenergies statut", "totalenergies valeurs", "totalenergies plateformes",
+            "Autofresh menu"} <= set(commands)
+    assert not any(x["action_id"] == "autofresh_confirm_write" for x in buttons)
+
+
+def test_closed_pending_is_not_repeated_as_live_warning(monkeypatch, tmp_path):
+    from lib import paths
+    monkeypatch.setattr(paths, "DATA_DIR", tmp_path)
+    (tmp_path / "pending_writes.json").write_text(__import__("json").dumps({
+        "items": [{"platform": "super-parrain", "program": "totalenergies", "status": "cancelled"}]
+    }))
+    payload = build_payload([{
+        "level": "INFO", "event": "pending_created",
+        "platform": "super-parrain", "program": "totalenergies",
+    }], "C_TEST")
+    assert payload is None
+
+
+def test_captcha_alert_has_real_resolution_path_and_no_bypass_button():
+    payload = build_payload([{
+        "level": "ERROR", "event": "circuit_breaker_open",
+        "platform": "code-parrainage",
+        "block_reason": "slider captcha non resolu",
+    }], "C_TEST")
+    assert payload
+    actions = _actions(payload)
+    assert any(a.get("action_id") == "autofresh_open_code_parrainage"
+               and a.get("url") == "https://code-parrainage.net/" for a in actions)
+    commands = [__import__("json").loads(x["value"])["command"]
+                for x in actions if x["action_id"].startswith("autofresh_command")]
+    assert "Autofresh plateformes" in commands
+    assert "Autofresh bump" in commands
+    assert all("reset" not in x.lower() and "bypass" not in x.lower() for x in commands)
+    assert not any(x["action_id"] == "autofresh_confirm_write" for x in actions)
