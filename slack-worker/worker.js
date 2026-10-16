@@ -214,6 +214,7 @@ async function handleInteractivity(request, env, ctx) {
     "autofresh_open_parrainage_co",
     "autofresh_open_referralcodes",
     "autofresh_verify_source",
+    "autofresh_open_code_parrainage",
   ]);
   if (navigationActions.has(actionId)) {
     return new Response(null, { status: 200 });
@@ -248,7 +249,7 @@ async function handleInteractivity(request, env, ctx) {
     "autofresh_reject_candidate",
     "autofresh_confirm_write",
   ]);
-  if (!commandActions.has(actionId)) {
+  if (!commandActions.has(actionId) && !/^autofresh_command_[a-z0-9._-]+$/.test(actionId)) {
     if (responseUrl) {
       ctx.waitUntil(postResponseUrl(responseUrl, {
         response_type: "ephemeral",
