@@ -11,6 +11,7 @@ import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
+from lib.slack_controls import command_panel
 from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -322,6 +323,7 @@ def build_payload(data: dict[str, Any], channel: str) -> dict[str, Any]:
             ],
         }
     )
+    blocks.extend(command_panel(origin="daily-commands", global_actions=True))
     blocks.extend([
         {
             "type": "context",
