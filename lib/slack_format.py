@@ -642,7 +642,8 @@ def render_result(
             }
         )
 
-    blocks.extend(command_panel(program=program, origin="reply-controls", global_actions=True))
+    if ok:
+        blocks.extend(command_panel(program=program, origin="reply-controls", global_actions=True))
 
     return {
         "text": notification_text(result),
