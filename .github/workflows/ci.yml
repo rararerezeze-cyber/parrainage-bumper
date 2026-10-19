@@ -30,6 +30,8 @@ on:
       - "lib/slack_controls.py"
       - "lib/slack_format.py"
       - "tools/slack_daily_status.py"
+      - ".github/workflows/autofresh_daily_status.yml"
+      - "data/workflow-registry.json"
       - "tools/post_slack_controls.py"
       - "tests/test_slack_controls.py"
       - "tests/test_notify_slack_transport.py"
