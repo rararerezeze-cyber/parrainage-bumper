@@ -31,30 +31,14 @@ def test_build_payload_ignores_outbox_metadata_fields():
 
 
 
-def test_content_prefill_fail_closed_is_explained_in_plain_french():
-    events = [
-        {
-            "schema_version": 1,
-            "level": "ERROR",
-            "platform": "super-parrain",
-            "program": "kraken",
-            "event": "workflow_error",
-            "action": "content_prefill",
-            "result": "FAIL_CLOSED",
-            "block_reason": "[REDACTED]",
-            "source": "platforms.super_parrain.prefill",
-        }
-    ]
-
-    payload = build_payload(events, "C_TEST")
-
-    assert payload is not None
-    text = payload["text"]
-    assert "Super-Parrain / Kraken" in text
-    assert "mise à jour du contenu a été annulée par sécurité" in text
-    assert "bumper continue" in text
-    assert "[REDACTED]" not in text
-    assert "FAIL_CLOSED" not in text
+def test_content_prefill_fail_closed_is_logged_but_not_spammed_to_slack():
+    events = [{
+        "schema_version": 1, "level": "ERROR",
+        "platform": "super-parrain", "program": "kraken",
+        "event": "workflow_error", "action": "content_prefill",
+        "result": "FAIL_CLOSED", "block_reason": "[REDACTED]",
+    }]
+    assert build_payload(events, "C_TEST") is None
 
 
 def test_missed_slot_notification_says_it_was_recovered_and_needs_no_action():
@@ -188,38 +172,12 @@ def test_monitor_unsafe_value_never_gets_direct_accept_button():
     assert "autofresh_command" not in ids
 
 
-def test_super_parrain_contradiction_exposes_read_only_actions_only():
-    events = [
-        {
-            "level": "ERROR",
-            "platform": "super-parrain",
-            "program": "kraken",
-            "event": "workflow_error",
-            "action": "content_prefill",
-            "result": "FAIL_CLOSED",
-            "block_reason": "[REDACTED]",
-        }
-    ]
-
-    payload = build_payload(events, "C_TEST")
-    assert payload is not None
-    dumped = str(payload["blocks"])
-    assert "aucune action immédiate" in dumped
-    assert "remontée" in dumped
-
-    actions = _actions(payload)
-    ids = {a.get("action_id") for a in actions}
-    assert "autofresh_apply_candidate" not in ids
-    assert "autofresh_confirm_write" not in ids
-    assert "autofresh_command_kraken-statut" in ids
-    commands = [
-        __import__("json").loads(a["value"])["command"]
-        for a in actions
-        if a.get("action_id", "").startswith("autofresh_command_")
-    ]
-    assert "kraken statut" in commands
-    assert "kraken divergences" in commands
-    assert "Autofresh menu" in commands
+def test_super_parrain_non_actionable_prefill_does_not_include_buttons():
+    assert build_payload([{
+        "level": "ERROR", "platform": "super-parrain",
+        "program": "kraken", "event": "workflow_error",
+        "action": "content_prefill", "result": "FAIL_CLOSED",
+    }], "C_TEST") is None
 
 
 def test_missed_slot_rich_notification_remains_non_actionable_for_writes():
@@ -242,7 +200,7 @@ def test_missed_slot_rich_notification_remains_non_actionable_for_writes():
         for a in actions if a.get("action_id", "").startswith("autofresh_command")
     ]
     assert "Autofresh bump" in commands
-    assert "Autofresh menu" in commands
+    assert commands == ["Autofresh bump"]
     assert not any(a["action_id"] == "autofresh_confirm_write" for a in actions)
 
 
@@ -357,8 +315,7 @@ def test_pending_created_offers_context_commands_not_empty_message(monkeypatch, 
     buttons = _actions(payload)
     commands = [__import__("json").loads(x["value"])["command"]
                 for x in buttons if x["action_id"].startswith("autofresh_command_")]
-    assert {"totalenergies statut", "totalenergies valeurs", "totalenergies plateformes",
-            "Autofresh menu"} <= set(commands)
+    assert commands == ["totalenergies statut"]
     assert not any(x["action_id"] == "autofresh_confirm_write" for x in buttons)
 
 
@@ -388,6 +345,20 @@ def test_captcha_alert_has_real_resolution_path_and_no_bypass_button():
     commands = [__import__("json").loads(x["value"])["command"]
                 for x in actions if x["action_id"].startswith("autofresh_command")]
     assert "Autofresh plateformes" in commands
-    assert "Autofresh bump" in commands
+    assert "Autofresh bump" not in commands
     assert all("reset" not in x.lower() and "bypass" not in x.lower() for x in commands)
     assert not any(x["action_id"] == "autofresh_confirm_write" for x in actions)
+
+
+
+def test_actionable_incident_has_at_most_two_controls():
+    payload = build_payload([{
+        "level": "ERROR", "platform": "code-parrainage",
+        "event": "circuit_breaker_open", "block_reason": "CAPTCHA",
+    }], "C_TEST")
+    controls = _actions(payload)
+    assert len(controls) == 2
+    assert {b["action_id"] for b in controls} == {
+        "autofresh_command_platforms", "autofresh_open_code_parrainage",
+    }
+    assert not any("autofresh_confirm_write" == b["action_id"] for b in controls)
