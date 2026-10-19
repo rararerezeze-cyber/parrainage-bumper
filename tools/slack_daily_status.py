@@ -463,11 +463,12 @@ def main(argv: list[str] | None = None) -> int:
     data = runtime_data()
     channel = os.environ.get("AUTOFRESH_SLACK_CHANNEL", "").strip() or "DRY_RUN"
     payload = build_payload(data, channel)
-    CAPTURE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    CAPTURE_PATH.write_text(json.dumps({"data": data, "payload": payload}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     if args.dry_run:
+        # A dry run must not overwrite the daily capture or modify the repo.
         print(json.dumps(payload, ensure_ascii=False, indent=2))
         return 0
+    CAPTURE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    CAPTURE_PATH.write_text(json.dumps({"data": data, "payload": payload}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     token = os.environ.get("SLACK_BOT_TOKEN", "").strip()
     real_channel = os.environ.get("AUTOFRESH_SLACK_CHANNEL", "").strip()
     if not token or not real_channel:
