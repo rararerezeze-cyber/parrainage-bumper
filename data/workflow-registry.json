@@ -169,6 +169,11 @@
       "class": "DIAGNOSTIC_AVAILABLE",
       "platform": "1parrainage",
       "note": "Authenticated read-only inspection of boost/remount controls. No click, no purchase, no form POST; used to distinguish paid Boost from normal announcement remontée."
+    },
+    "autofresh_slack_control_panel.yml": {
+      "class": "PRODUCTION_MANUAL",
+      "platform": null,
+      "note": "Read-only interactive Slack control panel published on manual workflow dispatch; initial one-time publish via change to its workflow file. Never modifies referral platform content."
     }
   }
 }
