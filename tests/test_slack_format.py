@@ -448,17 +448,19 @@ def test_referralcode_button_is_not_invented_without_a_mapped_platform_row():
 
 
 
-def test_every_readonly_result_offers_one_click_commands():
+def test_readonly_reply_has_one_compact_menu_button():
     payload = render_result(_base_result())
     actions = [a for b in payload["blocks"] if b.get("type") == "actions" for a in b["elements"]]
-    commands = [json.loads(a["value"])["command"] for a in actions if a["action_id"].startswith("autofresh_command_")]
-    assert set(commands) >= {
-        "kraken statut", "kraken valeurs", "kraken divergences", "kraken plateformes",
-        "Autofresh menu", "Autofresh enseignes", "Autofresh plateformes",
-        "Autofresh bump", "Autofresh exemples",
-    }
+    assert len(actions) == 1
+    assert actions[0]["action_id"] == "autofresh_command_menu"
+    assert json.loads(actions[0]["value"])["command"] == "Autofresh menu"
     assert "autofresh_confirm_write" not in {a["action_id"] for a in actions}
-    for b in payload["blocks"]:
-        if b.get("type") == "actions":
-            ids = [a["action_id"] for a in b["elements"]]
-            assert len(ids) <= 5 and len(ids) == len(set(ids))
+
+
+def test_help_reply_uses_one_compact_toolbar():
+    payload = render_result(_base_result(parsed={"action": "help", "help_topic": "menu"}, result={"topic": "menu"}))
+    actions = [a for b in payload["blocks"] if b.get("type") == "actions" for a in b["elements"]]
+    assert len(actions) == 3
+    assert {json.loads(a["value"])["command"] for a in actions} == {
+        "Autofresh enseignes", "Autofresh bump", "Autofresh exemples",
+    }
