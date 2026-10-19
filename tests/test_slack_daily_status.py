@@ -106,6 +106,7 @@ def test_daily_payload_is_click_first_and_has_referralcode_shortcut():
     ids = [a.get("action_id") for a in actions]
     assert "autofresh_open_rctv" in ids
     assert ids.count("autofresh_command") == 1
+    assert ids.count("autofresh_command_menu") == 1
     manual = next(a for a in actions if a.get("action_id") == "autofresh_open_rctv")
     assert manual["url"].endswith("/my-account/?tab=listings")
     expected_shortcuts = {
@@ -118,7 +119,7 @@ def test_daily_payload_is_click_first_and_has_referralcode_shortcut():
     for action_id, url in expected_shortcuts.items():
         shortcut = next(a for a in actions if a.get("action_id") == action_id)
         assert shortcut["url"] == url
-        assert shortcut["text"]["text"].startswith("Ouvrir ")
+        assert shortcut["text"]["text"] in {"ReferralDrop", "1Parrainage", "Super-Parrain", "Parrainage.co", "ReferralCodes"}
         assert "value" not in shortcut
     assert len(expected_shortcuts) == 5
     for block in payload["blocks"]:
@@ -130,6 +131,7 @@ def test_daily_payload_is_click_first_and_has_referralcode_shortcut():
         if a.get("action_id") == "autofresh_command"
     ]
     assert commands == ["Autofresh bump"]
+    assert len([b for b in payload["blocks"] if b.get("type") == "actions"]) == 2
     assert not any(a["text"]["text"].startswith("Voir iGraal") for a in actions)
     assert not any(a["text"]["text"].startswith("Voir TotalEnergies") for a in actions)
     assert "signalements non confirmé" in dumped
@@ -244,3 +246,23 @@ def test_unlocked_unreconciled_observation_stays_actionable(tmp_path, monkeypatc
     monkeypatch.setattr(operator_overrides, "load_accepted_monitor_fields", lambda: {})
     candidate = {"program": "igraal", "field": "referee_reward", "canonical": "3 €", "observed": "15 €"}
     assert filter_actionable_candidates([candidate]) == [candidate]
+
+
+
+def test_daily_script_starts_as_plain_python_from_repo_root(tmp_path):
+    """Regression: GitHub invokes python tools/slack_daily_status.py, not -m."""
+    import os
+    import subprocess
+    import sys
+    from pathlib import Path
+    project = Path(__file__).resolve().parents[1]
+    env = dict(os.environ)
+    env.pop("GITHUB_TOKEN", None)
+    env.pop("GITHUB_REPOSITORY", None)
+    env["AUTOFRESH_SLACK_CHANNEL"] = ""
+    run = subprocess.run(
+        [sys.executable, "tools/slack_daily_status.py", "--dry-run"],
+        cwd=project, env=env, capture_output=True, text=True, timeout=20,
+    )
+    assert run.returncode == 0, run.stderr[-1200:]
+    assert "AutoFresh" in run.stdout
