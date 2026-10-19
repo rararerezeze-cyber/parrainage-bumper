@@ -11,11 +11,12 @@ import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
-from lib.slack_controls import command_panel
 from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
+
+from lib.slack_controls import command_button
 
 DATA_DIR = ROOT / "data"
 SCHEDULE_PATH = DATA_DIR / "bump-autres-schedule.json"
@@ -117,7 +118,7 @@ def _account_button(slug: str, name: str, url: str) -> dict[str, Any]:
     return {
         "type": "button",
         "action_id": f"autofresh_open_{slug}",
-        "text": {"type": "plain_text", "text": f"Ouvrir {name}"},
+        "text": {"type": "plain_text", "text": name},
         "url": url,
     }
 
@@ -318,23 +319,17 @@ def build_payload(data: dict[str, Any], channel: str) -> dict[str, Any]:
             "type": "actions",
             "block_id": "autofresh_daily_main",
             "elements": [
-                _command_button("Voir les remontées", "Autofresh bump", "bump"),
+                _command_button("Remontées", "Autofresh bump", "bump"),
                 _rctv_button(),
+                command_button("Commandes", "Autofresh menu", origin="daily", suffix="menu"),
             ],
         }
     )
-    blocks.extend(command_panel(origin="daily-commands", global_actions=True))
-    blocks.extend([
-        {
-            "type": "context",
-            "elements": [{"type": "mrkdwn", "text": "Accès rapide à tes comptes · connexion uniquement si nécessaire"}],
-        },
-        {
-            "type": "actions",
-            "block_id": "autofresh_daily_accounts",
-            "elements": [_account_button(slug, name, url) for slug, name, url in ACCOUNT_SHORTCUTS],
-        },
-    ])
+    blocks.append({
+        "type": "actions",
+        "block_id": "autofresh_daily_accounts",
+        "elements": [_account_button(slug, name, url) for slug, name, url in ACCOUNT_SHORTCUTS],
+    })
     # Public-offer signals are available through separate notifications only.
     # Never add a program-specific "Voir ..." button to this daily dashboard.
 
