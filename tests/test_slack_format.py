@@ -166,7 +166,7 @@ def test_render_result_no_confirm_button_when_result_not_ok():
 def test_success_reply_hides_technical_context():
     payload = render_result(_base_result())
     assert "Référence technique" not in str(payload["blocks"])
-    assert any(b.get("type") == "context" for b in payload["blocks"])
+    assert not any(b.get("type") == "context" for b in payload["blocks"])
 
 
 def test_failure_reply_keeps_only_short_technical_reference():
