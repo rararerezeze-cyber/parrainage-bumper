@@ -27,7 +27,7 @@ from typing import Any
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from lib.notify import FIELDS, read_events, build_event, should_notify
 from lib.offers import OffersRepository
-from lib.slack_controls import command_panel, program_command_buttons, global_command_buttons
+from lib.slack_controls import command_button
 
 
 _PLATFORM_LABELS = {
@@ -474,19 +474,15 @@ def _pending_is_already_closed(event: dict) -> bool:
 
 
 def _context_buttons(event: dict, *, include_site: bool = False) -> list[dict[str, Any]]:
-    """Buttons are genuine read-only /autofresh commands, not cosmetic links."""
+    """At most two relevant actions per incident, never a full command palette."""
     program = str(event.get("program") or "").strip().lower()
-    buttons = program_command_buttons(program, origin="alert") if program else []
-    if not buttons:
-        buttons = [
-            _read_command_button("Voir plateformes", "Autofresh plateformes", event, "platforms"),
-            _read_command_button("Voir remontées", "Autofresh bump", event, "bump"),
-        ]
-        buttons = [b for b in buttons if b]
-    if include_site and event.get("platform") == "code-parrainage":
+    if program and re.fullmatch(r"[a-z0-9][a-z0-9_.-]{1,40}", program):
+        buttons = [command_button("Statut", f"{program} statut", origin="incident", suffix=f"{program}-status")]
+    else:
+        buttons = [command_button("Plateformes", "Autofresh plateformes", origin="incident", suffix="platforms")]
+    if include_site and str(event.get("platform") or "") == "code-parrainage":
         buttons.append(_button(
-            "Ouvrir Code-Parrainage",
-            "autofresh_open_code_parrainage",
+            "Ouvrir le site", "autofresh_open_code_parrainage",
             url="https://code-parrainage.net/",
         ))
     return buttons
@@ -610,6 +606,13 @@ def build_payload(events: list[dict], channel: str) -> dict | None:
         level, event = raw.get("level", ""), raw.get("event", "")
         if not should_notify(event, level):
             continue
+        # A prefill failed closed and the normal bump continued; no user action
+        # is required. Keep this in the workflow audit, not daily Slack noise.
+        if (event == "workflow_error"
+            and raw.get("platform") == "super-parrain"
+            and raw.get("action") == "content_prefill"
+            and raw.get("result") == "FAIL_CLOSED"):
+            continue
         if _pending_is_already_closed(raw):
             continue
         if event == "monitor_real_safe_diff":
@@ -653,8 +656,6 @@ def build_payload(events: list[dict], channel: str) -> dict | None:
                 "text": f"… +{len(safe_events) - _MAX_RICH_EVENTS} autre(s) événement(s) dans l'archive du workflow.",
             },
         })
-
-    blocks.extend(command_panel(origin="alert-menu", global_actions=True))
 
     return {
         "channel": channel,
