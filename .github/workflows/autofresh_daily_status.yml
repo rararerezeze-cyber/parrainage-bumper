@@ -6,6 +6,12 @@ on:
     # Keeps the daily heartbeat inside the operator's 08:00-midnight window.
     - cron: "45 18 * * *"
   workflow_dispatch:
+  # One-time recovery: publish immediately when this exact workflow is
+  # updated, without changing the regular daily schedule.
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/autofresh_daily_status.yml"
 
 concurrency:
   group: autofresh-daily-slack-status
