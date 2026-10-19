@@ -20,7 +20,7 @@ from __future__ import annotations
 import json
 import copy
 from typing import Any
-from lib.slack_controls import command_panel
+from lib.slack_controls import command_button
 
 _MAX_TEXT_CHARS = 160
 _MAX_SECTION_CHARS = 2900  # Slack mrkdwn section text limit is 3000
@@ -642,8 +642,17 @@ def render_result(
             }
         )
 
-    if ok:
-        blocks.extend(command_panel(program=program, origin="reply-controls", global_actions=True))
+    if ok and action == "help":
+        # The menu is a single compact toolbar, not nine repeated shortcuts.
+        blocks.append({"type": "actions", "elements": [
+            command_button("Enseignes", "Autofresh enseignes", origin="reply", suffix="offers"),
+            command_button("Remontées", "Autofresh bump", origin="reply", suffix="bump"),
+            command_button("Exemples", "Autofresh exemples", origin="reply", suffix="examples"),
+        ]})
+    elif ok:
+        blocks.append({"type": "actions", "elements": [
+            command_button("Commandes", "Autofresh menu", origin="reply", suffix="menu"),
+        ]})
 
     return {
         "text": notification_text(result),
