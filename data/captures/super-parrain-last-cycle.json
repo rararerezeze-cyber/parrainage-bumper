@@ -3,13 +3,13 @@
   "decision": {
     "runtime_mode": "NORMAL_BUMP",
     "canary_pending": false,
-    "next_eligible_at": "2026-10-24T11:12:29.615159+00:00",
+    "next_eligible_at": "2026-10-25T15:42:35.042884+00:00",
     "hours_remaining": 0.0,
     "pending_count": 0,
     "pending_programs": [],
     "activation_canary_owns_save": false,
     "historical_bumper_authorized": true,
-    "jitter_minutes": 128,
+    "jitter_minutes": 110,
     "action": "cycle",
     "reason": "slot_reached_write_verified_precheck_then_bump",
     "skip_bump": false,
@@ -19,7 +19,7 @@
     "eligible_now": true
   },
   "eligible": true,
-  "next_eligible_at": "2026-10-24T11:12:29.615159+00:00",
+  "next_eligible_at": "2026-10-25T15:42:35.042884+00:00",
   "hours_remaining": 0.0,
   "pre_check": {
     "programs_scanned": 35,
@@ -160,14 +160,14 @@
   "bumper_stats": {
     "mode": "fused_bumper_canary",
     "total_edit_urls": 39,
-    "saves": 38,
+    "saves": 37,
     "announcement_saves": 0,
     "announcement_actions_unknown": 0,
     "autofresh": {
       "updated": 0,
-      "bump_only": 39,
+      "bump_only": 37,
       "failed_prefill": 0,
-      "canary_skipped": 23,
+      "canary_skipped": 21,
       "details": [
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-freeprints-5-tirages-supplementaires-offerts/edit",
@@ -252,16 +252,6 @@
         {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-gemini-50-eur-dans-la-crypto-de-votre-choix/edit",
           "program": "gemini",
-          "needs_update": false,
-          "fields_filled": [],
-          "changed_fields": {},
-          "skipped": true,
-          "reason": "bump_only_not_canary",
-          "policy": "bump_only_not_canary"
-        },
-        {
-          "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-boursobank-jusqua-200-eur-offerts-1/edit",
-          "program": "boursobank",
           "needs_update": false,
           "fields_filled": [],
           "changed_fields": {},
@@ -502,16 +492,6 @@
           "policy": ""
         },
         {
-          "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-trade-republic-10-eur-en-action-offerts/edit",
-          "program": "traderepublic",
-          "needs_update": false,
-          "fields_filled": [],
-          "changed_fields": {},
-          "skipped": true,
-          "reason": "bump_only_not_canary",
-          "policy": "bump_only_not_canary"
-        },
-        {
           "edit_url": "https://www.super-parrain.com/tableau-de-bord/codes-promo/offre-parrainage-joko-5eur-offerts-des-votre-premiere-utilisation/edit",
           "program": "joko",
           "needs_update": false,
@@ -597,17 +577,17 @@
     "CANARY_POST_MATCH": null,
     "WRITE_STATUS": "CANARY_PENDING",
     "BUMP_CYCLE_24H": "OK",
-    "server_actions": 38,
-    "historical_bump_saves": 38,
+    "server_actions": 37,
+    "historical_bump_saves": 37,
     "announcement_saves": 0,
     "programs_needing_update": 15,
     "canary_need_update": 0,
     "autofresh_updated": 0,
-    "autofresh_bump_only": 39,
-    "canary_skipped": 23,
+    "autofresh_bump_only": 37,
+    "canary_skipped": 21,
     "BUMP_RESULT": "SUCCESS",
     "CONTENT_RESULT": "NO_CONTENT_WRITE"
   },
   "pending_closed": [],
-  "at": "2026-10-24T13:52:38.661894+00:00"
+  "at": "2026-10-25T18:46:24.816739+00:00"
 }
