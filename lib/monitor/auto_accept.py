@@ -572,8 +572,14 @@ def apply_verified_batch(
     *,
     run_writers: bool = False,
     force: bool = False,
+    require_new_verified_candidate: bool = False,
 ) -> dict[str, Any]:
-    """Accept all verified monitor candidates, then reconcile all accepted values."""
+    """Accept verified candidates and reconcile safely, optionally only on new evidence.
+
+    The scheduled public monitor must not retry unrelated old operator
+    overrides / failed writes each day when no official offer changed.
+    Those remain available to the explicit Hermes reconciliation route.
+    """
     if not force and not auto_accept_enabled():
         return {
             "ok": False,
@@ -584,6 +590,14 @@ def apply_verified_batch(
         }
 
     evaluation = evaluate_all(observations)
+    if require_new_verified_candidate and not evaluation["accepts"]:
+        return {
+            "ok": True, "applied": False, "reason": "no_verified_candidate",
+            "accepted_count": 0, "eligible_candidates": 0,
+            "rejected_candidates": len(evaluation.get("rejects") or []),
+            "verified_writes": 0, "failed_writes": 0,
+            "live_writes_performed": 0, "writer_results": [],
+        }
     accepted = apply_accepts(evaluation["accepts"], force=True)
     routes = effective_sync_routes()
     writer_results = execute_safe_sync_routes(routes) if run_writers else []
@@ -798,6 +812,7 @@ def observations_from_last_report(path: Path | None = None) -> list[Observation]
                 source_locale=o.get("source_locale") or "fr",
                 campaign_scope=o.get("campaign_scope") or "FR",
                 field_authority=o.get("field_authority") or {},
+                evidence_excerpts=o.get("evidence_excerpts") or {},
             )
         )
     return obs
