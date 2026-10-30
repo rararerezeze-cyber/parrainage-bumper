@@ -598,8 +598,29 @@ def apply_verified_batch(
             "verified_writes": 0, "failed_writes": 0,
             "live_writes_performed": 0, "writer_results": [],
         }
-    accepted = apply_accepts(evaluation["accepts"], force=True)
+    accepted = apply_accepts(
+        evaluation["accepts"], force=True,
+        pending_only_for_applied=require_new_verified_candidate,
+    )
     routes = effective_sync_routes()
+    if require_new_verified_candidate:
+        # Do not let an unrelated old operator override piggy-back on a
+        # newly verified public offer: only its newly accepted fields can
+        # reach the scheduled safe-writer path.
+        changed_now = {
+            (str(row["program"]), str(row["field"]))
+            for row in accepted.get("applied_rows") or []
+        }
+        narrowed = []
+        for diff in routes.get("safe_diffs") or []:
+            fields = {
+                field: info
+                for field, info in (diff.get("changed_fields") or {}).items()
+                if (str(diff.get("program") or ""), str(field)) in changed_now
+            }
+            if fields:
+                narrowed.append({**diff, "changed_fields": fields})
+        routes = {**routes, "safe_diffs": narrowed}
     writer_results = execute_safe_sync_routes(routes) if run_writers else []
     failed = [r for r in writer_results if r.get("ok") is False]
     verified = [
@@ -700,7 +721,12 @@ def save_accepted_fields(programs: dict[str, dict[str, str]]) -> Path:
     return ACCEPTED_MONITOR_FIELDS_PATH
 
 
-def apply_accepts(accepts: list[dict[str, Any]], *, force: bool = False) -> dict[str, Any]:
+def apply_accepts(
+    accepts: list[dict[str, Any]],
+    *,
+    force: bool = False,
+    pending_only_for_applied: bool = False,
+) -> dict[str, Any]:
     """Persist accepted monitor values. No platform write is performed here."""
     if not force and not auto_accept_enabled():
         return {
@@ -740,6 +766,7 @@ def apply_accepts(accepts: list[dict[str, Any]], *, force: bool = False) -> dict
     # Queue Super-Parrain only where the accepted/effective field is actually
     # mutable and differs from the known platform baseline.
     routes = effective_sync_routes()
+    applied_fields = {(row["program"], row["field"]) for row in applied}
     try:
         from lib.super_parrain_schedule import enqueue_pending
 
@@ -751,6 +778,8 @@ def apply_accepts(accepts: list[dict[str, Any]], *, force: bool = False) -> dict
                 f
                 for f in (diff.get("changed_fields") or {})
                 if f not in NEVER_AUTO_FIELDS
+                and (not pending_only_for_applied
+                     or (str(diff.get("program") or ""), f) in applied_fields)
             }
             if fields:
                 by_program.setdefault(str(diff.get("program") or ""), set()).update(fields)
