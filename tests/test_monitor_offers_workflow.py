@@ -134,7 +134,9 @@ def test_explicit_observation_only_dispatch_never_calls_acceptance_or_writers(tm
     monkeypatch.setattr(batch, "apply_verified_batch", forbidden)
     steps = yaml.safe_load(TEXT)["jobs"]["monitor"]["steps"]
     writer = next(s for s in steps if s.get("id") == "writers")
-    assert "github.event_name != 'workflow_dispatch' || inputs.run_writers" in writer["env"]["RUN_WRITERS"]
+    assert "github.event_name == 'schedule'" in writer["env"]["RUN_WRITERS"]
+    assert "github.event_name == 'workflow_dispatch' && inputs.run_writers" in writer["env"]["RUN_WRITERS"]
+    assert "require_new_verified_candidate=True" in writer["run"]
     code = writer["run"].split("python - <<'PY'\n", 1)[1].rsplit("\nPY", 1)[0]
     exec(code, {})
     report = json.loads((tmp_path / "data/captures/monitor-auto-accept-batch.json").read_text())
@@ -173,3 +175,16 @@ def test_writer_crash_records_current_unknown_result_before_failing(tmp_path, mo
     assert report["failed_writes"] is None
     assert report["run_id"] == "crash-test"
     assert "private-auth-detail" not in raw
+
+
+
+def test_push_recovery_is_observation_only_and_manual_dispatch_defaults_safe():
+    import yaml
+    workflow = yaml.safe_load(TEXT)
+    triggers = workflow.get("on") or workflow.get(True)
+    assert triggers["workflow_dispatch"]["inputs"]["run_writers"]["default"] is False
+    assert triggers["push"]["paths"] == [".github/workflows/monitor_offers.yml"]
+    writer = next(x for x in workflow["jobs"]["monitor"]["steps"] if x.get("id") == "writers")
+    assert "github.event_name == 'schedule'" in writer["env"]["RUN_WRITERS"]
+    assert "github.event_name == 'workflow_dispatch' && inputs.run_writers" in writer["env"]["RUN_WRITERS"]
+    assert "require_new_verified_candidate=True" in writer["run"]
