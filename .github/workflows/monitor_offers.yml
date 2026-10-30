@@ -9,9 +9,15 @@ on:
   workflow_dispatch:
     inputs:
       run_writers:
-        description: "Reconcile normal safe writers (false performs observation only)"
+        description: "Reconcile safe writers only if a newly verified public candidate exists"
         type: boolean
-        default: true
+        default: false
+  # One-time read-only recovery when this workflow is revised.
+  # Push MUST NEVER authorize writers or a CAPTCHA attempt.
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/monitor_offers.yml"
 permissions:
   # Commit step needs to push its own observation-report commits (see
   # "Commit results" below). Missing entirely before 2026-08-18 -- every
@@ -56,7 +62,7 @@ jobs:
       - name: Dependencies
         run: |
           pip install -r requirements.txt
-          if [ "${{ inputs.run_writers }}" != "false" ] && python -c "import json; raise SystemExit(0 if json.load(open('data/autofresh-phase.json', encoding='utf-8')).get('monitor_auto_accept') else 1)"; then
+          if { [ "${{ github.event_name }}" = "schedule" ] || { [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.run_writers }}" = "true" ]; }; } && python -c "import json; raise SystemExit(0 if json.load(open('data/autofresh-phase.json', encoding='utf-8')).get('monitor_auto_accept') else 1)"; then
             playwright install --with-deps chromium
           else
             echo "batch_writer_browser_install_skipped=true"
@@ -103,7 +109,7 @@ jobs:
         env:
           AUTOFRESH_PHASE: "PRODUCTION"
           AUTOFRESH_LIVE_WRITES: "1"
-          RUN_WRITERS: ${{ github.event_name != 'workflow_dispatch' || inputs.run_writers }}
+          RUN_WRITERS: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.run_writers) }}
           ONEPARRAINAGE_EMAIL: ${{ secrets.ONEPARRAINAGE_EMAIL }}
           ONEPARRAINAGE_PASSWORD: ${{ secrets.ONEPARRAINAGE_PASSWORD }}
           CODE_PARRAINAGE_EMAIL: ${{ secrets.CODE_PARRAINAGE_EMAIL }}
@@ -130,6 +136,7 @@ jobs:
                   report = apply_verified_batch(
                       observations_from_last_report(),
                       run_writers=True,
+                      require_new_verified_candidate=True,
                   )
               except Exception as exc:
                   # Partial accepted/baseline state is still persisted below.
@@ -189,6 +196,7 @@ jobs:
           for f in data/monitor/accepted-fields.json \
                    data/monitor/accepted-history.jsonl \
                    data/pending_writes.json \
+                   data/platform-write-status.json \
                    data/captures/monitor-auto-accept-batch.json; do
             [ -f "$f" ] && git add "$f"
           done
