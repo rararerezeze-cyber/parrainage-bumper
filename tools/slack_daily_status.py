@@ -203,7 +203,7 @@ def build_dashboard_data(*, now: datetime, schedule: dict[str, Any], ledger: dic
     # Public-source candidates are unconfirmed signals, not operator actions.
     action_required = any(r["overdue_missing"] > 0 for r in site_rows.values())
     monitor_info = monitor_info or {"health": "unknown", "reasons": ["état du monitor indisponible"]}
-    if monitor_info.get("health") != "healthy":
+    if monitor_info.get("health") not in {"healthy", "partial"}:
         action_required = True
 
     super_next = _dt(super_info.get("next_at"))
@@ -283,9 +283,11 @@ def build_payload(data: dict[str, Any], channel: str) -> dict[str, Any]:
     lines.append("🖐️ *ReferralCode.tv* — remontée manuelle disponible (Turnstile)")
     monitor_info = data.get("monitor") or {"health": "unknown", "reasons": ["état du monitor indisponible"]}
     monitor_healthy = monitor_info.get("health") == "healthy"
+    monitor_partial = monitor_info.get("health") == "partial"
     if not monitor_healthy:
         reasons = "; ".join(monitor_info.get("reasons") or ["état indisponible"])
-        lines.append(f"⚠️ *Monitor des offres* — {reasons}")
+        marker = "ℹ️" if monitor_partial else "⚠️"
+        lines.append(f"{marker} *Monitor des offres* — {reasons}")
         if monitor_info.get("run_url"):
             lines.append(f"<{monitor_info['run_url']}|Voir la dernière exécution du monitor>")
     if candidates:
@@ -298,10 +300,12 @@ def build_payload(data: dict[str, Any], channel: str) -> dict[str, Any]:
         )
     elif monitor_healthy:
         lines.append("✅ *Offres publiques* — aucun changement confirmé en attente")
+    elif monitor_partial:
+        lines.append("ℹ️ *Offres publiques* — aucun signal confirmé sur les sources accessibles ; autres sources non vérifiables")
     else:
         lines.append("⚠️ *Offres publiques* — absence de changement non confirmée ; dernière observation à vérifier")
 
-    needs_check = bool(data.get("action_required")) or not monitor_healthy
+    needs_check = bool(data.get("action_required")) or (not monitor_healthy and not monitor_partial)
     if needs_check:
         state, header = "⚠️ Vérifier le suivi AutoFresh si nécessaire.", "⚠️ AutoFresh — point du jour"
     else:
@@ -363,13 +367,17 @@ def fetch_monitor_run() -> dict[str, Any] | None:
 def monitor_health(now: datetime, report: dict[str, Any], batch: dict[str, Any],
                    run: dict[str, Any] | None) -> dict[str, Any]:
     reasons = []
+    limitations = []
     observed_at = _dt(report.get("generated_at"))
     if observed_at is None:
         reasons.append("aucune observation datée disponible")
     elif observed_at > now or now - observed_at > MONITOR_MAX_AGE:
         reasons.append("observations périmées (plus de 36 h) ou date invalide")
     errors = int((report.get("by_status") or {}).get("ERROR") or 0)
-    if errors:
+    known_antibot = int((report.get("by_failure_code") or {}).get("403_ANTIBOT") or 0)
+    if errors and errors == known_antibot:
+        limitations.append(f"{errors} source(s) inaccessibles (protection anti-bot 403), sans contournement")
+    elif errors:
         reasons.append(f"{errors} source(s) en échec d'observation")
     if run is None:
         reasons.append("santé GitHub du monitor indisponible")
@@ -393,7 +401,8 @@ def monitor_health(now: datetime, report: dict[str, Any], batch: dict[str, Any],
     elif not same_batch:
         reasons.append("résultat des writers absent pour cette observation")
     return {
-        "health": "degraded" if reasons else "healthy", "reasons": reasons,
+        "health": "degraded" if reasons else ("partial" if limitations else "healthy"),
+        "reasons": reasons + limitations,
         "observed_at": observed_at.isoformat() if observed_at else None,
         "failed_writes": failed, "run_url": (run or {}).get("html_url"),
     }
