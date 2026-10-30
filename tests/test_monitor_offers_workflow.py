@@ -188,3 +188,38 @@ def test_push_recovery_is_observation_only_and_manual_dispatch_defaults_safe():
     assert "github.event_name == 'schedule'" in writer["env"]["RUN_WRITERS"]
     assert "github.event_name == 'workflow_dispatch' && inputs.run_writers" in writer["env"]["RUN_WRITERS"]
     assert "require_new_verified_candidate=True" in writer["run"]
+
+
+
+def test_scheduled_cycle_without_new_verified_candidate_is_readonly_and_successful(tmp_path, monkeypatch):
+    """Exercise the actual workflow embedded Python without network or site credentials."""
+    import json
+    import yaml
+    import lib.monitor.auto_accept as batch
+
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "data/captures").mkdir(parents=True)
+    monkeypatch.setenv("RUN_WRITERS", "true")
+    monkeypatch.setenv("GITHUB_RUN_ID", "scheduled-readonly-proof")
+    monkeypatch.setattr(batch, "auto_accept_enabled", lambda: True)
+    monkeypatch.setattr(batch, "observations_from_last_report", lambda: [])
+    monkeypatch.setattr(batch, "evaluate_all", lambda _obs: {
+        "accepts": [], "rejects": [], "scope": "ALL_VERIFIED",
+    })
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("The scheduled monitor retried a stale, unrelated live writer")
+
+    monkeypatch.setattr(batch, "apply_accepts", forbidden)
+    monkeypatch.setattr(batch, "execute_safe_sync_routes", forbidden)
+    steps = yaml.safe_load(TEXT)["jobs"]["monitor"]["steps"]
+    writer = next(step for step in steps if step.get("id") == "writers")
+    code = writer["run"].split("python - <<'PY'\n", 1)[1].rsplit("\nPY", 1)[0]
+    exec(code, {})
+    report = json.loads((tmp_path / "data/captures/monitor-auto-accept-batch.json").read_text())
+    assert report["ok"] is True
+    assert report["applied"] is False
+    assert report["reason"] == "no_verified_candidate"
+    assert report["failed_writes"] == 0
+    assert report["verified_writes"] == 0
+    assert report["run_id"] == "scheduled-readonly-proof"
