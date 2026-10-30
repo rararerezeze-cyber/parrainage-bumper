@@ -266,3 +266,41 @@ def test_daily_script_starts_as_plain_python_from_repo_root(tmp_path):
     )
     assert run.returncode == 0, run.stderr[-1200:]
     assert "AutoFresh" in run.stdout
+
+
+
+def test_antibot_sources_are_visible_as_partial_not_actionable_emergency():
+    now, report, batch, run = _monitor_fixture()
+    report["by_status"]["ERROR"] = 4
+    report["by_failure_code"] = {"403_ANTIBOT": 4}
+    batch["reason"] = "no_verified_candidate"
+    health = monitor_health(now, report, batch, run)
+    assert health["health"] == "partial"
+    assert any("anti-bot 403" in reason for reason in health["reasons"])
+
+    data = build_dashboard_data(
+        now=now,
+        schedule={"period_date": now.date().isoformat(), "slots": []},
+        ledger={"site_completions": {}},
+        candidates=[],
+        super_info={
+            "eligible": False,
+            "last_at": now.isoformat(),
+            "next_at": (now + timedelta(hours=1)).isoformat(),
+        },
+        monitor_info=health,
+    )
+    assert data["action_required"] is False
+    text = json.dumps(build_payload(data, "C_TEST"), ensure_ascii=False)
+    assert "sources accessibles" in text
+    assert "anti-bot 403" in text
+    assert "Vérifier le suivi AutoFresh" not in text
+
+
+def test_unexpected_monitor_error_remains_actionable_and_degraded():
+    now, report, batch, run = _monitor_fixture()
+    report["by_status"]["ERROR"] = 4
+    report["by_failure_code"] = {"403_ANTIBOT": 3, "FETCH_ERROR": 1}
+    health = monitor_health(now, report, batch, run)
+    assert health["health"] == "degraded"
+    assert "4 source(s) en échec" in " ".join(health["reasons"])
