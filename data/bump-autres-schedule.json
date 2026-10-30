@@ -1,41 +1,41 @@
 {
   "version": 1,
-  "period_date": "2026-10-29",
-  "generated_at": "2026-10-29T00:03:27.004249+00:00",
+  "period_date": "2026-10-30",
+  "generated_at": "2026-10-30T00:03:27.498101+00:00",
   "slots": [
     {
       "index": 0,
-      "planned_at": "2026-10-29T01:23:19.339226+00:00",
-      "status": "dispatched",
-      "dispatched_at": "2026-10-29T01:33:30.531637+00:00",
+      "planned_at": "2026-10-30T00:50:20.707645+00:00",
+      "status": "planned",
+      "dispatched_at": null,
       "catchup": false
     },
     {
       "index": 1,
-      "planned_at": "2026-10-29T06:34:37.009968+00:00",
-      "status": "dispatched",
-      "dispatched_at": "2026-10-29T06:48:29.571738+00:00",
+      "planned_at": "2026-10-30T06:48:03.760171+00:00",
+      "status": "planned",
+      "dispatched_at": null,
       "catchup": false
     },
     {
       "index": 2,
-      "planned_at": "2026-10-29T11:32:03.572002+00:00",
-      "status": "dispatched",
-      "dispatched_at": "2026-10-29T11:33:29.841631+00:00",
+      "planned_at": "2026-10-30T10:55:15.481394+00:00",
+      "status": "planned",
+      "dispatched_at": null,
       "catchup": false
     },
     {
       "index": 3,
-      "planned_at": "2026-10-29T18:31:17.109274+00:00",
-      "status": "dispatched",
-      "dispatched_at": "2026-10-29T18:33:30.267564+00:00",
+      "planned_at": "2026-10-30T15:02:56.966493+00:00",
+      "status": "planned",
+      "dispatched_at": null,
       "catchup": false
     },
     {
       "index": 4,
-      "planned_at": "2026-10-29T21:38:31.121795+00:00",
-      "status": "dispatched",
-      "dispatched_at": "2026-10-29T21:48:28.119347+00:00",
+      "planned_at": "2026-10-30T23:10:17.892306+00:00",
+      "status": "planned",
+      "dispatched_at": null,
       "catchup": false
     }
   ]
