@@ -290,3 +290,86 @@ def test_monitor_report_restores_literal_evidence_for_verified_candidates(tmp_pa
     assert len(restored) == 1
     assert restored[0].evidence_excerpts == original.evidence_excerpts
     assert restored[0].changes[0].new == "10 €"
+
+
+
+def test_scheduled_verified_change_never_retries_unrelated_operator_override(monkeypatch):
+    import lib.monitor.auto_accept as module
+
+    desired = {"program": "newbrand", "field": "referee_reward", "observed": "10 €"}
+    monkeypatch.setattr(module, "auto_accept_enabled", lambda: True)
+    monkeypatch.setattr(module, "evaluate_all", lambda _observations: {
+        "accepts": [desired], "rejects": [], "scope": "ALL_VERIFIED",
+    })
+    flags = []
+
+    def accepted(rows, *, force=False, pending_only_for_applied=False):
+        flags.append((force, pending_only_for_applied))
+        return {"count": 1, "applied_rows": [desired]}
+
+    monkeypatch.setattr(module, "apply_accepts", accepted)
+    monkeypatch.setattr(module, "effective_sync_routes", lambda: {
+        "safe_diffs": [
+            {
+                "platform": "parrainage-co", "program": "totalenergies", "language": "fr",
+                "route": "AUTO_ON_SAFE_DIFF",
+                "changed_fields": {"referee_reward": {"new": "50 €"}},
+            },
+            {
+                "platform": "parrainage-co", "program": "newbrand", "language": "fr",
+                "route": "AUTO_ON_SAFE_DIFF",
+                "changed_fields": {
+                    "referee_reward": {"new": "10 €"},
+                    "referrer_reward": {"new": "5 €"},
+                },
+            },
+        ],
+        "auto_writers": ["parrainage-co"],
+    })
+    executed = []
+
+    def writer(routes):
+        executed.extend(routes["safe_diffs"])
+        return []
+
+    monkeypatch.setattr(module, "execute_safe_sync_routes", writer)
+    report = module.apply_verified_batch(
+        [], run_writers=True, require_new_verified_candidate=True,
+    )
+    assert report["ok"] is True
+    assert flags == [(True, True)]
+    assert len(executed) == 1
+    assert executed[0]["program"] == "newbrand"
+    assert set(executed[0]["changed_fields"]) == {"referee_reward"}
+    assert report["verified_writes"] == 0
+
+
+def test_scheduled_new_accept_does_not_requeue_unrelated_super_pending(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+    import lib.monitor.auto_accept as module
+    import lib.safety as safety
+    import lib.super_parrain_schedule as super_schedule
+
+    monkeypatch.setattr(module, "auto_accept_enabled", lambda: True)
+    monkeypatch.setattr(safety, "snapshot_state", lambda *_a, **_k: {"id": "test"})
+    monkeypatch.setattr(module, "load_accepted_monitor_fields", lambda: {})
+    monkeypatch.setattr(module, "save_accepted_fields", lambda *_a: tmp_path / "accepted.json")
+    monkeypatch.setattr(module, "HISTORY_PATH", tmp_path / "accepted-history.jsonl")
+    monkeypatch.setattr(module, "effective_sync_routes", lambda: {
+        "safe_diffs": [
+            {"platform": "super-parrain", "program": "totalenergies",
+             "changed_fields": {"referee_reward": {"new": "50 €"}}},
+            {"platform": "super-parrain", "program": "newbrand",
+             "changed_fields": {"referee_reward": {"new": "10 €"}}},
+        ]
+    })
+    queued = []
+    monkeypatch.setattr(super_schedule, "enqueue_pending", lambda *args, **kwargs: queued.append((args, kwargs)))
+    result = module.apply_accepts(
+        [{"program": "newbrand", "field": "referee_reward", "observed": "10 €"}],
+        force=True, pending_only_for_applied=True,
+    )
+    assert result["count"] == 1
+    assert len(queued) == 1
+    assert queued[0][0][1] == "newbrand"
+    assert not any("totalenergies" in str(x) for x in queued)
