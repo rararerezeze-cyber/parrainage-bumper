@@ -23,6 +23,8 @@ on:
       - "lib/notify.py"
       - "tests/test_monitor_evidence.py"
       - "tests/test_monitor_auto_accept.py"
+      - "tests/test_monitor_offers_workflow.py"
+      - ".github/workflows/monitor_offers.yml"
       - "tests/test_boursobank_wiring.py"
       - "tests/test_notify_slack_transport.py"
       - "tools/notify_slack.py"
