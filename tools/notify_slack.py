@@ -452,8 +452,15 @@ def _monitor_blocks(event: dict) -> list[dict[str, Any]]:
 
 
 def _pending_is_already_closed(event: dict) -> bool:
-    """Avoid repeating an outdated 'pending' alert already closed in Git."""
+    """A 'pending created' notification requires a currently open queue entry.
+
+    Older emitted events and speculative batch notifications must not resurrect
+    an already cancelled/done Super-Parrain update. Do not alter the queue or
+    suppress pending events from other platforms that use different storage.
+    """
     if str(event.get("event") or "") != "pending_created":
+        return False
+    if str(event.get("platform") or "") != "super-parrain":
         return False
     try:
         from lib.paths import DATA_DIR
@@ -461,16 +468,19 @@ def _pending_is_already_closed(event: dict) -> bool:
         state = json.loads(path.read_text(encoding="utf-8"))
         matching = [
             item for item in (state.get("items") or [])
-            if item.get("platform") == event.get("platform")
+            if isinstance(item, dict)
+            and item.get("platform") == event.get("platform")
             and item.get("program") == event.get("program")
         ]
-        if matching:
-            return str(matching[-1].get("status") or "") in {
-                "cancelled", "done", "closed", "completed",
-            }
+        if not matching:
+            return True
+        # Newest queue record is authoritative. Closed records aren't actionable.
+        return str(matching[-1].get("status") or "").lower() not in {
+            "pending", "queued", "open", "pending_update",
+        }
     except (OSError, ValueError, TypeError, AttributeError):
-        pass
-    return False
+        # Without queue evidence, do not assert there is a live pending write.
+        return True
 
 
 def _context_buttons(event: dict, *, include_site: bool = False) -> list[dict[str, Any]]:
