@@ -247,3 +247,46 @@ def test_effective_sync_routes_batches_nonpersonal_operator_values(
     assert diffs[0]["program"] == "igraal"
     assert set(diffs[0]["changed_fields"]) == {"referee_reward"}
     assert diffs[0]["changed_fields"]["referee_reward"]["new"] == "3 €"
+
+
+
+def test_scheduled_monitor_does_not_retry_old_operator_writes_without_new_candidate(monkeypatch):
+    import lib.monitor.auto_accept as module
+
+    monkeypatch.setattr(module, "auto_accept_enabled", lambda: True)
+    monkeypatch.setattr(module, "evaluate_all", lambda _observations: {
+        "accepts": [], "rejects": [{"decision": "REJECT"}], "scope": "ALL_VERIFIED",
+    })
+
+    def forbidden(*_args, **_kwargs):
+        raise AssertionError("No verified new candidate: must not enqueue, sync, or write")
+
+    monkeypatch.setattr(module, "apply_accepts", forbidden)
+    monkeypatch.setattr(module, "effective_sync_routes", forbidden)
+    monkeypatch.setattr(module, "execute_safe_sync_routes", forbidden)
+
+    result = module.apply_verified_batch(
+        [], run_writers=True, require_new_verified_candidate=True,
+    )
+    assert result["ok"] is True
+    assert result["applied"] is False
+    assert result["reason"] == "no_verified_candidate"
+    assert result["verified_writes"] == result["failed_writes"] == 0
+    assert result["rejected_candidates"] == 1
+
+
+def test_monitor_report_restores_literal_evidence_for_verified_candidates(tmp_path):
+    from lib.monitor.auto_accept import observations_from_last_report
+
+    original = _obs(
+        program="newbrand",
+        observed_fields={"referee_reward": "10 €"},
+        changes=[FieldChange(field="referee_reward", old="5 €", new="10 €")],
+        evidence_excerpts={"referee_reward": "Le filleul reçoit 10 € de bonus de parrainage."},
+    )
+    path = tmp_path / "monitor-report.json"
+    path.write_text(json.dumps({"observations": [original.to_dict()]}), encoding="utf-8")
+    restored = observations_from_last_report(path)
+    assert len(restored) == 1
+    assert restored[0].evidence_excerpts == original.evidence_excerpts
+    assert restored[0].changes[0].new == "10 €"
