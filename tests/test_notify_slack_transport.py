@@ -304,8 +304,11 @@ def test_unverified_source_never_shows_accept_even_with_an_excerpt():
 
 def test_pending_created_offers_context_commands_not_empty_message(monkeypatch, tmp_path):
     from lib import paths
-    # No active item: a new alert still offers inspection commands.
+    # Only a currently open queue entry deserves an actionable notification.
     monkeypatch.setattr(paths, "DATA_DIR", tmp_path)
+    (tmp_path / "pending_writes.json").write_text(__import__("json").dumps({
+        "items": [{"platform": "super-parrain", "program": "totalenergies", "status": "pending"}]
+    }))
     payload = build_payload([{
         "level": "INFO", "event": "pending_created",
         "platform": "super-parrain", "program": "totalenergies",
@@ -362,3 +365,29 @@ def test_actionable_incident_has_at_most_two_controls():
         "autofresh_command_platforms", "autofresh_open_code_parrainage",
     }
     assert not any("autofresh_confirm_write" == b["action_id"] for b in controls)
+
+
+
+def test_unrecorded_super_pending_is_not_reported(monkeypatch, tmp_path):
+    from lib import paths
+    monkeypatch.setattr(paths, "DATA_DIR", tmp_path)
+    assert build_payload([{
+        "level": "INFO", "event": "pending_created",
+        "platform": "super-parrain", "program": "totalenergies",
+    }], "C_TEST") is None
+
+
+def test_closed_then_reopened_super_pending_is_reported(monkeypatch, tmp_path):
+    from lib import paths
+    import json
+    monkeypatch.setattr(paths, "DATA_DIR", tmp_path)
+    (tmp_path / "pending_writes.json").write_text(json.dumps({
+        "items": [
+            {"platform": "super-parrain", "program": "totalenergies", "status": "cancelled"},
+            {"platform": "super-parrain", "program": "totalenergies", "status": "pending"},
+        ]
+    }))
+    assert build_payload([{
+        "level": "INFO", "event": "pending_created",
+        "platform": "super-parrain", "program": "totalenergies",
+    }], "C_TEST") is not None
