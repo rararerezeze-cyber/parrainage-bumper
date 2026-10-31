@@ -1,10 +1,14 @@
 {
   "ok": true,
   "applied": false,
-  "reason": "observation_only",
+  "reason": "no_verified_candidate",
   "accepted_count": 0,
+  "eligible_candidates": 0,
+  "rejected_candidates": 1,
   "verified_writes": 0,
   "failed_writes": 0,
-  "generated_at": "2026-10-30T16:08:33.802748+00:00",
-  "run_id": "41087070613"
+  "live_writes_performed": 0,
+  "writer_results": [],
+  "generated_at": "2026-10-31T14:31:56.466619+00:00",
+  "run_id": "41210480869"
 }
