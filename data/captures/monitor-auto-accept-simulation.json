@@ -4,9 +4,21 @@
   "auto_accept_applied": false,
   "switch": "monitor_auto_accept",
   "switch_enabled": true,
-  "eligible_programs": [],
-  "eligible_fields": [],
+  "eligible_programs": [
+    "winamax"
+  ],
+  "eligible_fields": [
+    "winamax.referee_reward"
+  ],
   "rejected_fields_and_reasons": [
+    {
+      "program": "winamax",
+      "field": "reward_type",
+      "observed": "cash+freebet",
+      "reasons": [
+        "missing_verified_source_excerpt"
+      ]
+    },
     {
       "program": "kraken",
       "field": "referee_reward",
@@ -22,10 +34,112 @@
     }
   ],
   "kraken_operator_lock_preserved": true,
-  "simulated_accepts": [],
-  "simulated_safe_diffs": [],
-  "simulated_platform_routes": {},
-  "super_fused_update_ready": false,
+  "simulated_accepts": [
+    {
+      "decision": "ACCEPT",
+      "reasons": [],
+      "program": "winamax",
+      "field": "referee_reward",
+      "canonical": "100 €",
+      "observed": "10 € bonus + 10 € freebets",
+      "authority": "OFFICIAL_PUBLIC_MONITOR",
+      "live_high_streak": 7,
+      "effective_now": "100 €",
+      "effective_source": "CANONICAL_DEFAULT",
+      "idempotent": false,
+      "source_url": "https://www.winamax.fr/parrainage",
+      "parser": "winamax_parrainage_fr"
+    }
+  ],
+  "simulated_safe_diffs": [
+    {
+      "platform": "1parrainage",
+      "program": "winamax",
+      "language": "fr",
+      "changed_fields": {
+        "referee_reward": {
+          "old": "50 € à l’inscription avec le parrainage + premier pari remboursé jusqu’à 100 € en CASH",
+          "new": "10 € bonus + 10 € freebets"
+        }
+      },
+      "route": "AUTO_ON_SAFE_DIFF",
+      "runtime_route": "AUTO_ON_SAFE_DIFF",
+      "human_command": null
+    },
+    {
+      "platform": "code-parrainage",
+      "program": "winamax",
+      "language": "fr",
+      "changed_fields": {
+        "referee_reward": {
+          "old": "50 € à l’inscription + premier pari remboursé jusqu’à 100 en CASH € ✅",
+          "new": "10 € bonus + 10 € freebets"
+        }
+      },
+      "route": "AUTO_ON_SAFE_DIFF",
+      "runtime_route": "AUTO_ON_SAFE_DIFF",
+      "human_command": null
+    },
+    {
+      "platform": "parrainage-co",
+      "program": "winamax",
+      "language": "fr",
+      "changed_fields": {
+        "referee_reward": {
+          "old": "50 € à l’inscription + premier pari remboursé jusqu’à 100 en CASH € ✅",
+          "new": "10 € bonus + 10 € freebets"
+        }
+      },
+      "route": "AUTO_ON_SAFE_DIFF",
+      "runtime_route": "AUTO_ON_SAFE_DIFF",
+      "human_command": null
+    },
+    {
+      "platform": "super-parrain",
+      "program": "winamax",
+      "language": "fr",
+      "changed_fields": {
+        "referee_reward": {
+          "old": "50 € à l’inscription + premier pari remboursé jusqu’à 100 en CASH € ✅",
+          "new": "10 € bonus + 10 € freebets"
+        }
+      },
+      "route": "FUSED_UPDATE_BUMP",
+      "runtime_route": "FUSED_UPDATE_BUMP",
+      "human_command": null
+    }
+  ],
+  "simulated_platform_routes": {
+    "1parrainage": {
+      "route": "AUTO_ON_SAFE_DIFF",
+      "runtime_route": "AUTO_ON_SAFE_DIFF",
+      "programs": [
+        "winamax"
+      ]
+    },
+    "code-parrainage": {
+      "route": "AUTO_ON_SAFE_DIFF",
+      "runtime_route": "AUTO_ON_SAFE_DIFF",
+      "programs": [
+        "winamax"
+      ]
+    },
+    "parrainage-co": {
+      "route": "AUTO_ON_SAFE_DIFF",
+      "runtime_route": "AUTO_ON_SAFE_DIFF",
+      "programs": [
+        "winamax"
+      ]
+    },
+    "super-parrain": {
+      "route": "FUSED_UPDATE_BUMP",
+      "runtime_route": "FUSED_UPDATE_BUMP",
+      "programs": [
+        "winamax"
+      ]
+    }
+  },
+  "super_fused_update_ready": true,
   "rctv_human_route_ready": false,
   "referralcodes_block_preserved": true,
   "live_writes_performed_check": 0,
@@ -37,5 +151,5 @@
     "APP_PERSONALIZED stays Hermes/Telegram",
     "ReferralCodes still NEVER_AUTO_COMMIT pending support"
   ],
-  "at": "2026-11-03T16:14:31.308009+00:00"
+  "at": "2026-11-04T16:21:58.605959+00:00"
 }
