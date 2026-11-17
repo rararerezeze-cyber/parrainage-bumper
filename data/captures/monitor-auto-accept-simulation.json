@@ -25,7 +25,7 @@
       "observed": "15 €",
       "reasons": [
         "missing_verified_source_excerpt",
-        "streak_below_3:1",
+        "streak_below_3:2",
         "operator_override_lock"
       ]
     },
@@ -53,7 +53,7 @@
       "canonical": "100 €",
       "observed": "10 € bonus + 10 € freebets",
       "authority": "OFFICIAL_PUBLIC_MONITOR",
-      "live_high_streak": 17,
+      "live_high_streak": 18,
       "effective_now": "100 €",
       "effective_source": "CANONICAL_DEFAULT",
       "idempotent": false,
@@ -161,5 +161,5 @@
     "APP_PERSONALIZED stays Hermes/Telegram",
     "ReferralCodes still NEVER_AUTO_COMMIT pending support"
   ],
-  "at": "2026-11-16T18:31:45.962471+00:00"
+  "at": "2026-11-17T17:37:42.272659+00:00"
 }
