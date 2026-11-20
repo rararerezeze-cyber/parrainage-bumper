@@ -20,14 +20,6 @@
       ]
     },
     {
-      "program": "igraal",
-      "field": "referee_reward",
-      "observed": "15 €",
-      "reasons": [
-        "operator_override_lock"
-      ]
-    },
-    {
       "program": "kraken",
       "field": "referee_reward",
       "observed": null,
@@ -51,7 +43,7 @@
       "canonical": "100 €",
       "observed": "10 € bonus + 10 € freebets",
       "authority": "OFFICIAL_PUBLIC_MONITOR",
-      "live_high_streak": 20,
+      "live_high_streak": 21,
       "effective_now": "100 €",
       "effective_source": "CANONICAL_DEFAULT",
       "idempotent": false,
@@ -159,5 +151,5 @@
     "APP_PERSONALIZED stays Hermes/Telegram",
     "ReferralCodes still NEVER_AUTO_COMMIT pending support"
   ],
-  "at": "2026-11-19T17:22:49.468702+00:00"
+  "at": "2026-11-20T16:58:07.146046+00:00"
 }
