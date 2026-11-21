@@ -6,23 +6,23 @@
     {
       "index": 0,
       "planned_at": "2026-11-21T03:49:52.891001+00:00",
-      "status": "planned",
-      "dispatched_at": null,
-      "catchup": false
+      "status": "dispatched",
+      "dispatched_at": "2026-11-21T11:44:37.036890+00:00",
+      "catchup": true
     },
     {
       "index": 1,
       "planned_at": "2026-11-21T05:55:07.583194+00:00",
-      "status": "planned",
-      "dispatched_at": null,
-      "catchup": false
+      "status": "dispatched",
+      "dispatched_at": "2026-11-21T11:44:38.097109+00:00",
+      "catchup": true
     },
     {
       "index": 2,
       "planned_at": "2026-11-21T10:12:31.506571+00:00",
-      "status": "planned",
-      "dispatched_at": null,
-      "catchup": false
+      "status": "dispatched",
+      "dispatched_at": "2026-11-21T11:44:39.122209+00:00",
+      "catchup": true
     },
     {
       "index": 3,
