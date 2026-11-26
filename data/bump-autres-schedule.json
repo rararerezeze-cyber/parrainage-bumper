@@ -20,23 +20,23 @@
     {
       "index": 2,
       "planned_at": "2026-11-26T12:35:08.057046+00:00",
-      "status": "planned",
-      "dispatched_at": null,
-      "catchup": false
+      "status": "dispatched",
+      "dispatched_at": "2026-11-26T21:54:26.118371+00:00",
+      "catchup": true
     },
     {
       "index": 3,
       "planned_at": "2026-11-26T18:51:43.525676+00:00",
-      "status": "planned",
-      "dispatched_at": null,
-      "catchup": false
+      "status": "dispatched",
+      "dispatched_at": "2026-11-26T21:54:27.313210+00:00",
+      "catchup": true
     },
     {
       "index": 4,
       "planned_at": "2026-11-26T20:39:35.606532+00:00",
-      "status": "planned",
-      "dispatched_at": null,
-      "catchup": false
+      "status": "dispatched",
+      "dispatched_at": "2026-11-26T21:54:28.470560+00:00",
+      "catchup": true
     }
   ]
 }
